@@ -1,9 +1,11 @@
 from django.db import models
+from common import BaseModel
 
 
-class Product(models.Model):
+class Product(BaseModel):
     code = models.CharField(max_length=50, unique=True)
     common_name = models.CharField(max_length=255)
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
     scientific_name = models.CharField(max_length=255, blank=True, null=True)
     variety = models.CharField(max_length=255)
     stem_length = models.CharField(max_length=50)
