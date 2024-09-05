@@ -9,6 +9,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from accounts.managers import CustomUserManager
 
 
+ROLE_CHOICES = (
+    ('admin', 'Administrador'),
+    ('sales', 'Ventas'),
+)
+
+
 class CustomUserModel(AbstractUser):
     username = None
     email = models.EmailField(
@@ -26,15 +32,14 @@ class CustomUserModel(AbstractUser):
         default=False,
         help_text='Estado de confirmación del correo electrónico.'
     )
-    token = models.CharField(
-        'token',
-        max_length=40,
-        blank=True,
-        help_text='Token de acceso del usuario.'
-    )
     notes = models.TextField(
         'notas',
         blank=True
+    )
+    roles = models.ManyToManyField(
+        'Role',
+        choices=ROLE_CHOICES,
+        default='sales',
     )
 
     USERNAME_FIELD = 'email'
