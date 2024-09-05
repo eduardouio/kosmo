@@ -14,6 +14,8 @@ PARTNER_TYPE_CHOICES = [
 ]
 
 
+# el cliente solo recibe las disponibilidades de los productos de ciertas
+# fincas o proveedor de kosmo
 class Partner(BaseModel):
     id = models.AutoField(
         primary_key=True
@@ -27,6 +29,13 @@ class Partner(BaseModel):
         'RUC',
         max_length=15,
         unique=True
+    )
+    acepted_farms = models.ManyToManyField(
+        'self',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        help_text='Fincas aceptadas para envio de disponibilidad'
     )
     name = models.CharField(
         'Nombre',
