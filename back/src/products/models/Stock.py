@@ -1,11 +1,79 @@
 from django.db import models
 from common import BaseModel
+from partners.models import Partner
+from products.models import Product
 
-class Stock(BaseModel):
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
-    quantity = models.IntegerField()
-    update_date = models.DateField()
-    notes = models.TextField(blank=True, null=True)
+
+BOX_CHOICES = (
+    'hb', 'HB',
+    'qb', 'QB',
+    'fb', 'FB'
+)
+
+
+class StockDay(BaseModel):
+    id = models.AutoField(
+        primary_key=True
+    )
+    date = models.DateField(
+        'Fecha',
+        unique=True
+    )
 
     def __str__(self):
-        return f"Inventario de {self.product.common_name}"
+        return self.date
+
+
+# los stoks son por tipo de caja si son dos tipos de caja se crean dos
+# registros aunque sean del mismo producto
+class StockDetail(BaseModel):
+    id = models.AutoField(
+        primary_key=True
+    )
+    stock_day = models.ForeignKey(
+        StockDay,
+        on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE
+    )
+    partner = models.ForeignKey(
+        Partner,
+        on_delete=models.CASCADE
+    )
+    color = models.CharField(
+        'Color',
+        max_length=255
+    )
+    length = models.CharField(
+        'Largo',
+        max_length=255
+    )
+    quantity = models.IntegerField(
+        'Cantidad',
+        default=0,
+        help_text='Cantidad de cajas'
+    )
+    stem_flower = models.IntegerField(
+        'Tallo Flor',
+        default=0,
+        help_text='Cantidad de tallos de flor'
+    )
+    box = models.CharField(
+        'Tipo de caja',
+        max_length=50,
+        choices=BOX_CHOICES
+    )
+    cost_price = models.FloatField(
+        'Precio de costo',
+        max_digits=10,
+    )
+
+    def __str__(self):
+        return '{} {} {} {}'.format(
+            self.product.name,
+            self.color,
+            self.length,
+            self.quantity
+        )
