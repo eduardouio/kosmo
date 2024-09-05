@@ -25,8 +25,10 @@ class Product(BaseModel):
         'Variedad',
         max_length=255
     )
-    default_rend = models.FloatField(
+    default_rend = models.DecimalField(
         'Rendimiento por defecto',
+        max_digits=10,
+        decimal_places=2,
         default=0.06,
         help_text='todo item tiene un rendimiento de 0.06 usd'
     )

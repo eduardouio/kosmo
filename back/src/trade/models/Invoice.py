@@ -56,8 +56,10 @@ class Invoice(BaseModel):
         blank=True,
         null=True
     )
-    total_price = models.FloatField(
+    total_price = models.DecimalField(
         'Precio total',
+        max_digits=10,
+        decimal_places=2
     )
     qb_total = models.PositiveSmallIntegerField(
         'Total QB',
@@ -94,8 +96,10 @@ class Invoice(BaseModel):
         blank=True,
         null=True
     )
-    weight = models.FloatField(
+    weight = models.DecimalField(
         'Peso KG',
+        max_digits=10,
+        decimal_places=2,
         blank=True,
         null=True
     )
@@ -127,11 +131,15 @@ class InvoiceItems(BaseModel):
         'Cantidad Tallos',
         default=0
     )
-    line_price = models.FloatField(
+    line_price = models.DecimalField(
         'Precio',
+        max_digits=10,
+        decimal_places=2
     )
-    line_discount = models.FloatField(
+    line_discount = models.DecimalField(
         'Descuento',
+        max_digits=10,
+        decimal_places=2
     )
     stem_flower = models.IntegerField(
         'Tallo Flor',

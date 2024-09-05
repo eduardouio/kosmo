@@ -68,11 +68,15 @@ class Order(BaseModel):
         max_length=50,
         choices=STATUS_CHOICES,
     )
-    discount = models.FloatField(
+    discount = models.DecimalField(
         'Descuento',
+        max_digits=10,
+        decimal_places=2
     )
-    total_price = models.FloatField(
+    total_price = models.DecimalField(
         'Precio total',
+        max_digits=10,
+        decimal_places=2
     )
     qb_total = models.PositiveSmallIntegerField(
         'Total QB',
@@ -101,11 +105,10 @@ class OrderItems(BaseModel):
         'Cantidad',
         default=0
     )
-    line_price = models.FloatField(
+    line_price = models.DecimalField(
         'Precio',
-    )
-    line_discount = models.FloatField(
-        'Descuento',
+        max_digits=10,
+        decimal_places=2
     )
     stem_flower = models.IntegerField(
         'Tallo Flor',

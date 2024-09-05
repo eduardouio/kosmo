@@ -20,7 +20,7 @@ class CreditNote(models.Model):
     amount = models.DecimalField(
         'Monto',
         max_digits=10,
-        decimal_places=4
+        decimal_places=2
     )
     reason = models.TextField(
         'Motivo de la nota de crédito'

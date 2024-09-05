@@ -26,7 +26,7 @@ class Payment(BaseModel):
     amount = models.DecimalField(
         'Monto',
         max_digits=10,
-        decimal_places=4
+        decimal_places=2
     )
     method = models.CharField(
         'Metodo de pago',
