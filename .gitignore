@@ -58,6 +58,10 @@ media
 # Generated files
 .idea/**/contentModel.xml
 
+*migration*.py
+*migrations*.py
+migrations/
+*migrations/
 # Sensitive or high-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids
@@ -172,3 +176,5 @@ GitHub.sublime-settings
 !.vscode/extensions.json 
 .history
 .devdbrc
+
+node_modules/
