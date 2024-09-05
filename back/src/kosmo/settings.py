@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'accounts',
+    'partners',
+    'products',
+    'trade',
 ]
 
 MIDDLEWARE = [

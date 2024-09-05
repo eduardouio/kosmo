@@ -3,6 +3,4 @@ from accounts.models import CustomUserModel
 
 
 class CustomChangeForm(UserChangeForm):
-    class Meta:
-        model = CustomUserModel
-        fields = ('__all__')
+    pass

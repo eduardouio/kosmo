@@ -14,9 +14,9 @@ TYPE_INVOICE_CHOICES = (
 
 
 BOX_CHOICES = (
-    'hb', 'HB',
-    'qb', 'QB',
-    'fb', 'FB'
+    ('hb', 'HB'),
+    ('qb', 'QB'),
+    ('fb', 'FB')
 )
 
 
@@ -58,16 +58,12 @@ class Invoice(BaseModel):
     )
     total_price = models.FloatField(
         'Precio total',
-        max_digits=10,
-        decimal_places=2
     )
     qb_total = models.PositiveSmallIntegerField(
         'Total QB',
-        max_digits=10
     )
     hb_total = models.PositiveSmallIntegerField(
         'Total HB',
-        max_digits=10
     )
     awb = models.CharField(
         'MAWB',
@@ -100,8 +96,6 @@ class Invoice(BaseModel):
     )
     weight = models.FloatField(
         'Peso KG',
-        max_digits=10,
-        decimal_places=2,
         blank=True,
         null=True
     )
@@ -138,7 +132,6 @@ class InvoiceItems(BaseModel):
     )
     line_discount = models.FloatField(
         'Descuento',
-        max_digits=10,
     )
     stem_flower = models.IntegerField(
         'Tallo Flor',

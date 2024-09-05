@@ -8,7 +8,7 @@ METHOD_CHOICES = [
     ('check', 'Cheque'),
     ('cash', 'Efectivo'),
     ('other', 'Otro'),
-    ('credit_card', 'Tarjeta de Crédito')
+    ('credit_card', 'Tarjeta de Crédito'),
     ('credit_note', 'Nota de Crédito')
 ]
 
@@ -17,9 +17,8 @@ class Payment(BaseModel):
     id = models.AutoField(
         primary_key=True
     )
-    invoice = models.ManyToManyField(
-        Invoice,
-        on_delete=models.CASCADE
+    invoices = models.ManyToManyField(
+        'trade.Invoice'
     )
     date = models.DateField(
         'Fecha de pago'

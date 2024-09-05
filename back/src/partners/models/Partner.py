@@ -30,12 +30,9 @@ class Partner(BaseModel):
         max_length=15,
         unique=True
     )
-    acepted_farms = models.ManyToManyField(
-        'self',
-        on_delete=models.CASCADE,
+    partner = models.ManyToManyField(
+        "self",
         blank=True,
-        null=True,
-        help_text='Fincas aceptadas para envio de disponibilidad'
     )
     name = models.CharField(
         'Nombre',
@@ -88,7 +85,6 @@ class Partner(BaseModel):
     )
     dispatch_days = models.PositiveIntegerField(
         'Días de Envío',
-        max_length=255,
         blank=True,
         null=True
     )

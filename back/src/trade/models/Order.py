@@ -11,14 +11,14 @@ STATUS_CHOICES = (
 )
 
 TYPE_DOCUMENT_CHOICES = (
-    'client_order', 'Orden de Cliente',
-    'supplier_order', 'Orden de Proveedor',
+    ('client_order', 'Orden de Cliente'),
+    ('supplier_order', 'Orden de Proveedor'),
 )
 
 BOX_CHOICES = (
-    'hb', 'HB',
-    'qb', 'QB',
-    'fb', 'FB'
+    ('hb', 'HB'),
+    ('qb', 'QB'),
+    ('fb', 'FB')
 )
 
 
@@ -70,21 +70,15 @@ class Order(BaseModel):
     )
     discount = models.FloatField(
         'Descuento',
-        max_digits=10,
-        decimal_places=2
     )
     total_price = models.FloatField(
         'Precio total',
-        max_digits=10,
-        decimal_places=2
     )
     qb_total = models.PositiveSmallIntegerField(
         'Total QB',
-        max_digits=10
     )
     hb_total = models.PositiveSmallIntegerField(
         'Total QB',
-        max_digits=10
     )
 
     def __str__(self):
@@ -112,7 +106,6 @@ class OrderItems(BaseModel):
     )
     line_discount = models.FloatField(
         'Descuento',
-        max_digits=10,
     )
     stem_flower = models.IntegerField(
         'Tallo Flor',

@@ -36,17 +36,17 @@ class CustomUserModel(AbstractUser):
         'notas',
         blank=True
     )
-    roles = models.ManyToManyField(
+    roles = models.CharField(
         'Role',
         choices=ROLE_CHOICES,
         default='sales',
+        max_length=20
     )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
 
-# reemplazo y homescholing LAS DOS SI
     @classmethod
     def get(cls, email):
         try:

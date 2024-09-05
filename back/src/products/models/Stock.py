@@ -5,9 +5,9 @@ from products.models import Product
 
 
 BOX_CHOICES = (
-    'hb', 'HB',
-    'qb', 'QB',
-    'fb', 'FB'
+    ('hb', 'HB'),
+    ('qb', 'QB'),
+    ('fb', 'FB')
 )
 
 
@@ -67,7 +67,6 @@ class StockDetail(BaseModel):
     )
     cost_price = models.FloatField(
         'Precio de costo',
-        max_digits=10,
     )
 
     def __str__(self):
