@@ -57,11 +57,19 @@ media
 
 # Generated files
 .idea/**/contentModel.xml
+!.vscode/extensions.json 
+.history
+*.pyc files
+/migrations/
+*/migrations/*
+*/migrations/
+/migrations/*
+__pycache__/
+__pycache__/*
+*/migrations/*
+!*/migrations/__init__.py
 
-*migration*.py
-*migrations*.py
-migrations/
-*migrations/
+
 # Sensitive or high-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids
@@ -178,3 +186,13 @@ GitHub.sublime-settings
 .devdbrc
 
 node_modules/
+
+back/src/accounts/migrations/*
+back/src/partners/migrations/*
+back/src/trade/migrations/*
+back/src/products/migrations/*
+back/src/accounts/migrations/*
+back/src/accounts/migrations/0001_initial.py
+
+*.pdf
+back/olddb.sqlite3
