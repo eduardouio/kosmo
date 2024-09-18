@@ -20,7 +20,8 @@ from django.urls import path, include
 from django.contrib.staticfiles.urls import static
 
 urlpatterns = [
+    path('', include('user_sessions.urls', 'user_sessions')),
+    path('', include('home.urls')),
     path('grappelli/', include('grappelli.urls'), name='grappelli'),
     path('admin/', admin.site.urls),
-    path('', include('home.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
