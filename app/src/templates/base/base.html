@@ -1,9 +1,21 @@
 {% include 'base/header.html' %}
-
-<div class="mx-auto bg-gray-100 w-full">
-    <div class="m-5">
-    {% block content %}{% endblock content %}
+{% block title_bar %}
+<div class="container w-11/12 mx-auto bg-gray-100 m-2">
+  {% include 'components/title_bar.html' %}
+{% endblock title_bar %}
+   <div class="shadow border py-4 p-2">
+      {% block content %}
+      {% endblock content %}
+   </div>
+</div>
+</div>
+<footer class="bg-teal-400 text-white shadow-md py-4 border border-t-teal-500 border-t-1">
+    <div class="container mx-auto text-center">
+        <p>© 2024 ledger. Todos los derechos reservados</p>
     </div>
- </div>
-
+</footer>
+{% block js_files %}
+{% endblock js_files %}
+{% block script %}
+{% endblock script %}
 {% include 'base/footer.html' %}
