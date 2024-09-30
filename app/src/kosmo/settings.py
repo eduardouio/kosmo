@@ -60,7 +60,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-SESSION_ENGINE = 'user_sessions.backends.db'    
+SESSION_ENGINE = 'user_sessions.backends.db'
 CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'kosmo.urls'
@@ -155,5 +155,5 @@ AUTH_USER_MODEL = 'accounts.CustomUserModel'
 AUTHENTICATION_BACKENDS = [
     'common.EmailBackEndAuth.EmailBackEndAuth'
 ]
-# LOGIN = '/accounts/login/'
 
+LOGIN = '/accounts/login/'
