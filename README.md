@@ -53,7 +53,8 @@ pip install -r requirements.txt
 
 ## Instalación y configuración
 ```bash
-./manage.py makemigrations accounts, partners, products, trade
+./manage.py makemigrations accounts partners products trade
 ./manage.py migrate
 ./manage.py sowseed
+./manage.py runserver
 ```
