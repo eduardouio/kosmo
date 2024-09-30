@@ -2,15 +2,15 @@ from django.db import models
 from common import BaseModel
 
 PAYMENT_METHOD_CHOICES = [
-    ('transfer', 'Transfer'),
-    ('check', 'Check'),
-    ('cash', 'Cash'),
-    ('other', 'Other')
+    ('TRANSFERENCIA', 'TRANSFERENCIA'),
+    ('CHEQUE', 'CHEQUE'),
+    ('EFECTIVO', 'EFECTIVO'),
+    ('OTRO', 'OTRO')
 ]
 
 PARTNER_TYPE_CHOICES = [
-    ('client', 'Cliente'),
-    ('provider', 'Proveedor'),
+    ('CLIENTE', 'CLIENTE'),
+    ('PROVEEDIOR', 'PROVEEDOR'),
 ]
 
 
