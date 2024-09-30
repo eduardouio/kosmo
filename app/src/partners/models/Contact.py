@@ -3,10 +3,10 @@ from common import BaseModel
 from .Partner import Partner
 
 COTACT_TYPE_CHOICES = [
-    'commercial', 'Comercial',
-    'financial', 'Financiero',
-    'logistic', 'Logístico',
-    'other', 'Otro'
+    'Comercial', 'Comercial',
+    'Financiero', 'Financiero',
+    'Logistica', 'Logístico',
+    'Otro', 'Otro'
 ]
 
 
@@ -24,7 +24,9 @@ class Contact(BaseModel):
     )
     position = models.CharField(
         'Cargo',
-        max_length=255
+        max_length=255,
+        blank=True,
+        null=True
     )
     phone = models.CharField(
         'Teléfono',

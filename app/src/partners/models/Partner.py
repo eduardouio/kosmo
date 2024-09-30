@@ -1,9 +1,10 @@
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 from common import BaseModel
 
 PARTNER_TYPE_CHOICES = [
     ('CLIENTE', 'CLIENTE'),
-    ('PROVEEDIOR', 'PROVEEDOR'),
+    ('PROVEEDOR', 'PROVEEDOR'),
 ]
 
 
@@ -106,6 +107,36 @@ class Partner(BaseModel):
         'Consolidado',
         default=False
     )
+
+    @classmethod
+    def get_customers(cls):
+        return cls.objects.filter(
+            type_partner='CLIENTE'
+        )
+
+    @classmethod
+    def get_suppliers(cls):
+        return cls.objects.filter(
+            type_partner='PROVEEDOR'
+        )
+
+    @classmethod
+    def get_partner_by_taxi_id(cls, business_tax_id):
+        try:
+            return cls.objects.get(
+                business_tax_id=business_tax_id
+            )
+        except ObjectDoesNotExist:
+            return None
+
+    @classmethod
+    def get_partner_by_id(cls, id):
+        try:
+            return cls.objects.get(
+                id=id
+            )
+        except ObjectDoesNotExist:
+            return None
 
     def __str__(self):
         if self.type_partner == 'client':

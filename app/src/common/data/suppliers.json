@@ -1,0 +1,65 @@
+[
+  {
+    "name": "Finca Moonlight Flowers",
+    "business_tax_id":"203123121151",  
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Santa Clara",
+    "business_tax_id":"20312321151",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Yamiteo Flowers",
+    "business_tax_id":"2031245231151",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Rosas Del Campo",
+    "business_tax_id":"203121123151",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Fairis Garden",
+    "business_tax_id":"20312121151",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Florifrut S.A.",
+    "business_tax_id":"202323121151",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Flores De La Hacienda",
+    "business_tax_id":"20312115321",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Valent Roses",
+    "business_tax_id":"205433121151",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Spring Roses",
+    "business_tax_id":"20315621151",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  }
+]

@@ -4,11 +4,37 @@ from partners.models import Partner, Contact, DAE
 
 
 class PartnerAdmin(SimpleHistoryAdmin):
-    pass
+    list_display =(
+        'business_tax_id',
+        'name',
+        'type_partner',
+        'address',
+        'country',
+        'city',
+        'credit_term',
+        'email'
+    )
+    search_fields = (
+        'business_tax_id',
+        'name',
+        'email'
+    )
 
 
 class ContactAdmin(SimpleHistoryAdmin):
-    pass
+    list_display = (
+        'name',
+        'position',
+        'phone',
+        'email',
+        'is_principal',
+        'partner'
+    )
+    search_fields = (
+        'name',
+        'email',
+        'partner__name'
+    )
 
 
 class DAEAdmin(SimpleHistoryAdmin):
