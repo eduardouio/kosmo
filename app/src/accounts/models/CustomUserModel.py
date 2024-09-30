@@ -10,8 +10,8 @@ from accounts.managers import CustomUserManager
 
 
 ROLE_CHOICES = (
-    ('admin', 'Administrador'),
-    ('sales', 'Ventas'),
+    ('Administrador', 'Administrador'),
+    ('Ventas', 'Ventas'),
 )
 
 
@@ -39,7 +39,7 @@ class CustomUserModel(AbstractUser):
     roles = models.CharField(
         'Role',
         choices=ROLE_CHOICES,
-        default='sales',
+        default='Administrador',
         max_length=20
     )
 
