@@ -28,5 +28,4 @@ class DAE(models.Model):
     class Meta:
         verbose_name = 'DAE'
         verbose_name_plural = 'DAEs'
-        db_table = 'dae'
         unique_together = ('dae', 'partner')

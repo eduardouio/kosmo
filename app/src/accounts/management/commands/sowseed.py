@@ -5,7 +5,7 @@ from datetime import datetime
 from faker import Faker
 from django.core.management.base import BaseCommand
 from accounts.models import CustomUserModel, License
-from partners.models import Partner, Contact, Bank
+from partners.models import Partner, Contact, Bank, DAE
 
 
 class Command(BaseCommand):
@@ -23,6 +23,10 @@ class Command(BaseCommand):
         self.load_suppliers()
         print('creamos los contactos')
         self.load_contacts(faker)
+        print('creamos los bancos')
+        self.load_banks(faker)
+        print('creamos los daes')
+        self.load_daes(faker)
 
     def createSuperUser(self):
         user = CustomUserModel.get('eduardouio7@gmail.com')
@@ -113,4 +117,40 @@ class Command(BaseCommand):
                 )
 
     def load_banks(self, faker):
-        pass
+        if Bank.objects.all().count() > 0:
+            print('Ya existen bancos')
+            return True
+
+        banks = ['Banco Internacional', 'Banco Pichincha', 'Banco del Austro',
+                 'Banco de Guayaquil', 'Banco de Loja'
+                 ]
+
+        partners = Partner.objects.all()
+
+        for partner in partners:
+            for _ in range(random.randint(1, 3)):
+                print('Creando banco para {} ...'.format(partner.name))
+                Bank.objects.create(
+                    partner=partner,
+                    bank_name=banks[random.randint(0, 4)],
+                    owner=faker.name(),
+                    id_owner=faker.ssn(),
+                    account_number=faker.iban(),
+                    national_bank=faker.boolean()
+                )
+
+    def load_daes(self, faker):
+        if DAE.objects.all().count() > 0:
+            print('Ya existen daes')
+            return True
+        suppliers = Partner.get_suppliers()
+        date_now = datetime.now()
+        for supplier in suppliers:
+            dae = '055-2024-80-0{}'.format(faker.random_int(123, 1232)*1523)
+            print('Creando DAE para {} -> {} ...'.format(supplier.name, dae))
+            DAE.objects.create(
+                partner=supplier,
+                dae=dae,
+                date_begin=date_now,
+                date_end=date_now.replace(month=date_now.month + 1)
+            )
