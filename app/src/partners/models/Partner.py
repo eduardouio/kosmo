@@ -1,13 +1,6 @@
 from django.db import models
 from common import BaseModel
 
-PAYMENT_METHOD_CHOICES = [
-    ('TRANSFERENCIA', 'TRANSFERENCIA'),
-    ('CHEQUE', 'CHEQUE'),
-    ('EFECTIVO', 'EFECTIVO'),
-    ('OTRO', 'OTRO')
-]
-
 PARTNER_TYPE_CHOICES = [
     ('CLIENTE', 'CLIENTE'),
     ('PROVEEDIOR', 'PROVEEDOR'),
@@ -20,11 +13,6 @@ class Partner(BaseModel):
     id = models.AutoField(
         primary_key=True
     )
-    code = models.CharField(
-        'Código',
-        max_length=50,
-        unique=True
-    )
     business_tax_id = models.CharField(
         'RUC',
         max_length=15,
@@ -33,6 +21,7 @@ class Partner(BaseModel):
     partner = models.ManyToManyField(
         "self",
         blank=True,
+        help_text="proveedores a los que los clientes pueden comprar",
     )
     name = models.CharField(
         'Nombre',
@@ -52,7 +41,9 @@ class Partner(BaseModel):
     )
     zip_code = models.CharField(
         'Código Postal',
-        max_length=10
+        max_length=10,
+        blank=True,
+        null=True
     )
     website = models.CharField(
         'Sitio Web',
@@ -83,6 +74,12 @@ class Partner(BaseModel):
         blank=True,
         null=True
     )
+    email = models.EmailField(
+        'Correo Electrónico',
+        max_length=255,
+        blank=True,
+        null=True
+    )
     dispatch_days = models.PositiveIntegerField(
         'Días de Envío',
         blank=True,
@@ -92,7 +89,8 @@ class Partner(BaseModel):
         'Referencia de Carga',
         max_length=255,
         blank=True,
-        null=True
+        null=True,
+        help_text="Es el transportista que se usa para enviar la carga"
     )
     type_partner = models.CharField(
         'Tipo de Socio',
