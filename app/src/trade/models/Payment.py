@@ -4,12 +4,12 @@ from trade.models import Invoice
 
 
 METHOD_CHOICES = [
-    ('transfer', 'Transferencia'),
-    ('check', 'Cheque'),
-    ('cash', 'Efectivo'),
-    ('other', 'Otro'),
-    ('credit_card', 'Tarjeta de Crédito'),
-    ('credit_note', 'Nota de Crédito')
+    ('TRANSF', 'TRANSFERENCIA'),
+    ('CHEQUE', 'CHEQUE'),
+    ('EFECTIVO', 'EFECTIVO'),
+    ('OTRO', 'OTRO'),
+    ('TC', 'TARJETA DE CRÉDITO'),
+    ('NC', 'NOTA DE CRÉDITO')
 ]
 
 

@@ -4,21 +4,21 @@ from common import BaseModel
 from partners.models import Partner
 
 STATUS_CHOICES = (
-    ('pending', 'Pendiente'),
-    ('delivered', 'Entregado'),
-    ('cancelled', 'Cancelado'),
-    ('invoiced', 'Facturado'),
+    ('PENDIENTE', 'PENDIENTE'),
+    ('ENTREGADO', 'ENTREGADO'),
+    ('CANCELADO', 'CANCELADO'),
+    ('FACTURADO', 'FACTURADO'),
 )
 
 TYPE_DOCUMENT_CHOICES = (
-    ('client_order', 'Orden de Cliente'),
-    ('supplier_order', 'Orden de Proveedor'),
+    ('ORDEN DE VENTA', 'ORDEN DE VENTA'),
+    ('ORDEN DE COMPRA', 'ORDEN DE COMPRA'),
 )
 
 BOX_CHOICES = (
-    ('hb', 'HB'),
-    ('qb', 'QB'),
-    ('fb', 'FB')
+    ('HB', 'HB'),
+    ('QB', 'QB'),
+    ('FB', 'FB')
 )
 
 

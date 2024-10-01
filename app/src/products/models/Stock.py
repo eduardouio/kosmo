@@ -5,9 +5,9 @@ from products.models import Product
 
 
 BOX_CHOICES = (
-    ('hb', 'HB'),
-    ('qb', 'QB'),
-    ('fb', 'FB')
+    ('HB', 'HB'),
+    ('QB', 'QB'),
+    ('FB', 'FB')
 )
 
 

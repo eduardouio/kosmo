@@ -3,10 +3,10 @@ from common import BaseModel
 from .Partner import Partner
 
 COTACT_TYPE_CHOICES = [
-    'Comercial', 'Comercial',
-    'Financiero', 'Financiero',
-    'Logistica', 'Logístico',
-    'Otro', 'Otro'
+    'COMERCIAL', 'COMERCIAL',
+    'FINANCIERO', 'FINANCIERO',
+    'LOGISTICA', 'LOGÍSTICO',
+    'OTRO', 'OTRO'
 ]
 
 
