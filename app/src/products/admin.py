@@ -10,6 +10,11 @@ class ProductAdmin(SimpleHistoryAdmin):
         'default_rend',
     )
 
+    search_fields = (
+        'name',
+        'variety',
+    )
+
 
 class StockAdmin(SimpleHistoryAdmin):
     list_display = (
