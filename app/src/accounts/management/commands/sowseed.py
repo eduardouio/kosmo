@@ -6,6 +6,7 @@ from faker import Faker
 from django.core.management.base import BaseCommand
 from accounts.models import CustomUserModel, License
 from partners.models import Partner, Contact, Bank, DAE
+from products.models import Product, StockDay, StockDetail
 
 
 class Command(BaseCommand):
@@ -27,6 +28,8 @@ class Command(BaseCommand):
         self.load_banks(faker)
         print('creamos los daes')
         self.load_daes(faker)
+        print('creamos los productos')
+        self.load_products(faker)
 
     def createSuperUser(self):
         user = CustomUserModel.get('eduardouio7@gmail.com')
@@ -153,4 +156,17 @@ class Command(BaseCommand):
                 dae=dae,
                 date_begin=date_now,
                 date_end=date_now.replace(month=date_now.month + 1)
+            )
+
+    def load_products(self, faker):
+        if Product.objects.all().count() > 0:
+            print('Ya existen productos')
+            return True
+        with open('common/data/products.json', 'r') as file:
+            file_content = json.load(file)
+
+        for product in file_content:
+            print('Creando {} ...'.format(product['name']))
+            Product.objects.create(
+                **product
             )

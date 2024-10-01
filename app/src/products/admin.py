@@ -4,7 +4,11 @@ from products.models import Product, StockDay, StockDetail
 
 
 class ProductAdmin(SimpleHistoryAdmin):
-    pass
+    list_display = (
+        'name',
+        'variety',
+        'default_rend',
+    )
 
 
 class StockAdmin(SimpleHistoryAdmin):

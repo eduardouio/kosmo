@@ -6,13 +6,9 @@ class Product(BaseModel):
     id = models.AutoField(
         primary_key=True
     )
-    code = models.CharField(
-        'Codigo',
-        max_length=50,
-        unique=True
-    )
     name = models.CharField(
         'Nombre',
+        unique=True,
         max_length=255
     )
     image = models.ImageField(
