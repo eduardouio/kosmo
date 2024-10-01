@@ -19,7 +19,7 @@ class StockAdmin(SimpleHistoryAdmin):
 
 
 class StockDetailAdmin(SimpleHistoryAdmin):
-    list_display = (\
+    list_display = (
         'id',
         'stock_day',
         'product',
