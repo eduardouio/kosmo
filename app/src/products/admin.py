@@ -12,11 +12,31 @@ class ProductAdmin(SimpleHistoryAdmin):
 
 
 class StockAdmin(SimpleHistoryAdmin):
-    pass
+    list_display = (
+        'id',
+        'date',
+    )
 
 
 class StockDetailAdmin(SimpleHistoryAdmin):
-    pass
+    list_display = (\
+        'id',
+        'stock_day',
+        'product',
+        'partner',
+        'color',
+        'length',
+        'box_quantity',
+        'qty_stem_flower',
+        'stem_cost_price',
+    )
+
+    search_fields = (
+        'stock_day__date',
+        'product__name',
+        'partner__name',
+        'color',
+    )
 
 
 admin.site.register(Product, ProductAdmin)

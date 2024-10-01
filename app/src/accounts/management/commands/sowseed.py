@@ -29,7 +29,11 @@ class Command(BaseCommand):
         print('creamos los daes')
         self.load_daes(faker)
         print('creamos los productos')
-        self.load_products(faker)
+        self.load_products()
+        print('creamos los stock_day')
+        self.load_stock_day(faker)
+        print('creamos los stock_detail')
+        self.load_stocks_items()
 
     def createSuperUser(self):
         user = CustomUserModel.get('eduardouio7@gmail.com')
@@ -158,7 +162,7 @@ class Command(BaseCommand):
                 date_end=date_now.replace(month=date_now.month + 1)
             )
 
-    def load_products(self, faker):
+    def load_products(self):
         if Product.objects.all().count() > 0:
             print('Ya existen productos')
             return True
@@ -170,3 +174,57 @@ class Command(BaseCommand):
             Product.objects.create(
                 **product
             )
+
+    def load_stock_day(self, faker):
+        if StockDay.objects.all().count() > 0:
+            print('Ya existen stock_day')
+            return True
+        for i in range(1, 10):
+            print('Creando stock_day {}'.format(i))
+            StockDay.objects.create(
+                date=faker.date_this_year()
+            )
+
+    def load_stocks_items(self):
+        if StockDetail.objects.count() > 0:
+            print('Ya existen stock_detail')
+            return True
+        partners = Partner.get_customers()
+        products = Product.objects.all()
+        stock_days = StockDay.objects.all()
+        colors_available = [
+            "WHITE", "LAVENDER", "YELLOW", "YELLOW & ORANGE", "ORANGE", "PINK",
+            "HOT PINK", "LIGHT PINK", "PEACHY PINK", "RED", "PEACH & APRICOT",
+            "STAND COLOR", "LILAC", "PEACH APRICOT", "LIGHT BROWN"
+        ]
+        qty_stems = {
+            'HB': [25, 30, 35, 40, 45],
+            'QB': [50, 60, 70],
+        }
+        cost_references = {
+            '40': [0.40, 0.41, 0.43, 0.45, 0.47, 0.49],
+            '50': [0.50, 0.51, 0.53, 0.55, 0.57, 0.59],
+            '60': [0.60, 0.61, 0.63, 0.65, 0.67, 0.69],
+            '70': [0.70, 0.71, 0.73, 0.75, 0.77, 0.79],
+            '80': [0.70, 0.71, 0.73, 0.75, 0.77, 0.79],
+            '90': [0.70, 0.71, 0.73, 0.75, 0.77, 0.79],
+        }
+        for stock_day in stock_days:
+            print('Creando stock_detail para {}'.format(stock_day.date))
+            for i in range(0, random.randint(67, 123)):
+                box_model = random.choice(['HB', 'QB', 'QB', 'QB', 'HB'])
+                qty_stem = random.choice(qty_stems[box_model])
+                partner = partners[random.randint(0, partners.count() - 1)]
+                product = products[random.randint(0, products.count() - 1)]
+                length = random.choice([40, 50, 60, 70, 80, 90])
+                StockDetail.objects.create(
+                    stock_day=stock_day,
+                    product=product,
+                    partner=partner,
+                    color=random.choice(colors_available),
+                    length=length,
+                    box_quantity=random.randint(1, 100),
+                    box_model=box_model,
+                    qty_stem_flower=qty_stem,
+                    stem_cost_price=random.choice(cost_references[str(length)])
+                )
