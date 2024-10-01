@@ -2,21 +2,21 @@ from django.db import models
 from common import BaseModel
 from .Order import Order, OrderItems
 TYPE_DOCUMENT_CHOICES = (
-    ('client_invoice', 'Factura de Cliente'),
-    ('supplier_invoice', 'Factura de Proveedor'),
+    ('FAC_VENTA', 'FACTURA VENTA'),
+    ('FAC_COMPRA', 'FACTURA COMPRA'),
 )
 
 # las compras siempre son locales, las ventas son exportación o local
 TYPE_INVOICE_CHOICES = (
-    ('export', 'Exportación'),
-    ('local', 'Nacional'),
+    ('EXPORT', 'EXPORTACIÓN'),
+    ('INTERN', 'NACIONAL'),
 )
 
 
 BOX_CHOICES = (
-    ('hb', 'HB'),
-    ('qb', 'QB'),
-    ('fb', 'FB')
+    ('HB', 'HB'),
+    ('QB', 'QB'),
+    ('FB', 'FB')
 )
 
 

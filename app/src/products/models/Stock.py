@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 from common import BaseModel
 from partners.models import Partner
 from products.models import Product
@@ -19,6 +20,14 @@ class StockDay(BaseModel):
         'Fecha',
         unique=True
     )
+
+    def get_stock_day(self, date):
+        try:
+            return self.objects.get(
+                date=date
+            )
+        except ObjectDoesNotExist:
+            return None
 
     def __str__(self):
         return str(self.date)
@@ -69,6 +78,19 @@ class StockDetail(BaseModel):
         max_digits=10,
         decimal_places=2
     )
+
+    @classmethod
+    def get_stock_day(cls, date):
+        return cls.objects.filer(
+            stock_day__date=date
+        )
+
+    @classmethod
+    def get_stock_day_partner(cls, stock_day, partner):
+        return cls.objects.filter(
+            stock_day=stock_day,
+            partner=partner
+        )
 
     def __str__(self):
         return '{}'.format(

@@ -11,8 +11,8 @@ STATUS_CHOICES = (
 )
 
 TYPE_DOCUMENT_CHOICES = (
-    ('ORDEN DE VENTA', 'ORDEN DE VENTA'),
-    ('ORDEN DE COMPRA', 'ORDEN DE COMPRA'),
+    ('ORD_VENTA', 'ORDEN DE VENTA'),
+    ('ORD_COMPRA', 'ORDEN DE COMPRA'),
 )
 
 BOX_CHOICES = (
@@ -62,7 +62,8 @@ class Order(BaseModel):
     delivery_date = models.DateField(
         'Fecha de entrega',
         blank=True,
-        null=True
+        null=True,
+        default=None
     )
     status = models.CharField(
         max_length=50,
@@ -71,22 +72,26 @@ class Order(BaseModel):
     discount = models.DecimalField(
         'Descuento',
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=0
     )
     total_price = models.DecimalField(
         'Precio total',
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=0
     )
     qb_total = models.PositiveSmallIntegerField(
         'Total QB',
+        default=0
     )
     hb_total = models.PositiveSmallIntegerField(
         'Total QB',
+        default=0
     )
 
     def __str__(self):
-        return f"Pedido {self.id} - {self.customer.name}"
+        return f"Pedido {self.id} - {self.partner.name}"
 
 
 class OrderItems(BaseModel):
@@ -101,25 +106,25 @@ class OrderItems(BaseModel):
         StockDetail,
         on_delete=models.CASCADE
     )
-    quantity = models.IntegerField(
-        'Cantidad',
+    box_quantity = models.IntegerField(
+        'Cantidad de Cajas',
         default=0
     )
     line_price = models.DecimalField(
-        'Precio',
+        'Precio Linea',
         max_digits=10,
         decimal_places=2
     )
-    stem_flower = models.IntegerField(
-        'Tallo Flor',
+    qty_stem_flower = models.IntegerField(
+        'Unds Tallos',
         default=0,
         help_text='Cantidad de tallos de flor'
     )
-    box = models.CharField(
+    box_model = models.CharField(
         'Tipo de caja',
         max_length=50,
         choices=BOX_CHOICES
     )
 
     def __str__(self):
-        return f"Item {self.id} - {self.product.name}"
+        return f"Item {self.id} - {self.stock_detail.product.name}"

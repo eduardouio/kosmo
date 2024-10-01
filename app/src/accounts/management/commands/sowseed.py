@@ -7,6 +7,9 @@ from django.core.management.base import BaseCommand
 from accounts.models import CustomUserModel, License
 from partners.models import Partner, Contact, Bank, DAE
 from products.models import Product, StockDay, StockDetail
+from trade.models import (
+    Order, OrderItems, Invoice, InvoiceItems
+)
 
 
 class Command(BaseCommand):
@@ -34,6 +37,8 @@ class Command(BaseCommand):
         self.load_stock_day(faker)
         print('creamos los stock_detail')
         self.load_stocks_items()
+        print('creamos las ordenes de compra')
+        self.load_supplier_orders()
 
     def createSuperUser(self):
         user = CustomUserModel.get('eduardouio7@gmail.com')
@@ -153,7 +158,7 @@ class Command(BaseCommand):
         suppliers = Partner.get_suppliers()
         date_now = datetime.now()
         for supplier in suppliers:
-            dae = '055-2024-80-0{}'.format(faker.random_int(123, 1232)*1523)
+            dae = '055-2024-80-0{}'.format(faker.random_int(13, 1327)*15231)
             print('Creando DAE para {} -> {} ...'.format(supplier.name, dae))
             DAE.objects.create(
                 partner=supplier,
@@ -189,7 +194,7 @@ class Command(BaseCommand):
         if StockDetail.objects.count() > 0:
             print('Ya existen stock_detail')
             return True
-        partners = Partner.get_customers()
+        partners = Partner.get_suppliers()
         products = Product.objects.all()
         stock_days = StockDay.objects.all()
         colors_available = [
@@ -211,20 +216,66 @@ class Command(BaseCommand):
         }
         for stock_day in stock_days:
             print('Creando stock_detail para {}'.format(stock_day.date))
-            for i in range(0, random.randint(67, 123)):
-                box_model = random.choice(['HB', 'QB', 'QB', 'QB', 'HB'])
-                qty_stem = random.choice(qty_stems[box_model])
-                partner = partners[random.randint(0, partners.count() - 1)]
-                product = products[random.randint(0, products.count() - 1)]
-                length = random.choice([40, 50, 60, 70, 80, 90])
-                StockDetail.objects.create(
+            for partner in partners:
+                for i in range(0, random.randint(50, 123)):
+                    box_model = random.choice(['HB', 'QB', 'QB', 'QB', 'HB'])
+                    qty_stem = random.choice(qty_stems[box_model])
+                    product = products[random.randint(0, products.count() - 1)]
+                    length = random.choice([40, 50, 60, 70, 80, 90])
+                    StockDetail.objects.create(
+                        stock_day=stock_day,
+                        product=product,
+                        partner=partner,
+                        color=random.choice(colors_available),
+                        length=length,
+                        box_quantity=random.randint(1, 100),
+                        box_model=box_model,
+                        qty_stem_flower=qty_stem,
+                        stem_cost_price=random.choice(
+                            cost_references[str(length)])
+                    )
+
+    def load_supplier_orders(self):
+        if Order.objects.all().count() > 0:
+            print('Ya existen ordenes de compra')
+            return True
+
+        stock_days = StockDay.objects.all()
+
+        for order in range(1, random.randint(10, 35)):
+            print('Creando orden de compra {}'.format(order))
+            partners = Partner.get_suppliers()
+            partner = partners[random.randint(0, partners.count() - 1)]
+            order = Order.objects.create(
+                date=datetime.now(),
+                partner=partner,
+                type_document='ORD_COMPRA',
+                status='PENDIENTE',
+            )
+            print('Creando detalles de orden de compra')
+            for i in range(1, random.randint(1, 25)):
+                stock_day = stock_days[random.randint(
+                    0, stock_days.count() - 1)
+                ]
+                stock_day_detail = StockDetail.objects.filter(
                     stock_day=stock_day,
-                    product=product,
-                    partner=partner,
-                    color=random.choice(colors_available),
-                    length=length,
-                    box_quantity=random.randint(1, 100),
-                    box_model=box_model,
-                    qty_stem_flower=qty_stem,
-                    stem_cost_price=random.choice(cost_references[str(length)])
+                    partner=partner
+                )
+                if stock_day_detail.count() == 0:
+                    print('No hay stock detail {}'.format(partner.name))
+                    continue
+
+                line_stock = stock_day_detail[random.randint(
+                    0, stock_day_detail.count() - 1)]
+                quantity = random.choice([1, line_stock.box_quantity])
+                line_price = (
+                    line_stock.stem_cost_price * line_stock.qty_stem_flower)
+
+                OrderItems.objects.create(
+                    order=order,
+                    stock_detail=line_stock,
+                    box_quantity=quantity,
+                    line_price=line_price,
+                    qty_stem_flower=line_stock.qty_stem_flower,
+                    box_model=line_stock.box_model
                 )
