@@ -46,7 +46,7 @@ class Order(BaseModel):
         max_length=50,
         choices=TYPE_DOCUMENT_CHOICES
     )
-    purchase_order = models.ForeignKey(
+    parent_order = models.ForeignKey(
         'self',
         on_delete=models.CASCADE,
         blank=True,
@@ -125,6 +125,25 @@ class OrderItems(BaseModel):
         max_length=50,
         choices=BOX_CHOICES
     )
+
+    @classmethod
+    def get_suppliers_by_order(cls, order):
+        partners = cls.objects.filter(order=order).values_list(
+            'stock_detail__partner', flat=True
+        ).distinct()
+
+        if partners:
+            return [Partner.get_partner_by_id(x) for x in set(partners)]
+
+        return []
+
+    @classmethod
+    def get_supplier_items_by_order(cls, supplier, order):
+        line_items = cls.objects.filter(
+            order=order,
+            stock_detail__partner=supplier
+        )
+        return line_items
 
     def __str__(self):
         return f"Item {self.id} - {self.stock_detail.product.name}"

@@ -8,6 +8,7 @@ class OrderAdmin(SimpleHistoryAdmin):
         'id',
         'partner',
         'date',
+        'type_document',
         'status',
         'total_price',
         'discount',

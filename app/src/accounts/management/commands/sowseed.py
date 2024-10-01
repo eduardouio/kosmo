@@ -38,7 +38,9 @@ class Command(BaseCommand):
         print('creamos los stock_detail')
         self.load_stocks_items()
         print('creamos las ordenes de compra')
-        self.load_supplier_orders()
+        self.load_customer_orders()
+        print('creamos las ordenes de compra')
+        self.load_purcharse_order()
 
     def createSuperUser(self):
         user = CustomUserModel.get('eduardouio7@gmail.com')
@@ -235,47 +237,80 @@ class Command(BaseCommand):
                             cost_references[str(length)])
                     )
 
-    def load_supplier_orders(self):
-        if Order.objects.all().count() > 0:
-            print('Ya existen ordenes de compra')
+    def load_customer_orders(self):
+        if Order.objects.filter(type_document="ORD_VENTA").count() > 0:
+            print('Ya existen ordenes de venta')
             return True
 
         stock_days = StockDay.objects.all()
 
         for order in range(1, random.randint(10, 35)):
             print('Creando orden de compra {}'.format(order))
-            partners = Partner.get_suppliers()
-            partner = partners[random.randint(0, partners.count() - 1)]
-            order = Order.objects.create(
+            customers = Partner.get_customers()
+            order_sale = Order.objects.create(
                 date=datetime.now(),
-                partner=partner,
-                type_document='ORD_COMPRA',
+                partner=customers[random.randint(0, customers.count() - 1)],
+                type_document='ORD_VENTA',
                 status='PENDIENTE',
             )
-            print('Creando detalles de orden de compra')
-            for i in range(1, random.randint(1, 25)):
+
+            print('Creando detalles de orden de venta')
+            for i in range(1, random.randint(1, 5)):
                 stock_day = stock_days[random.randint(
                     0, stock_days.count() - 1)
                 ]
                 stock_day_detail = StockDetail.objects.filter(
-                    stock_day=stock_day,
-                    partner=partner
+                    stock_day=stock_day
                 )
-                if stock_day_detail.count() == 0:
-                    print('No hay stock detail {}'.format(partner.name))
-                    continue
 
                 line_stock = stock_day_detail[random.randint(
                     0, stock_day_detail.count() - 1)]
+
                 quantity = random.choice([1, line_stock.box_quantity])
+
                 line_price = (
-                    line_stock.stem_cost_price * line_stock.qty_stem_flower)
+                    line_stock.stem_cost_price
+                    * line_stock.qty_stem_flower
+                    * (line_stock.product.default_rend * 1)
+                )
 
                 OrderItems.objects.create(
-                    order=order,
+                    order=order_sale,
                     stock_detail=line_stock,
                     box_quantity=quantity,
                     line_price=line_price,
                     qty_stem_flower=line_stock.qty_stem_flower,
                     box_model=line_stock.box_model
                 )
+
+    def load_purcharse_order(self):
+        if Order.objects.filter(type_document="ORD_COMPRA").count() > 0:
+            print('Ya existen ordenes de compra')
+            return True
+
+        order_sales = Order.objects.filter(type_document="ORD_VENTA")
+
+        for order in order_sales:
+            suppliers = OrderItems.get_suppliers_by_order(order)
+            for supplier in suppliers:
+                order_purchase = Order.objects.create(
+                    date=datetime.now(),
+                    partner=supplier,
+                    type_document='ORD_COMPRA',
+                    parent_order=order,
+                    status='PENDIENTE',
+                )
+
+                order_items = OrderItems.get_supplier_items_by_order(
+                    supplier, order
+                )
+
+                for item in order_items:
+                    OrderItems.objects.create(
+                        order=order_purchase,
+                        stock_detail=item.stock_detail,
+                        box_quantity=item.box_quantity,
+                        line_price=item.line_price,
+                        qty_stem_flower=item.qty_stem_flower,
+                        box_model=item.box_model
+                    )
