@@ -53,4 +53,4 @@ class Payment(BaseModel):
     )
 
     def __str__(self):
-        return f"Pago {self.id} - Factura {self.invoice.id}"
+        return f"Pago {self.id}"

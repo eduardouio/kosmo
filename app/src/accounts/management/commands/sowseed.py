@@ -261,7 +261,7 @@ class Command(BaseCommand):
             )
 
             print('Creando detalles de orden de venta')
-            for i in range(1, random.randint(1, 25)):
+            for i in range(1, random.randint(1, 6   )):
                 stock_day = stock_days[random.randint(
                     0, stock_days.count() - 1)
                 ]
@@ -422,7 +422,7 @@ class Command(BaseCommand):
             payment = Payment.objects.create(
                 date=faker.date_this_year(),
                 amount=random.randint(10, 50),
-                type_payment='EFECTIVO',
+                method='EFECTIVO',
             )
 
             for i in invoices:

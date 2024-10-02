@@ -66,11 +66,18 @@ class InvoiceItemsAdmin(SimpleHistoryAdmin):
     )
 
 
-class CreditNoteAdmin(SimpleHistoryAdmin):
-    pass
-
-
 class PaymentAdmin(SimpleHistoryAdmin):
+    list_display = (
+        'id',
+        'date',
+        'amount',
+        'method',
+        'nro_operation',
+        'bank'
+    )
+
+
+class CreditNoteAdmin(SimpleHistoryAdmin):
     pass
 
 
