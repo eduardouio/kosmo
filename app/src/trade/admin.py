@@ -24,7 +24,15 @@ class OrderAdmin(SimpleHistoryAdmin):
 
 
 class OrderItemsAdmin(SimpleHistoryAdmin):
-    pass
+    list_display = (
+        'id',
+        'order',
+        'stock_detail',
+        'box_quantity',
+        'qty_stem_flower',
+        'line_price',
+        'box_model'
+    )
 
 
 class InvoiceAdmin(SimpleHistoryAdmin):
