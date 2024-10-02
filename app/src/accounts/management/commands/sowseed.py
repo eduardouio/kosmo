@@ -1,14 +1,14 @@
 import json
 import random
 import secrets
-from datetime import datetime
+from datetime import datetime, timedelta
 from faker import Faker
 from django.core.management.base import BaseCommand
 from accounts.models import CustomUserModel, License
 from partners.models import Partner, Contact, Bank, DAE
 from products.models import Product, StockDay, StockDetail
 from trade.models import (
-    Order, OrderItems, Invoice, InvoiceItems
+    Order, OrderItems, Invoice, InvoiceItems, Payment
 )
 
 
@@ -41,6 +41,10 @@ class Command(BaseCommand):
         self.load_customer_orders()
         print('creamos las ordenes de compra')
         self.load_purcharse_order()
+        print('creamos las facturas de compra')
+        self.generarte_purchases_invoices(faker)
+        print('Generando facturas de venta')
+        self.generate_sales_invoices(faker)
 
     def createSuperUser(self):
         user = CustomUserModel.get('eduardouio7@gmail.com')
@@ -255,7 +259,7 @@ class Command(BaseCommand):
             )
 
             print('Creando detalles de orden de venta')
-            for i in range(1, random.randint(1, 5)):
+            for i in range(1, random.randint(1, 25)):
                 stock_day = stock_days[random.randint(
                     0, stock_days.count() - 1)
                 ]
@@ -314,3 +318,72 @@ class Command(BaseCommand):
                         qty_stem_flower=item.qty_stem_flower,
                         box_model=item.box_model
                     )
+
+    def generarte_purchases_invoices(self, faker):
+        if Invoice.objects.filter(type_document="FAC_COMPRA").count() > 0:
+            print('Ya existen facturas de compra')
+            return True
+
+        purchase_orders = Order.objects.filter(type_document="ORD_COMPRA")
+
+        for order in purchase_orders:
+            date = faker.date_this_year()
+            due_date = date + timedelta(days=90)
+            invoice = Invoice.objects.create(
+                order=order,
+                partner=order.partner,
+                num_invoice=Invoice.get_next_invoice_number(),
+                type_document='FAC_COMPRA',
+                type_invoice='NA',
+                date=date,
+                due_date=due_date,
+                status='PENDIENTE'
+            )
+
+            order_items = OrderItems.objects.filter(order=order)
+            for item in order_items:
+                InvoiceItems.objects.create(
+                    invoice=invoice,
+                    order_item=item,
+                    qty_stem_flower=item.qty_stem_flower,
+                    line_price=item.line_price,
+                    line_discount=0,
+                )
+
+    def generate_sales_invoices(self, faker):
+        # se genera a partir de la orden de compra
+        if Invoice.objects.filter(type_document="FAC_VENTA").count() > 0:
+            print('Ya existen facturas de venta')
+            return True
+
+        purchase_orders = Order.objects.filter(type_document="ORD_COMPRA")
+
+        for order in purchase_orders:
+            print('Generando Factura de venta de order ' + order.id)
+            date = faker.date_this_year()
+            due_date = date + timedelta(days=90)
+            invoice = Invoice.objects.create(
+                order=order,
+                partner=order.parent.partner,
+                num_invoice=Invoice.get_next_invoice_number(),
+                type_document='FAC_VENTA',
+                type_invoice='EXPORT',
+                date=date,
+                due_date=due_date,
+                status='PENDIENTE'
+            )
+
+            order_items = OrderItems.objects.filter(order=order)
+            for item in order_items:
+                InvoiceItems.objects.create(
+                    invoice=invoice,
+                    order_item=item,
+                    qty_stem_flower=item.qty_stem_flower,
+                    line_price=item.line_price,
+                    line_discount=0,
+                )
+
+    def generate_payments(self, faker):
+        if Payment.objects.gel_all() > 0:
+            print('Ya existen pagos')
+            return True

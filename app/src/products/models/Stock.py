@@ -59,12 +59,12 @@ class StockDetail(BaseModel):
         'Largo CM',
     )
     box_quantity = models.IntegerField(
-        'Cantidad',
+        'Cantidad Cajas',
         default=0,
         help_text='Cantidad de cajas'
     )
     qty_stem_flower = models.IntegerField(
-        'Tallo Flor',
+        'Cant Tallos',
         default=0,
         help_text='Cantidad de tallos de flor'
     )

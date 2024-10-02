@@ -10,6 +10,7 @@ TYPE_DOCUMENT_CHOICES = (
 TYPE_INVOICE_CHOICES = (
     ('EXPORT', 'EXPORTACIÓN'),
     ('INTERN', 'NACIONAL'),
+    ('NA', 'NO APLICA')
 )
 
 
@@ -21,10 +22,10 @@ BOX_CHOICES = (
 
 
 class Invoice(BaseModel):
-    id_invoice = models.AutoField(
+    id = models.AutoField(
         primary_key=True
     )
-    purcharse_order = models.ForeignKey(
+    order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE
     )
@@ -32,10 +33,8 @@ class Invoice(BaseModel):
         'partners.Partner',
         on_delete=models.CASCADE
     )
-    num_invoice = models.CharField(
+    num_invoice = models.PositiveIntegerField(
         'Numero de Factura',
-        max_length=50,
-        help_text='Numero de Factura C para el cliente S para el proveedor'
     )
     type_document = models.CharField(
         'Tipo de Documento',
@@ -59,13 +58,20 @@ class Invoice(BaseModel):
     total_price = models.DecimalField(
         'Precio total',
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=0
     )
     qb_total = models.PositiveSmallIntegerField(
         'Total QB',
+        blank=True,
+        null=True,
+        default=0
     )
     hb_total = models.PositiveSmallIntegerField(
         'Total HB',
+        blank=True,
+        null=True,
+        default=0
     )
     awb = models.CharField(
         'MAWB',
@@ -107,18 +113,29 @@ class Invoice(BaseModel):
         'Estado',
         max_length=50,
         choices=(
-            ('pending', 'Pendiente'),
-            ('paid', 'Pagado'),
-            ('void', 'Anulado')
+            ('PENDIENTE', 'PENDIENTE'),
+            ('PAGADO', 'PAGADO'),
+            ('ANULADO', 'ANULADO')
         ),
-        default='pending'
+        default='PENDIENTE'
     )
+
+    @classmethod
+    def get_next_invoice_number(cls):
+        last_invoice = cls.objects.filter(type_document='FAC_VENTA').last()
+
+        if last_invoice:
+            return last_invoice.num_invoice + 1
+        return 1
 
     def __str__(self):
         return f"Factura {self.id} - Pedido {self.order.id}"
 
 
 class InvoiceItems(BaseModel):
+    id = models.AutoField(
+        primary_key=True
+    )
     invoice = models.ForeignKey(
         Invoice,
         on_delete=models.CASCADE
@@ -127,7 +144,7 @@ class InvoiceItems(BaseModel):
         OrderItems,
         on_delete=models.CASCADE
     )
-    quantity = models.IntegerField(
+    qty_stem_flower = models.IntegerField(
         'Cantidad Tallos',
         default=0
     )
@@ -141,16 +158,15 @@ class InvoiceItems(BaseModel):
         max_digits=10,
         decimal_places=2
     )
-    stem_flower = models.IntegerField(
-        'Tallo Flor',
-        default=0,
-        help_text='Cantidad de tallos de flor'
-    )
     box = models.CharField(
         'Tipo de caja',
         max_length=50,
         choices=BOX_CHOICES
     )
+
+    @classmethod
+    def get_invoice_items(cls, invoice):
+        return cls.objects.filter(invoice=invoice)
 
     def __str__(self):
         return f"Item {self.id} - {self.invoice.order.customer.name}"

@@ -30,7 +30,8 @@ class Payment(BaseModel):
     )
     method = models.CharField(
         'Metodo de pago',
-        max_length=50
+        max_length=50,
+        default='OTRO'
     )
     bank = models.CharField(
         'Banco',
@@ -47,12 +48,6 @@ class Payment(BaseModel):
     nro_operation = models.CharField(
         'Nro de Operación',
         max_length=50,
-        blank=True,
-        null=True
-    )
-    evidence = models.FileField(
-        'Comprobante',
-        upload_to='payments',
         blank=True,
         null=True
     )
