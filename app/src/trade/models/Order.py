@@ -145,5 +145,9 @@ class OrderItems(BaseModel):
         )
         return line_items
 
+    @classmethod
+    def get_order_items_by_order(cls, order):
+        return cls.objects.filter(order=order)
+
     def __str__(self):
         return f"Item {self.id} - {self.stock_detail.product.name}"
