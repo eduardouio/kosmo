@@ -128,6 +128,10 @@ class Invoice(BaseModel):
             return last_invoice.num_invoice + 1
         return 1
 
+    @classmethod
+    def get_by_type(cls, type_document):
+        return cls.objects.filter(type_document=type_document)
+
     def __str__(self):
         return f"Factura {self.id} - Pedido {self.order.id}"
 

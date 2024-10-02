@@ -45,6 +45,8 @@ class Command(BaseCommand):
         self.generarte_purchases_invoices(faker)
         print('Generando facturas de venta')
         self.generate_sales_invoices(faker)
+        print('Generando pagos')
+        self.generate_payments(faker)
 
     def createSuperUser(self):
         user = CustomUserModel.get('eduardouio7@gmail.com')
@@ -359,12 +361,12 @@ class Command(BaseCommand):
         purchase_orders = Order.objects.filter(type_document="ORD_COMPRA")
 
         for order in purchase_orders:
-            print('Generando Factura de venta de order ' + order.id)
+            print('Generando Factura de venta de order ' + str(order.id))
             date = faker.date_this_year()
             due_date = date + timedelta(days=90)
             invoice = Invoice.objects.create(
                 order=order,
-                partner=order.parent.partner,
+                partner=order.parent_order.partner,
                 num_invoice=Invoice.get_next_invoice_number(),
                 type_document='FAC_VENTA',
                 type_invoice='EXPORT',
@@ -384,6 +386,45 @@ class Command(BaseCommand):
                 )
 
     def generate_payments(self, faker):
-        if Payment.objects.gel_all() > 0:
+        if Payment.objects.all().count() > 0:
             print('Ya existen pagos')
             return True
+
+        sales_invoices = Invoice.get_by_type('FAC_VENTA')
+        purchase_invoices = Invoice.get_by_type('FAC_COMPRA')
+
+        # cobros en ventas
+        for i in range(random.randint(10, 25)):
+            invoices = [
+                sales_invoices[random.randint(0, sales_invoices.count() - 1)],
+                sales_invoices[random.randint(0, sales_invoices.count() - 1)],
+            ]
+            payment = Payment.objects.create(
+                date=faker.date_this_year(),
+                amount=random.randint(10, 50),
+                method='EFECTIVO',
+            )
+
+            for i in invoices:
+                payment.invoices.add(i)
+                payment.save()
+
+        # pagos en compras
+        for i in range(random.randint(10, 25)):
+            invoices = [
+                purchase_invoices[random.randint(
+                    0, purchase_invoices.count() - 1)
+                ],
+                purchase_invoices[random.randint(
+                    0, purchase_invoices.count() - 1)
+                ],
+            ]
+            payment = Payment.objects.create(
+                date=faker.date_this_year(),
+                amount=random.randint(10, 50),
+                type_payment='EFECTIVO',
+            )
+
+            for i in invoices:
+                payment.invoices.add(i)
+                payment.save()
