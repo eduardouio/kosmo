@@ -36,11 +36,34 @@ class OrderItemsAdmin(SimpleHistoryAdmin):
 
 
 class InvoiceAdmin(SimpleHistoryAdmin):
-    pass
+    list_display = (
+        'id',
+        'order',
+        'partner',
+        'num_invoice',
+        'type_document',
+        'type_invoice',
+        'date',
+        'due_date',
+        'status'
+    )
+    search_fields = (
+        'num_invoice',
+        'type_document',
+        'type_invoice',
+        'partner__name'
+    )
 
 
 class InvoiceItemsAdmin(SimpleHistoryAdmin):
-    pass
+    list_display = (
+        'invoice',
+        'order_item',
+        'qty_stem_flower',
+        'line_price',
+        'line_discount',
+        'box'
+    )
 
 
 class CreditNoteAdmin(SimpleHistoryAdmin):
