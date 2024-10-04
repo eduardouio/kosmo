@@ -1,0 +1,581 @@
+
+.text-withe{
+	color:#fff;
+}
+
+.border{
+	padding: 3px;
+	margin: 3px;
+	border-radius: 4px;
+	color:  teal;
+	font-size: 13px;
+}
+
+.bordered_padding {
+	padding: 3px;
+}
+tr:hover{
+	background-color: #ff9;
+}
+
+.full-width{
+	width: 100%;
+}
+.no-warp > td{
+	white-space: nowrap;
+}
+
+.backgroud-gray {
+	background-color: #eee;
+}
+
+.title-deteleorder{
+	background-color: #660033;
+ }
+
+ .left-active {
+	background-color: #e0e0e0;
+}
+
+.title-proveedor {
+	background-color: #95A5A6 !important;
+	height: 30px;
+	color: #fff;
+}
+
+.number{
+ text-align: right;
+}
+
+.title-reliquidacion {
+	background-color: #454545 !important;
+	height: 30px;
+	color: #fff;
+}
+
+.title-reportes{
+	background-color: #8E44AD !important;
+	height: 30px;
+	color: #fff;
+}
+
+
+.title-perfil {
+	background-color: #029CD2 !important;
+	height: 30px;
+	color: #fff;
+}
+
+.title-factura_informativa {
+	background-color: #333 !important;
+	height: 30px;
+	color: #333;
+}
+
+.title-factura_informativa_detalle {
+	background-color: #444 !important;
+	height: 30px;
+	color: #444;
+}
+
+.title-impuestos{
+	background-color:#007bff!important;
+	height: 30px;
+	color: #444;
+}
+
+.title-detalle_pedido_factura {
+	background-color: #0097a7 !important;
+	height: 30px;
+	color: #fff;
+}
+
+.title-pedido_factura {
+	background-color: #0097a7 !important;
+	height: 30px;
+	color: #fff;
+}
+
+.title-justificacion_gasto_nacionalizacion {
+	background-color: #0000a7 !important;
+	height: 30px;
+	color: #fff;
+}
+
+.title-inicio {
+	background-color: #1565C0 !important;
+	height: 30px;
+	color: #fff;
+}
+
+.title-parcial {
+	background-color: #666 !important;
+	height: 30px;
+	color: #fff;
+}
+
+.title-gastos_nacionalizacion {
+	background-color: #7b1fa2 !important;
+	height: 30px;
+	color: #fff;
+}
+
+.title-incoterm {
+	padding: 10px 10px 10px 10px;
+	margin: 10px 0 10px;
+	background-color: #616161 !important;
+	color: #fff;
+	border-radius: 4px;
+	box-shadow: 2px 2px 4px #888;
+}
+
+.title-pedido {
+	background-color: #FF0033  !important;
+	height: 30px;
+	color: #fff;
+
+}
+
+.title-importar {
+	background-color:  rgb(54, 42, 165) !important;
+	height: 30px;
+	color: #fff;
+
+}
+
+
+
+.title-producto {
+	background-color: #04738B !important;
+	height: 30px;
+	color: #fff;
+}
+
+.modal-title {
+	color: #0084a1;
+}
+
+body {
+	font-size: 12px
+}
+
+.btn-default {
+	background-color: #f1f1f1;
+}
+
+.modal-dialog-notify {
+	width: 500px;
+}
+
+.input-group-addon {
+	text-align: left;
+	padding: 1px 6px;
+	font-size: 12px;
+}
+
+.ng-cloak {
+	display: none;
+}
+
+.slidedown {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.slidedown.ng-enter, .slidedown.ng-leave {
+	-webkit-transition: all 1s ease;
+	transition: all 1s ease;
+}
+
+.slidedown.ng-enter {
+	top: -100%;
+}
+
+.slidedown.ng-enter-active {
+	top: 0;
+}
+
+.slidedown.ng-leave {
+	top: 0;
+}
+
+.slidedown.ng-leave-active {
+	top: 100%;
+}
+
+.form-control {
+	font-size: 13px;
+}
+
+.form-control-sm {
+	font-size: 12px;
+	height: 1.5rem;
+}
+
+.navbar{
+	padding: 0rem;
+}
+
+.navbar-brand {
+	font-size: 1rem;
+}
+
+
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th,
+	.table>thead>tr>td, .table>thead>tr>th {
+	padding: 1px;
+}
+
+.panel-report{
+	border-color: #8E44AD;
+	color: #fff;
+    background-color: #8E44AD !important;
+}
+
+.panel-sap{
+	border-color: rgb(54, 42, 165);
+	color: #fff;
+    background-color:  rgb(54, 42, 165) !important;
+}
+
+.panel-footer {
+	height: 60px;
+	padding: 2px 5px 2px 2px;
+}
+
+.huge {
+	font-size: 25px;
+}
+
+.control {
+	font-family: arial;
+	display: block;
+	position: relative;
+	padding-left: 30px;
+	margin-bottom: 5px;
+	padding-top: 3px;
+	cursor: pointer;
+}
+
+.control input {
+	position: absolute;
+	z-index: -1;
+	opacity: 0;
+}
+
+.control_indicator {
+	position: absolute;
+	top: 1px;
+	left: 0;
+	height: 22px;
+	width: 22px;
+	background: #e6e6e6;
+	border: 1px solid #000000;
+}
+
+.control-radio .control_indicator {
+    border-radius: undefined;
+}
+
+.control:hover input ~ .control_indicator, .control input:focus ~
+	.control_indicator {
+	background: #cccccc;
+}
+
+.control input:checked ~ .control_indicator {
+	background: #2aa1c0;
+}
+
+.control:hover input:not ([disabled] ):checked ~ .control_indicator,
+	.control input:checked:focus ~ .control_indicator {
+	background-color: #0e6647d;
+}
+
+.control input:disabled ~ .control_indicator {
+	background: #e6e6e6;
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.control_indicator:after {
+	box-sizing: unset;
+	content: '';
+	position: absolute;
+	display: none;
+}
+
+.control input:checked ~ .control_indicator:after {
+	display: block;
+}
+
+.control-checkbox .control_indicator:after {
+	left: 8px;
+	top: 4px;
+	width: 3px;
+	height: 8px;
+	border: solid #ffffff;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.control-checkbox input:disabled ~ .control_indicator:after {
+	border-color: #7b7b7b;
+}
+
+.form-in-line {
+	border-color: #F00;
+	border-width: 12px;
+	background-color: #eee;
+	padding: 3px 10px 3px;
+}
+
+.label-died {
+	background-color: #444;
+}
+
+.modal-dialog {
+	width: 85%;
+	margin: 30px auto;
+}
+
+.modal-lg {
+    max-width: 1100px;
+}
+
+.text-tittle {
+	width: 100%;
+	/**background-color: #337ab7;**/
+	background-color: #666eee;	
+	color: #fff;
+	border-radius: 1px;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.text-tittle-success {
+	width: 100%;
+	background-color:#639657 ;	
+	color: #fff;
+	border-radius: 1px;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.text-tittle-alt {
+	width: 100%;
+	background-color: #444;
+	color: #fff;
+	border-radius: 1px;
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.text-tittle-2{
+	background-color: #444;
+	border-radius: 2px;
+	border-width: 2px;
+	border-color: #fff;
+	color:#fff;
+	font-weight: bold;
+	text-align: center;
+}
+
+.div-bordered {
+	border: 0.9px solid #ddd;
+	border-radius: 4px;
+}
+
+.title-documento_pago, .detalle-documento-pago,
+	.title-detalle_documento_pago {
+	background-color: #37474F !important;
+	height: 30px;
+	color: #fff;
+}
+
+th {
+	text-align: center;
+}
+
+.alert {
+	padding: 10px;
+}
+
+
+.nav-tabs>li>a:hover {
+	border-color: #eeeeee #eeeeee #c6c8cb;
+	background-color: #fff329;
+}
+
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus
+	{
+	color: #555555;
+	background-color: #ff4;
+	border: 1px solid #999;
+	border-bottom-color: transparent;
+	cursor: default;
+}
+
+.nav-tabs.nav-justified {
+	width: 100%;
+	border-bottom: 0;
+}
+
+.nav-tabs.nav-justified>li {
+	float: none;
+}
+
+.nav-tabs.nav-justified>li>a {
+	text-align: center;
+}
+
+.bordered{
+	border: 1px solid #ddd;
+}
+
+  .nav-tabs--vertical {
+	border-bottom: none;
+	border-right: 1px solid #999;
+	display: flex;
+	flex-flow: column nowrap;
+  }
+  .nav-tabs--left {
+	margin: 0 1px;
+  }
+  .nav-tabs--left .nav-item + .nav-item {
+	margin-top: 0rem;
+  }
+  .nav-tabs--left .nav-link {
+	transition: border-color .125s ease-in;
+	white-space: nowrap;
+  }
+  .nav-tabs--left .nav-link:hover {
+	background-color: #fff569;
+	color:#555;
+	border-color: transparent;
+  }
+  .nav-tabs--left .nav-link.active {
+	border-bottom-color: #999;
+	border-right-color: #007bff !important;
+	border-bottom-left-radius: 0.25rem;
+	border-top-right-radius: 0;
+	margin-right: -1px;
+	color: #a10000 !important;
+  }
+
+.row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin-right: -5px;
+	margin-left: -5px;
+	margin-top: 8px;
+	}
+
+	.nav-pills .nav-link.active{
+		color: darkred;
+    background-color: #fff;
+    border-top: 1px solid;
+    border-top-color: dimgrey;
+    border-left: 1px solid;
+    border-left-color: dimgrey;
+    border-right: 1px solid;
+    border-right-color: dimgrey;
+    border-radius: 1.5px;
+}
+
+	.my-tabs {
+		border-top: 1px solid;
+    border-left: 1px solid;
+    border-right: 1px solid;
+    border-top-color: #d0d0d0;
+    border-right-color: #d0d0d0;
+    border-left-color: #d0d0d0;
+	}
+
+
+
+/* The switch - the box around the slider */
+.switch {
+	position: relative;
+	display: inline-block;
+	width: 25px;
+	height: 15px;
+	float:right;
+  }
+  
+  /* Hide default HTML checkbox */
+  .switch input {display:none;}
+  
+  /* The slider */
+  .slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #ccc;
+	-webkit-transition: .4s;
+	transition: .4s;
+  }
+  
+  .slider:before {
+	position: absolute;
+	content: "";
+	height: 13px;
+	width: 13px;
+	left: 1px;
+	bottom: 1px;
+	background-color: white;
+	-webkit-transition: .4s;
+	transition: .4s;
+  }
+  input.default:checked + .slider {
+	background-color: #444;
+  }
+  input.primary:checked + .slider {
+	background-color: #2196F3;
+  }
+  input.success:checked + .slider {
+	background-color: #8bc34a;
+  }
+  input.info:checked + .slider {
+	background-color: #3de0f5;
+  }
+  input.warning:checked + .slider {
+	background-color: #FFC107;
+  }
+  input.danger:checked + .slider {
+	background-color: #f44336;
+  }
+  
+  input:focus + .slider {
+	box-shadow: 0 0 1px #2196F3;
+  }
+  
+  input:checked + .slider:before {
+	-webkit-transform: translateX(12px);
+	-ms-transform: translateX(12px);
+	transform: translateX(12px);
+  }
+  
+  /* Rounded sliders */
+  .slider.round {
+	border-radius: 5px;
+  }
+  
+  .slider.round:before {
+	border-radius: 50%;
+  }
+
+.bg_sap {
+	background-color: #ffff99;
+}
+
+.bg-gray{
+	background-color: #d0d0d0;
+}
