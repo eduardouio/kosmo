@@ -3,14 +3,6 @@
 	color:#fff;
 }
 
-.border{
-	padding: 3px;
-	margin: 3px;
-	border-radius: 4px;
-	color:  teal;
-	font-size: 13px;
-}
-
 .bordered_padding {
 	padding: 3px;
 }
@@ -153,10 +145,6 @@ tr:hover{
 
 .modal-title {
 	color: #0084a1;
-}
-
-body {
-	font-size: 12px
 }
 
 .btn-default {

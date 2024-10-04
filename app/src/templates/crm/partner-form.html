@@ -1,0 +1,58 @@
+{% include 'base/base/html %}
+{% block content %}
+<form method="POST" class="space-y-4 p-4 bg-white shadow-md rounded-lg w-full max-w-lg mx-auto">
+    {% csrf_token %}
+    <div class="form-control">
+      <label class="label" for="code">
+        <span class="label-text">Account Code</span>
+      </label>
+      {{ form.code|add_class:"input input-bordered w-full" }}
+    </div>
+    <div class="form-control">
+      <label class="label" for="name">
+        <span class="label-text">Account Name</span>
+      </label>
+      {{ form.name|add_class:"input input-bordered w-full" }}
+    </div>
+    <div class="form-control">
+      <label class="cursor-pointer label">
+        <span class="label-text">Account Register Values</span> 
+        {{ form.is_children|add_class:"checkbox checkbox-primary" }}
+      </label>
+    </div>
+    <div class="form-control">
+      <label class="label" for="type">
+        <span class="label-text">Account Type</span>
+      </label>
+      {{ form.type|add_class:"select select-bordered w-full" }}
+    </div>
+    <div class="form-control">
+      <label class="label" for="level">
+        <span class="label-text">Account Level</span>
+      </label>
+      {{ form.level|add_class:"select select-bordered w-full" }}
+    </div>
+    <div class="form-control">
+      <label class="label" for="description">
+        <span class="label-text">Account Description</span>
+      </label>
+      {{ form.description|add_class:"textarea textarea-bordered w-full" }}
+    </div>
+    <div class="form-control">
+      <label class="label" for="parent_account">
+        <span class="label-text">Parent Account</span>
+      </label>
+      {{ form.parent_account|add_class:"select select-bordered w-full" }}
+    </div>
+    <div class="form-control">
+      <label class="label" for="company">
+        <span class="label-text">Company</span>
+      </label>
+      {{ form.company|add_class:"select select-bordered w-full" }}
+    </div>
+    <div class="form-control">
+      <button type="submit" class="btn btn-primary w-full">Save</button>
+    </div>
+  </form>
+  
+{% endblock content %}

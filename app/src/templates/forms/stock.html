@@ -1,0 +1,69 @@
+<form method="POST" action="">
+    {% csrf_token %}
+    
+    <!-- Formulario maestro (StockDay) -->
+    <div class="row">
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="id_date" class="form-label">Fecha</label>
+          <input type="date" class="form-control form-control-sm" id="id_date" name="date" required>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Línea divisoria -->
+    <hr class="my-4">
+  
+    <!-- Formulario detalle (StockDetail) -->
+    <h5>Detalles del Stock</h5>
+    <div class="row">
+      {{ formset.management_form }}
+      {% for form in formset %}
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label for="{{ form.product.id_for_label }}" class="form-label">Producto</label>
+            {{ form.product|as_widget:class="form-select form-control-sm" }}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.partner.id_for_label }}" class="form-label">Socio de Negocio</label>
+            {{ form.partner|as_widget:class="form-select form-control-sm" }}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.color.id_for_label }}" class="form-label">Color</label>
+            {{ form.color|as_widget:class="form-control form-control-sm" }}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.length.id_for_label }}" class="form-label">Largo (CM)</label>
+            {{ form.length|as_widget:class="form-control form-control-sm" }}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.box_quantity.id_for_label }}" class="form-label">Cantidad de Cajas</label>
+            {{ form.box_quantity|as_widget:class="form-control form-control-sm" }}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.qty_stem_flower.id_for_label }}" class="form-label">Cantidad de Tallos</label>
+            {{ form.qty_stem_flower|as_widget:class="form-control form-control-sm" }}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.box_model.id_for_label }}" class="form-label">Tipo de Caja</label>
+            {{ form.box_model|as_widget:class="form-select form-control-sm" }}
+          </div>
+          <div class="mb-3">
+            <label for="{{ form.stem_cost_price.id_for_label }}" class="form-label">Precio de Costo por Tallo</label>
+            {{ form.stem_cost_price|as_widget:class="form-control form-control-sm" }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  
+    <!-- Botones -->
+    <hr class="my-4">
+    
+    <div class="row mt-3">
+      <div class="col text-center d-flex justify-content-between">
+        <a href="#" class="btn btn-outline-secondary btn-sm">Cancelar</a>
+        <button type="submit" class="btn btn-outline-success btn-sm">Guardar</button>
+      </div>
+    </div>
+  </form>
+  

@@ -1,0 +1,66 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="text-error">
+  {{ form.errors }}
+</div>
+<form method="POST" class="w-full max-w-lg mx-auto">
+    {% csrf_token %}
+    <input type="hidden" name="company" value="{{object.company.id}}">
+    <div class="form-control">
+      <label class="label" for="code">
+        <span class="label-text">Account Code</span>
+      </label>
+      {{ form.code }}
+    </div>
+    <div class="form-control">
+      <label class="label" for="name">
+        <span class="label-text">Account Name</span>
+      </label>
+      {{ form.name}}
+    </div>
+    <div class="form-control">
+      <label class="cursor-pointer label">
+        <span class="label-text">Account Register Values</span> 
+        {{ form.is_children}}
+      </label>
+    </div>
+    <div class="form-control">
+      <label class="label" for="type">
+        <span class="label-text">Account Type</span>
+      </label>
+      {{ form.type}}
+    </div>
+    <div class="form-control">
+      <label class="label" for="level">
+        <span class="label-text">Account Level</span>
+      </label>
+      {{ form.level}}
+    </div>
+    <div class="form-control">
+      <label class="label" for="description">
+        <span class="label-text">Account Description</span>
+      </label>
+      {{ form.description}}
+    </div>
+    <div class="form-control">
+      <label class="label" for="parent_account">
+        <span class="label-text">Parent Account</span>
+      </label>
+      {{ form.parent_account}}
+    </div>
+    <div class=" py-3 text-end">
+      <button type="submit" class="btn btn-sm bg-gray-300 border border-gray-400">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="20" height="20" viewBox="0 0 24 24" stroke-width="1" stroke="#009988" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+          <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+          <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+          <path d="M14 4l0 4l-6 0l0 -4" />
+        </svg>
+          Save Account
+      </button>
+      <a href="">
+        cancel
+      </a>
+    </div>
+  </form>
+  {% endblock content %}

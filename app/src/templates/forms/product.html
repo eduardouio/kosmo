@@ -1,0 +1,41 @@
+<form method="POST" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="row">
+      <!-- Columna 1 -->
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="id_name" class="form-label">Nombre</label>
+          <input type="text" class="form-control form-control-sm" id="id_name" name="name" maxlength="255" required>
+        </div>
+        <div class="mb-3">
+          <label for="id_variety" class="form-label">Variedad</label>
+          <input type="text" class="form-control form-control-sm" id="id_variety" name="variety" maxlength="255" required>
+        </div>
+      </div>
+  
+      <!-- Columna 2 -->
+      <div class="col-md-4">
+        <div class="mb-3">
+          <label for="id_image" class="form-label">Imagen</label>
+          <input type="file" class="form-control form-control-sm" id="id_image" name="image">
+        </div>
+        <div class="mb-3">
+          <label for="id_default_rend" class="form-label">Rendimiento por defecto</label>
+          <input type="number" step="0.01" class="form-control form-control-sm" id="id_default_rend" name="default_rend" value="0.06" required>
+          <small class="form-text text-muted">Todo item tiene un rendimiento de 0.06 USD</small>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Botones -->
+    <hr class="my-4">
+    
+    <div class="row mt-3">
+      <div class="col text-center d-flex justify-content-between">
+        <a href="#" class="btn btn-outline-secondary btn-sm">Cancelar</a>
+        <button type="submit" class="btn btn-outline-success btn-sm">Guardar</button>
+      </div>
+    </div>
+  </form>
+  
