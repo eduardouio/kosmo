@@ -6,7 +6,7 @@ from accounts.models import CustomUserModel
 
 # /
 class HomeTV(LoginRequiredMixin, TemplateView):
-    template_name = 'pages/home.html'
+    template_name = 'base/base.html'
 
     def get(self, request, *args, **kwargs):
         page_data = {
