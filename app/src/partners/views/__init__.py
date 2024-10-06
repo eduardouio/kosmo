@@ -1,0 +1,1 @@
+from .PartnerCRUD import PartnerDetailView

@@ -1,5 +1,5 @@
 from django import forms
-from .models import DAE
+from partners.models import DAE
 
 
 class DAEForm(forms.ModelForm):

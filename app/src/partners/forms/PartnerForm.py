@@ -1,5 +1,5 @@
 from django import forms
-from .models import Partner
+from partners.models import Partner
 
 
 class PartnerForm(forms.ModelForm):

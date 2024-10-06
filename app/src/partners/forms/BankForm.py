@@ -1,5 +1,5 @@
 from django import forms
-from .models import Bank
+from partners.models import Bank
 
 
 class BankForm(forms.ModelForm):
