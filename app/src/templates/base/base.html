@@ -3,11 +3,14 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kosmo Flowers</title>
+    <title>{{ title_page }}</title>
     <link href="/static/css/libs/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/libs/customicer.css" rel="stylesheet">
+    {% block files_header %}
+    {% endblock %}
   </head>
   <body>
+    {% if request.user.is_autenticated %}
     <nav class="navbar navbar-expand-lg bg-info-subtle bg-gradient border-bottom">
       <div class="container-fluid">
         <a class="navbar-brand text-sm" href="#">
@@ -252,12 +255,15 @@
         </div>
       </div>
     </nav>
-    <div class="m-2">
+    {% endif %}
+      {% if show_alert  %}
       <div class="container-fluid">
         <div class="alert alert-warning" role="alert">
           Esta es una alerta del sistema
         </div>
       </div>
+      {% endif %}
+      {% if show_toolbar %}
       <div class="container-fluid bordered bg-gray m-1 p-1 mx-auto">
         <div class="row">
           <div class="col">
@@ -271,170 +277,11 @@
           </div>
         </div>
       </div>
-      <div class="container-fluid shadow mx-auto">
-      </div>
-      <div class="row">
-        <div class="col">
-          <div class="card bg-light mb-3">
-            <div class="card-header fs-6 bg-success bg-gradient text-center text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-portable-bathroom" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <rect x="6" y="4" width="12" height="16" rx="2" fill="none" stroke="#ffffff" />
-                <rect x="9" y="8" width="6" height="9" rx="1" fill="none" stroke="#ffffff" />
-                <circle cx="12" cy="6" r="0.5" fill="none" stroke="#ffffff"/>
-                <circle cx="13.5" cy="12" r="0.5" fill="none" stroke="#ffffff"/>
-                <path d="M6 20h12" fill="none" stroke="#ffffff" />
-              </svg>
-              Equipos
-            </div>
-            <div class="card-body bg-light">
-              <p>Equipos y Vehiculos</p>
-              <div class="d-flex justify-content-between gap-2">
-                <a href="#" class="btn btn-outline-primary btn-sm w-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-details" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M13 5h8" />
-                    <path d="M13 9h5" />
-                    <path d="M13 15h8" />
-                    <path d="M13 19h5" />
-                    <path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                    <path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                  </svg>
-                  Listar
-                </a>
-                <a href="#" class="btn btn-outline-success btn-sm w-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M12 5l0 14" />
-                    <path d="M5 12l14 0" />
-                  </svg>
-                  Nuevo
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card bg-light mb-3">
-            <div class="card-header bg-primary bg-gradient fs-6 text-center text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-building-factory-2" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#fff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M3 21h18" />
-                <path d="M5 21v-12l5 4v-4l5 4h4" />
-                <path d="M19 21v-8l-1.436 -9.574a.5 .5 0 0 0 -.495 -.426h-1.145a.5 .5 0 0 0 -.494 .418l-1.43 8.582" />
-                <path d="M9 17h1" />
-                <path d="M14 17h1" />
-              </svg>
-              Proyectos
-            </div>
-            <div class="card-body bg-light">
-              <p>Proyectos Y Equipos</p>
-              <div class="d-flex justify-content-between gap-2">
-                <a href="#" class="btn btn-outline-primary btn-sm w-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-details" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M13 5h8" />
-                    <path d="M13 9h5" />
-                    <path d="M13 15h8" />
-                    <path d="M13 19h5" />
-                    <path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                    <path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                  </svg>
-                  Listar
-                </a>
-                <a href="#" class="btn btn-outline-success btn-sm w-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M12 5l0 14" />
-                    <path d="M5 12l14 0" />
-                  </svg>
-                  Nuevo
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card bg-light mb-3">
-            <div class="card-header bg-secondary bg-gradient fs-6 text-center text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users-group" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#fff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" />
-                <path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                <path d="M17 10h2a2 2 0 0 1 2 2v1" />
-                <path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                <path d="M3 13v-1a2 2 0 0 1 2 -2h2" />
-              </svg>
-              Personal
-            </div>
-            <div class="card-body bg-light">
-              <p>Tecnicos y Planificaciones</p>
-              <div class="d-flex justify-content-between gap-2">
-                <a href="#" class="btn btn-outline-primary btn-sm w-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-details" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M13 5h8" />
-                    <path d="M13 9h5" />
-                    <path d="M13 15h8" />
-                    <path d="M13 19h5" />
-                    <path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                    <path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                  </svg>
-                  Listar
-                </a>
-                <a href="#" class="btn btn-outline-success btn-sm w-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M12 5l0 14" />
-                    <path d="M5 12l14 0" />
-                  </svg>
-                  Nuevo
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col">
-          <div class="card bg-light mb-3">
-            <div class="card-header bg-info bg-gradient fs-6 text-center text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-tool" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#fff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M7 10h3v-3l-3.5 -3.5a6 6 0 0 1 8 8l6 6a2 2 0 0 1 -3 3l-6 -6a6 6 0 0 1 -8 -8l3.5 3.5" />
-              </svg>
-              Mantenimientos
-            </div>
-            <div class="card-body bg-light">
-              <p>Equipos y Mantenimientos</p>
-              <div class="d-flex justify-content-between gap-2">
-                <a href="#" class="btn btn-outline-primary btn-sm w-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-details" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M13 5h8" />
-                    <path d="M13 9h5" />
-                    <path d="M13 15h8" />
-                    <path d="M13 19h5" />
-                    <path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                    <path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
-                  </svg>
-                  Listar
-                </a>
-                <a href="#" class="btn btn-outline-success btn-sm w-100">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M12 5l0 14" />
-                    <path d="M5 12l14 0" />
-                  </svg>
-                  Nuevo
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-    <div class="container mx-auto border shadow rounded-end bg-secondary px-4">
+      {% endif %}
+        {% block content %}
+        {% endblock %}
+    {% if request.user.is_autenticated %}
+    <div class="container-fluid mx-auto border shadow rounded-end bg-secondary px-4">
       <footer class="d-flex flex-wrap justify-content-between align-items-center py-1 my-1">
         <p class="col-md-4 mb-0 text-light">KOSMO FLOWERS Derechos Reservados</p>
         <a href="/" class="col-md-4 d-flex align-items-center justify-content-center mb-3 mb-md-0 me-md-auto text-decoration-none">
@@ -449,6 +296,9 @@
         </ul>
       </footer>
     </div>
+    {% endif %}
     <script src="/static/js/libs/bootstrap.bundle.min.js"></script>
+    {% block files_footer %}
+    {% endblock %}
   </body>
 </html>

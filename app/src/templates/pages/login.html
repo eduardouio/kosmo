@@ -1,0 +1,36 @@
+{% extends 'base/base.html' %}
+{% block content %}
+    <div class="container-fluid min-vh-100 d-flex">
+        <div class="row w-100">
+            <div class="col-6 d-flex justify-content-center align-items-center bg-gray bg-gradient border-end border-success border-2 p-0">
+                <img src="/static/img/login_image.jpg" class="image-cover">
+            </div>
+            <div class="col-6 d-flex justify-content-center align-items-center">
+                <div class="bg-gray bg-gradient border rounded-4 shadow pt-2 pb-2">
+                    <div class="container d-flex flex-column align-items-center">
+                        <div class="login-form text-center border m-1 p-5 border-warning border-2 rounded-4 bg-light">
+                            <main class="form-signin w-100 m-auto">
+                                <form>
+                                    <img src="http://localhost:8000/static/img/logo.png" alt="Logo" class="m-2" width="150" height="auto">
+                                  <h1 class="h3 mb-3 fw-normal text-kosmo-primary">Kosmo Flowers</h1>
+                              
+                                  <div class="form-floating mb-3">
+                                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+                                    <label for="floatingInput">Email address</label>
+                                  </div>
+                                  <div class="form-floating">
+                                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                                    <label for="floatingPassword">Password</label>
+                                  </div>
+                                <div class="m-5"></div>
+                                  <button class="w-100 btn btn-lg btn-primary" type="submit">Iniciar Sesión</button>
+                                  <p class="mt-5 mb-3 text-muted">©Kosmo Flowers Derechos Reservados</p>
+                                </form>
+                              </main>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

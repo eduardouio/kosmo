@@ -6,7 +6,7 @@ from accounts.models import CustomUserModel
 
 # /accounts/login/
 class LoginTV(TemplateView):
-    template_name = 'accounts/login.html'
+    template_name = 'pages/login.html'
 
     def get(self, request, *args, **kwargs):
         page_data = {
