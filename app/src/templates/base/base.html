@@ -6,6 +6,19 @@
     <title>{{ title_page }}</title>
     <link href="/static/css/libs/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/libs/customicer.css" rel="stylesheet">
+    <style>
+      body {
+           background-image: url('/static/img/background.jpg');
+           background-size: cover;
+           background-position: center;
+           background-repeat: no-repeat;
+           height: 100vh; /* Asegura que el fondo solo ocupe la altura de la pantalla visible */
+           background-attachment: fixed; /* Hace que el fondo no se desplace */
+           background-color: rgba(255, 255, 255, 0.4);
+           background-blend-mode: overlay;
+           overflow: hidden; /* Evita el scroll innecesario */
+ }
+   </style>
     {% block files_header %}
     {% endblock %}
   </head>
