@@ -6,6 +6,7 @@
     <title>{{ title_page }}</title>
     <link href="/static/css/libs/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/libs/customicer.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/libs/dataTables.dataTables.min.css">
     <style>
       body {
            background-image: url('/static/img/background.jpg');
@@ -14,7 +15,7 @@
            background-repeat: no-repeat;
            height: 100vh; /* Asegura que el fondo solo ocupe la altura de la pantalla visible */
            background-attachment: fixed; /* Hace que el fondo no se desplace */
-           background-color: rgba(255, 255, 255, 0.4);
+           background-color: rgba(255, 255, 255, 0.5);
            background-blend-mode: overlay;
            overflow: hidden; /* Evita el scroll innecesario */
  }
@@ -24,14 +25,16 @@
   </head>
   <body>
     {% if title_page != 'Inicio Sesion' %}
-    <nav class="navbar navbar-expand-lg bg-info-subtle bg-gradient border-bottom">
+    <nav class="navbar navbar-expand-lg bg-gray bg-gradient border-bottom">
       <div class="container-fluid">
-        <a class="navbar-brand text-sm" href="#">
+        <a class="navbar-brand text-sm" href="/">
         <img src="/static/img/logo-kosmo.png" alt="Logo" width="auto" height="30" class="">
-        </a>
+        </a>        
+        <span class="badge text-bg-info">NUEVA DISPONIBILIDAD</span>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
         </button>
+        
         <div class="collapse navbar-collapse justify-content-end" id="navbarNavDropdown">
           <ul class="navbar-nav">
             <!-- Equipos -->
@@ -45,7 +48,7 @@
                 Disponibilidad
               </a>
               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="equiposDropdown">
-                <li><a class="dropdown-item" href="#">
+                <li><a class="dropdown-item" href="/trade/stock/add/">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                     <path d="M11 4l3 8l-3 8" />
@@ -310,8 +313,12 @@
       </footer>
     </div>
     {% endif %}
+    <script src="/static/js/libs/jquery-3.7.1.min.js"></script>
+    <script src="/static/js/libs/dataTables.min.js" ></script>
     <script src="/static/js/libs/bootstrap.bundle.min.js"></script>
     {% block files_footer %}
+    {% endblock %}
+    {% block script %}
     {% endblock %}
   </body>
 </html>
