@@ -24,5 +24,6 @@ urlpatterns = [
     path('grappelli/', include('grappelli.urls'), name='grappelli'),
     path('', include('user_sessions.urls', 'user_sessions')),
     path('', include('accounts.urls')),
-    path('', include('partners.urls'))
+    path('', include('partners.urls')),
+    path('', include('trade.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

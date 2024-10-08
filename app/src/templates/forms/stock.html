@@ -1,69 +1,457 @@
-<form method="POST" action="">
-    {% csrf_token %}
-    
-    <!-- Formulario maestro (StockDay) -->
-    <div class="row">
-      <div class="col-md-4">
-        <div class="mb-3">
-          <label for="id_date" class="form-label">Fecha</label>
-          <input type="date" class="form-control form-control-sm" id="id_date" name="date" required>
-        </div>
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container border mt-3 mb-3">
+  <!-- Token de CSRF eliminado, ya que no es necesario en HTML plano -->
+  <!-- Formulario maestro (StockDay) -->
+  <div class="row border-bottom">
+    <div class="col-3">
+      <div class="mb-4">
+        <label for="id_date" class="form-label">Fecha Disponibilidad</label>
+        <input type="date" class="form-control form-control-sm" id="id_date" name="date" required>
       </div>
     </div>
-  
-    <!-- Línea divisoria -->
-    <hr class="my-4">
-  
-    <!-- Formulario detalle (StockDetail) -->
-    <h5>Detalles del Stock</h5>
-    <div class="row">
-      {{ formset.management_form }}
-      {% for form in formset %}
-        <div class="col-md-4">
-          <div class="mb-3">
-            <label for="{{ form.product.id_for_label }}" class="form-label">Producto</label>
-            {{ form.product|as_widget:class="form-select form-control-sm" }}
-          </div>
-          <div class="mb-3">
-            <label for="{{ form.partner.id_for_label }}" class="form-label">Socio de Negocio</label>
-            {{ form.partner|as_widget:class="form-select form-control-sm" }}
-          </div>
-          <div class="mb-3">
-            <label for="{{ form.color.id_for_label }}" class="form-label">Color</label>
-            {{ form.color|as_widget:class="form-control form-control-sm" }}
-          </div>
-          <div class="mb-3">
-            <label for="{{ form.length.id_for_label }}" class="form-label">Largo (CM)</label>
-            {{ form.length|as_widget:class="form-control form-control-sm" }}
-          </div>
-          <div class="mb-3">
-            <label for="{{ form.box_quantity.id_for_label }}" class="form-label">Cantidad de Cajas</label>
-            {{ form.box_quantity|as_widget:class="form-control form-control-sm" }}
-          </div>
-          <div class="mb-3">
-            <label for="{{ form.qty_stem_flower.id_for_label }}" class="form-label">Cantidad de Tallos</label>
-            {{ form.qty_stem_flower|as_widget:class="form-control form-control-sm" }}
-          </div>
-          <div class="mb-3">
-            <label for="{{ form.box_model.id_for_label }}" class="form-label">Tipo de Caja</label>
-            {{ form.box_model|as_widget:class="form-select form-control-sm" }}
-          </div>
-          <div class="mb-3">
-            <label for="{{ form.stem_cost_price.id_for_label }}" class="form-label">Precio de Costo por Tallo</label>
-            {{ form.stem_cost_price|as_widget:class="form-control form-control-sm" }}
+    <div class="col-9">
+      <div class="mb-3">
+        <div class="row mt-3">
+          <div class="col text-center d-flex justify-content-end gap-3">
+            <a href="#" class="btn btn-outline-warning btn-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-ban" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                <path d="M5.7 5.7l12.6 12.6" />
+              </svg>
+              Cancelar
+            </a>
+            <button class="btn btn-outline-success btn-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+                <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                <path d="M14 4l0 4l-6 0l0 -4" />
+              </svg>
+              Crear Disponibilidad
+            </button>
+            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-packages" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M7 16.5l-5 -3l5 -3l5 3v5.5l-5 3z" />
+                <path d="M2 13.5v5.5l5 3" />
+                <path d="M7 16.545l5 -3.03" />
+                <path d="M17 16.5l-5 -3l5 -3l5 3v5.5l-5 3z" />
+                <path d="M12 19l5 3" />
+                <path d="M17 16.5l5 -3" />
+                <path d="M12 13.5v-5.5l-5 -3l5 -3l5 3v5.5" />
+                <path d="M7 5.03v5.455" />
+                <path d="M12 8l5 -3" />
+              </svg>
+              Cargar Masiva
+            </button>
+            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#staticBackdrop2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-box" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+                <path d="M12 12l8 -4.5" />
+                <path d="M12 12l0 9" />
+                <path d="M12 12l-8 -4.5" />
+              </svg>
+              Cargar Manual
+            </button>
           </div>
         </div>
-      {% endfor %}
-    </div>
-  
-    <!-- Botones -->
-    <hr class="my-4">
-    
-    <div class="row mt-3">
-      <div class="col text-center d-flex justify-content-between">
-        <a href="#" class="btn btn-outline-secondary btn-sm">Cancelar</a>
-        <button type="submit" class="btn btn-outline-success btn-sm">Guardar</button>
+      </div>
+  </div>
+</div>
+  <small class="text-muted">Detalles Disponibilidad</small>
+  <div class="row">
+    <table class="table table-striped table-hover table-bordered" id="myTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Proveedor</th>
+          <th>Producto</th>
+          <th>Largo (cm)</th>
+          <th>Costo ($)</th>
+          <th>Tallos</th>
+          <th>Cajas</th>
+          <th>Zs</th>          
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="p-1">1</td>
+          <td class="p-1">Finca 1</td>
+          <td class="p-1">AKITO</td>
+          <td class="p-1">60</td>
+          <td class="p-1">0.35</td>
+          <td class="p-1">25</td>
+          <td class="p-1">3</td>
+          <td class="p-1">QB</td>
+        </tr>
+        <tr>
+          <td class="p-1">2</td>
+          <td class="p-1">Finca 2</td>
+          <td class="p-1">VENDELA</td>
+          <td class="p-1">70</td>
+          <td class="p-1">0.40</td>
+          <td class="p-1">20</td>
+          <td class="p-1">2</td>
+          <td class="p-1">HB</td>
+        </tr>
+        <tr>
+          <td class="p-1">3</td>
+          <td class="p-1">Finca 3</td>
+          <td class="p-1">TIBET</td>
+          <td class="p-1">65</td>
+          <td class="p-1">0.38</td>
+          <td class="p-1">24</td>
+          <td class="p-1">4</td>
+          <td class="p-1">QB</td>
+        </tr>
+        <tr>
+          <td class="p-1">4</td>
+          <td class="p-1">Finca 1</td>
+          <td class="p-1">PLAYA BLANCA</td>
+          <td class="p-1">70</td>
+          <td class="p-1">0.42</td>
+          <td class="p-1">26</td>
+          <td class="p-1">3</td>
+          <td class="p-1">QB</td>
+        </tr>
+        <tr>
+          <td class="p-1">5</td>
+          <td class="p-1">Finca 2</td>
+          <td class="p-1">ESKIMO</td>
+          <td class="p-1">75</td>
+          <td class="p-1">0.50</td>
+          <td class="p-1">30</td>
+          <td class="p-1">5</td>
+          <td class="p-1">QB</td>
+        </tr>
+        <tr>
+          <td class="p-1">6</td>
+          <td class="p-1">Finca 3</td>
+          <td class="p-1">MONDIAL</td>
+          <td class="p-1">60</td>
+          <td class="p-1">0.45</td>
+          <td class="p-1">28</td>
+          <td class="p-1">4</td>
+          <td class="p-1">HB</td>
+        </tr>
+        <tr>
+          <td class="p-1">7</td>
+          <td class="p-1">Finca 1</td>
+          <td class="p-1">COUNTRY BLUE</td>
+          <td class="p-1">65</td>
+          <td class="p-1">0.37</td>
+          <td class="p-1">22</td>
+          <td class="p-1">2</td>
+          <td class="p-1">QB</td>
+        </tr>
+        <tr>
+          <td class="p-1">8</td>
+          <td class="p-1">Finca 2</td>
+          <td class="p-1">DEEP PURPLE</td>
+          <td class="p-1">70</td>
+          <td class="p-1">0.48</td>
+          <td class="p-1">25</td>
+          <td class="p-1">4</td>
+          <td class="p-1">QB</td>
+        </tr>
+        <tr>
+          <td class="p-1">9</td>
+          <td class="p-1">Finca 3</td>
+          <td class="p-1">MODDY BLUES</td>
+          <td class="p-1">75</td>
+          <td class="p-1">0.43</td>
+          <td class="p-1">27</td>
+          <td class="p-1">3</td>
+          <td class="p-1">HB</td>
+        </tr>
+        <tr>
+          <td class="p-1">10</td>
+          <td class="p-1">Finca 1</td>
+          <td class="p-1">OCEAN SONG</td>
+          <td class="p-1">65</td>
+          <td class="p-1">0.41</td>
+          <td class="p-1">24</td>
+          <td class="p-1">3</td>
+          <td class="p-1">QB</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- Modal ADD masivo -->
+<div class="modal  modal-xl fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-kosmo-primary bg-gradient p-2">
+        <h1 class="modal-title fs-6 text-white" id="staticBackdropLabel">Carga Masiva de Stock</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12">
+              <div class="mb-3">
+                <label for="id_file" class="form-label">Proveedor</label>
+                <select name="" id="" class="form-control form-control-sm">
+                  <option value="">Finca 1</option>
+                  <option value="">Finca 2</option>
+                  <option value="">Finca 3</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="mb-3">
+                <label for="id_file" class="form-label">Datos de Stock</label>
+                <textarea name="" id="" class="form-control">
+                </textarea>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <table class="table table-striped table-hover table-bordered" id="myTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Proveedor</th>
+                    <th>Producto</th>
+                    <th>Largo (cm)</th>
+                    <th>Costo ($)</th>
+                    <th>Tallos</th>
+                    <th>Cajas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="p-1">1</td>
+                    <td class="p-1">Finca 1</td>
+                    <td class="p-1">AKITO</td>
+                    <td class="p-1">60</td>
+                    <td class="p-1">0.35</td>
+                    <td class="p-1">25</td>
+                    <td class="p-1">3</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>Finca 2</td>
+                    <td>VENDELA</td>
+                    <td>70</td>
+                    <td>0.40</td>
+                    <td>20</td>
+                    <td>2</td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Finca 3</td>
+                    <td>TIBET</td>
+                    <td>65</td>
+                    <td>0.38</td>
+                    <td>24</td>
+                    <td>4</td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>Finca 1</td>
+                    <td>PLAYA BLANCA</td>
+                    <td>70</td>
+                    <td>0.42</td>
+                    <td>26</td>
+                    <td>3</td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>Finca 2</td>
+                    <td>ESKIMO</td>
+                    <td>75</td>
+                    <td>0.50</td>
+                    <td>30</td>
+                    <td>5</td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td>Finca 3</td>
+                    <td>MONDIAL</td>
+                    <td>60</td>
+                    <td>0.45</td>
+                    <td>28</td>
+                    <td>4</td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td>Finca 1</td>
+                    <td>COUNTRY BLUE</td>
+                    <td>65</td>
+                    <td>0.37</td>
+                    <td>22</td>
+                    <td>2</td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td>Finca 2</td>
+                    <td>DEEP PURPLE</td>
+                    <td>70</td>
+                    <td>0.48</td>
+                    <td>25</td>
+                    <td>4</td>
+                  </tr>
+                  <tr>
+                    <td>9</td>
+                    <td>Finca 3</td>
+                    <td>MODDY BLUES</td>
+                    <td>75</td>
+                    <td>0.43</td>
+                    <td>27</td>
+                    <td>3</td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>Finca 1</td>
+                    <td>OCEAN SONG</td>
+                    <td>65</td>
+                    <td>0.41</td>
+                    <td>24</td>
+                    <td>3</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer bg-gray bg-gradient">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-ban" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+            <path d="M5.7 5.7l12.6 12.6" />
+          </svg>
+          Cancelar
+      </button>
+        <button type="button" class="btn btn-primary btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 12l5 5l10 -10" />
+          </svg>
+          Confirmar Entrada Stock
+        </button>
       </div>
     </div>
-  </form>
-  
+  </div>
+</div>
+ <!-- Modal ADD manual -->
+ <div class="modal  modal-xl fade" id="staticBackdrop2" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-kosmo-primary bg-gradient p-2">
+        <h1 class="modal-title fs-6 text-white" id="staticBackdropLabel">Carga Manual</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body border">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label for="id_product" class="form-label">Producto</label>
+                <select class="form-select form-control-sm" id="id_product" name="product">
+                  <option value="">Seleccione un producto</option>
+                  <!-- Opciones de productos -->
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="id_partner" class="form-label">Socio de Negocio</label>
+                <select class="form-select form-control-sm" id="id_partner" name="partner">
+                  <option value="">Seleccione un socio</option>
+                  <!-- Opciones de socios -->
+                </select>
+              </div>
+            </div>
+          
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label for="id_color" class="form-label">Color</label>
+                <input type="text" class="form-control form-control-sm" id="id_color" name="color">
+              </div>
+              <div class="mb-3">
+                <label for="id_length" class="form-label">Largo (CM)</label>
+                <input type="number" class="form-control form-control-sm" id="id_length" name="length">
+              </div>
+            </div>
+          
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label for="id_box_quantity" class="form-label">Cantidad de Cajas</label>
+                <input type="number" class="form-control form-control-sm" id="id_box_quantity" name="box_quantity">
+              </div>
+              <div class="mb-3">
+                <label for="id_qty_stem_flower" class="form-label">Cantidad de Tallos</label>
+                <input type="number" class="form-control form-control-sm" id="id_qty_stem_flower" name="qty_stem_flower">
+              </div>
+            </div>
+          
+            <div class="col-md-3">
+              <div class="mb-3">
+                <label for="id_box_model" class="form-label">Tipo de Caja</label>
+                <select class="form-select form-control-sm" id="id_box_model" name="box_model">
+                  <option value="">Seleccione un tipo de caja</option>
+                  <!-- Opciones de tipos de cajas -->
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="id_stem_cost_price" class="form-label">Precio de Costo por Tallo</label>
+                <input type="number" class="form-control form-control-sm" id="id_stem_cost_price" name="stem_cost_price">
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      <div class="modal-footer bg-gray bg-gradient">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-ban" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+            <path d="M5.7 5.7l12.6 12.6" />
+          </svg>
+          Cancelar
+      </button>
+        <button type="button" class="btn btn-primary btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M5 12l5 5l10 -10" />
+          </svg>
+          Confirmar Entrada Stock
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+  $(document).ready(function() {
+    $('#myTable').DataTable(
+      {
+        "language": {
+          "lengthMenu": "Mostrar _MENU_ registros por página",
+          "zeroRecords": "No se encontraron registros",
+          "info": "Mostrando página _PAGE_ de _PAGES_",
+          "infoEmpty": "No hay registros disponibles",
+          "infoFiltered": "(filtrado de _MAX_ registros totales)",
+          "search": "Buscar:",
+          "paginate": {
+            "first": "Primero",
+            "last": "Último",
+            "next": "Siguiente",
+            "previous": "Anterior"
+          }
+        }
+      }
+    );
+  });
+</script>
+{% endblock %}
