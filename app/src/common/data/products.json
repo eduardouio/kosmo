@@ -1,158 +1,158 @@
 [
-    {
-    "name": "AKITO",
+  {
+    "name": "ROSA",
     "variety": "AKITO"
-    },
-    {
-        "name": "VENDELA",
-        "variety": "VENDELA"
-    },
-    {
-        "name": "TIBET",
-        "variety": "TIBET"
-    },
-    {
-        "name": "PLAYA BLANCA",
-        "variety": "PLAYA BLANCA"
-    },
-    {
-        "name": "ESKIMO",
-        "variety": "ESKIMO"
-    },
-    {
-        "name": "MONDIAL",
-        "variety": "MONDIAL"
-    },
-    {
-        "name": "COUNTRY BLUE",
-        "variety": "COUNTRY BLUE"
-    },
-    {
-        "name": "DEEP PURPLE",
-        "variety": "DEEP PURPLE"
-    },
-    {
-        "name": "MODDY BLUES",
-        "variety": "MODDY BLUES"
-    },
-    {
-        "name": "OCEAN SONG",
-        "variety": "OCEAN SONG"
-    },
-    {
-        "name": "BRIGHTON",
-        "variety": "BRIGHTON"
-    },
-    {
-        "name": "HIGH EXOTIC",
-        "variety": "HIGH EXOTIC"
-    },
-    {
-        "name": "STARDUST",
-        "variety": "STARDUST"
-    },
-    {
-        "name": "TARA",
-        "variety": "TARA"
-    },
-    {
-        "name": "HIGH MAGIC",
-        "variety": "HIGH MAGIC"
-    },
-    {
-        "name": "FREE SPIRIT",
-        "variety": "FREE SPIRIT"
-    },
-    {
-        "name": "ORANGE CRUSH",
-        "variety": "ORANGE CRUSH"
-    },
-    {
-        "name": "NINA",
-        "variety": "NINA"
-    },
-    {
-        "name": "NENA",
-        "variety": "NENA"
-    },
-    {
-        "name": "HARD&ROCK",
-        "variety": "HARD&ROCK"
-    },
-    {
-        "name": "FULL MONTY",
-        "variety": "FULL MONTY"
-    },
-    {
-        "name": "ASSORTED",
-        "variety": "ASSORTED"
-    },
-    {
-        "name": "GOTCHA",
-        "variety": "GOTCHA"
-    },
-    {
-        "name": "PINK FLOYD",
-        "variety": "PINK FLOYD"
-    },
-    {
-        "name": "SWEET UNIQUE",
-        "variety": "SWEET UNIQUE"
-    },
-    {
-        "name": "SWEET AKITO",
-        "variety": "SWEET AKITO"
-    },
-    {
-        "name": "SWEET ESKIMO ",
-        "variety": "SWEET ESKIMO "
-    },
-    {
-        "name": "PINK MONDIAL",
-        "variety": "PINK MONDIAL"
-    },
-    {
-        "name": "PRICELESS",
-        "variety": "PRICELESS"
-    },
-    {
-        "name": "HERMOSA",
-        "variety": "HERMOSA"
-    },
-    {
-        "name": "SHIMMER",
-        "variety": "SHIMMER"
-    },
-    {
-        "name": "FREEDOM",
-        "variety": "FREEDOM"
-    },
-    {
-        "name": "EXPLORER",
-        "variety": "EXPLORER"
-    },
-    {
-        "name": "KAHALA",
-        "variety": "KAHALA"
-    },
-    {
-        "name": "SAHARA",
-        "variety": "SAHARA"
-    },
-    {
-        "name": "QUICKSAND ",
-        "variety": "QUICKSAND "
-    },
-    {
-        "name": "SECRET GARDEN",
-        "variety": "SECRET GARDEN"
-    },
-    {
-        "name": "TYFANNY",
-        "variety": "TYFANNY"
-    },
-    {
-        "name": "TOFEE",
-        "variety": "TOFEE"
-    }
+  },
+  {
+    "name": "ROSA",
+    "variety": "VENDELA"
+  },
+  {
+    "name": "ROSA",
+    "variety": "TIBET"
+  },
+  {
+    "name": "ROSA",
+    "variety": "PLAYA BLANCA"
+  },
+  {
+    "name": "ROSA",
+    "variety": "ESKIMO"
+  },
+  {
+    "name": "ROSA",
+    "variety": "MONDIAL"
+  },
+  {
+    "name": "ROSA",
+    "variety": "COUNTRY BLUE"
+  },
+  {
+    "name": "ROSA",
+    "variety": "DEEP PURPLE"
+  },
+  {
+    "name": "ROSA",
+    "variety": "MODDY BLUES"
+  },
+  {
+    "name": "ROSA",
+    "variety": "OCEAN SONG"
+  },
+  {
+    "name": "ROSA",
+    "variety": "BRIGHTON"
+  },
+  {
+    "name": "ROSA",
+    "variety": "HIGH EXOTIC"
+  },
+  {
+    "name": "ROSA",
+    "variety": "STARDUST"
+  },
+  {
+    "name": "ROSA",
+    "variety": "TARA"
+  },
+  {
+    "name": "ROSA",
+    "variety": "HIGH MAGIC"
+  },
+  {
+    "name": "ROSA",
+    "variety": "FREE SPIRIT"
+  },
+  {
+    "name": "ROSA",
+    "variety": "ORANGE CRUSH"
+  },
+  {
+    "name": "ROSA",
+    "variety": "NINA"
+  },
+  {
+    "name": "ROSA",
+    "variety": "NENA"
+  },
+  {
+    "name": "ROSA",
+    "variety": "HARD&ROCK"
+  },
+  {
+    "name": "ROSA",
+    "variety": "FULL MONTY"
+  },
+  {
+    "name": "ROSA",
+    "variety": "ASSORTED"
+  },
+  {
+    "name": "ROSA",
+    "variety": "GOTCHA"
+  },
+  {
+    "name": "ROSA",
+    "variety": "PINK FLOYD"
+  },
+  {
+    "name": "ROSA",
+    "variety": "SWEET UNIQUE"
+  },
+  {
+    "name": "ROSA",
+    "variety": "SWEET AKITO"
+  },
+  {
+    "name": "ROSA",
+    "variety": "SWEET ESKIMO "
+  },
+  {
+    "name": "ROSA",
+    "variety": "PINK MONDIAL"
+  },
+  {
+    "name": "ROSA",
+    "variety": "PRICELESS"
+  },
+  {
+    "name": "ROSA",
+    "variety": "HERMOSA"
+  },
+  {
+    "name": "ROSA",
+    "variety": "SHIMMER"
+  },
+  {
+    "name": "ROSA",
+    "variety": "FREEDOM"
+  },
+  {
+    "name": "ROSA",
+    "variety": "EXPLORER"
+  },
+  {
+    "name": "ROSA",
+    "variety": "KAHALA"
+  },
+  {
+    "name": "ROSA",
+    "variety": "SAHARA"
+  },
+  {
+    "name": "ROSA",
+    "variety": "QUICKSAND "
+  },
+  {
+    "name": "ROSA",
+    "variety": "SECRET GARDEN"
+  },
+  {
+    "name": "ROSA",
+    "variety": "TYFANNY"
+  },
+  {
+    "name": "ROSA",
+    "variety": "TOFEE"
+  }
 ]

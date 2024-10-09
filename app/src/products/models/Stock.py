@@ -43,35 +43,19 @@ class StockDetail(BaseModel):
         StockDay,
         on_delete=models.CASCADE
     )
-    product = models.ForeignKey(
-        Product,
-        on_delete=models.CASCADE
-    )
     partner = models.ForeignKey(
         Partner,
         on_delete=models.CASCADE
-    )
-    color = models.CharField(
-        'Color',
-        max_length=255
-    )
-    length = models.PositiveSmallIntegerField(
-        'Largo CM',
-    )
-    box_quantity = models.IntegerField(
-        'Cantidad Cajas',
-        default=0,
-        help_text='Cantidad de cajas'
-    )
-    qty_stem_flower = models.IntegerField(
-        'Cant Tallos',
-        default=0,
-        help_text='Cantidad de tallos de flor'
     )
     box_model = models.CharField(
         'Tipo de caja',
         max_length=50,
         choices=BOX_CHOICES
+    )
+    tot_stem_flower = models.IntegerField(
+        'Cant Tallos',
+        default=0,
+        help_text='Cantidad de tallos de flor'
     )
     stem_cost_price = models.DecimalField(
         'Precio de costo Tallo',
@@ -91,6 +75,33 @@ class StockDetail(BaseModel):
             stock_day=stock_day,
             partner=partner
         )
+
+    def __str__(self):
+        return '{}'.format(
+            self.stock_day
+        )
+
+
+class BoxItems(BaseModel):
+    id = models.AutoField(
+        primary_key=True
+    )
+    stock_detail = models.ForeignKey(
+        StockDetail,
+        on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE
+    )
+    length = models.PositiveSmallIntegerField(
+        'Largo CM',
+    )
+    qty_stem_flower = models.IntegerField(
+        'Cant Tallos',
+        default=0,
+        help_text='Cantidad de tallos de flor'
+    )
 
     def __str__(self):
         return '{}'.format(

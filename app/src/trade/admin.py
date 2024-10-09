@@ -28,10 +28,8 @@ class OrderItemsAdmin(SimpleHistoryAdmin):
         'id',
         'order',
         'stock_detail',
-        'box_quantity',
         'qty_stem_flower',
         'line_price',
-        'box_model'
     )
 
 
@@ -61,8 +59,7 @@ class InvoiceItemsAdmin(SimpleHistoryAdmin):
         'order_item',
         'qty_stem_flower',
         'line_price',
-        'line_discount',
-        'box'
+        'line_discount'
     )
 
 

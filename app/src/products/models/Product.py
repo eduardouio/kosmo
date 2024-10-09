@@ -8,7 +8,6 @@ class Product(BaseModel):
     )
     name = models.CharField(
         'Nombre',
-        unique=True,
         max_length=255
     )
     image = models.ImageField(

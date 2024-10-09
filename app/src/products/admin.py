@@ -27,12 +27,8 @@ class StockDetailAdmin(SimpleHistoryAdmin):
     list_display = (
         'id',
         'stock_day',
-        'product',
         'partner',
-        'color',
-        'length',
-        'box_quantity',
-        'qty_stem_flower',
+        'tot_stem_flower',
         'stem_cost_price',
     )
 
@@ -40,7 +36,6 @@ class StockDetailAdmin(SimpleHistoryAdmin):
         'stock_day__date',
         'product__name',
         'partner__name',
-        'color',
     )
 
 

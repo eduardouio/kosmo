@@ -106,10 +106,6 @@ class OrderItems(BaseModel):
         StockDetail,
         on_delete=models.CASCADE
     )
-    box_quantity = models.IntegerField(
-        'Cantidad de Cajas',
-        default=0
-    )
     line_price = models.DecimalField(
         'Precio Linea',
         max_digits=10,
@@ -119,11 +115,6 @@ class OrderItems(BaseModel):
         'Unds Tallos',
         default=0,
         help_text='Cantidad de tallos de flor'
-    )
-    box_model = models.CharField(
-        'Tipo de caja',
-        max_length=50,
-        choices=BOX_CHOICES
     )
 
     @classmethod

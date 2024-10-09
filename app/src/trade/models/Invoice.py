@@ -162,11 +162,6 @@ class InvoiceItems(BaseModel):
         max_digits=10,
         decimal_places=2
     )
-    box = models.CharField(
-        'Tipo de caja',
-        max_length=50,
-        choices=BOX_CHOICES
-    )
 
     @classmethod
     def get_invoice_items(cls, invoice):

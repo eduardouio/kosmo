@@ -1,2 +1,2 @@
 from .Product import Product
-from .Stock import StockDay, StockDetail
+from .Stock import StockDay, StockDetail, BoxItems

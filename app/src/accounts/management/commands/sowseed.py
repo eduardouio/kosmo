@@ -2,11 +2,12 @@ import json
 import random
 import secrets
 from datetime import datetime, timedelta
+from decimal import Decimal
 from faker import Faker
 from django.core.management.base import BaseCommand
 from accounts.models import CustomUserModel, License
 from partners.models import Partner, Contact, Bank, DAE
-from products.models import Product, StockDay, StockDetail
+from products.models import Product, StockDay, StockDetail, BoxItems
 from trade.models import (
     Order, OrderItems, Invoice, InvoiceItems, Payment
 )
@@ -230,17 +231,21 @@ class Command(BaseCommand):
                     qty_stem = random.choice(qty_stems[box_model])
                     product = products[random.randint(0, products.count() - 1)]
                     length = random.choice([40, 50, 60, 70, 80, 90])
-                    StockDetail.objects.create(
+
+                    stock_detail = StockDetail.objects.create(
                         stock_day=stock_day,
-                        product=product,
                         partner=partner,
-                        color=random.choice(colors_available),
-                        length=length,
-                        box_quantity=random.randint(1, 100),
                         box_model=box_model,
-                        qty_stem_flower=qty_stem,
+                        tot_stem_flower=qty_stem,
                         stem_cost_price=random.choice(
                             cost_references[str(length)])
+                    )
+
+                    BoxItems.objects.create(
+                        stock_detail=stock_detail,
+                        product=product,
+                        length=length,
+                        qty_stem_flower=qty_stem
                     )
 
     def load_customer_orders(self):
@@ -261,7 +266,7 @@ class Command(BaseCommand):
             )
 
             print('Creando detalles de orden de venta')
-            for i in range(1, random.randint(1, 6   )):
+            for i in range(1, random.randint(1, 6)):
                 stock_day = stock_days[random.randint(
                     0, stock_days.count() - 1)
                 ]
@@ -272,21 +277,17 @@ class Command(BaseCommand):
                 line_stock = stock_day_detail[random.randint(
                     0, stock_day_detail.count() - 1)]
 
-                quantity = random.choice([1, line_stock.box_quantity])
-
                 line_price = (
                     line_stock.stem_cost_price
-                    * line_stock.qty_stem_flower
-                    * (line_stock.product.default_rend * 1)
+                    * line_stock.tot_stem_flower
+                    * Decimal(1.06)
                 )
 
                 OrderItems.objects.create(
                     order=order_sale,
                     stock_detail=line_stock,
-                    box_quantity=quantity,
                     line_price=line_price,
-                    qty_stem_flower=line_stock.qty_stem_flower,
-                    box_model=line_stock.box_model
+                    qty_stem_flower=line_stock.tot_stem_flower
                 )
 
     def load_purcharse_order(self):
@@ -315,10 +316,8 @@ class Command(BaseCommand):
                     OrderItems.objects.create(
                         order=order_purchase,
                         stock_detail=item.stock_detail,
-                        box_quantity=item.box_quantity,
                         line_price=item.line_price,
                         qty_stem_flower=item.qty_stem_flower,
-                        box_model=item.box_model
                     )
 
     def generarte_purchases_invoices(self, faker):
