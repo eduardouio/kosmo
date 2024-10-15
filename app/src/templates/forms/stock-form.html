@@ -68,8 +68,8 @@
 <div v-else>
   <div class="text-secondary mt-3">
     Detalles Disponibilidad
-    <span class="text-danger" v-if="stock.partner">
-      [[ stock.date ]] / [[ stock.partner.name ]]
+    <span class="text-danger" v-if="partner">
+      [[ stock.date ]] / [[ partner.name ]]
     </span>
   </div>
   <div class="row" v-if="disponibility">

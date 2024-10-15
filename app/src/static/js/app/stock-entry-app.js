@@ -7,8 +7,9 @@ const app = Vue.createApp({
           csrftoken:csrfToken,
           show_form:true,
           disponibility:null,
+          partner:null,
           stock: {
-            partner:null,
+            id_partner:null,
             date: new Date().toISOString().split('T')[0],
             stock_text: '',
           },
@@ -16,9 +17,10 @@ const app = Vue.createApp({
     },
     methods:{
         selectPartner($event){
-            this.stock.partner = this.partners.find(
+            this.partner = this.partners.find(
                 partner => partner.id == $event.target.value
             );
+            this.stock.id_partner = this.partner.id;
         },
         processText($event){
             console.log($event.target.value);
