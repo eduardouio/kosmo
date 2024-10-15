@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'pytest_django',
     'user_sessions',
     'rest_framework',
     'accounts',
