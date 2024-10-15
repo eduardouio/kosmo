@@ -4,26 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title_page }}</title>
+    <link rel="icon" href="/static/img/logo.png">
     <link href="/static/css/libs/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/libs/customicer.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/libs/dataTables.dataTables.min.css">
-    <style>
-      body {
-           background-image: url('/static/img/background.jpg');
-           background-size: cover;
-           background-position: center;
-           background-repeat: no-repeat;
-           height: 100vh; /* Asegura que el fondo solo ocupe la altura de la pantalla visible */
-           background-attachment: fixed; /* Hace que el fondo no se desplace */
-           background-color: rgba(255, 255, 255, 0.5);
-           background-blend-mode: overlay;
-           overflow: hidden; /* Evita el scroll innecesario */
- }
-   </style>
+    <script src="/static/js/libs/vue@3.js"></script>
     {% block files_header %}
     {% endblock %}
   </head>
   <body>
+    <div id="app">
     {% if title_page != 'Inicio Sesion' %}
     <nav class="navbar navbar-expand-lg bg-gray bg-gradient border-bottom">
       <div class="container-fluid">
@@ -312,6 +302,7 @@
         </ul>
       </footer>
     </div>
+  </div>
     {% endif %}
     <script src="/static/js/libs/jquery-3.7.1.min.js"></script>
     <script src="/static/js/libs/dataTables.min.js" ></script>
