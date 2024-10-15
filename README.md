@@ -58,3 +58,19 @@ pip install -r requirements.txt
 ./manage.py sowseed
 ./manage.py runserver
 ```
+
+# Lista de Fincas a Verificar
+
+| **Nombre de la Finca**              | **Verificado** |
+|-------------------------------------|----------------|
+| Finca Moonlight Flowers             | No             |
+| Finca Santa Clara                   | No             |
+| Finca Yamiteo Flowers               | No             |
+| Finca Rosas Del Campo               | No             |
+| Finca Fairis Garden                 | No             |
+| Finca Florifrut S.A.                | No             |
+| Finca Flores De La Hacienda         | No             |
+| Finca Valent Roses                  | No             |
+| Finca Spring Roses                  | No             |
+| Finca Floraroma SA                  | Sí             |
+| Finca Kosmo Flowers SA              | Sí             |
