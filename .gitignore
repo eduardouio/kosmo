@@ -196,3 +196,7 @@ back/src/accounts/migrations/0001_initial.py
 
 *.pdf
 back/olddb.sqlite3
+app/src/trade/migrations/0001_initial.py
+app/src/partners/migrations/0001_initial.py
+app/src/accounts/migrations/0001_initial.py
+app/src/products/migrations/0001_initial.py
