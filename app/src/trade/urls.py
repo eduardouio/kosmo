@@ -3,5 +3,5 @@ from .views import StockDiary
 
 
 urlpatterns = [
-    path('trade/stock/add/', StockDiary.as_view(), name='add-stock'),
+    path('trade/stock/add/', StockDiary.as_view(), name='stock-add'),
 ]

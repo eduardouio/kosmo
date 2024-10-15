@@ -263,7 +263,7 @@
 <script>
   var partners = {{ partners_json | safe }};
   var products = {{ products_json | safe }};
-  var urlPost = "{% url 'add-stock' %}";
+  var urlPost = "{% url 'stock-add' %}";
   var csrfToken = "{{ csrf_token }}";
 
   var partners = partners.map((i)=>{
