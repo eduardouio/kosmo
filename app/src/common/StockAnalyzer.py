@@ -1,6 +1,5 @@
 import re
 from products.models import Product
-from partners.models import Partner
 
 
 class StockAnalyzer():
