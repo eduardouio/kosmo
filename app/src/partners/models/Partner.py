@@ -138,7 +138,16 @@ class Partner(BaseModel):
         except ObjectDoesNotExist:
             return None
 
+    @classmethod
+    def get_by_parcial_name(cls, name):
+        partners = cls.objects.filter(
+            name__icontains=name
+        )
+        return partners[0] if partners else None
+
     def __str__(self):
         if self.type_partner == 'client':
             return f'C: {self.name}'
         return f'S: {self.name}'
+
+    

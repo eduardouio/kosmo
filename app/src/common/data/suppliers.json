@@ -61,5 +61,19 @@
     "city": "Cayambe",
     "country": "Ecuador",
     "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Floraroma SA",
+    "business_tax_id":"20315621159",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
+  },
+  {
+    "name": "Finca Kosmo Flowers SA",
+    "business_tax_id":"20315621889",
+    "city": "Cayambe",
+    "country": "Ecuador",
+    "type_partner": "PROVEEDOR"
   }
 ]
