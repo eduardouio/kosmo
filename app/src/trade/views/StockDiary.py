@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from partners.models import Partner
 from products.models import Product
+from  common import StockAnalyzer
 
 
 class StockDiary(LoginRequiredMixin, TemplateView):
@@ -24,17 +25,8 @@ class StockDiary(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
-        pattern = r"(\d+)(\w{2}) (\D+) (\d+\/?\d*) x (\d+) ([\d.\/]+)"
-        matches = re.findall(pattern, data['stock_text'].replace(',', '.'))
-        disponiblility = []
-        for item in matches:
-            disponiblility.append({
-                'quantity_box': item[0],
-                'box_model': item[1].upper(),
-                'product': item[2].upper(),
-                'length': item[3].split('/'),
-                'qty_stem_flower': item[4],
-                'stem_cost_price': item[5].split('/'),
-            })
-
-        return JsonResponse(disponiblility, safe=False)
+        stock_analyzer = StockAnalyzer()
+        disponiblility = stock_analyzer.get_stock(
+            data['stock_text'], data['id_partner']
+        )
+        return JsonResponse({}, status=200)
