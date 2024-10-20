@@ -2,16 +2,16 @@
 	background-color: #ffff99;
 }
 
-.bg-gray {
-	background-color: #d0d0d0;
+.bg-gray{
+	background-color: #f2f2f2;
 }
 
 .text-kosmo-primary {
-	color: rgb(194, 66, 39)
+	color: rgb(194,66,39)
 }
 
 .bg-kosmo-primary {
-	background-color: rgb(194, 66, 39)
+	background-color: rgb(194,66,39)
 }
 
 .text-kosmo-secondary {
@@ -25,7 +25,6 @@
 .bg-kosmo-secondary {
 	background-color: rgb(234, 90, 40)
 }
-
 .bg-kosmo-green {
 	background-color: rgb(55, 173, 74);
 }
@@ -38,41 +37,36 @@
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-}
-
+  }
 
 .bg-peisol-primary {
-	background-color: rgb(30, 75, 100)
+	background-color: rgb(30,75,100)
 }
 
 .text-peisol-primary {
-	color: rgb(30, 75, 100)
+	color: rgb(30,75,100)
 }
 
 .text-peisol-secondary {
-	color: rgb(157, 197, 60)
+	color: rgb(157,197,60)
 }
 
 .bg-peisol-secondary {
-	background-color: rgb(157, 197, 60)
+	background-color: rgb(157,197,60)
 }
 
-.text-white {
+.text-white{
 	color: white;
 }
 
 a {
-	color: inherit;
-	/* Cambia 'inherit' para que tome el color del elemento padre, o usa el color que desees */
-	text-decoration: none;
-	/* Elimina la línea subrayada */
+    color: inherit; /* Cambia 'inherit' para que tome el color del elemento padre, o usa el color que desees */
+    text-decoration: none; /* Elimina la línea subrayada */
 }
 
 a:hover {
-	color: inherit;
-	/* Mantiene el mismo color al pasar el ratón, puedes cambiar esto si lo deseas */
-	text-decoration: none;
-	/* Mantiene el enlace sin subrayado al pasar el ratón */
+    color: inherit; /* Mantiene el mismo color al pasar el ratón, puedes cambiar esto si lo deseas */
+    text-decoration: none; /* Mantiene el enlace sin subrayado al pasar el ratón */
 }
 
 td:hover {
@@ -84,48 +78,44 @@ tr:hover {
 }
 
 input[type="checkbox"] {
-	width: 2rem;
-	;
-	/* Esto permite que el ancho del checkbox sea el predeterminado */
-	height: 2rem;
-	/* Esto hace que el checkbox ocupe todo el alto del contenedor */
-}
+	width: 2rem;; /* Esto permite que el ancho del checkbox sea el predeterminado */
+	height: 2rem; /* Esto hace que el checkbox ocupe todo el alto del contenedor */
+  }
 
 
 .btn-default {
-	background-image: linear-gradient(#edeff2, #e9ecef 60%, #dbdee1);
-	border: #a3a5a7 solid 1px;
-	color: #555;
+background-image: linear-gradient(#edeff2, #e9ecef 60%, #dbdee1);
+border: #a3a5a7 solid 1px;
+color: #555;
 }
 
 .btn-default:hover {
-	background-image: linear-gradient(#e9ecef, #dde0e3 60%, #c6c9cb);
-	border: rgb(44, 161, 227) solid 1px;
-	color: rgb(1, 68, 85);
+background-image: linear-gradient(#e9ecef, #dde0e3 60%, #c6c9cb);
+border: rgb(44, 161, 227) solid 1px;
+color: rgb(1, 68, 85);
 }
 
 .btn-default:focus {
 	background-image: linear-gradient(#e9ecef, #dde0e3 60%, #c6c9cb);
 	border: rgb(44, 161, 227) solid 1px;
 	color: rgb(1, 68, 85);
-}
+	}
+	
 
 .btn-default:active {
-	background-image: linear-gradient(#babdbf, #babdbf 60%, #a3a5a7);
-	border: rgb(44, 227, 99) solid 1px;
-	color: rgb(0, 147, 184);
+background-image: linear-gradient(#babdbf, #babdbf 60%, #a3a5a7);
+border: rgb(44, 227, 99) solid 1px;
+color: rgb(0, 147, 184);
 }
 
 body {
-	background-image: url('/static/img/background.jpg');
-	background-size: cover;
-	background-position: center;
-	background-repeat: no-repeat;
-	height: 100vh;
-	/* Asegura que el fondo solo ocupe la altura de la pantalla visible */
-	background-attachment: fixed;
-	/* Hace que el fondo no se desplace */
-	background-color: rgba(255, 255, 255, 0.4);
-	background-blend-mode: overlay;
-	font-size: 0.85rem;
+	 background-image: url('/static/img/background.jpg');
+	 background-size: cover;
+	 background-position: center;
+	 background-repeat: no-repeat;
+	 height: 100vh; /* Asegura que el fondo solo ocupe la altura de la pantalla visible */
+	 background-attachment: fixed; /* Hace que el fondo no se desplace */
+	 background-color: rgba(255, 255, 255, 0.4);
+	 background-blend-mode: overlay;
+	 font-size: 0.85rem;
 }
