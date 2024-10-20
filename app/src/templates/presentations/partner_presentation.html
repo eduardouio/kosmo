@@ -1,0 +1,225 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+    <div class="row">
+    <div class="col-3">
+    <span class="text-primary">
+        {{ title_section }}
+    </span>
+</div>
+<div class="col-4 d-flex justify-content-end">
+    {% if action %}
+    <div class="{% if action == 'delete' or action == 'no_delete'%} bg-danger {% else %} bg-peisol-secondary {% endif %} bg-gradient p-2 rounded">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+            <path d="M9 12l2 2l4 -4" />
+        </svg>
+        {{ message }}
+    </div>
+    {% endif %}
+</div>
+<div class="col-5 d-flex justify-content-end gap-3">
+    {% if not action %}
+    <a href="{% url 'partner_detail' partner.id %}?action=delete" class="btn btn-sm btn-default">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M4 7l16 0" />
+            <path d="M10 11l0 6" />
+            <path d="M14 11l0 6" />
+            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+          </svg>
+        Eliminar
+    </a>
+    {% endif %}
+    <a href="{% url 'partner_update' partner.id %}" class="btn btn-sm btn-default">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+            <path d="M16 5l3 3" />
+          </svg>
+        Editar
+    </a>
+    <a href="{% url 'partner_create' %}" class="btn btn-sm btn-default">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 5l0 14" />
+            <path d="M5 12l14 0" />
+          </svg>
+        Nuevo
+    </a>
+    <a href="{% url 'partner_list' %}" class="btn btn-sm btn-default">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+            <path d="M5 12l14 0" />
+            <path d="M5 12l6 6" />
+            <path d="M5 12l6 -6" />
+          </svg>
+        Volver
+    </a>
+</div>
+</div>
+</div>
+<div class="container mt-2">
+    <!-- Información del Socio de Negocio -->
+    <div class="card mb-2">
+        <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                <path d="M12 9h.01" />
+                <path d="M11 12h1v4h1" />
+              </svg>
+            Información del Socio de Negocio
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">RUC:</span>
+                    <span class="px-3">{{ partner.business_tax_id }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Nombre:</span>
+                    <span class="px-3">{{ partner.name }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Crédito:</span>
+                    <span class="px-3">{{ partner.credit_term }} días</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Correo Electrónico:</span>
+                    <span class="px-3">{{ partner.email }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Teléfono:</span>
+                    <span class="px-3">{{ partner.phone }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Dirección:</span>
+                    <span class="px-3">{{ partner.address }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">País:</span>
+                    <span class="px-3">{{ partner.country }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Ciudad:</span>
+                    <span class="px-3">{{ partner.city }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">ZIP:</span>
+                    <span class="px-3">{{ partner.zip_code }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Fecha de Creación:</span>
+                    <span class="px-3">{{ partner.created_at }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Creado Por:</span>
+                    <span class="px-3">
+                        {% if partner.get_create_user %}
+                            {{ partner.get_create_user }}
+                        {% else %}
+                            SYSTEM
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Fecha de Actualización:</span>
+                    <span class="px-3">{{ partner.updated_at }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Actualizado Por:</span>
+                    <span class="px-3">
+                        {% if partner.get_update_user %}
+                            {{ partner.get_update_user }}
+                        {% else %}
+                            SYSTEM
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if partner.type_partner ==  'CLIENTE' %}
+    <div class="card">
+        <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                <path d="M12 9h.01" />
+                <path d="M11 12h1v4h1" />
+              </svg>
+            Fincas Asociados
+        </div>
+        <div class="card-body">
+            <div class="row">
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                <path d="M12 9h.01" />
+                <path d="M11 12h1v4h1" />
+              </svg>
+            Datos de Envio
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Dirección de Envio:</span>
+                    <span class="px-3">{{ partner.dispatch_address }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Días de Envio:</span>
+                    <span class="px-3">{{ partner.dispatch_days }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Carguero:</span>
+                    <span class="px-3">{{ partner.cargo_reference }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Consolida:</span>
+                    <span class="px-3">{{ partner.consolidate|yesno:"Si,No" }}</span>
+                </div>
+                <div class="col-md-4 d-flex flex-column p-1">
+                    <span class="text-muted">Dirección de Envio:</span>
+                    <span class="px-3">{{ partner.dispatch_address }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if action == 'delete' %}
+    <div class="row mb-3">
+        <a href="{% url 'partner_delete' request.resolver_match.kwargs.pk  %}" class="btn btn-sm btn-default">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M12 9v4" />
+                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                <path d="M12 16h.01" />
+              </svg>
+            Confirmar Eliminación
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    function openPopup(url) {
+        window.open(
+            url,
+            '_blank',
+            'width=800,height=600,scrollbars=yes,resizable=yes'
+        );
+    }
+</script>
+
+{% endblock %}
