@@ -1,41 +1,83 @@
-{% extends 'base/base.html' %}
+{% extends 'base/base.html' %} 
+{% block style%}
+<style>
+   .login-bg {
+        background-image: url('/static/img/login_image_2.jpg');
+        background-size:cover
+        background-repeat: no-repeat;
+        height: 100vh; /* Asegura que el fondo solo ocupe la altura de la pantalla visible */
+        background-attachment: fixed; /* Hace que el fondo no se desplace */
+        background-blend-mode: overlay;
+        background-color: rgba(255, 255, 255, 0.2);
+        overflow: hidden; /* Evita el scroll innecesario */
+   }
+</style>
+{% endblock %}
 {% block content %}
-    <div class="container-fluid min-vh-100 d-flex">
-        <div class="row w-100">
-            <div class="col-6 d-flex justify-content-center align-items-center bg-gray bg-gradient border-end border-success border-2 p-0">
-                <img src="/static/img/login_image.jpg" class="image-cover">
-            </div>
-            <div class="col-6 d-flex justify-content-center align-items-center">
-                <div class="bg-gray bg-gradient border rounded-4 shadow pt-2 pb-2">
-                    <div class="container d-flex flex-column align-items-center">
-                        <div class="login-form text-center border m-1 p-5 border-warning border-2 rounded-4 bg-light">
-                            <main class="form-signin w-100 m-auto">
-                                <form method="post" action="">
-                                    {% csrf_token %}
-                                    {% if message %}
-                                    <div class="alert alert-danger">
-                                        {{ message }}
-                                    </div>
-                                    {% endif %}
-                                    <img src="http://localhost:8000/static/img/logo.png" alt="Logo" class="m-2" width="150" height="auto">
-                                  <h1 class="h3 mb-3 fw-normal text-kosmo-primary">Kosmo Flowers</h1>
-                                  <div class="form-floating mb-3">
-                                    <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" name="email">
-                                    <label for="floatingInput">Email address</label>
-                                  </div>
-                                  <div class="form-floating">
-                                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password">
-                                    <label for="floatingPassword">Password</label>
-                                  </div>
-                                <div class="m-5"></div>
-                                  <button class="w-100 btn btn-lg btn-primary" type="submit">Iniciar Sesión</button>
-                                  <p class="mt-5 mb-3 text-muted">©Kosmo Flowers Derechos Reservados</p>
-                                </form>
-                              </main>
+<div class="container-fluid">
+   <div class="row w-100">
+      <div
+         class="login-bg col-6 d-flex justify-content-center align-items-center border-end border-success border-2 p-0"
+         >
+      </div>
+      <div class="col-6 d-flex justify-content-center align-items-center bg-opacity-50">
+         <div class="bg-success bg-gradient border rounded-4 shadow pt-2 pb-2">
+            <div class="container d-flex flex-column align-items-center">
+               <div
+                  class="text-center border m-1 p-2 border-dark border-2 rounded-4 bg-light"
+                  >
+                  <main class="mb-3 mt-2">
+                     <form method="post" action="">
+                        {% csrf_token %} {% if message %}
+                        <div class="alert alert-danger">
+                           {{ message }}
                         </div>
-                    </div>
-                </div>
+                        {% endif %}
+                        <img
+                           src="/static/img/logo.png"
+                           alt="Logo"
+                           class="mb-5"
+                           width="200"
+                           height="auto"
+                           />
+                        <div class="form-floating mb-2 w-100">
+                           <input
+                              type="email"
+                              class="form-control form-control-sm"
+                              id="floatingInput"
+                              placeholder="name@example.com"
+                              name="email"
+                              />
+                           <label for="floatingInput">Email address</label>
+                        </div>
+                        <div class="form-floating">
+                           <input
+                              type="password"
+                              class="form-control form-control-sm"
+                              id="floatingPassword"
+                              placeholder="Password"
+                              name="password"
+                              />
+                           <label for="floatingPassword"
+                              >Password</label
+                              >
+                        </div>
+                        <div class="m-5"></div>
+                        <button
+                           class="w-100 btn btn-sm btn-success"
+                           type="submit"
+                           >
+                        Iniciar Sesión
+                        </button>
+                        <small class="mt-5 mb-3 text-muted">
+                           ©PEISOL S.A. Derechos Reservados
+                        </small>
+                     </form>
+                  </main>
+               </div>
             </div>
-        </div>
-    </div>
+         </div>
+      </div>
+   </div>
+</div>
 {% endblock %}
