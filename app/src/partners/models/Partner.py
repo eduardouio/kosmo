@@ -149,5 +149,3 @@ class Partner(BaseModel):
         if self.type_partner == 'client':
             return f'C: {self.name}'
         return f'S: {self.name}'
-
-    
