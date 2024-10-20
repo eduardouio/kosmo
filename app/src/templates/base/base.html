@@ -309,6 +309,96 @@
     <script src="/static/js/libs/jquery-3.7.1.min.js"></script>
     <script src="/static/js/libs/dataTables.min.js" ></script>
     <script src="/static/js/libs/bootstrap.bundle.min.js"></script>
+    <script>
+      $(document).ready(function() {
+      $('#myTable').DataTable(      
+       {
+         "pageLength": 15,
+         "lengthMenu": [15, 25, 50 ,100, 500, 1000, 5000],
+         "language": {
+           "lengthMenu": "_MENU_ registros por página",
+           "zeroRecords": "Sin registros",
+           "info": "Mostrando página _PAGE_ de _PAGES_",
+           "infoEmpty": "Sin registros",
+           "infoFiltered": "(filtrado de _MAX_ registros totales)",
+           "search": "Buscar:",
+           "paginate": {
+             "first": "Primero",
+             "last": "Último",
+             "next": "Siguiente",
+             "previous": "Anterior"
+           }
+         }
+       }
+     );
+   });
+   $(document).ready(function() {
+      $('#myTable2').DataTable(      
+       {
+         "pageLength": 15,
+         "lengthMenu": [15, 25, 50 ,100, 500, 1000, 5000],
+         "language": {
+           "lengthMenu": "_MENU_ registros por página",
+           "zeroRecords": "Sin registros",
+           "info": "Mostrando página _PAGE_ de _PAGES_",
+           "infoEmpty": "Sin registros",
+           "infoFiltered": "(filtrado de _MAX_ registros totales)",
+           "search": "Buscar:",
+           "paginate": {
+             "first": "Primero",
+             "last": "Último",
+             "next": "Siguiente",
+             "previous": "Anterior"
+           }
+         }
+       }
+     );
+   });
+   $(document).ready(function() {
+      $('#myTableSmall').DataTable(      
+       {
+         "pageLength": 5,
+         "lengthMenu": [5, 25, 50 ,100, 500, 1000, 5000],
+         "language": {
+           "lengthMenu": "_MENU_ registros por página",
+           "zeroRecords": "Sin registros",
+           "info": "Mostrando página _PAGE_ de _PAGES_",
+           "infoEmpty": "Sin registros",
+           "infoFiltered": "(filtrado de _MAX_ registros totales)",
+           "search": "Buscar:",
+           "paginate": {
+             "first": "Primero",
+             "last": "Último",
+             "next": "Siguiente",
+             "previous": "Anterior"
+           }
+         }
+       }
+     );
+   });
+   $(document).ready(function() {
+      $('#myTableSmall2').DataTable(      
+       {
+         "pageLength": 5,
+         "lengthMenu": [5, 25, 50 ,100, 500, 1000, 5000],
+         "language": {
+           "lengthMenu": "_MENU_ registros por página",
+           "zeroRecords": "Sin registros",
+           "info": "Mostrando página _PAGE_ de _PAGES_",
+           "infoEmpty": "Sin registros",
+           "infoFiltered": "(filtrado de _MAX_ registros totales)",
+           "search": "Buscar:",
+           "paginate": {
+             "first": "Primero",
+             "last": "Último",
+             "next": "Siguiente",
+             "previous": "Anterior"
+           }
+         }
+       }
+     );
+   });
+     </script>
     {% block files_footer %}
     {% endblock %}
     {% block script %}
