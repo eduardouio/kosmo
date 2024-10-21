@@ -5,7 +5,6 @@ from tests.BaseViewTest import BaseViewTest
 from partners.models import Partner
 
 
-@pytest.mark.django_db
 class TestStockDiary(BaseViewTest):
 
     @pytest.fixture
