@@ -1,3 +1,4 @@
+import json
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -8,6 +9,7 @@ from django.views.generic import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
+from django.core.serializers import serialize
 from partners.models import Partner
 from partners.forms import PartnerForm
 
@@ -90,6 +92,12 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
         context = super(PartnerDetailView, self).get_context_data(**kwargs)
         context['title_section'] = self.object.name
         context['title_page'] = self.object.name
+        if self.object.type_partner == 'CLIENTE':
+            list_suppliers = Partner.get_registered_suppliers(self.object)
+            context['all_supliers'] = json.dumps([{
+                'suplier': serialize('json', [i['suplier']]),
+                'selected': i['selected']
+            } for i in list_suppliers])
 
         if 'action' not in self.request.GET:
             return context

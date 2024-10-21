@@ -145,7 +145,7 @@
         </div>
     </div>
     {% if partner.type_partner ==  'CLIENTE' %}
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
@@ -157,10 +157,56 @@
         </div>
         <div class="card-body">
             <div class="row">
+                <table class="table table-bordered table-striped" id="myTable4">
+                    <thead>
+                        <tr>
+                            <th class="bg-secondary bg-opacity-50 text-center">#</th>
+                            <th class="bg-secondary bg-opacity-50 text-center">Nombre</th>
+                            <th class="bg-secondary bg-opacity-50 text-center">Ciudad</th>
+                            <th class="bg-secondary bg-opacity-50 text-center">Correo</th>
+                            <th class="bg-secondary bg-opacity-50 text-center">Teléfono</th>
+                            <th class="bg-secondary bg-opacity-50 text-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" />
+                                    <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+                                  </svg>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="item, idx in all_supliers">
+                            <td class="p-0">[[ idx + 1 ]]</td>
+                            <td class="p-0">
+                                    [[ item.name ]]
+                            </td>
+                            <td class="p-0">[[ item.city ]]</td>
+                            <td class="p-0">[[ item.email ]]</td>
+                            <td class="p-0">[[ item.phone ]]</td>
+                            <td class="d-flex justify-content-between">
+                                <span v-if="item.selected" @click="item.selected = false">
+                                    Quitar
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-square-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="green" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                        <path d="M9 12l2 2l4 -4" />
+                                      </svg>
+                                </span>
+                                <span v-else @click="item.selected = true">
+                                    Seleccionar
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-square" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                      </svg>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
@@ -211,6 +257,7 @@
     {% endif %}
 </div>
 {% endblock %}
+{% if partner.type_partner == 'CLIENTE' %}
 {% block script %}
 <script>
     function openPopup(url) {
@@ -220,6 +267,19 @@
             'width=800,height=600,scrollbars=yes,resizable=yes'
         );
     }
+        var all_supliers = {{ all_supliers | safe }};
+        all_supliers = all_supliers.map((el) => {
+            const sup = JSON.parse(el.suplier)[0];
+            return {
+                "selected": el.selected,
+                "id": sup.pk,
+                ...sup.fields
+            }
+        });
 </script>
-
 {% endblock %}
+{% block script_app %}
+<script src="/static/js/app/partner-app.js" ></script>
+{% endblock %}
+{% endif %}
+

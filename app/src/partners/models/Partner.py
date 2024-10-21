@@ -121,6 +121,25 @@ class Partner(BaseModel):
         )
 
     @classmethod
+    def get_registered_suppliers(cls, supplier):
+        if supplier.type_partner == 'PROVEEDOR':
+            return []
+
+        all_suppliers = cls.get_suppliers()
+        supplier_partners = supplier.partner.all()
+        list_suppliers = []
+        for itm in all_suppliers:
+            partner = {
+                'suplier': itm,
+                'selected': False
+            }
+            if itm in supplier_partners:
+                partner['selected'] = True
+
+            list_suppliers.append(partner)
+        return list_suppliers
+
+    @classmethod
     def get_partner_by_taxi_id(cls, business_tax_id):
         try:
             return cls.objects.get(
