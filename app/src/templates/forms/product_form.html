@@ -1,0 +1,112 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+    <div class="row">
+        <div class="col-6">
+            <span class="text-primary">
+                {{ title_section }}
+            </span>
+        </div>
+        <div class="col-6 d-flex justify-content-end gap-3">
+            {% if request.resolver_match.url_name != 'product_create' %}
+            <a href="{% url 'product_detail' request.resolver_match.kwargs.pk %}?action=delete" class="btn btn-sm btn-default">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                    <path d="M4 7l16 0" />
+                    <path d="M10 11l0 6" />
+                    <path d="M14 11l0 6" />
+                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                </svg>
+                Eliminar Producto
+            </a>
+            <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-default">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                    <path d="M5 12l14 0" />
+                    <path d="M5 12l6 6" />
+                    <path d="M5 12l6 -6" />
+                </svg>
+                Volver Ficha
+            </a>
+            {% endif %}
+            <a href="{% url 'product_list' %}" class="btn btn-sm btn-default">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-ban" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                    <path d="M5.7 5.7l12.6 12.6" />
+                </svg>
+                Cancelar
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-2">
+    <!-- Información del Producto -->
+    <div class="card mb-2">
+        <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                <path d="M12 9h.01" />
+                <path d="M11 12h1v4h1" />
+            </svg>
+            Información del Producto
+        </div>
+        <div class="card-body">
+          <form action="" method="post" enctype="multipart/form-data">
+            {{ form.errors }}
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="name" class="text-muted">Nombre del Producto:</label>
+                    {{ form.name }}
+                </div>
+                <div class="col-md-4">
+                    <label for="variety" class="text-muted">Variedad:</label>
+                    {{ form.variety }}
+                </div>
+                <div class="col-md-4">
+                    <label for="default_rend" class="text-muted">Rendimiento por Defecto:</label>
+                    {{ form.default_rend }}
+                </div>
+
+                <div class="col-md-4">
+                    <label for="image" class="text-muted">Imagen:</label>
+                    {{ form.image }}
+                </div>
+            </div>
+            
+            <div class="row bg-gray bg-gradient p-2 rounded border">
+                <div class="col text-end">
+                  <button class="btn btn-sm btn-default">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                      <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                      <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
+                      <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                      <path d="M14 4l0 4l-6 0l0 -4" />
+                    </svg>
+                    Guardar
+                  </button>
+                </div>
+            </div>
+          </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% if request.resolver_match.url_name != 'product_create' %}
+    {% block script %}
+    <script>
+        var url_update = "{% url 'product_add_many_to_many' %}";
+        var csrf_token = "{{ csrf_token }}";
+        var product_id = "{{ product.id }}";
+    </script>
+    {% endblock %}
+    {% block script_app %}
+    <script src="/static/js/app/product_app.js" defer></script>
+    {% endblock %}
+{% endif %}

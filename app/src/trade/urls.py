@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import StockDiary
+from trade.views import StockDiary
 
 
-urlpatterns = [
+urlpatterns = [    
+    # trade
     path('trade/stock/add/', StockDiary.as_view(), name='stock-add'),
 ]

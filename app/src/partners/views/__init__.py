@@ -1,1 +1,1 @@
-from .PartnerCRUD import PartnerDetailView
+from .Partner import PartnerDetailView, PartnerListView, PartnerCreateView, PartnerUpdateView, PartnerDeleteView

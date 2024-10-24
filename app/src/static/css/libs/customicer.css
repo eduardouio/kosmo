@@ -85,19 +85,19 @@ input[type="checkbox"] {
 
 .btn-default {
 background-image: linear-gradient(#edeff2, #e9ecef 60%, #dbdee1);
-border: #a3a5a7 solid 1px;
+border: rgb(44, 161, 227) solid 1px;
 color: #555;
 }
 
 .btn-default:hover {
 background-image: linear-gradient(#e9ecef, #dde0e3 60%, #c6c9cb);
-border: rgb(44, 161, 227) solid 1px;
+border: rgb(35, 203, 26) solid 1px;
 color: rgb(1, 68, 85);
 }
 
 .btn-default:focus {
 	background-image: linear-gradient(#e9ecef, #dde0e3 60%, #c6c9cb);
-	border: rgb(44, 161, 227) solid 1px;
+	border: rgb(35, 203, 26) solid 1px;
 	color: rgb(1, 68, 85);
 	}
 	

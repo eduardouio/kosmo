@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procesar Texto</title>
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    th {
+      background-color: #f2f2f2;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Tabla Procesada</h2>
+<table id="data-table">
+  <thead>
+    <tr>
+      <th>Caja</th>
+      <th>Tipo de Caja</th>
+      <th>Proveedor</th>
+      <th>Producto</th>
+      <th>Tallos</th>
+      <th>Largo (cm)</th>
+      <th>Costo por Tallo</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const inputText = `
+Kosmo  Availability - June 24th
+1qb Explorer 40/50 x 100 0.30/0.35
+1qb Freedom 40 x 125 0.25
+2hb Freedom 50 x 500 0.30
+2hb Freedom 60 x 500 0.35
+2qb Akito 40 x 125 0.40
+1qb Candlelight 40 x 125 0.30
+1hb Candlelight 50 x 300 0.50
+1qb Country Blues 50/60 x 100 0.50/0.60
+1qb Deep Purple 50 x 100 0.40
+1hb Deep Purple 60 x 400 0.45
+1qb Faith 40 x 125 0.30
+1qb Faith 50 x 100 0.50
+1qb Free Spirit 40 x 100 0.40
+1qb High Magic 50/60 x 125 0.35/0.40
+2qb Lola 40 x 100 0.30
+1qb Lola 50 x 100 0.45
+1qb Mandala 40 x 125 0.35
+1hb Mandala 50 x 300 0.50
+1hb Mondial 60/70 x 400 0.60/.70
+1qb Moody Blues 50 x 125 0.35
+1qb Nena 50 x 125 0.40
+1qb Nena 60 x 100 0.50
+1qb Nina 60 x 100 0.40
+1qb Ocean Song 40 x 100 0.35
+2qb Ocean Song 50 x 100 0.50
+1qb Ocean Song 60 x 125 0.60
+1hb Pink Floyd 50/60 x 250 0.40/0.50
+1qb Pink Xpression 40 x 100 0.35
+1hb Pink Xpression 50/60 x 350 0.55/0.65
+4qb Playa Blanca 60 x 100 0.85
+1qb Playa Blanca 70 x 100 0.95
+1qb Priceless 50/60 x 100 0.35/0.40
+1qb Sahara 40 x 150 0.35
+1qb Secret Garden 50 x 100 0.50
+1hb Secret Garden 60 x 400 0.60
+1qb Sweet Escimo 40 x 125 0.35
+2qb Sweet Escimo 50 x 100 0.50
+1hb Sweet Unique 50/60 x 400 0.40/0.45
+1qb Tara 50 x 125 0.40
+2qb Tara 60 x 125 0.45
+1hb Tibet 40 x 300 0.40
+2qb Tibet 50 x 100 0.60
+1hb Toffe 50 x 400 0.50
+1hb Toffe 60 x 300 0.60
+2qb Vendela 50 x 100 0.50
+3qb Spray White Majolica 40 x 120 0.25
+1qb Spray White Majolica 50 x 120 0.30`
+
+// Función para procesar cada línea y extraer los datos
+function parseLine(line) {
+  const regex = /(\d+)([a-z]+)\s([\w\s]+)\s(\d+\/?\d*)\s*x\s*(\d+)\s*(\d+\/?\d*\.\d+)/i;
+  const match = line.match(regex);
+  
+  if (match) {
+    const [_, cajas, tipoCaja, producto, largo, tallos, costos] = match;
+    const largos = largo.split('/');
+    const costosTallos = costos.split('/');
+    const rows = [];
+
+    largos.forEach((l, index) => {
+      rows.push({
+        cajas,
+        tipoCaja,
+        proveedor: 'Kosmo',
+        producto,
+        tallos,
+        largo: l,
+        costoTallo: costosTallos[index] || costosTallos[0]
+      });
+    });
+
+    return rows;
+  }
+  return [];
+}
+
+// Función para procesar todo el texto y generar la tabla
+function processText(text) {
+  const lines = text.trim().split('\n').slice(1); // Ignorar la primera línea
+  const allRows = lines.flatMap(line => parseLine(line));
+
+  const tbody = document.querySelector('#data-table tbody');
+  tbody.innerHTML = ''; // Limpiar tabla
+
+  allRows.forEach(row => {
+    const tr = document.createElement('tr');
+    for (const key in row) {
+      const td = document.createElement('td');
+      td.textContent = row[key];
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  });
+}
+
+// Procesar el texto al cargar la página
+processText(inputText);
+</script>
+
+</body>
+</html>

@@ -1,5 +1,8 @@
+
 import json
 from django.urls import reverse_lazy
+from django import forms
+from partners.models import Partner
 from django.views.generic import (
     CreateView,
     UpdateView,
@@ -8,10 +11,36 @@ from django.views.generic import (
     DetailView
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
 from django.core.serializers import serialize
 from partners.models import Partner
-from partners.forms import PartnerForm
+
+
+class PartnerForm(forms.ModelForm):
+    class Meta:
+        model = Partner
+        fields = [
+            'business_tax_id', 'name', 'country', 'city', 'zip_code', 'address',
+            'phone', 'email', 'type_partner', 'credit_term', 'website', 'skype',
+            'dispatch_address', 'dispatch_days', 'cargo_reference', 'consolidate'
+        ]
+        widgets = {
+            'business_tax_id': forms.TextInput(attrs={'maxlength': '15'}),
+            'name': forms.TextInput(attrs={'maxlength': '255'}),
+            'country': forms.TextInput(attrs={'maxlength': '50'}),
+            'city': forms.TextInput(attrs={'maxlength': '50'}),
+            'zip_code': forms.TextInput(attrs={'maxlength': '10'}),
+            'address': forms.TextInput(attrs={'maxlength': '255'}),
+            'phone': forms.TextInput(attrs={'maxlength': '20'}),
+            'email': forms.EmailInput(attrs={'maxlength': '255'}),
+            'type_partner': forms.Select(),
+            'credit_term': forms.NumberInput(),
+            'website': forms.URLInput(),
+            'skype': forms.TextInput(attrs={'maxlength': '50'}),
+            'dispatch_address': forms.TextInput(attrs={'maxlength': '255'}),
+            'dispatch_days': forms.NumberInput(),
+            'cargo_reference': forms.TextInput(attrs={'maxlength': '255'}),
+            'consolidate': forms.CheckboxInput(),
+        }
 
 
 class PartnerCreateView(LoginRequiredMixin, CreateView):
@@ -60,9 +89,8 @@ class PartnerDeleteView(LoginRequiredMixin, DeleteView):
             url = reverse_lazy('partner_list')
             return f'{url}?action=deleted'
         except Exception as e:
-            return f'{reverse_lazy("partner_detail",
-                                   kwargs={"pk": kwargs["pk"]}
-                                   )}?action = no_delete'
+            url = reverse_lazy('partner_detail', kwargs={'pk': kwargs['pk']})
+            return '{url}?action=no_delete'.format(url=url)
 
 
 class PartnerListView(LoginRequiredMixin, ListView):
@@ -92,6 +120,7 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
         context = super(PartnerDetailView, self).get_context_data(**kwargs)
         context['title_section'] = self.object.name
         context['title_page'] = self.object.name
+        context['all_supliers'] = []
         if self.object.type_partner == 'CLIENTE':
             list_suppliers = Partner.get_registered_suppliers(self.object)
             context['all_supliers'] = json.dumps([{

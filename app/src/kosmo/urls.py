@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('grappelli/', include('grappelli.urls'), name='grappelli'),
     path('', include('user_sessions.urls', 'user_sessions')),
+    path('', include('products.urls')),
     path('', include('accounts.urls')),
     path('', include('partners.urls')),
     path('', include('trade.urls')),

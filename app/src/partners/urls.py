@@ -1,5 +1,11 @@
 from django.urls import path
-from .views import PartnerDetailView, PartnerListView, PartnerCreateView, PartnerUpdateView, PartnerDeleteView
+from .views import (
+    PartnerDetailView,
+    PartnerListView,
+    PartnerCreateView,
+    PartnerUpdateView,
+    PartnerDeleteView
+)
 
 
 urlpatterns = [
