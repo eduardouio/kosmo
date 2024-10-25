@@ -101,6 +101,7 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
             return context
 
         context['action_type'] = self.request.GET.get('action')
+        context['action'] = self.request.GET.get('action')
         message = ''
 
         if context['action_type'] == 'created':

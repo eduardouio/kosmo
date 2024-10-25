@@ -53,14 +53,18 @@
                         {{ forloop.counter }}
                     </a>
                 </td>
-                <td class="p-0">{{ item.name }}</td>
+                <td class="p-0">
+                    <a href="{% url 'product_detail' item.id %}">
+                        {{ item.name }}
+                    </a>
+                </td>
                 <td class="p-0">{{ item.variety }}</td>
                 <td class="p-0">{{ item.default_rend }}</td>
                 <td class="p-0">
                     {% if item.image %}
                         <img src="{{ item.image.url }}" alt="{{ item.name }}" class="img-thumbnail" width="50">
-                    {% else %}
-                        No disponible
+                        {% else %}
+                        <img src="/static/img/rosa_placeholder.jpg" alt="Kosmo Flowers" class="img-thumbnail" width="50">
                     {% endif %}
                 </td>
             </tr>

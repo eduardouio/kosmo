@@ -63,7 +63,11 @@
             </div>
             <div class="row mb-3">
                 <div class="col-3 border-end">
-                    <img src="{{ object.image.url }}" alt="" class="img-fluid">
+                    {% if object.image %}
+                        <img src="{{ object.image.url }}" alt="" class="img-fluid">
+                    {% else %}
+                        <img src="/static/img/rosa_placeholder.jpg" alt="" class="img-fluid">
+                    {% endif %}
                     <label for="image" class="text-muted">Imagen:</label>
                     {{ form.image }}
                 </div>
