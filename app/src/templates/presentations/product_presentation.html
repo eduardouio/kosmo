@@ -65,101 +65,76 @@
 </div>
 
 <div class="container mt-2">
-    <!-- Información del Producto -->
-    <div class="card mb-2">
-        <div class="card-header p-1 bg-dark bg-gradient bg-opacity-75 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                <path d="M12 9h.01" />
-                <path d="M11 12h1v4h1" />
-            </svg>
-            Información del Producto
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4 d-flex flex-column p-1">
-                    <span class="text-muted">Nombre del Producto:</span>
-                    <span class="px-3">{{ product.name }}</span>
-                </div>
-                <div class="col-md-4 d-flex flex-column p-1">
-                    <span class="text-muted">Variedad:</span>
-                    <span class="px-3">{{ product.variety }}</span>
-                </div>
-                <div class="col-md-4 d-flex flex-column p-1">
-                    <span class="text-muted">Rendimiento por Defecto:</span>
-                    <span class="px-3">{{ product.default_rend }}</span>
-                </div>
-                <div class="col-md-4 d-flex flex-column p-1">
-                    <span class="text-muted">Imagen:</span>
-                    <span class="px-3">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-thumbnail" width="100">
-                        {% else %}
-                            No disponible
-                        {% endif %}
-                    </span>
+    <div class="row">
+        <!-- Tarjeta para la Imagen del Producto -->
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded">
+                    {% else %}
+                        <span class="text-muted">Imagen no disponible</span>
+                    {% endif %}
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Información Adicional -->
-    <div class="card mb-5">
-        <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-info" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h6l4 4v12a2 2 0 0 1 -2 2" />
-                <path d="M12 17h.01" />
-                <path d="M12 11h.01" />
-            </svg>
-            Información Adicional
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4 d-flex flex-column p-1">
-                    <span class="text-muted">Fecha de Creación:</span>
-                    <span class="px-3">{{ product.created_at }}</span>
+        <!-- Tarjeta para los Detalles del Producto -->
+        <div class="col-md-8 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h4 class="card-title">{{ product.name }} / {{ product.variety }}</h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-8">
+                    <section>
+                        <span class="text-muted">Variedad:</span>
+                        <span>{{ product.variety }}</span>
+                    </section>
+                    <section>
+                        <span class="text-muted">Rendimiento por Defecto:</span>
+                        <span>{{ product.default_rend }}</span>
+                    </section>
+                    <section>
+                        <span class="text-muted">Fecha de Creación:</span>
+                        <span>{{ product.created_at }}</span>
+                    </section>
+                    <section>
+                        <span class="text-muted">Última Actualización:</span>
+                        <span>{{ product.updated_at }}</span>
+                    </section>
+                    <section>
+                        <span class="text-muted">Creado Por:</span>
+                        <span>
+                            {% if product.get_create_user %}
+                                {{ product.get_create_user }}
+                            {% else %}
+                                SYSTEM
+                            {% endif %}
+                        </span>
+                    </section>
+                    <section>
+                        <span class="text-muted">Actualizado Por:</span>
+                        <span>
+                            {% if product.get_update_user %}
+                                {{ product.get_update_user }}
+                            {% else %}
+                                SYSTEM
+                            {% endif %}
+                        </span>
+                    </section>
                 </div>
-                <div class="col-md-4 d-flex flex-column p-1">
-                    <span class="text-muted">Fecha de Actualización:</span>
-                    <span class="px-3">{{ product.updated_at }}</span>
+                <div class="col-4">
+                    <section>
+                        <span class="text-muted d-block">Observaciones:</span>
+                        <span>{{ product.notes }}</span>
                 </div>
-                <div class="col-md-4 d-flex flex-column p-1">
-                    <span class="text-muted">Creado Por:</span>
-                    <span class="px-3">
-                        {% if product.get_create_user %}
-                            {{ product.get_create_user }}
-                        {% else %}
-                            SYSTEM
-                        {% endif %}
-                    </span>
                 </div>
-                <div class="col-md-4 d-flex flex-column p-1">
-                    <span class="text-muted">Actualizado Por:</span>
-                    <span class="px-3">
-                        {% if product.get_update_user %}
-                            {{ product.get_update_user }}
-                        {% else %}
-                            SYSTEM
-                        {% endif %}
-                    </span>
-                </div>
+            </div>
             </div>
         </div>
     </div>
-    {% if action == 'delete' %}
-    <div class="row mb-3">
-        <a href="{% url 'product_delete' product.id %}" class="btn btn-sm btn-default">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                <path d="M12 9v4" />
-                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
-                <path d="M12 16h.01" />
-            </svg>
-            Confirmar Eliminación
-        </a>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
