@@ -57,28 +57,39 @@
         </div>
         <div class="card-body">
           <form action="" method="post" enctype="multipart/form-data">
-            {{ form.errors }}
             {% csrf_token %}
+            <div class="row">
+                <div class="col">{{ form.errors }}</div>
+            </div>
             <div class="row mb-3">
-                <div class="col-md-4">
-                    <label for="name" class="text-muted">Nombre del Producto:</label>
-                    {{ form.name }}
-                </div>
-                <div class="col-md-4">
-                    <label for="variety" class="text-muted">Variedad:</label>
-                    {{ form.variety }}
-                </div>
-                <div class="col-md-4">
-                    <label for="default_rend" class="text-muted">Rendimiento por Defecto:</label>
-                    {{ form.default_rend }}
-                </div>
-
-                <div class="col-md-4">
+                <div class="col-3 border-end">
+                    <img src="{{ object.image.url }}" alt="" class="img-fluid">
                     <label for="image" class="text-muted">Imagen:</label>
                     {{ form.image }}
                 </div>
+                <div class="col">
+                    <div class="row">
+                        <div class="col-6 d-flex flex-column">
+                            <div class="mb-1">
+                            <label for="name" class="text-muted">Nombre del Producto:</label>
+                            {{ form.name }}
+                            </div>
+                            <div class="mb-1">
+                                <label for="variety" class="text-muted">Variedad:</label>
+                                {{ form.variety }}
+                            </div>
+                            <div class="mb-1">
+                                <label for="default_rend" class="text-muted">Rendimiento por Defecto:</label>
+                            {{ form.default_rend }}
+                            </div>
+                            <div class="mb-1">
+                                <label for="default_rend" class="text-muted">Notas:</label>
+                            {{ form.notes }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
             <div class="row bg-gray bg-gradient p-2 rounded border">
                 <div class="col text-end">
                   <button class="btn btn-sm btn-default">
@@ -101,7 +112,11 @@
 {% if request.resolver_match.url_name != 'product_create' %}
     {% block script %}
     <script>
-        var url_update = "{% url 'product_add_many_to_many' %}";
+        var fileInput = document.querySelector('input[type="file"]');
+        fileInput.classList.add('form-control');
+    </script>
+    <script>
+        var url_update = "url 'product_add_many_to_many'";
         var csrf_token = "{{ csrf_token }}";
         var product_id = "{{ product.id }}";
     </script>

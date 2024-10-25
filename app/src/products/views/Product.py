@@ -16,13 +16,14 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            'name', 'image', 'variety', 'default_rend'
+            'name', 'image', 'variety', 'default_rend', 'notes'
         ]
         widgets = {
-            'name': forms.TextInput(attrs={'maxlength': '255'}),
+            'name': forms.TextInput(attrs={'maxlength': '255','class': 'form-control form-control-sm', 'placeholder': 'Nombre', 'required': 'required'}),
             'image': forms.ClearableFileInput(),
-            'variety': forms.TextInput(attrs={'maxlength': '255'}),
-            'default_rend': forms.NumberInput(attrs={'step': '0.01'}),
+            'variety': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm', 'placeholder': 'Variedad', 'required': 'required'}),
+            'default_rend': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control form-control-sm', 'placeholder': 'Rendimiento por defecto', 'required': 'required'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Notas', 'rows': '3'}),
         }
 
 
@@ -45,7 +46,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
-    template_name = 'forms/product-form.html'
+    template_name = 'forms/product_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -54,8 +55,8 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        url = reverse_lazy('product-detail', kwargs={'pk': self.object.pk})
-        url = f'{url}?action=updated'
+        url = reverse_lazy('product_detail', kwargs={'pk': self.object.pk})
+        url = '{url}?action=updated'.format(url=url)
         return url
 
 
