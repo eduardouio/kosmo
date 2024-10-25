@@ -1,10 +1,11 @@
 import json
 from django.urls import reverse_lazy
 from django import forms
+from django.http import HttpResponseRedirect
 from django.views.generic import (
     CreateView,
     UpdateView,
-    DeleteView,
+    RedirectView,
     ListView,
     DetailView
 )
@@ -19,18 +20,45 @@ class ProductForm(forms.ModelForm):
             'name', 'image', 'variety', 'default_rend', 'notes'
         ]
         widgets = {
-            'name': forms.TextInput(attrs={'maxlength': '255','class': 'form-control form-control-sm', 'placeholder': 'Nombre', 'required': 'required'}),
+            'name': forms.TextInput(
+                attrs={
+                    'maxlength': '255',
+                    'class': 'form-control form-control-sm',
+                    'placeholder': 'Nombre',
+                    'required': 'required'
+                }
+            ),
             'image': forms.ClearableFileInput(),
-            'variety': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm', 'placeholder': 'Variedad', 'required': 'required'}),
-            'default_rend': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control form-control-sm', 'placeholder': 'Rendimiento por defecto', 'required': 'required'}),
-            'notes': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'placeholder': 'Notas', 'rows': '3'}),
+            'variety': forms.TextInput(
+                attrs={
+                    'maxlength': '255',
+                    'class': 'form-control form-control-sm',
+                    'placeholder': 'Variedad',
+                    'required': 'required'
+                }
+            ),
+            'default_rend': forms.NumberInput(
+                attrs={
+                    'step': '0.01',
+                    'class': 'form-control form-control-sm',
+                    'placeholder': 'Rendimiento por defecto',
+                    'required': 'required'
+                }
+            ),
+            'notes': forms.Textarea(
+                attrs={
+                    'class': 'form-control form-control-sm',
+                    'placeholder': 'Notas',
+                    'rows': '3'
+                }
+            ),
         }
 
 
 class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
-    template_name = 'forms/product-form.html'
+    template_name = 'forms/product_form.html'
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(ProductCreateView, self).get_context_data(*args, **kwargs)
@@ -38,7 +66,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         return ctx
 
     def get_success_url(self):
-        url = reverse_lazy('product-detail', kwargs={'pk': self.object.id})
+        url = reverse_lazy('product_detail', kwargs={'pk': self.object.id})
         url += '?action=created'
         return url
 
@@ -60,13 +88,16 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
         return url
 
 
-class ProductDeleteView(LoginRequiredMixin, DeleteView):
-    model = Product
-    template_name = 'forms/product-confirm-delete.html'
-
-    def get_success_url(self):
-        url = reverse_lazy('product-list')
-        return f'{url}?action=deleted'
+class ProductDeleteView(LoginRequiredMixin, RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        product = Product.objects.get(pk=kwargs['pk'])
+        try:
+            product.delete()
+            url = reverse_lazy('product_list') + '?action=deleted'
+            return url
+        except Exception as e:
+            url = reverse_lazy('product_detail', kwargs={'pk': product.pk})
+            return url + '?action=no_delete'
 
 
 class ProductListView(LoginRequiredMixin, ListView):
@@ -83,6 +114,7 @@ class ProductListView(LoginRequiredMixin, ListView):
 
         if self.request.GET.get('action') == 'deleted':
             context['action_type'] = 'success'
+            context['action'] = 'deleted'
             context['message'] = 'Producto Eliminado Exitosamente'
         return context
 
@@ -108,8 +140,8 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
             message = 'El producto ha sido creado con éxito.'
         elif context['action_type'] == 'updated':
             message = 'El producto ha sido actualizado con éxito.'
-        elif context['action_type'] == 'deleted':
-            message = 'Producto eliminado correctamente.'
+        elif context['action_type'] == 'delete':
+            message = '¿Esta seguro que desea eliminar el producto?, esta acción no se puede deshacer.'
         elif context['action_type'] == 'no_delete':
             message = 'No es posible eliminar el producto. Existen dependencias.'
 

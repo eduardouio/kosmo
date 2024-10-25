@@ -1,152 +1,164 @@
 {% extends 'base/base.html' %}
-
 {% block content %}
 <div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
-    <div class="row">
-        <div class="col-3">
-            <span class="text-primary">
-                {{ title_section }}
-            </span>
-        </div>
-        <div class="col-4 text-center">
-            {% if action %}
-            <div class="{% if action == 'delete' or action == 'no_delete'%} bg-danger {% else %} bg-kosmo-green {% endif %} bg-gradient p-2 rounded">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                    <path d="M9 12l2 2l4 -4" />
-                </svg>
-                {{ message }}
-            </div>
-            {% endif %}
-        </div>
-        <div class="col-5 d-flex align-items-center justify-content-end gap-3">
-            {% if not action %}
-            <a href="{% url 'product_detail' product.id %}?action=delete" class="btn btn-sm btn-default">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                    <path d="M4 7l16 0" />
-                    <path d="M10 11l0 6" />
-                    <path d="M14 11l0 6" />
-                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                </svg>
-                Eliminar
-            </a>
-            {% endif %}
-            <a href="{% url 'product_update' product.id %}" class="btn btn-sm btn-default">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                    <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                    <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                    <path d="M16 5l3 3" />
-                </svg>
-                Editar
-            </a>
-            <a href="{% url 'product_create' %}" class="btn btn-sm btn-default">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                    <path d="M12 5l0 14" />
-                    <path d="M5 12l14 0" />
-                </svg>
-                Agregar
-            </a>
-            <a href="{% url 'product_list' %}" class="btn btn-sm btn-default">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                    <path d="M5 12l14 0" />
-                    <path d="M5 12l6 6" />
-                    <path d="M5 12l6 -6" />
-                </svg>
-                Volver
-            </a>
-        </div>
-    </div>
+   <div class="row">
+      <div class="col-3">
+         <span class="text-primary">
+         {{ title_section }}
+         </span>
+      </div>
+      <div class="col-4 text-center">
+         {% if action %}
+         <div class="{% if action == 'delete' or action == 'no_delete'%} bg-danger {% else %} bg-kosmo-green {% endif %} bg-gradient p-2 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+               <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+               <path d="M9 12l2 2l4 -4" />
+            </svg>
+            {{ message }}
+         </div>
+         {% endif %}
+      </div>
+      <div class="col-5 d-flex align-items-center justify-content-end gap-3">
+         {% if not action %}
+         <a href="{% url 'product_detail' product.id %}?action=delete" class="btn btn-sm btn-default">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+               <path d="M4 7l16 0" />
+               <path d="M10 11l0 6" />
+               <path d="M14 11l0 6" />
+               <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+               <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+            </svg>
+            Eliminar
+         </a>
+         {% endif %}
+         <a href="{% url 'product_update' product.id %}" class="btn btn-sm btn-default">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+               <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+               <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+               <path d="M16 5l3 3" />
+            </svg>
+            Editar
+         </a>
+         <a href="{% url 'product_create' %}" class="btn btn-sm btn-default">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+               <path d="M12 5l0 14" />
+               <path d="M5 12l14 0" />
+            </svg>
+            Agregar
+         </a>
+         <a href="{% url 'product_list' %}" class="btn btn-sm btn-default">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+               <path d="M5 12l14 0" />
+               <path d="M5 12l6 6" />
+               <path d="M5 12l6 -6" />
+            </svg>
+            Volver
+         </a>
+      </div>
+   </div>
 </div>
-
 <div class="container mt-2">
-    <div class="row">
-        <!-- Tarjeta para la Imagen del Producto -->
-        <div class="col-md-4 mb-3">
-            <div class="card">
-                <div class="card-body text-center">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded">
-                    {% else %}
-                    <img src="/static/img/rosa_placeholder.jpg" alt="" class="img-fluid">
-                    {% endif %}
-                </div>
+   <div class="row">
+      <!-- Tarjeta para la Imagen del Producto -->
+      <div class="col-md-4 mb-3">
+         <div class="card">
+            <div class="card-body text-center">
+               {% if product.image %}
+               <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded">
+               {% else %}
+               <img src="/static/img/rosa_placeholder.jpg" alt="" class="img-fluid">
+               {% endif %}
             </div>
-        </div>
-        <!-- Tarjeta para los Detalles del Producto -->
-        <div class="col-md-8 mb-3">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col">
-                            <h4 class="card-title">{{ product.name }} / {{ product.variety }}</h4>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-8">
-                    <section>
+         </div>
+      </div>
+      <!-- Tarjeta para los Detalles del Producto -->
+      <div class="col-md-8 mb-3">
+         <div class="card">
+            <div class="card-body">
+               <div class="row">
+                  <div class="col">
+                     <h4 class="card-title">{{ product.name }} / {{ product.variety }}</h4>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="col-8">
+                     <section>
                         <span class="text-muted">Variedad:</span>
                         <span>{{ product.variety }}</span>
-                    </section>
-                    <section>
+                     </section>
+                     <section>
                         <span class="text-muted">Rendimiento por Defecto:</span>
                         <span>{{ product.default_rend }}</span>
-                    </section>
-                </div>
-                <div class="col-4">
-                    <section>
+                     </section>
+                  </div>
+                  <div class="col-4">
+                     <section>
                         <span class="text-muted d-block">Observaciones:</span>
                         <span>
-                            {% if product.notes %}
-                            {{ product.notes }}
-                            {% endif %}
+                        {% if product.notes %}
+                        {{ product.notes }}
+                        {% endif %}
                         </span>
-                    </section>
-                </div>
-                </div>
-                <!-- Metadata-->
-                <div class="row bg-gray rounded-1 mt-5 border">
-                    <div class="col">
-                        <section>
-                            <span class="text-muted">Fecha de Registro:</span>
-                            <span>{{ product.created_at }}</span>
-                        </section>
-                        <section>
-                            <span class="text-muted">Última Actualización:</span>
-                            <span>{{ product.updated_at }}</span>
-                        </section>
-                    </div>
-                    <div class="col">
-                        <section>
-                            <span class="text-muted">Autor:</span>
-                            <span>
-                                {% if product.get_create_user %}
-                                    {{ product.get_create_user }}
-                                {% else %}
-                                    SYSTEM
-                                {% endif %}
-                            </span>
-                        </section>
-                        <section>
-                            <span class="text-muted">Autor:</span>
-                            <span>
-                                {% if product.get_update_user %}
-                                    {{ product.get_update_user }}
-                                {% else %}
-                                    SYSTEM
-                                {% endif %}
-                            </span>
-                        </section>
-                    </div>
-                </div>
+                     </section>
+                  </div>
+               </div>
+               <!-- Metadata-->
+               <div class="row bg-gray rounded-1 mt-5 border">
+                  <div class="col">
+                     <section>
+                        <span class="text-muted">Fecha de Registro:</span>
+                        <span>{{ product.created_at }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Última Actualización:</span>
+                        <span>{{ product.updated_at }}</span>
+                     </section>
+                  </div>
+                  <div class="col">
+                     <section>
+                        <span class="text-muted">Autor:</span>
+                        <smal’¿>
+                        {% if product.get_create_user %}
+                        {{ product.get_create_user }}
+                        {% else %}
+                        SYSTEM
+                        {% endif %}
+                        </smal’¿>
+                     </section>
+                     <section>
+                        <span class="text-muted">Autor:</span>
+                        <span>
+                        {% if product.get_update_user %}
+                        {{ product.get_update_user }}
+                        {% else %}
+                        SYSTEM
+                        {% endif %}
+                        </span>
+                     </section>
+                  </div>
+               </div>
+               {% if action == 'delete' %}
+               <div class="row mt-3">
+                  <a class="btn btn-danger btn-sm" href="{% url 'product_delete' product.pk %}">
+                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" stroke-width="1.5">
+                        <path d="M4 7l16 0"></path>
+                        <path d="M10 11l0 6"></path>
+                        <path d="M14 11l0 6"></path>
+                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                     </svg>
+                     Confirmar Eliminación {{ product.name }} {{ product.variety }}
+                  </a>
+               </div>
+               {% endif %}
             </div>
-            </div>
-        </div>
-    </div>
+         </div>
+      </div>
+   </div>
 </div>
 {% endblock %}

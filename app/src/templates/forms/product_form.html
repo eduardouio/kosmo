@@ -64,9 +64,9 @@
             <div class="row mb-3">
                 <div class="col-3 border-end">
                     {% if object.image %}
-                        <img src="{{ object.image.url }}" alt="" class="img-fluid">
+                        <img id="image-preview" src="{{ object.image.url }}" alt="" class="img-fluid">
                     {% else %}
-                        <img src="/static/img/rosa_placeholder.jpg" alt="" class="img-fluid">
+                        <img id="image-preview" src="/static/img/rosa_placeholder.jpg" alt="" class="img-fluid">
                     {% endif %}
                     <label for="image" class="text-muted">Imagen:</label>
                     {{ form.image }}
@@ -116,6 +116,24 @@
 {% if request.resolver_match.url_name != 'product_create' %}
     {% block script %}
     <script>
+        // Función para mostrar la vista previa de la imagen
+        function previewImage(event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var preview = document.getElementById('image-preview');
+                preview.src = e.target.result;
+                preview.style.display = 'block'; // Mostrar la imagen
+            };
+            reader.readAsDataURL(file);
+        }
+    
+        // Asignar el evento de cambio al input de archivo
+        var fileInput = document.querySelector('input[type="file"]');
+        fileInput.classList.add('form-control');
+        fileInput.addEventListener('change', previewImage);
+    </script>
+    <script>
         var fileInput = document.querySelector('input[type="file"]');
         fileInput.classList.add('form-control');
     </script>
@@ -124,8 +142,5 @@
         var csrf_token = "{{ csrf_token }}";
         var product_id = "{{ product.id }}";
     </script>
-    {% endblock %}
-    {% block script_app %}
-    <script src="/static/js/app/product_app.js" defer></script>
     {% endblock %}
 {% endif %}
