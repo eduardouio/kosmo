@@ -4,6 +4,13 @@ from partners.models import Partner
 
 
 class StockAnalyzer():
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(StockAnalyzer, cls).__new__(cls)
+        return cls._instance
+
     def get_stock(self, stock_test, partner):
         if isinstance(partner, int):
             partner = Partner.get_partner_by_id(partner)
@@ -12,7 +19,13 @@ class StockAnalyzer():
             'fincakosmoflowerssa': self.kosmo_provider,
             'fincafloraromasa': self.floraroma_provider
         }
-        return provider[partner.name.lower().replace(' ', '')](stock_test)
+        provider_method = provider.get(partner.name.lower().replace(' ', ''))
+        if not provider_method:
+            raise ValueError('No provider found for partner {}'.format(
+                partner.name)
+            )
+
+        return provider_method(stock_test)
 
     def kosmo_provider(self, stock_test):
         disponiblility = []
