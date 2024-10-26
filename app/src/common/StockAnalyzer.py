@@ -28,14 +28,24 @@ class StockAnalyzer():
             }
             stems = [int(x) for x in item[3].split('/')]
             costs = [float(x) for x in item[5].split('/')]
+            is_single = len(stems) == 1
+            product = Product.get_by_variety(item[2].strip())
+            was_created = False
 
             for i in range(len(stems)):
-                product = Product.get_by_variety(item[2].strip())
+                if not product:
+                    was_created = True
+                    product = Product.objects.create(
+                        name='ROSA - ESPECIFICAR',
+                        variety=item[2].strip()
+                    )
+
                 line_stock['box_items'].append({
                     'product': product,
-                    'tot_stem_flower': 0,
+                    'tot_stem_flower': int(item[4]) if is_single else 0,
                     'length': stems[i],
-                    'stem_cost_price': costs[i]
+                    'stem_cost_price': costs[i],
+                    'was_created': was_created
                 })
             disponiblility.append(line_stock)
 
