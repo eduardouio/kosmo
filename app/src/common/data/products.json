@@ -25,7 +25,7 @@
   },
   {
     "name": "ROSA",
-    "variety": "COUNTRY BLUE"
+    "variety": "COUNTRY BLUES"
   },
   {
     "name": "ROSA",
@@ -149,10 +149,26 @@
   },
   {
     "name": "ROSA",
+    "variety": "SECRET"
+  },
+  {
+    "name": "ROSA",
     "variety": "TYFANNY"
   },
   {
     "name": "ROSA",
     "variety": "TOFEE"
+  },
+  {
+    "name":"ROSA",
+    "variety": "CANDLELIGHT"
+  },
+  {
+    "name":"ROSA",
+    "variety": "SHINMER"
+  },
+  {
+    "name":"MIX",
+    "variety": "MIX"
   }
 ]
