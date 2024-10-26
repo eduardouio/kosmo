@@ -59,6 +59,13 @@ pip install -r requirements.txt
 ./manage.py runserver
 ```
 
+## Instalación y configuración un solo comando
+```bash
+./manage.py makemigrations accounts partners products trade &&
+./manage.py migrate &&
+./manage.py sowseed 
+```
+
 # Lista de Fincas a Verificar
 
 | **Nombre de la Finca**              | **Verificado** |
