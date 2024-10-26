@@ -184,7 +184,9 @@ class Command(BaseCommand):
             file_content = json.load(file)
 
         for product in file_content:
-            print('Creando {} ...'.format(product['name']))
+            print('Creando {} {}...'.format(
+                product['name'], product['variety'])
+            )
             Product.objects.create(
                 **product
             )

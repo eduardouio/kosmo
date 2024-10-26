@@ -8,17 +8,17 @@ class Product(BaseModel):
     )
     name = models.CharField(
         'Nombre',
-        max_length=255
+        max_length=255,
+    )
+    variety = models.CharField(
+        'Variedad',
+        max_length=255,
     )
     image = models.ImageField(
         'Imagen',
         upload_to='products/',
         blank=True,
         null=True
-    )
-    variety = models.CharField(
-        'Variedad',
-        max_length=255
     )
     default_rend = models.DecimalField(
         'Rendimiento por defecto',
@@ -28,5 +28,16 @@ class Product(BaseModel):
         help_text='todo item tiene un rendimiento de 0.06 usd'
     )
 
+    class Meta:
+        unique_together = ('name', 'variety')
+
+    @classmethod
+    def get_by_variety(cls, name):
+        flower = cls.objects.filter(variety__icontains=name).first()
+        if not flower:
+            return None
+
+        return flower
+
     def __str__(self):
-        return self.name
+        return self.name + ' - ' + self.variety
