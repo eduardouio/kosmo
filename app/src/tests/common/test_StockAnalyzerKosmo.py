@@ -5,7 +5,7 @@ from products.models import Product
 
 
 @pytest.mark.django_db
-class TestStockAnalyzer():
+class TestStockAnalyzerKosmo():
 
     def setup_method(self):
         self.stock_analyzer = StockAnalyzer()
