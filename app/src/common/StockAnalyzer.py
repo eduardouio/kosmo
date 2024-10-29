@@ -15,10 +15,14 @@ class StockAnalyzer():
         if isinstance(partner, int):
             partner = Partner.get_partner_by_id(partner)
 
+        if not isinstance(partner, Partner):
+            raise ValueError('El proveedor no existe')
+
         provider = {
             'fincakosmoflowerssa': self.kosmo_provider,
             'fincafloraromasa': self.floraroma_provider
         }
+
         provider_method = provider.get(partner.name.lower().replace(' ', ''))
         if not provider_method:
             raise ValueError('No provider found for partner {}'.format(
