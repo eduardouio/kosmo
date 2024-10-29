@@ -29,7 +29,6 @@ class StockAnalyzer():
 
     def kosmo_provider(self, stock_test):
         disponiblility = []
-
         pattern = r"(\d+)(\w{2}) (\D+) (\d+\/?\d*) x (\d+) ([\d.\/]+)"
         matches = re.findall(pattern, stock_test.replace(',', '.'))
         for item in matches:
@@ -66,15 +65,67 @@ class StockAnalyzer():
 
     def floraroma_provider(self, stock_test):
         disponiblility = []
-        pattern = r"([A-Z\s]+)\s+(\d+)(\w{2})(\d{2,4})(\d{2,4})?\s+\$?\s*([\d.]+-?[\d.]*)?"
-        matches = re.findall(pattern, stock_test.replace(',', '.'))
-        for item in matches:
-            disponiblility.append({
-                'product': item[0].upper(),
-                'quantity_box': item[1],
+        all_lines = stock_test.split('\n')
+        all_lines = [line.strip() for line in all_lines if line.strip()]
+        lines_matches = []
+        for line in all_lines:
+            pattern = r"([A-Z\s]+)\s+(\d+)(\w{2})(\d{2,4})(\d{2,4})?\s+\$?\s*([\d.]+-?[\d.]*)?"
+            matchs = re.findall(pattern, line.replace(',', '.'))
+            if matchs:
+                lines_matches.append([i for i in matchs[0]])
+                continue
+
+            pattern = r"([A-Z]+)\s+(\d+)([A-Z]+)(\d+)"
+            matches = re.findall(pattern, line.replace(',', '.'))
+
+            if matches:
+                matches = [
+                    (i[0], i[1], i[2], i[3], '', '0.00') for i in matches
+                ]
+                lines_matches.append([i for i in matches[0]])
+                continue
+
+            if not matches:
+                pattern = r"([A-Za-z\s]+)\s+(\d+)([A-Z]+)(\d+)"
+                matches = re.findall(pattern, line.replace(',', '.'))
+                lines_matches.append([
+                    (i[0], i[1], i[2], i[3], '', '0.00') for i in matches
+                ])
+
+        for item in lines_matches:
+            line_stock = {
+                'quantity_box': int(item[1]),
                 'box_model': item[2].upper(),
-                'length': re.findall(r'\d{2}', item[3]),
-                'qty_stem_flower': '0',
-                'stem_cost_price': re.findall(r'[\d.]+', item[5]),
-            })
+                'tot_stem_flower': 0,
+                'box_items': []
+            }
+            costs = [float(x) for x in item[5].split('-')]
+            was_created = False
+            product = Product.get_by_variety(item[0].strip())
+            length = [
+                int(item[3][i:i+2]) for i in range(0, len(item[3]), 2)
+            ]
+
+            if len(costs) != len(length):
+                raise ValueError(
+                    'El numero de costos y de longitudes no coincide'
+                )
+
+            if not product:
+                was_created = True
+                product = Product.objects.create(
+                    name='ROSA ESPECIFICAR',
+                    variety=item[0].strip().upper()
+                )
+
+            for i in range(len(length)):
+                line_stock['box_items'].append({
+                    'product': product,
+                    'tot_stem_flower': 0,
+                    'length': length[i],
+                    'stem_cost_price': costs[i],
+                    'was_created': was_created
+                })
+            disponiblility.append(line_stock)
+
         return disponiblility
