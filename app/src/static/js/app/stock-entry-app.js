@@ -18,14 +18,14 @@ const app = Vue.createApp({
     methods:{
         selectPartner($event){
             this.partner = this.partners.find(
-                partner => partner.id == $event.target.value
+                partner => partner.name == $event.target.value
             );
             this.stock.id_partner = this.partner.id;
         },
         processText($event){
             console.log($event.target.value);
         },
-        sendData(){
+        sendData() {
             this.show_form = false;
             fetch(this.urlPost, {
                 method: 'POST',
@@ -34,22 +34,24 @@ const app = Vue.createApp({
                     'X-CSRFToken': this.csrftoken,
                 },
                 body: JSON.stringify(this.stock),
-            }).then(
-                response => response.json()
-            ).then(data => {
-                console.log('Success:', data);
-                this.disponibility = data;
             })
-
-        },
-        loadData(){
+            .then((response) => response.json())
+            .then((data) => {
+                this.disponibility = JSON.parse(data['data']);
+                console.dir(this.disponibility);
+                this.showResults();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        },        
+        showResults(){
             this.show_form = false;
-            if(!this.disponibility){
-                this.show_form = true;
-                console.log('No data to load');
-                return;
-            }
-        }
+            
+        },
+        formatCurrency(number){
+            return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(number);
+        },
     },
     mounted(){
         console.log('Stock Entry App is mounted');
