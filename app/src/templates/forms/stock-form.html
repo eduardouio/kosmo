@@ -14,12 +14,12 @@
     <div class="col-6">
       <div class="mb-4">
         <label for="id_date" class="form-label">Proveedor</label>
-        <select class="form-control form-control-sm" @change="selectPartner">
-          <option value="" disabled selected>Seleccione El Proveedor</option>
+        <input list="suppliers" class="form-control form-control-sm" @change="selectPartner">
+        <datalist id="suppliers">
           {% for item in partners %}
-          <option value="{{ item.id }}">{{ item.name }}</option>
+          <option value="{{ item.name }}"></option>
           {% endfor %}
-        </select>
+        </datalist>
       </div>
     </div>
     <div class="col-3">
@@ -72,30 +72,33 @@
       [[ stock.date ]] / [[ partner.name ]]
     </span>
   </div>
-  <div class="row" v-if="disponibility">
+  <div class="row">
     <div class="col-12">
     <table class="table table-striped table-hover table-bordered" id="myTable">
       <thead>
         <tr class="text-center p-1">
-          <th class="bg-success bg-opacity-50 p-0">CANTIDAD</th>
-          <th class="bg-success bg-opacity-50 p-0">PRODUCTO</th>
-          <th class="bg-success bg-opacity-50 p-0">LARGO (CM)</th>
-          <th class="bg-success bg-opacity-50 p-0">TALLOS</th>       
-          <th class="bg-success bg-opacity-50 p-0">COSTO</th>
+          <th class="bg-success bg-opacity-50 p-0">Cant</th>
+          <th class="bg-success bg-opacity-50 p-0">Caja</th>
+          <th class="bg-success bg-opacity-50 p-0">Tallos</th>
+          <th class="bg-success bg-opacity-50 p-0">Items</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="item in disponibility">
-          <td class="p-0">[[ item.quantity_box ]] [[ item.box_model]] </td>
-          <td class="p-0">[[ item.product ]]</td>
-          <td class="p-0 d-flex justify-content-end gap-3">
-              <span v-for="itm in item.length" :key="itm" class="border border-secondary-subtle w-25 text-center rounded">
-                [[ itm ]]
+        <tr v-for="itm in disponibility" :key="itm">
+          <td>[[ itm.quantity_box ]]</td>
+          <td>[[ itm.box_model ]]</td>
+          <td>[[ itm.tot_stem_flower ]]</td>
+          <td>
+            <section v-for="line in itm.box_items" class="d-flex justify-content-end gap-3">
+              <span class="border-bottom">[[ line.product.name ]]  [[ line.product.variety ]]</span>  
+              <span class="w-10 border-bottom">
+                [[ line.length ]] Cm
               </span>
-          </td>
-          <td class="p-0 text-center">[[ item.qty_stem_flower ]]</td>
-          <td class="p-0 d-flex justify-content-end gap-3">
-            <span v-for="itm, idx in item.stem_cost_price" class="border border-secondary-subtle w-25 text-center rounded">[[itm]]</span>
+              <span class="w-10 border-bottom">[[ line.tot_stem_flower ]] Tallos</span>
+              <span class="w-10 border-bottom">
+                [[ formatCurrency(line.stem_cost_price) ]]
+              </span>
+            </section>
           </td>
         </tr>
       </tbody>
