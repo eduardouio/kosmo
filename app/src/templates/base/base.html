@@ -71,8 +71,8 @@
               </ul>
             </li>
             <!-- Tecnicos -->
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="tecnicosDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'partner_list' %}" >
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-users-group" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                   <path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
@@ -82,28 +82,8 @@
                   <path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
                   <path d="M3 13v-1a2 2 0 0 1 2 -2h2" />
                 </svg>
-                Socios
+                Socios De Negocio
               </a>
-              <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="tecnicosDropdown">
-                <li>
-                  <a class="dropdown-item" href="{% url 'partner_list' %}?type=customer">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                      <path d="M11 4l3 8l-3 8" />
-                    </svg>
-                    Clientes
-                  </a>
-                </li>
-                <li>
-                  <a class="dropdown-item" href="{% url 'partner_list' %}?type=supplier">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                      <path d="M11 4l3 8l-3 8" />
-                    </svg>
-                    Proveedores
-                  </a>
-                </li>
-              </ul>
             </li>
             <!-- Proyectos -->
             <li class="nav-item dropdown">
