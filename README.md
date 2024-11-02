@@ -81,3 +81,9 @@ pip install -r requirements.txt
 | Finca Spring Roses                  | No             |
 | Finca Floraroma SA                  | Sí             |
 | Finca Kosmo Flowers SA              | Sí             |
+
+
+
+TODO
+[] Al crear una nueva DAE, deshabilitar las anteriores
+[] Dispos se sobreescriben si se traen de nuevo
