@@ -77,7 +77,7 @@
                      {{ partner.type_partner }} - {{ partner.name  }}
                   </div>
                   <div class="col-6 text-end">
-                     Ultima DAE: {{ last_dae  }}
+                     Ultima DAE: {{ last_dae.dae  }}
                   </div>
             </div>
          </div>
@@ -176,20 +176,20 @@
                         </div>
                      </div>
                      <br>
-                     <div class="row border-top border-bottom bg-gray">
+                     <div class="row border-bottom bg-gray p-1">
                         <div class="col-6 text-center d-flex justify-content-center gap-3">
                            <span class="text-warning">
                               Medios de Pago
                            </span>
-                           <a href="#" class="border rounded-1 border-warning">
-                              <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                           <a href="#" class="badge border bg-secondary">
+                              <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                               Nuevo
                            </a>
                         </div>
                         <div class="col-6 text-center d-flex justify-content-center gap-3">
                            <span class="text-success">Contactos</span>
-                           <a href="#" class="border rounded-1 border-success">
-                              <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                           <a href="#" class="badge border bg-secondary pe-1">
+                              <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                               Nuevo
                            </a>
                         </div>
@@ -202,14 +202,20 @@
                               <div class="col-12 border-start m-1 pt-2 border-warning border-2">
                                  <section>
                                     <span class="text-muted">Banco:</span>
-                                    <span class="ps-3">
+                                    <span class="ps-3 d-flex justify-content-between">
+                                       <span>
                                        {{ bank.bank_name }}
                                        <i class="text-muted"> / </i>
                                        {% if bank.national_bank %}
-                                       <i class="badge text-bg-secondary">B. Nacional</i>
+                                       <i class="badge border text-primary">B. Nacional</i>
                                        {% else %}
-                                       <i class="badge text-bg-info">B. Internacional</i>
+                                       <i class="badge boder text-success">B. Internacional</i>
                                        {% endif %}
+                                    </span>
+                                       <a href="#" class="badge border bg-secondary">
+                                          <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-pencil"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
+                                             Editar
+                                       </a>
                                     </span>
                                  </section>
                                  <section>
@@ -233,9 +239,13 @@
                               {% for contact in contacts %}
                               <div class="col-12 border-start border-2 m-1 pt-2 border-success">
                                     <section>
-                                       <span class="text-muted">Nombre:</span>
-                                       <span class="ps-3">
-                                          {{ contact.name }}
+                                       <span class="text-muted">Contacto:</span>
+                                       <span class="ps-3 d-flex justify-content-between">
+                                          <span> {{ contact.name }} </span>
+                                          <a href="#" class="badge border bg-secondary">
+                                             <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-pencil"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
+                                                Editar
+                                          </a>
                                        </span>
                                     </section>
                                     <section>
