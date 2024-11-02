@@ -77,7 +77,9 @@
                      {{ partner.type_partner }} - {{ partner.name  }}
                   </div>
                   <div class="col-6 text-end">
-                     Ultima DAE: {{ last_dae.dae  }}
+                     {% if partner.type_partner == 'PROVEEDOR' %}
+                        Ultima DAE: {{ last_dae.dae  }}
+                     {% endif %}
                   </div>
             </div>
          </div>
@@ -275,10 +277,11 @@
                   <div class="col-4">
                      <div class="card-body pt-0">
                      <div class="span w-100 text-center bg-kosmo-secondary text-white rounded-top">
-                        {% if parter.type_partner == 'CLIENTE' %}
+                        {% if partner.type_partner == 'CLIENTE' %}
                            Proveedores De Los Que Se Acepta Stock
-                        {% else %}
-                           Clientes Que Aceptan Stock
+                        {% endif %}
+                        {% if partner.type_partner == 'PROVEEDOR' %}
+                           Clientes Que Aceptan Este Stock
                         {% endif %}
                      </div>
                      <table class="table" id="myTable4">

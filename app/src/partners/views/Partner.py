@@ -8,7 +8,8 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
     ListView,
-    DetailView
+    DetailView,
+    View
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers import serialize
@@ -57,6 +58,15 @@ class PartnerCreateView(LoginRequiredMixin, CreateView):
         url = reverse_lazy('partner-detail', kwargs={'pk': self.object.id})
         url += '?action=created'
         return url
+
+
+class PartnerUpdateParent(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        partner = Partner.objects.get(pk=kwargs['pk'])
+        data = json.loads(request.body)
+        import ipdb;ipdb.set_trace
+        Partner.update_parent_suppliers(partner, data)
+        return self.get(request, *args, **kwargs)
 
 
 class PartnerUpdateView(LoginRequiredMixin, UpdateView):
