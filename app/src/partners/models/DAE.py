@@ -1,8 +1,9 @@
 from django.db import models
 from .Partner import Partner
+from common import BaseModel
 
 
-class DAE(models.Model):
+class DAE(BaseModel):
     id = models.AutoField(
         primary_key=True
     )
@@ -23,8 +24,10 @@ class DAE(models.Model):
     )
 
     @classmethod
-    def get_by_partner(cls, partner):
-        return cls.objects.filter(partner=partner)
+    def get_last_by_partner(cls, partner):
+        daes = cls.objects.filter(partner=partner, is_active=True)
+        if daes:
+            return daes.latest('date_end')
 
     def __str__(self):
         return '{} {}'.format(self.dae, self.partner)
