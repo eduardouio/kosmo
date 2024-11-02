@@ -142,7 +142,7 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
         elif context['action'] == 'updated':
             message = 'El socio de negocio ha sido actualizado con éxito.'
         elif context['action'] == 'no_delete':
-            message = 'No es posible eliminar el socio de negocio. Existen dependencias.'
+            message = 'No sel puede eliminar el registro. Existen dependencias'
         elif context['action'] == 'delete':
             message = 'Esta acción es irreversible. ¿Desea continuar?.'
 
