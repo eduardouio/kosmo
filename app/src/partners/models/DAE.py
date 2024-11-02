@@ -22,10 +22,9 @@ class DAE(models.Model):
         'Fecha de Fin',
     )
 
+    @classmethod
+    def get_by_partner(cls, partner):
+        return cls.objects.filter(partner=partner)
+
     def __str__(self):
         return '{} {}'.format(self.dae, self.partner)
-
-    class Meta:
-        verbose_name = 'DAE'
-        verbose_name_plural = 'DAEs'
-        unique_together = ('dae', 'partner')
