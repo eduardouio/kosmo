@@ -139,4 +139,14 @@ body {
 .w-30 {
 	width: 30% !important;
 }
+.upper{
+	text-transform: uppercase;
+}
 
+.lower{
+	text-transform: lowercase;
+}
+
+.capitalize{
+	text-transform: capitalize;
+}
