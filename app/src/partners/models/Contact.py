@@ -45,11 +45,12 @@ class Contact(BaseModel):
         default=False
     )
 
+    @classmethod
+    def get_by_partner(cls, partner):
+        return cls.objects.filter(partner=partner)
+
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = 'Contacto'
-        verbose_name_plural = 'Contactos'
-        db_table = 'partner_contact'
         unique_together = ('partner', 'name')

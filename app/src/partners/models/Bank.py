@@ -4,7 +4,9 @@ from .Partner import Partner
 
 
 class Bank(BaseModel):
-    id = models.AutoField(primary_key=True)
+    id = models.AutoField(
+        primary_key=True
+     )
     partner = models.ForeignKey(
         Partner,
         on_delete=models.CASCADE,
@@ -42,6 +44,10 @@ class Bank(BaseModel):
         'Banco Nacional?',
         default=True
     )
+
+    @classmethod
+    def get_by_partner(cls, partner):
+        return cls.objects.filter(partner=partner)
 
     def __str__(self):
         if self.national_bank:

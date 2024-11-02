@@ -12,7 +12,7 @@ from django.views.generic import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.serializers import serialize
-from partners.models import Partner
+from partners.models import Partner, Bank, Contact, DAE
 
 
 class PartnerForm(forms.ModelForm):
@@ -121,6 +121,9 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
         context['title_section'] = self.object.name
         context['title_page'] = self.object.name
         context['all_supliers'] = []
+        context['daes'] = DAE.objects.filter(partner=self.get_object)
+        context['bancks'] = Bank.get_by_partner(self.get_object)
+        context['contacts'] = Contact.get_by_partner(self.get_object)
         if self.object.type_partner == 'CLIENTE':
             list_suppliers = Partner.get_registered_suppliers(self.object)
             context['all_supliers'] = json.dumps([{
