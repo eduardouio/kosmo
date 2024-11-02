@@ -66,14 +66,21 @@
          <div class="col-md-12 mb-3">
          <div class="card">
             <div class="card-header p-1 bg-peisol-primary bg-gradient bg-opacity-75 text-white rounded-0 upper">
-               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                  <path d="M12 9h.01" />
-                  <path d="M11 12h1v4h1" />
-               </svg>
-               {{ partner.type_partner }} - {{ partner.name  }}
+               <div class="row">
+                  <div class="col-6">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+                        <path d="M12 9h.01" />
+                        <path d="M11 12h1v4h1" />
+                     </svg>
+                     {{ partner.type_partner }} - {{ partner.name  }}
+                  </div>
+                  <div class="col-6 text-end">
+                     Ultima DAE: {{ last_dae  }}
+                  </div>
             </div>
+         </div>
             <div class="card-body shadow">
                <div class="row">
                   <div class="col-8">
@@ -156,135 +163,132 @@
                               {% endif %}
                            </section>
                         </div>
+                        <div class="col-12">
+                           <section>
+                              <span class="text-muted">Notas:</span>
+                              <span class="ps-2">
+                                 {% if partner.notes %}
+                                    {{ partner.notes }}
+                                 {% else %}
+                                    --
+                                 {% endif %}
+                              </span>
+                        </div>
                      </div>
                      <br>
-                     <div class="row border-top border-bottom d-flex justify-content-between bg-gray">
-                        <div class="col-6 text-center">
-                           <span class="breadcrum">Medios de Pago </span>
+                     <div class="row border-top border-bottom bg-gray">
+                        <div class="col-6 text-center d-flex justify-content-center gap-3">
+                           <span class="text-warning">
+                              Medios de Pago
+                           </span>
+                           <a href="#" class="border rounded-1 border-warning">
+                              <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                              Nuevo
+                           </a>
                         </div>
-                        <div class="col-6 text-center">
-                           <span>Contactos</span>
+                        <div class="col-6 text-center d-flex justify-content-center gap-3">
+                           <span class="text-success">Contactos</span>
+                           <a href="#" class="border rounded-1 border-success">
+                              <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+                              Nuevo
+                           </a>
                         </div>
                      </div>
                      <br>
                      <div class="row">
                         <div class="col-6">
                            <div class="row">
-                              <div class="col-12 border-bottom pb-3">
+                              {% for bank in  banks %}
+                              <div class="col-12 border-start m-1 pt-2 border-warning border-2">
                                  <section>
                                     <span class="text-muted">Banco:</span>
                                     <span class="ps-3">
-                                       Banco Internacional 
-                                       <i class="text-muted">/ </i>
-                                       <i class="badge bg-primary">B. Nacional</i>
+                                       {{ bank.bank_name }}
+                                       <i class="text-muted"> / </i>
+                                       {% if bank.national_bank %}
+                                       <i class="badge text-bg-secondary">B. Nacional</i>
+                                       {% else %}
+                                       <i class="badge text-bg-info">B. Internacional</i>
+                                       {% endif %}
                                     </span>
                                  </section>
                                  <section>
                                     <span class="text-muted">Cuenta:</span>
-                                    <span class="ps-3">9348502261</span>
+                                    <span class="ps-3">{{ bank.account_number }}</span>
                                  </section>
                                  <section>
-                                    <span class="text-muted">SWIFT/IBAN:</span>
+                                    <span class="text-muted">SWIFT / IBAN:</span>
                                     <span class="ps-3">1254245ASD / ASDSD124112</span>
                                  </section>
                                  <section>
-                                    <span class="text-muted">Titular Cuenta</span>
-                                    <span class="ps-3">Marco Tulio Tulipan</span>
+                                    <span class="text-muted">Titular Cuenta / Id</span>
+                                 <span class="ps-3">{{ bank.owner }} / {{ bank.id_owner }}</span>
                                  </section>
                               </div>
-                              <div class="col-12 border-bottom pb-3">
-                                 <section>
-                                    <span class="text-muted">Banco:</span>
-                                    <span class="ps-3">
-                                       Banco Internacional 
-                                       <i class="text-muted">/ </i>
-                                       <i class="badge bg-primary">B. Nacional</i>
-                                    </span>
-                                 </section>
-                                 <section>
-                                    <span class="text-muted">Cuenta:</span>
-                                    <span class="ps-3">9348502261</span>
-                                 </section>
-                                 <section>
-                                    <span class="text-muted">SWIFT/IBAN:</span>
-                                    <span class="ps-3">1254245ASD / ASDSD124112</span>
-                                 </section>
-                                 <section>
-                                    <span class="text-muted">Titular Cuenta</span>
-                                    <span class="ps-3">Marco Tulio Tulipan</span>
-                                 </section>
-                              </div>
+                              {% endfor %}
                            </div>
                         </div>
                         <div class="col-6">
                            <div class="row">
-                                 <div class="col-12 border-bottom pb-3">
+                              {% for contact in contacts %}
+                              <div class="col-12 border-start border-2 m-1 pt-2 border-success">
                                     <section>
-                                       <span class="text-muted">Nombre:</span>ll
+                                       <span class="text-muted">Nombre:</span>
                                        <span class="ps-3">
-                                          Juanito Sisalema
+                                          {{ contact.name }}
                                        </span>
                                     </section>
                                     <section>
                                        <span class="text-muted">Cargo:</span>
-                                       <span class="ps-3">Comercial</span>
+                                       <span class="ps-3">
+                                          {{ contact.position }}
+                                       </span>
                                     </section>
                                     <section>
                                        <span class="text-muted">Telefono:</span>
-                                       <span class="ps-3">1254245ASD</span>
+                                       <span class="ps-3">
+                                          {{ contact.phone }}
+                                       </span>
                                     </section>
                                     <section>
                                        <span class="text-muted">Correo</span>
-                                       <span class="ps-3">ed@vinesa.com</span>
+                                       <span class="ps-3">
+                                          {{ contact.email }}
+                                       </span>
                                     </section>
                                  </div>
+                                 {%  endfor %}
                               </div>
                         </div>
                      </div>
                   </div>
                   <div class="col-4">
+                     <div class="card-body pt-0">
                      <div class="span w-100 text-center bg-kosmo-secondary text-white rounded-top">
-                        Proveedores De Los Que Se Acepta Stock
+                        {% if parter.type_partner == 'CLIENTE' %}
+                           Proveedores De Los Que Se Acepta Stock
+                        {% else %}
+                           Clientes Que Aceptan Stock
+                        {% endif %}
                      </div>
-                     <table class="table table-bordered table-striped" id="myTable4">
+                     <table class="table" id="myTable4">
                         <tbody>
                            <tr v-for="item, idx in all_supliers">
-                              <td class="text-center p-0">[[ idx + 1 ]]</td>
                               <td class="p-0">[[ item.name ]]</td>
                               <td class="text-start p-0">
                                  <span v-if="item.selected" @click="item.selected = false" class="text-success">
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M9 12l2 2l4 -4" /></svg>
-                                    Acepta Dispo
+                                    SI
                                  </span>
                                  <span v-else @click="item.selected = true" class="text-primary">
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /></svg>
-                                    No Relacionado
+                                    NO
                                  </span>
                               </td>
                            </tr>
                         </tbody>
                      </table>
-                     <div class="span w-100 text-center bg-kosmo-secondary text-white rounded-top">
-                        Historico de DAES
-                     </div>
-                     <table class="table table-bordered table-striped" id="myTable4">
-                        <tbody>
-                           <tr v-for="item, idx in all_supliers">
-                              <td class="text-center p-0">[[ idx + 1 ]]</td>
-                              <td class="p-0">[[ item.name ]]</td>
-                              <td class="text-start p-0">
-                                 <span v-if="item.selected" @click="item.selected = false" class="text-success">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M9 12l2 2l4 -4" /></svg>
-                                    Acepta Dispo
-                                 </span>
-                                 <span v-else @click="item.selected = true" class="text-primary">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /></svg>
-                                    No Relacionado
-                                 </span>
-                              </td>
-                           </tr>
-                        </tbody>
-                     </table>
+                  </div>
                   </div>
                </div>
                <!-- Metadata-->
@@ -326,7 +330,7 @@
             'width=800,height=600,scrollbars=yes,resizable=yes'
         );
     }
-        var all_supliers = {{ all_supliers | safe }};
+        var all_supliers = {{ parent_supliers | safe }};
         all_supliers = all_supliers.map((el) => {
             const sup = JSON.parse(el.suplier)[0];
             return {

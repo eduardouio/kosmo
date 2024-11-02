@@ -121,23 +121,32 @@ class Partner(BaseModel):
         )
 
     @classmethod
-    def get_registered_suppliers(cls, supplier):
-        if supplier.type_partner == 'PROVEEDOR':
-            return []
-
-        all_suppliers = cls.get_suppliers()
-        supplier_partners = supplier.partner.all()
+    def get_parent_suppliers(cls, partner):
+        all_partners_for_parent = []
         list_suppliers = []
-        for itm in all_suppliers:
-            partner = {
+        if partner.type_partner == 'CLIENTE':
+            all_partners_for_parent = cls.get_suppliers()
+        else:
+            all_partners_for_parent = cls.get_customers()
+
+        for itm in all_partners_for_parent:
+            parent_partner = {
                 'suplier': itm,
                 'selected': False
             }
-            if itm in supplier_partners:
-                partner['selected'] = True
 
-            list_suppliers.append(partner)
-        return list_suppliers
+            if itm in partner.partner.all():
+                parent_partner['selected'] = True
+
+            list_suppliers.append(parent_partner)
+
+        order_list = [
+            x for x in list_suppliers if x['selected']
+            ] + [
+                x for x in list_suppliers if not x['selected']
+        ]
+
+        return order_list
 
     @classmethod
     def get_partner_by_taxi_id(cls, business_tax_id):

@@ -120,16 +120,14 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
         context = super(PartnerDetailView, self).get_context_data(**kwargs)
         context['title_section'] = self.object.name
         context['title_page'] = self.object.name
-        context['all_supliers'] = []
-        context['daes'] = DAE.objects.filter(partner=self.get_object)
-        context['bancks'] = Bank.get_by_partner(self.get_object)
-        context['contacts'] = Contact.get_by_partner(self.get_object)
-        if self.object.type_partner == 'CLIENTE':
-            list_suppliers = Partner.get_registered_suppliers(self.object)
-            context['all_supliers'] = json.dumps([{
-                'suplier': serialize('json', [i['suplier']]),
-                'selected': i['selected']
-            } for i in list_suppliers])
+        context['last_dae'] = DAE.get_last_by_partner(self.object)
+        context['banks'] = Bank.get_by_partner(self.object)
+        context['contacts'] = Contact.get_by_partner(self.object)
+        parent_suppliers = Partner.get_parent_suppliers(self.object)
+        context['parent_supliers'] = json.dumps([{
+            'suplier': serialize('json', [i['suplier']]),
+            'selected': i['selected']
+        } for i in parent_suppliers])
 
         if 'action' not in self.request.GET:
             return context
