@@ -3,6 +3,7 @@ import json
 from django.urls import reverse_lazy
 from django import forms
 from partners.models import Partner
+from django.http import JsonResponse
 from django.views.generic import (
     CreateView,
     UpdateView,
@@ -62,11 +63,15 @@ class PartnerCreateView(LoginRequiredMixin, CreateView):
 
 class PartnerUpdateParent(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
-        partner = Partner.objects.get(pk=kwargs['pk'])
         data = json.loads(request.body)
-        import ipdb;ipdb.set_trace
-        Partner.update_parent_suppliers(partner, data)
-        return self.get(request, *args, **kwargs)
+        partner = Partner.objects.get(pk=kwargs['pk'])
+        partner_parent = Partner.get_partner_by_id(data['id'])
+        if data['selected']:
+            partner.partner.add(partner_parent)
+        else:
+            partner.partner.remove(partner_parent)
+
+        return JsonResponse({'status': 'ok'})
 
 
 class PartnerUpdateView(LoginRequiredMixin, UpdateView):

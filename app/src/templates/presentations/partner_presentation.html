@@ -179,7 +179,7 @@
                      </div>
                      <br>
                      <div class="row border-bottom bg-gray p-1">
-                        <div class="col-6 text-center d-flex justify-content-center gap-3">
+                        <div class="col-6 text-center d-flex justify-content-between gap-3">
                            <span class="text-warning">
                               Medios de Pago
                            </span>
@@ -188,7 +188,7 @@
                               Nuevo
                            </a>
                         </div>
-                        <div class="col-6 text-center d-flex justify-content-center gap-3">
+                        <div class="col-6 text-center d-flex justify-content-between gap-3">
                            <span class="text-success">Contactos</span>
                            <a href="#" class="badge border bg-secondary pe-1">
                               <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
@@ -289,11 +289,11 @@
                            <tr v-for="item, idx in all_supliers">
                               <td class="p-0">[[ item.name ]]</td>
                               <td class="text-start p-0">
-                                 <span v-if="item.selected" @click="item.selected = false" class="text-success">
+                                 <span v-if="item.selected" @click="changeItemStatus(item)" class="text-success">
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M9 12l2 2l4 -4" /></svg>
                                     SI
                                  </span>
-                                 <span v-else @click="item.selected = true" class="text-primary">
+                                 <span v-else @click="changeItemStatus(item)" class="text-primary">
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /></svg>
                                     NO
                                  </span>
@@ -305,7 +305,7 @@
                   </div>
                </div>
                <!-- Metadata-->
-               <div class="row bg-gray rounded-1 m-2 p-2 border">
+               <div class="row bg-gray rounded-1 mt-2 pt-2 border">
                   <div class="col">
                      <section>
                         <span class="text-muted">Fecha de Creación:</span>
@@ -344,6 +344,8 @@
         );
     }
         var all_supliers = {{ parent_supliers | safe }};
+        var csrf_token = "{{ csrf_token }}";
+        var urlPOST = "{% url 'partner_update_parent' partner.id %}";
         all_supliers = all_supliers.map((el) => {
             const sup = JSON.parse(el.suplier)[0];
             return {
