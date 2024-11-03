@@ -250,7 +250,19 @@
                                  </section>
                                  <section>
                                     <span class="text-muted">SWIFT / IBAN:</span>
-                                    <span class="ps-3">1254245ASD / ASDSD124112</span>
+                                    <span class="ps-3">
+                                       {% if bank.swift_code  %}
+                                          {{ bank.swift_code }}
+                                       {% else %}
+                                          --
+                                       {% endif %}
+                                       /
+                                       {% if bank.iban  %}
+                                          {{ bank.iban }}
+                                       {% else %}
+                                          --
+                                       {% endif %}
+                                    </span>
                                  </section>
                                  <section>
                                     <span class="text-muted">Titular Cuenta / Id</span>
