@@ -162,6 +162,8 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
             message = 'No sel puede eliminar el registro. Existen dependencias'
         elif context['action'] == 'delete':
             message = 'Esta acción es irreversible. ¿Desea continuar?.'
-
+        elif context['action'] == 'deleted_related':
+            message = 'El registro ha sido eliminado exitosamente'
+        
         context['message'] = message
         return context

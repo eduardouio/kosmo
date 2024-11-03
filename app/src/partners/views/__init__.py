@@ -6,3 +6,11 @@ from .Partner import (
     PartnerDeleteView,
     PartnerUpdateParent,
 )
+
+from .Bank import (
+    BankDetailView,
+    BankListView,
+    BankCreateView,
+    BankUpdateView,
+    BankDeleteView,
+)

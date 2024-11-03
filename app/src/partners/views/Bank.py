@@ -1,7 +1,7 @@
 import json
 from django.urls import reverse_lazy
 from django import forms
-from .models import Bank
+from partners.models import Bank, Partner
 from django.http import JsonResponse
 from django.views.generic import (
     CreateView,
@@ -39,12 +39,21 @@ class BankForm(forms.ModelForm):
 class BankCreateView(LoginRequiredMixin, CreateView):
     model = Bank
     form_class = BankForm
-    template_name = 'forms/bank-form.html'
+    template_name = 'forms/bank_form.html'
 
     def get_context_data(self, *args, **kwargs):
         ctx = super(BankCreateView, self).get_context_data(*args, **kwargs)
-        ctx['title_bar'] = 'Create Bank'
+        ctx['id_partner'] = self.kwargs.get('id_partner')
+        ctx['title_section'] = 'Registrar Nuevo Banco'
         return ctx
+
+    def get_form(self, form_class=None):
+        form = super(BankCreateView, self).get_form(form_class)
+        id_partner = self.kwargs.get('id_partner')
+        partner = Partner.objects.get(pk=id_partner)
+        if id_partner:
+            form.fields['partner'].initial = partner
+        return form
 
     def get_success_url(self):
         url = reverse_lazy('bank_detail', kwargs={'pk': self.object.id})
@@ -55,12 +64,14 @@ class BankCreateView(LoginRequiredMixin, CreateView):
 class BankUpdateView(LoginRequiredMixin, UpdateView):
     model = Bank
     form_class = BankForm
-    template_name = 'forms/bank-form.html'
+    template_name = 'forms/bank_form.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title_section'] = 'Actualizar Banco {}'.format(self.object.bank_name)
         context['title_page'] = 'Actualizar Banco {}'.format(self.object.bank_name)
+        context['action'] = None
+        context['id_partner'] = self.object.pk
         return context
 
     def get_success_url(self):
@@ -72,13 +83,14 @@ class BankUpdateView(LoginRequiredMixin, UpdateView):
 class BankDeleteView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         bank = Bank.objects.get(pk=kwargs['pk'])
+        partner = bank.partner
         try:
             bank.delete()
-            url = reverse_lazy('bank_list')
-            return f'{url}?action=deleted'
+            url = reverse_lazy('partner_detail', kwargs={'pk': partner.pk})
+            return url + '?action=deleted_related'
         except Exception:
             url = reverse_lazy('bank_detail', kwargs={'pk': bank.pk})
-            return f'{url}?action=no_delete'
+            return url + '?action=no_delete_related'
 
 
 class BankListView(LoginRequiredMixin, ListView):

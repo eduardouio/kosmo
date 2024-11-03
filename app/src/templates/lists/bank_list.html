@@ -1,0 +1,95 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container container-lg mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+    <div class="d-flex justify-content-between">
+        <span class="text-primary">
+            {{ title_section }}
+        </span>
+        {% if action %}
+        <span class="bg-peisol-secondary bg-gradient p-2 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                <path d="M9 12l2 2l4 -4" />
+              </svg>
+            {{ message }}
+        </span>
+        {% endif %}
+        <a href="{% url 'bank_create' 0 %}" class="btn btn-sm btn-default">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+            Nuevo Banco
+        </a>
+    </div>
+</div>
+<div class="container container-lg mx-auto">
+    <table class="table table-bordered table-striped" id="myTable">
+        <thead>
+        <tr>
+            <th class="bg-secondary bg-opacity-25">#</th>
+            <th class="bg-secondary bg-opacity-25">Nombre del Banco</th>
+            <th class="bg-secondary bg-opacity-25">Titular</th>
+            <th class="bg-secondary bg-opacity-25">Socio de Negocio</th>
+            <th class="bg-secondary bg-opacity-25">Número de Cuenta</th>
+            <th class="bg-secondary bg-opacity-25">Tipo</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for item in object_list %}
+            <tr>
+                <td class="p-0 d-flex justify-content-start gap-3">
+                    <a href="{% url 'bank_detail' item.id %}" class="text-primary d-flex justify-content-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crosshair" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                            <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+                            <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+                            <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+                            <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
+                            <path d="M9 12l6 0" />
+                            <path d="M12 9l0 6" />
+                          </svg>
+                        {{ forloop.counter }}
+                    </a>
+                </td>
+                <td class="p-0">
+                    <a href="{% url 'bank_detail' item.id %}">
+                    {% if item.is_active %}
+                        <span class="text-success">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox">
+                                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                                <path d="M9 11l3 3l8 -8" />
+                                <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
+                            </svg>
+                        </span>
+                    {% else %}
+                        <span class="text-warning">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-alert-triangle">
+                                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                                <path d="M12 9v4" />
+                                <path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" />
+                                <path d="M12 16h.01" />
+                            </svg>
+                        </span>
+                    {% endif %}
+                    {{ item.bank_name }}
+                    </a>
+                </td>
+                <td class="p-0">{{ item.owner }}</td>
+                <td class="p-0">{{ item.partner }}</td>
+                <td class="p-0">{{ item.account_number }}</td>
+                <td class="p-0">
+                    {% if item.national_bank %}
+                        NACIONAL
+                    {% else %}
+                        EXTRAJERO
+                    {% endif %}
+                </td>  
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -174,6 +174,4 @@ class Partner(BaseModel):
         return partners[0] if partners else None
 
     def __str__(self):
-        if self.type_partner == 'client':
-            return f'C: {self.name}'
-        return f'S: {self.name}'
+        return self.name
