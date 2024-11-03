@@ -59,7 +59,7 @@ class PartnerCreateView(LoginRequiredMixin, CreateView):
         return ctx
 
     def get_success_url(self):
-        url = reverse_lazy('partner-detail', kwargs={'pk': self.object.id})
+        url = reverse_lazy('partner_detail', kwargs={'pk': self.object.id})
         url += '?action=created'
         return url
 
