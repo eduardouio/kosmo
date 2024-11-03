@@ -2,8 +2,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, ListView, DetailView, RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
-from .models import DAE
-from partners.models import Partner
+from partners.models import Partner, DAE
 
 
 class DAEForm(forms.ModelForm):
