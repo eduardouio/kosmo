@@ -31,9 +31,10 @@
         <tr>
             <th class="bg-secondary bg-opacity-25">#</th>
             <th class="bg-secondary bg-opacity-25">Nombre</th>
+            <th class="bg-secondary bg-opacity-25">Tipo</th>
             <th class="bg-secondary bg-opacity-25">Correo Electrónico</th>
-            <th class="bg-secondary bg-opacity-25">Teléfono</th>                
-            <th class="bg-secondary bg-opacity-25">Contacto</th>
+            <th class="bg-secondary bg-opacity-25">Pais</th>                
+            <th class="bg-secondary bg-opacity-25">D Crédito</th>
         </tr>
         </thead>
         <tbody>
@@ -53,12 +54,28 @@
                         {{ forloop.counter }}
                     </a>
                 </td>
-                <td class="p-0">{{ item.name }}</td>
-                <td class="p-0">{{ item.email }}</td>
-                <td class="p-0">{{ item.phone }}</td>
                 <td class="p-0">
-                    {% if item.name_contact  %}
-                        {{ item.name_contact }}
+                    <a href="{% url 'partner_detail' item.id %}">
+                    {% if item.is_active %}
+                        <span class="text-success">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l3 3l8 -8" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
+                        </span>
+                    {% else %}
+                        <span class="text-warning">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-alert-triangle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" /><path d="M12 16h.01" /></svg>
+                        </span>
+                    {% endif %}
+                    {{ item.name }}
+                </a>
+                </td>
+                <td class="p-0">{{ item.type_partner }}</td>
+                <td class="p-0">{{ item.email }}</td>
+                <td class="p-0">{{ item.country }}</td>
+                <td class="p-0">
+                    {% if item.credit_term %}
+                        {{ item.credit_term }} Días
+                    {% else %}
+                        Contado
                     {% endif %}
                 </td>  
             </tr>
