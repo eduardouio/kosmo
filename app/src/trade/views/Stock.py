@@ -8,7 +8,7 @@ from products.models import Product
 from common import StockAnalyzer
 
 
-class StockDiary(LoginRequiredMixin, TemplateView):
+class Stock(LoginRequiredMixin, TemplateView):
     template_name = 'forms/stock-form.html'
 
     def get_context_data(self, **kwargs):
