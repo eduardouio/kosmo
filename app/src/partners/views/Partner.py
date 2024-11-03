@@ -23,25 +23,28 @@ class PartnerForm(forms.ModelForm):
         fields = [
             'business_tax_id', 'name', 'country', 'city', 'zip_code', 'address',
             'phone', 'email', 'type_partner', 'credit_term', 'website', 'skype',
-            'dispatch_address', 'dispatch_days', 'cargo_reference', 'consolidate'
+            'dispatch_address', 'dispatch_days', 'cargo_reference', 'consolidate',
+            'is_active', 'notes'
         ]
         widgets = {
-            'business_tax_id': forms.TextInput(attrs={'maxlength': '15'}),
-            'name': forms.TextInput(attrs={'maxlength': '255'}),
-            'country': forms.TextInput(attrs={'maxlength': '50'}),
-            'city': forms.TextInput(attrs={'maxlength': '50'}),
-            'zip_code': forms.TextInput(attrs={'maxlength': '10'}),
-            'address': forms.TextInput(attrs={'maxlength': '255'}),
-            'phone': forms.TextInput(attrs={'maxlength': '20'}),
-            'email': forms.EmailInput(attrs={'maxlength': '255'}),
-            'type_partner': forms.Select(),
-            'credit_term': forms.NumberInput(),
-            'website': forms.URLInput(),
-            'skype': forms.TextInput(attrs={'maxlength': '50'}),
-            'dispatch_address': forms.TextInput(attrs={'maxlength': '255'}),
-            'dispatch_days': forms.NumberInput(),
-            'cargo_reference': forms.TextInput(attrs={'maxlength': '255'}),
-            'consolidate': forms.CheckboxInput(),
+            'business_tax_id': forms.TextInput(attrs={'maxlength': '15', 'class': 'form-control form-control-sm'}),
+            'name': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'country': forms.TextInput(attrs={'maxlength': '50', 'class': 'form-control form-control-sm'}),
+            'city': forms.TextInput(attrs={'maxlength': '50', 'class': 'form-control form-control-sm'}),
+            'zip_code': forms.TextInput(attrs={'maxlength': '10', 'class': 'form-control form-control-sm'}),
+            'address': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'phone': forms.TextInput(attrs={'maxlength': '20', 'class': 'form-control form-control-sm'}),
+            'email': forms.EmailInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'type_partner': forms.Select(attrs={'class': 'form-control form-control-sm'}),
+            'credit_term': forms.NumberInput(attrs={'class': 'form-control form-control-sm'}),
+            'website': forms.URLInput(attrs={'class': 'form-control form-control-sm'}),
+            'skype': forms.TextInput(attrs={'maxlength': '50', 'class': 'form-control form-control-sm'}),
+            'dispatch_address': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'dispatch_days': forms.NumberInput(attrs={'class': 'form-control form-control-sm'}),
+            'cargo_reference': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'consolidate': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'notes': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
         }
 
 
@@ -92,7 +95,7 @@ class PartnerUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         url = reverse_lazy('partner_detail', kwargs={'pk': self.object.pk})
-        url = f'{url}?action=updated'
+        url = '{url}?action=updated'.format(url=url)
         return url
 
 
@@ -102,7 +105,7 @@ class PartnerDeleteView(LoginRequiredMixin, DeleteView):
         try:
             partner.delete()
             url = reverse_lazy('partner_list')
-            return f'{url}?action=deleted'
+            return '{url}?action=deleted'.format(url=url)
         except Exception as e:
             url = reverse_lazy('partner_detail', kwargs={'pk': kwargs['pk']})
             return '{url}?action=no_delete'.format(url=url)
@@ -138,6 +141,7 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
         context['last_dae'] = DAE.get_last_by_partner(self.object)
         context['banks'] = Bank.get_by_partner(self.object)
         context['contacts'] = Contact.get_by_partner(self.object)
+        context['action'] = self.request.GET.get('action')
         parent_suppliers = Partner.get_parent_suppliers(self.object)
         context['parent_supliers'] = json.dumps([{
             'suplier': serialize('json', [i['suplier']]),
