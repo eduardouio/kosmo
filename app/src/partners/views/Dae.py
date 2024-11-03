@@ -40,6 +40,14 @@ class DAECreateView(LoginRequiredMixin, CreateView):
         return form
 
     def get_success_url(self):
+        partner = self.object.partner
+        all_daes = DAE.objects.filter(
+            partner=partner
+        ).exclude(pk=self.object.id)
+        # solo puede haber un DAE activo por partner
+        for dae in all_daes:
+            dae.is_active = False
+            dae.save()
         url = reverse_lazy('dae_detail', kwargs={'pk': self.object.id})
         url += '?action=created'
         return url
@@ -59,6 +67,14 @@ class DAEUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def get_success_url(self):
+        partner = self.object.partner
+        all_daes = DAE.objects.filter(
+            partner=partner
+        ).exclude(pk=self.object.id)
+        # solo puede haber un DAE activo por partner
+        for dae in all_daes:
+            dae.is_active = False
+            dae.save
         url = reverse_lazy('dae_detail', kwargs={'pk': self.object.pk})
         url += '?action=updated'
         return url
@@ -105,6 +121,10 @@ class DAEDetailView(LoginRequiredMixin, DetailView):
         context['title_section'] = self.object.dae
         context['title_page'] = self.object.dae
         context['action'] = self.request.GET.get('action')
+        all_daes = DAE.objects.filter(
+            partner=self.object.partner
+        ).exclude(pk=self.object.id)
+        context['all_daes'] = all_daes
 
         if 'action' in self.request.GET:
             context['action_type'] = self.request.GET.get('action')
