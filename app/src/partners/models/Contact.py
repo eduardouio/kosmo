@@ -2,12 +2,12 @@ from django.db import models
 from common import BaseModel
 from .Partner import Partner
 
-COTACT_TYPE_CHOICES = [
-    'COMERCIAL', 'COMERCIAL',
-    'FINANCIERO', 'FINANCIERO',
-    'LOGISTICA', 'LOGÍSTICO',
-    'OTRO', 'OTRO'
-]
+COTACT_TYPE_CHOICES = (
+    ('COMERCIAL', 'COMERCIAL'),
+    ('FINANCIERO', 'FINANCIERO'),
+    ('LOGISTICA', 'LOGÍSTICO'),
+    ('OTRO', 'OTRO'),
+)
 
 
 class Contact(BaseModel):
@@ -27,6 +27,12 @@ class Contact(BaseModel):
         max_length=255,
         blank=True,
         null=True
+    )
+    contact_type = models.CharField(
+        'Tipo de Contacto',
+        max_length=20,
+        choices=COTACT_TYPE_CHOICES,
+        default='COMERCIAL'
     )
     phone = models.CharField(
         'Teléfono',

@@ -11,6 +11,11 @@ from .views import (
     BankDeleteView,
     BankDetailView,
     BankListView,
+    ContactDetailView,
+    ContactListView,
+    ContactCreateView,
+    ContactUpdateView,
+    ContactDeleteView,
 )
 
 urlpatterns = [
@@ -25,4 +30,10 @@ urlpatterns = [
     path('bancos/nuevo/<int:id_partner>/', BankCreateView.as_view(), name='bank_create'),
     path('bancos/actualizar/<int:pk>/', BankUpdateView.as_view(), name='bank_update'),
     path('bancos/eliminar/<int:pk>/', BankDeleteView.as_view(), name='bank_delete'),
+    path('contactos/', ContactListView.as_view(), name='contact_list'),
+    path('contactos/<int:pk>/', ContactDetailView.as_view(), name='contact_detail'),
+    path('contactos/nuevo/<int:id_partner>/', ContactCreateView.as_view(), name='contact_create'),
+    path('contactos/actualizar/<int:pk>/', ContactUpdateView.as_view(), name='contact_update'),
+    path('contactos/eliminar/<int:pk>/', ContactDeleteView.as_view(), name='contact_delete'),
+    
 ]

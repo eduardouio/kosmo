@@ -14,3 +14,11 @@ from .Bank import (
     BankUpdateView,
     BankDeleteView,
 )
+
+from .Contact import (
+    ContactDetailView,
+    ContactListView,
+    ContactCreateView,
+    ContactUpdateView,
+    ContactDeleteView,
+)
