@@ -16,6 +16,11 @@ from .views import (
     ContactCreateView,
     ContactUpdateView,
     ContactDeleteView,
+    DAECreateView,
+    DAEUpdateView,
+    DAEDeleteView,
+    DAEListView,
+    DAEDetailView,
 )
 
 urlpatterns = [
@@ -35,5 +40,9 @@ urlpatterns = [
     path('contactos/nuevo/<int:id_partner>/', ContactCreateView.as_view(), name='contact_create'),
     path('contactos/actualizar/<int:pk>/', ContactUpdateView.as_view(), name='contact_update'),
     path('contactos/eliminar/<int:pk>/', ContactDeleteView.as_view(), name='contact_delete'),
-    
+    path('dae/', DAEListView.as_view(), name='dae_list'),
+    path('dae/<int:pk>/', DAEDetailView.as_view(), name='dae_detail'),
+    path('dae/nuevo/<int:id_partner>/', DAECreateView.as_view(), name='dae_create'),
+    path('dae/actualizar/<int:pk>/', DAEUpdateView.as_view(), name='dae_update'),
+    path('dae/eliminar/<int:pk>/', DAEDeleteView.as_view(), name='dae_delete'),    
 ]

@@ -22,3 +22,11 @@ from .Contact import (
     ContactUpdateView,
     ContactDeleteView,
 )
+
+from .DAE import (
+    DAECreateView,
+    DAEUpdateView,
+    DAEDeleteView,
+    DAEListView,
+    DAEDetailView,
+)
