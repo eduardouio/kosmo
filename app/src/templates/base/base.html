@@ -15,7 +15,7 @@
     {% endblock %}
   </head>
   <body>
-    <div id="app">
+    <div id="app" class="content pb-5 mb-5">
     {% if title_page != 'Inicio Sesion' %}
     <nav class="navbar navbar-expand-lg bg-gray bg-gradient border-bottom">
       <div class="container-fluid">
@@ -40,26 +40,19 @@
                 Disponibilidad
               </a>
               <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="equiposDropdown">
+                <li><a class="dropdown-item" href="{% url 'stock_list' %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M11 4l3 8l-3 8" />
+                  </svg>
+                  Lista Disponibilidad
+                </a></li>
                 <li><a class="dropdown-item" href="/trade/stock/add/">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                     <path d="M11 4l3 8l-3 8" />
                   </svg>
                   Crear Disponibilidad
-                </a></li>
-                <li><a class="dropdown-item" href="#">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M11 4l3 8l-3 8" />
-                  </svg>
-                  Disponibilidad Actual
-                </a></li>
-                <li><a class="dropdown-item" href="#">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M11 4l3 8l-3 8" />
-                  </svg>
-                  Lista Disponibilidad
                 </a></li>
                 <li><a class="dropdown-item" href="{% url 'product_list' %}">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -251,26 +244,11 @@
         </div>
       </div>
       {% endif %}
-      {% if show_toolbar %}
-      <div class="container-fluid bordered bg-gray m-1 p-1 mx-auto">
-        <div class="row">
-          <div class="col">
-            Column
-          </div>
-          <div class="col">
-            Column
-          </div>
-          <div class="col">
-            Column
-          </div>
-        </div>
-      </div>
-      {% endif %}
         {% block content %}
         {% endblock %}
     {% if title_page != 'Inicio Sesion' %}
-    <div class="container-fluid mx-auto border shadow rounded-end bg-kosmo-primary px-4">
-      <footer class="d-flex flex-wrap justify-content-between align-items-center py-1 my-1 pt-3 mt-3 pb-3 mb-3">
+    <div class="container-fluid footer mx-auto border shadow rounded-end bg-kosmo-primary px-4 fixed-bottom">
+      <footer class="d-flex flex-wrap justify-content-between align-items-center py-2 my-2 pt-2 mt-2 pb-2 mb-1">
         <p class="col-md-4 mb-0 text-light">
           &copy;
           KOSMO FLOWERS Derechos Reservados
