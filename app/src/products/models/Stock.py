@@ -29,6 +29,11 @@ class StockDay(BaseModel):
         except ObjectDoesNotExist:
             return None
 
+    @classmethod
+    def disable(cls, stock_day):
+        stock_day.is_active = False
+        stock_day.save()
+
     def __str__(self):
         return str(self.date)
 
@@ -64,10 +69,16 @@ class StockDetail(BaseModel):
     )
 
     @classmethod
-    def get_stock_day(cls, date):
-        return cls.objects.filer(
-            stock_day__date=date
+    def get_total_boxes_by_model(cls, stock_day, box_model):
+        stock_detail = cls.objects.filter(
+            stock_day=stock_day
         )
+        boxes = 0
+        for s_detail in stock_detail:
+            box = BoxItems.get_box_items(s_detail)
+            if box and s_detail.box_model == box_model:
+                boxes += 1
+        return boxes
 
     @classmethod
     def get_stock_day_partner(cls, stock_day, partner):
@@ -102,6 +113,12 @@ class BoxItems(BaseModel):
         default=0,
         help_text='Cantidad de tallos de flor'
     )
+
+    @classmethod
+    def get_box_items(cls, stock_detail):
+        return cls.objects.filter(
+            stock_detail=stock_detail
+        )
 
     def __str__(self):
         return '{}'.format(

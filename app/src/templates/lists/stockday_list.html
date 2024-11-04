@@ -1,0 +1,106 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container container-lg mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+    <div class="d-flex justify-content-between">
+        <span class="text-primary">
+            {{ title_section }}
+        </span>
+        {% if action == 'delete' %}
+            <a class="btn btn-danger btn-sm" href="{% url 'stock_delete' dae.pk %}">
+               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" stroke-width="1.5">
+                  <path d="M4 7l16 0"></path>
+                  <path d="M10 11l0 6"></path>
+                  <path d="M14 11l0 6"></path>
+                  <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                  <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+               </svg>
+               Confirmar Eliminación {{ dae.dae }}
+            </a>
+         {% endif %}
+        {% if action %}
+        <span class="bg-peisol-secondary bg-gradient p-2 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                <path d="M9 12l2 2l4 -4" />
+              </svg>
+            {{ message }}
+        </span>
+        {% endif %}
+        <a href="{% url 'stock_create' %}" class="btn btn-sm btn-default">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+            Nuevo Stock
+        </a>
+    </div>
+</div>
+<div class="container container-lg mx-auto">
+    <table class="table table-bordered table-striped" id="myTable">
+        <thead>
+        <tr>
+            <th class="bg-secondary bg-opacity-25">#</th>
+            <th class="bg-secondary bg-opacity-25">Fecha de Stock</th>
+            <th class="bg-secondary bg-opacity-25">Creado</th>
+            <th class="bg-secondary bg-opacity-25">Actualizado</th>
+            <th class="bg-secondary bg-opacity-25">Estado</th>
+            <th class="bg-secondary bg-opacity-25" >Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for item in object_list %}
+            <tr>
+                <td class="p-0 d-flex justify-content-start gap-3">
+                    <a href=" 'stockdetail_detail' item.id %}" class="text-primary d-flex justify-content-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crosshair" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                            <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+                            <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+                            <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+                            <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
+                            <path d="M9 12l6 0" />
+                            <path d="M12 9l0 6" />
+                          </svg>
+                        {{ forloop.counter }}
+                    </a>
+                </td>
+                <td class="p-0">
+                    <a href=" 'stockdetail_detail' item.id %}">
+                        {{ item.date }}
+                    </a>
+                </td>
+                <td class="p-0">{{ item.created_at }}</td>
+                <td class="p-0">{{ item.updated_at }}</td>
+                <td class="p-0 text-end">
+                    {% if item.is_active %}
+                        <span class="text-success">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.25"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l3 3l8 -8" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
+                            Activo
+                        </span>
+                    {% else %}
+                        <span class="text-danger">
+                            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.25"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-info-triangle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>
+                            Inactivo
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="p-0 text-center">
+                    <span class="Ver Detalle de Stock text-primary">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                        Ver
+                    </span>
+                    <span class="text-danger" title="Eliminar Stock">
+                        <a href="{% url 'stock_detail' item.id %}?action=delete">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                        Eliminar
+                        </a>
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

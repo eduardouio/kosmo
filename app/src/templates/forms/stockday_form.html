@@ -1,0 +1,64 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+    <div class="row">
+        <div class="col-6">
+            <span class="text-primary">
+                {{ title_section }}
+            </span>
+        </div>
+        <div class="col-6 d-flex justify-content-end gap-3">
+            {% if request.resolver_match.url_name != 'stock_create' %}
+            <a href="{% url 'stock_detail' stock_day.id %}?action=delete" class="btn btn-sm btn-default">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                </svg>
+                Eliminar Stock
+            </a>
+            <a href="{% url 'stock_detail' stock_day.id %}" class="btn btn-sm btn-default">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /><path d="M5 12l6 6" /><path d="M5 12l6 -6" />
+                </svg>
+                Ficha Stock
+            </a>
+            {% endif %}
+            <a href="{% url 'stock_list' %}" class="btn btn-sm btn-default">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrow-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l14 0" /><path d="M5 12l6 6" /><path d="M5 12l6 -6" /></svg>
+                Volver al Listado
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-2">
+    <!-- Información del Stock -->
+    <div class="card mb-2">
+        <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
+            Información del Stock
+        </div>
+        <div class="card-body">
+          <form action="" method="post">
+            {{ form.errors }}
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="date" class="text-muted">Fecha:</label>
+                    {{ form.date }}
+                </div>
+            </div>
+            <div class="row bg-gray bg-gradient p-2 rounded border">
+                <div class="col text-end">
+                  <button class="btn btn-sm btn-default">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" />
+                    </svg>
+                    Confirmar Creación de Disponibilidad
+                  </button>
+                </div>
+            </div>
+          </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

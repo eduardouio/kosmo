@@ -1,46 +1,91 @@
-import json
-from django.core.serializers import serialize
-from django.http import JsonResponse
-from django.views.generic import TemplateView
+from datetime import date
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView, ListView, DetailView, RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from partners.models import Partner
-from products.models import Product
-from common import StockAnalyzer
+from django import forms
+from products.models import StockDay
 
 
-class Stock(LoginRequiredMixin, TemplateView):
-    template_name = 'forms/stock-form.html'
+class StockDayForm(forms.ModelForm):
+    class Meta:
+        model = StockDay
+        fields = ['date']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'text', 'class': 'form-control form-control-sm', 'readonly': 'readonly'}),
+        }
+
+
+class StockDayCreateView(LoginRequiredMixin, CreateView):
+    model = StockDay
+    form_class = StockDayForm
+    template_name = 'forms/stockday_form.html'
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['date'].initial = date.today()
+        return form
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        ctx['title_section'] = 'Registrar Nueva Disponibilidad de Stock Diario'
+        return ctx
+
+    def get_success_url(self):
+        all_stock_days = StockDay.objects.all().exclude(pk=self.object.id)
+        [StockDay.disable(i) for i in all_stock_days]
+        url = reverse_lazy('stock_detail', kwargs={'pk': self.object.id})
+        url += '?action=created'
+        return url
+
+
+class StockDayDeleteView(LoginRequiredMixin, RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        stock_day = StockDay.objects.get(pk=kwargs['pk'])
+        try:
+            stock_day.delete()
+            url = reverse_lazy('stock_list')
+            return url + '?action=deleted'
+        except Exception:
+            url = reverse_lazy('stock_detail', kwargs={'pk': stock_day.pk})
+            return url + '?action=no_delete'
+
+
+class StockDayListView(LoginRequiredMixin, ListView):
+    model = StockDay
+    template_name = 'lists/stockday_list.html'
+    context_object_name = 'stock_days'
+    ordering = ['-date']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        products = Product.objects.all()
-        partners = Partner.get_suppliers()
-        context['title_page'] = 'Disponibilidad'
-        context['products_json'] = serialize('json', products)
-        context['partners_json'] = serialize('json', partners)
-        context['products'] = products
-        context['partners'] = partners
+        context['title_section'] = 'Stock Diario'
+        context['title_page'] = 'Listado de Stock Diario'
+        context['action'] = None
+
+        if self.request.GET.get('action') == 'deleted':
+            context['action_type'] = 'success'
+            context['message'] = 'Stock Diario Eliminado Exitosamente'
         return context
 
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.body)
-        stock_analyzer = StockAnalyzer()
-        print('llamado')
-        disponiblility = stock_analyzer.get_stock(
-            data['stock_text'], data['id_partner']
-        )
-        print('disponiblility')
-        disponiblility = self.serialize_dipo(disponiblility)
-        print('response')
-        return JsonResponse({"data": json.dumps(disponiblility)}, status=200)
 
-    def serialize_dipo(self, disponibility):
-        for itm in disponibility:
-            for p in itm['box_items']:
-                product = json.loads(serialize('json', [p['product']]))[0]
-                p['product'] = {
-                    'id': product['pk'], **product['fields']
-                }
+class StockDayDetailView(LoginRequiredMixin, DetailView):
+    model = StockDay
+    template_name = 'presentations/stockday_presentation.html'
+    context_object_name = 'stock_day'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title_section'] = f'Detalle de Stock Diario {
+            self.object.date}'
+        context['action'] = self.request.GET.get('action')
 
-        return disponibility
+        if 'action' in self.request.GET:
+            context['action_type'] = self.request.GET.get('action')
+            if context['action'] == 'created':
+                context['message'] = 'Stock Diario Creado Exitosamente'
+            if context['action'] == 'no_delete':
+                context['message'] = 'No se puede eliminar el registro. Existen dependencias'
+            elif context['action'] == 'delete':
+                context['message'] = 'Esta acción es irreversible. ¿Desea continuar?.'
+
+        return context
