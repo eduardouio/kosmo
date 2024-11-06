@@ -4,3 +4,8 @@ from .Stock import (
     StockDayDeleteView,
     StockDayDetailView,
 )
+
+from .StockDetail import (
+    DetailStockCreate,
+    DetailStockDetail,
+)

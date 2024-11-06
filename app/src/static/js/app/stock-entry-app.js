@@ -6,11 +6,12 @@ const app = Vue.createApp({
           urlPost:urlPost,
           csrftoken:csrfToken,
           show_form:true,
+          show_message:false,
           disponibility:null,
           partner:null,
           stock: {
             id_partner:null,
-            date: new Date().toISOString().split('T')[0],
+            id_stock_day: stockDaiID,
             stock_text: '',
           },
         }
@@ -22,10 +23,11 @@ const app = Vue.createApp({
             );
             this.stock.id_partner = this.partner.id;
         },
-        processText($event){
-            console.log($event.target.value);
-        },
         sendData() {
+            if (this.stock.id_partner  == null || this.stock.stock_text == '') {
+                this.show_message = true;
+                return;
+            }
             this.show_form = false;
             fetch(this.urlPost, {
                 method: 'POST',
@@ -37,18 +39,14 @@ const app = Vue.createApp({
             })
             .then((response) => response.json())
             .then((data) => {
-                this.disponibility = JSON.parse(data['data']);
-                console.dir(this.disponibility);
-                this.showResults();
+                this.disponibility = data;
+                this.show_form = false;
+                console.log('Success:', data);
             })
             .catch((error) => {
                 console.error('Error:', error);
             });
         },        
-        showResults(){
-            this.show_form = false;
-            
-        },
         formatCurrency(number){
             return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(number);
         },
