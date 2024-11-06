@@ -33,10 +33,19 @@ class StockAnalyzer():
 
     def kosmo_provider(self, stock_test):
         disponiblility = []
-        pattern = r"(\d+)(\w{2}) (\D+) (\d+\/?\d*) x (\d+) ([\d.\/]+)"
-        matches = re.findall(pattern, stock_test.replace(',', '.'))
-        for item in matches:
+        all_lines = stock_test.split('\n')
+        all_lines = [line.strip() for line in all_lines if line.strip()]
+        line_matches = []
+        for line in all_lines:
+            pattern = r"(\d+)(\w{2}) (\D+) (\d+\/?\d*) x (\d+) ([\d.\/]+)"
+            matchs = re.findall(pattern, line.replace(',', '.'))
+            if matchs:
+                line_matches.append([i for i in matchs[0]])
+                continue
+
+        for i, item in enumerate(line_matches):
             line_stock = {
+                'text_entry': all_lines[i],
                 'quantity_box': int(item[0]),
                 'box_model': item[1].upper(),
                 'tot_stem_flower': int(item[4]),
@@ -53,7 +62,7 @@ class StockAnalyzer():
                     was_created = True
                     product = Product.objects.create(
                         name='ROSA - ESPECIFICAR',
-                        variety=item[2].strip()
+                        variety=item[2].strip().upper()
                     )
 
                 line_stock['box_items'].append({
@@ -70,7 +79,7 @@ class StockAnalyzer():
     def floraroma_provider(self, stock_test):
         disponiblility = []
         all_lines = stock_test.split('\n')
-        all_lines = [line.strip() for line in all_lines if line.strip()]
+        all_lines = [line.strip().upper() for line in all_lines if line.strip()]
         lines_matches = []
         for line in all_lines:
             pattern = r"([A-Z\s]+)\s+(\d+)(\w{2})(\d{2,4})(\d{2,4})?\s+\$?\s*([\d.]+-?[\d.]*)?"
@@ -79,7 +88,7 @@ class StockAnalyzer():
                 lines_matches.append([i for i in matchs[0]])
                 continue
 
-            pattern = r"([A-Z]+)\s+(\d+)([A-Z]+)(\d+)"
+            pattern = r"([A-Z]+\s+[A-Z]+)\s+(\d+)([A-Z]+)(\d+)"
             matches = re.findall(pattern, line.replace(',', '.'))
 
             if matches:
@@ -92,12 +101,14 @@ class StockAnalyzer():
             if not matches:
                 pattern = r"([A-Za-z\s]+)\s+(\d+)([A-Z]+)(\d+)"
                 matches = re.findall(pattern, line.replace(',', '.'))
-                lines_matches.append([
+                matchs = [
                     (i[0], i[1], i[2], i[3], '', '0.00') for i in matches
-                ])
+                ]
+                lines_matches.append([i for i in matchs[0]])
 
-        for item in lines_matches:
+        for i, item in enumerate(lines_matches):
             line_stock = {
+                'text_entry': all_lines[i],
                 'quantity_box': int(item[1]),
                 'box_model': item[2].upper(),
                 'tot_stem_flower': 0,

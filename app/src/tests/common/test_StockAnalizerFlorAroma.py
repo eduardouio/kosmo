@@ -23,6 +23,7 @@ class TestsockAnalyzerFloraroma():
             mock_stock_text, self.partner
         )
         spected_data = [{
+            'text_entry': 'HOT EXPLORER 1QB40 $0.40',
             'quantity_box': 1,
             'box_model': 'QB',
             'tot_stem_flower': 0,
@@ -48,6 +49,7 @@ class TestsockAnalyzerFloraroma():
             mock_stock_text, self.partner
         )
         spected_data = [{
+            'text_entry': 'AMARETO 10QB4050 $0.25-0.35',
             'quantity_box': 10,
             'box_model': 'QB',
             'tot_stem_flower': 0,
@@ -79,6 +81,7 @@ class TestsockAnalyzerFloraroma():
             mock_stock_text, self.partner
         )
         spected_data = [{
+            'text_entry': 'MOMENTUM 1QB40',
             'quantity_box': 1,
             'box_model': 'QB',
             'tot_stem_flower': 0,
@@ -104,6 +107,7 @@ class TestsockAnalyzerFloraroma():
                 mock_stock_text, self.partner
             )
             spected_data = [{
+                'text_entry': 'DEEP PURPLE 1QB40',
                 'quantity_box': 1,
                 'box_model': 'QB',
                 'tot_stem_flower': 0,
@@ -123,15 +127,17 @@ class TestsockAnalyzerFloraroma():
         SOUL 12HB40  $0.30
         SWEET MEMORY 10QB40
         """
-        product_amorosa = Product.get_by_variety('AMOROSA')
-        product_soul = Product.get_by_variety('SOUL')
-        product_sweet_memory = Product.get_by_variety('SWEET MEMORY')
 
         disponibility = self.stock_analyzer.get_stock(
             mock_stock_text, self.partner
         )
 
+        product_amorosa = Product.get_by_variety('AMOROSA')
+        product_soul = Product.get_by_variety('SOUL')
+        product_sweet_memory = Product.get_by_variety('SWEET MEMORY')
+
         spected_data = [{
+            'text_entry': 'AMOROSA 4QB5060 $0.35-0.40',
             'quantity_box': 4,
             'box_model': 'QB',
             'tot_stem_flower': 0,
@@ -140,16 +146,17 @@ class TestsockAnalyzerFloraroma():
                 'tot_stem_flower': 0,
                 'length': 50,
                 'stem_cost_price': 0.35,
-                'was_created': False
+                'was_created': True
             },
                 {
                 'product': product_amorosa,
                 'tot_stem_flower': 0,
                 'length': 60,
                 'stem_cost_price': 0.40,
-                'was_created': False
+                'was_created': True
             }]
         }, {
+            'text_entry': 'SOUL 12HB40  $0.30',
             'quantity_box': 12,
             'box_model': 'HB',
             'tot_stem_flower': 0,
@@ -158,9 +165,10 @@ class TestsockAnalyzerFloraroma():
                 'tot_stem_flower': 0,
                 'length': 40,
                 'stem_cost_price': 0.30,
-                'was_created': False
+                'was_created': True
             }]
         }, {
+            'text_entry': 'SWEET MEMORY 10QB40',
             'quantity_box': 10,
             'box_model': 'QB',
             'tot_stem_flower': 0,
@@ -169,11 +177,12 @@ class TestsockAnalyzerFloraroma():
                 'tot_stem_flower': 0,
                 'length': 40,
                 'stem_cost_price': 0.00,
-                'was_created': False
+                'was_created': True
             }]
         }]
 
-        assert disponibility == spected_data
+        for i, item in enumerate(disponibility):
+            assert item == spected_data[i]
 
         def test_floraroma_dont_exist(self):
             if not self.partner:

@@ -19,6 +19,7 @@ class TestStockAnalyzerKosmo():
         product = Product.get_by_variety("Freedom")
 
         spected_data = [{
+            'text_entry': '1qb Freedom 40 x 125 0,30',
             'quantity_box': 1,
             'box_model': 'QB',
             'tot_stem_flower': 125,
@@ -46,6 +47,7 @@ class TestStockAnalyzerKosmo():
         product = Product.get_by_variety("Explorer")
 
         spected_data = [{
+            'text_entry': '1hb Explorer 40/50 x 250 0,40/0,50',
             'quantity_box': 1,
             'box_model': 'HB',
             'tot_stem_flower': 250,
@@ -81,6 +83,7 @@ class TestStockAnalyzerKosmo():
         product_3 = Product.get_by_variety("Sweet Unique")
 
         spected_data = [{
+            'text_entry': '1qb Nena 50/60 x 100 0,40/0,45',
             'quantity_box': 1,
             'box_model': 'QB',
             'tot_stem_flower': 100,
@@ -99,6 +102,7 @@ class TestStockAnalyzerKosmo():
             }
             ]
         }, {
+            'text_entry': '1qb Orange Crush 40 x 125 0,35',
             'quantity_box': 1,
             'box_model': 'QB',
             'tot_stem_flower': 125,
@@ -111,6 +115,7 @@ class TestStockAnalyzerKosmo():
             }
             ]
         }, {
+            'text_entry': '3qb Sweet Unique 50 x 125 0,45',
             'quantity_box': 3,
             'box_model': 'QB',
             'tot_stem_flower': 125,
@@ -141,6 +146,7 @@ class TestStockAnalyzerKosmo():
         )
         product = Product.get_by_variety("Nena Don Found")
         spected_data = [{
+            'text_entry': '1qb Nena Don Found 50/60 x 100 0,40/0,45',
             'quantity_box': 1,
             'box_model': 'QB',
             'tot_stem_flower': 100,
