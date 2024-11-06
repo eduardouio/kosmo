@@ -1,6 +1,6 @@
 import json
 from django.core.serializers import serialize
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from products.models import Stock, Product, StockDay, StockDetail, BoxItems
@@ -27,8 +27,9 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         partner = Partner.get_partner_by_id(data['id_partner'])
-        stock_day = StockDay.get_by_id(data['id_stock_day'])
         dispo = StockAnalyzer().get_stock(data['stock_text'], partner)
+        stock_day = StockDay.get_by_id(kwargs['pk'])
+        self.create_stock_items(dispo, stock_day, partner)
         json_dispo = []
         for itm in dispo:
             itm_dispo = {
@@ -53,6 +54,26 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
             json_dispo.append(itm_dispo)
 
         return JsonResponse(json_dispo, safe=False, status=201)
+
+    def create_stock_items(self, dispotext, stock_day, partner):
+        for item in dispotext:
+            stock_detail = StockDetail(
+                stock_day=stock_day,
+                partner=partner,
+                box_model=item['box_model'],
+                tot_stem_flower=item['tot_stem_flower'],
+            )
+            stock_detail.save()
+            for itm in item['box_items']:
+                product = itm['product']
+                box_item = BoxItems(
+                    stock_detail=stock_detail,
+                    product=product,
+                    length=itm['length'],
+                    qty_stem_flower=itm['tot_stem_flower'],
+                    stem_cost_price=itm['stem_cost_price']
+                )
+                box_item.save()
 
 
 class DetailStockDetail(LoginRequiredMixin, TemplateView):
