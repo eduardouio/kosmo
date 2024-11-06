@@ -34,6 +34,15 @@ class StockDay(BaseModel):
         stock_day.is_active = False
         stock_day.save()
 
+    @classmethod
+    def get_by_id(cls, stock_day_id):
+        try:
+            return cls.objects.get(
+                pk=stock_day_id
+            )
+        except ObjectDoesNotExist:
+            return None
+
     def __str__(self):
         return str(self.date)
 
