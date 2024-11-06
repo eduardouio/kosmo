@@ -29,7 +29,7 @@ class StockDetailAdmin(SimpleHistoryAdmin):
         'stock_day',
         'partner',
         'tot_stem_flower',
-        'stem_cost_price',
+        'stem_cost_price_box',
     )
 
     search_fields = (

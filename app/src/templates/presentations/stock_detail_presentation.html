@@ -55,5 +55,48 @@
           </a>
        </div>
     </div>
+    <div class="row">
+         <table id="myTable" class="table table-bordered table-hover table-striped">
+            <thead>
+               <tr>
+                 <th class="text-center p-0 text-white bg-primary bg-gradient"> # </th>
+                 <th class="text-center p-0 text-white bg-primary bg-gradient">Proveedor</th>
+                 <th class="text-center p-0 text-white bg-primary bg-gradient">Cant</th>
+                 <th class="text-center p-0 text-white bg-primary bg-gradient">Tallos</th>
+                 <th class="text-center p-0 text-white bg-primary bg-gradient">Costo</th>
+                 <th class="text-center p-0 text-white bg-primary bg-gradient">
+                  <section class="d-flex gap-2 justify-content-end">
+                     <span class="text-dark"> Detalle Caja:</span>
+                     <span class="">Producto</span>
+                     <span class="w-10 text-end">Largo</span>
+                     <span class="w-10 text-end">Tallos</span>
+                     <span class="w-10 text-end">Costo</span>
+                  </section>
+               </th>
+               </tr>
+             </thead>
+         <tbody>
+            {% for item in stock_details %}
+            <tr>
+               <td class="text-center p-0">{{ forloop.counter }}</td>
+               <td class="p-0">{{ item.stock_detail.partner }}</td>
+               <td class="text-end p-0">{{ item.total_boxes }} {{ item.stock_detail.box_model }}</td>
+               <td class="p-0"> {{ item.stock_detail.tot_stem_flower }}</td>
+               <td class="p-0">{{ item.stck_detail.stem_cost_price_box }}</td>
+               <td class="p-0">
+                  {% for i in item.boxes %}
+                  <section class="d-flex gap-2 justify-content-end">
+                     <span class="border-bottom">{{ i.product }}</span>
+                     <span class="w-10 border-bottom text-end">{{ i.length }}</span>
+                     <span class="w-10 border-bottom text-end">{{ i.qty_stem_flower }}</span>
+                     <span class="w-10 border-bottom text-end">{{ i.stem_cost_price }}</span>
+                  </section>
+                  {% endfor %}
+               </td> 
+            </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+    </div>
  </div>
  {% endblock %}

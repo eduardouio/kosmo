@@ -79,6 +79,12 @@ class StockDetail(BaseModel):
     )
 
     @classmethod
+    def get_by_stock_day(cls, stock_day):
+        return cls.objects.filter(
+            stock_day=stock_day
+        )
+
+    @classmethod
     def get_total_boxes_by_model(cls, stock_day, box_model):
         stock_detail = cls.objects.filter(
             stock_day=stock_day

@@ -82,7 +82,19 @@ class DetailStockDetail(LoginRequiredMixin, TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         stock_day = StockDay.get_by_id(kwargs['pk'])
+        stock_details = StockDetail.get_by_stock_day(stock_day)
         context['stock_day'] = stock_day
+        stock_boxes = []
+
+        for itm in stock_details:
+            stock_box = BoxItems.get_box_items(itm)
+            stock_boxes.append({
+                'stock_detail': itm,
+                'boxes': stock_box,
+                'total_boxes': len(stock_box)
+            })
+
+        context['stock_details'] = stock_boxes
         context['title_page'] = 'Dipobibilidad {}'.format(
             stock_day.date.strftime('%d/%m/%Y')
         )
