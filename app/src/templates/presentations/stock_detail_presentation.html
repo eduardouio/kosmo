@@ -1,0 +1,59 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+    <div class="row">
+       <div class="col-3">
+          <span class="text-primary">
+          {{ title_section }}
+          </span>
+       </div>
+       <div class="col-3 text-center">
+           {% if action %}
+          <div class=" if action == 'delete' or action == 'no_delete' %} bg-danger  else %} bg-kosmo-green  endif %} bg-gradient p-2 rounded">
+             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                <path d="M9 12l2 2l4 -4" />
+             </svg>
+             {{ message }}
+          </div>
+           {% endif %}
+       </div>
+       <div class="col-6 d-flex align-items-center justify-content-end gap-3">
+           {% if  action == 'delete' %}
+             <a class="btn btn-danger btn-sm" href=" url 'dae_delete' dae.pk %}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" stroke-width="1.5">
+                   <path d="M4 7l16 0"></path>
+                   <path d="M10 11l0 6"></path>
+                   <path d="M14 11l0 6"></path>
+                   <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                   <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                </svg>
+                Confirmar Eliminación {{ stock_day }}
+             </a>
+           {% endif %}
+          <a href=" url 'dae_create' 0 %}" class="btn btn-sm btn-default">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+            Eliminar
+         </a>
+         <a href="#" class="btn btn-sm btn-default">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>
+            Compratir
+         </a>
+          <a href="{% url 'stock_detail_create' stock_day.pk %}" class="btn btn-default btn-sm">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cube-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 12.5v-4.509a1.98 1.98 0 0 0 -1 -1.717l-7 -4.008a2.016 2.016 0 0 0 -2 0l-7 4.007c-.619 .355 -1 1.01 -1 1.718v8.018c0 .709 .381 1.363 1 1.717l7 4.008a2.016 2.016 0 0 0 2 0" /><path d="M12 22v-10" /><path d="M12 12l8.73 -5.04" /><path d="M3.27 6.96l8.73 5.04" /><path d="M16 19h6" /><path d="M19 16v6" /></svg>
+            Carga Stock
+          </a>
+          <a href=" url 'dae_list' %}" class="btn btn-sm btn-default">
+             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M5 12l14 0" />
+                <path d="M5 12l6 6" />
+                <path d="M5 12l6 -6" />
+             </svg>
+             Volver
+          </a>
+       </div>
+    </div>
+ </div>
+ {% endblock %}
