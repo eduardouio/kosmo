@@ -71,10 +71,11 @@ class StockDetail(BaseModel):
         default=0,
         help_text='Cantidad de tallos de flor'
     )
-    stem_cost_price = models.DecimalField(
+    stem_cost_price_box = models.DecimalField(
         'Precio de costo Tallo',
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=0.00
     )
 
     @classmethod
@@ -121,6 +122,11 @@ class BoxItems(BaseModel):
         'Cant Tallos',
         default=0,
         help_text='Cantidad de tallos de flor'
+    )
+    stem_cost_price = models.DecimalField(
+        'Precio de costo Tallo',
+        max_digits=10,
+        decimal_places=2
     )
 
     @classmethod

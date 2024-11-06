@@ -195,7 +195,7 @@ class Command(BaseCommand):
         if StockDay.objects.all().count() > 0:
             print('Ya existen stock_day')
             return True
-        for i in range(1, 10):
+        for i in range(1, 2):
             print('Creando stock_day {}'.format(i))
             StockDay.objects.create(
                 date=faker.date_this_year()
@@ -239,7 +239,7 @@ class Command(BaseCommand):
                         partner=partner,
                         box_model=box_model,
                         tot_stem_flower=qty_stem,
-                        stem_cost_price=random.choice(
+                        stem_cost_price_box=random.choice(
                             cost_references[str(length)])
                     )
 
@@ -247,7 +247,10 @@ class Command(BaseCommand):
                         stock_detail=stock_detail,
                         product=product,
                         length=length,
-                        qty_stem_flower=qty_stem
+                        qty_stem_flower=qty_stem,
+                        stem_cost_price=random.choice(
+                            cost_references[str(length)]
+                        )
                     )
 
     def load_customer_orders(self):
@@ -280,7 +283,7 @@ class Command(BaseCommand):
                     0, stock_day_detail.count() - 1)]
 
                 line_price = (
-                    line_stock.stem_cost_price
+                    line_stock.stem_cost_price_box
                     * line_stock.tot_stem_flower
                     * Decimal(1.06)
                 )
