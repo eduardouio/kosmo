@@ -43,6 +43,20 @@ class StockAnalyzer():
                 line_matches.append([i for i in matchs[0]])
                 continue
 
+            pattern = r"(\d+)([a-zA-Z]{2}) ([a-zA-Z\s]+) ((?:\d+\/?)+) x (\d+) ((?:[\d.,]+\/?)+)"
+            matchs = re.findall(pattern, line.replace(',', '.'))
+            if matchs:
+                line_matches.append([i for i in matchs[0]])
+                continue
+
+            pattern = r"(\d+)([a-zA-Z]{2}) ([a-zA-Z\s]+) (\d+) ([\d.,]+)"
+            matchs = re.findall(pattern, line.replace(',', '.'))
+            if matchs:
+                # agregamos cero a la cantidad de tallos
+                line_mtch = [i for i in matchs[0]]
+                line_mtch.insert(4, '0')
+                line_matches.append(line_mtch)
+                continue
         for i, item in enumerate(line_matches):
             line_stock = {
                 'text_entry': all_lines[i],
@@ -79,7 +93,8 @@ class StockAnalyzer():
     def floraroma_provider(self, stock_test):
         disponiblility = []
         all_lines = stock_test.split('\n')
-        all_lines = [line.strip().upper() for line in all_lines if line.strip()]
+        all_lines = [line.strip().upper()
+                     for line in all_lines if line.strip()]
         lines_matches = []
         for line in all_lines:
             pattern = r"([A-Z\s]+)\s+(\d+)(\w{2})(\d{2,4})(\d{2,4})?\s+\$?\s*([\d.]+-?[\d.]*)?"

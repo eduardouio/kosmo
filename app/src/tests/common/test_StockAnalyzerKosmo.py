@@ -166,3 +166,63 @@ class TestStockAnalyzerKosmo():
         }]
 
         assert (spected_data == disponibility)
+
+    def test_tree_types_in_stock(self):
+        stock_entry = """
+        1hb Brighton 50/60/70 x 350 0,40/0,45/0,50
+        """
+        product = Product.get_by_variety("Brighton")
+        disponibility = self.stock_analyzer.get_stock(
+            stock_entry, self.partner
+        )
+        specected_data = [{
+            'text_entry': '1hb Brighton 50/60/70 x 350 0,40/0,45/0,50',
+            'quantity_box': 1,
+            'box_model': 'HB',
+            'tot_stem_flower': 350,
+            'box_items': [{
+                'product': product,
+                'tot_stem_flower': 0,
+                'length': 50,
+                'stem_cost_price': 0.40,
+                'was_created': False
+            }, {
+                'product': product,
+                'tot_stem_flower': 0,
+                'length': 60,
+                'stem_cost_price': 0.45,
+                'was_created': False
+            }, {
+                'product': product,
+                'tot_stem_flower': 0,
+                'length': 70,
+                'stem_cost_price': 0.50,
+                'was_created': False
+            }]
+        }]
+
+        assert (specected_data == disponibility)
+
+    def test_mix_stok(self):
+        stock_entry = """
+        3hb Mix 40 0,30
+        """
+        product = Product.get_by_variety("Mix")
+        disponibility = self.stock_analyzer.get_stock(
+            stock_entry, self.partner
+        )
+        specected_data = [{
+            'text_entry': '3hb Mix 40 0,30',
+            'quantity_box': 3,
+            'box_model': 'HB',
+            'tot_stem_flower': 0,
+            'box_items': [{
+                'product': product,
+                'tot_stem_flower': 0,
+                'length': 40,
+                'stem_cost_price': 0.30,
+                'was_created': False
+            }]
+        }]
+
+        assert (specected_data == disponibility)
