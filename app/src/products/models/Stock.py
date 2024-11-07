@@ -81,13 +81,24 @@ class StockDetail(BaseModel):
     @classmethod
     def get_by_stock_day(cls, stock_day):
         return cls.objects.filter(
-            stock_day=stock_day
+            stock_day=stock_day,
+            is_active=True
         )
+
+    @classmethod
+    def get_partner_by_stock_day(cls, stock_day):
+        partners = cls.objects.filter(
+            stock_day=stock_day,
+            is_active=True
+        ).values('partner').distinct()
+        partners = set([i['partner'] for i in partners])
+        return [Partner.get_partner_by_id(i) for i in partners]
 
     @classmethod
     def get_total_boxes_by_model(cls, stock_day, box_model):
         stock_detail = cls.objects.filter(
-            stock_day=stock_day
+            stock_day=stock_day,
+            is_active=True
         )
         boxes = 0
         for s_detail in stock_detail:
@@ -100,8 +111,20 @@ class StockDetail(BaseModel):
     def get_stock_day_partner(cls, stock_day, partner):
         return cls.objects.filter(
             stock_day=stock_day,
-            partner=partner
+            partner=partner,
+            is_active=True
         )
+
+    @classmethod
+    def disable_stock_detail(cls, stock_day, partner):
+        stock_detail = cls.get_stock_day_partner(stock_day, partner)
+        for i in stock_detail:
+            i.is_active = False
+            i.save()
+            box_items = BoxItems.get_box_items(i)
+            for j in box_items:
+                j.is_active = False
+                j.save()
 
     def __str__(self):
         return '{}'.format(

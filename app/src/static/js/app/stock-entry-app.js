@@ -5,11 +5,13 @@ const app = Vue.createApp({
           partners:partners,
           urlPost:urlPost,
           csrftoken:csrfToken,
-          show_form:true,
+          show_form:true,       
           show_message:false,
+          message: '',
           disponibility:null,
           partner:null,
           stock: {
+            replace: false,
             id_partner:null,
             id_stock_day: stockDaiID,
             stock_text: '',
@@ -22,10 +24,24 @@ const app = Vue.createApp({
                 partner => partner.name == $event.target.value
             );
             this.stock.id_partner = this.partner.id;
+            if (this.partner.registered_stock){
+                this.show_message = true;
+                this.message = 'El socio ya tiene un stock registrado, lo puede reemplazar o anexar, por defecto se anexará';
+            }
+        },
+        setReplace(){
+            this.show_message = true;
+            this.stock.replace = !this.stock.replace;
+            if (this.stock.replace){
+                this.message = 'Se reemplazará el stock anterior';
+            }
+            this.message = 'Se Anejará el stock al anterior';
+
         },
         sendData() {
             if (this.stock.id_partner  == null || this.stock.stock_text == '') {
                 this.show_message = true;
+                this.message = 'Debe seleccionar un socio e ingresar el texto del stock';
                 return;
             }
             this.show_form = false;

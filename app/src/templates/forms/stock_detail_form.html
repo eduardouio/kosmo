@@ -1,41 +1,13 @@
-
 {% extends 'base/base.html' %}
 {% block content %}
 <div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
     <div class="row">
-       <div class="col-3">
+       <div class="col-4">
           <span class="text-primary">
           {{ title_section }}
           </span>
        </div>
-       <div class="col-4 text-center">
-        <span class="text-dark bg-warning p-2 rounded-1" v-if="show_message">
-          El Proveedor y el detalle del stock son obligatorios
-        </span>
-           {% if action %}
-          <div class=" if action == 'delete' or action == 'no_delete' %} bg-danger  else %} bg-kosmo-green  endif %} bg-gradient p-2 rounded">
-             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                <path d="M9 12l2 2l4 -4" />
-             </svg>
-             {{ message }}
-          </div>
-           {% endif %}
-       </div>
-       <div class="col-5 d-flex align-items-center justify-content-end gap-3">
-           {% if  action == 'delete' %}
-             <a class="btn btn-danger btn-sm" href=" url 'dae_delete' dae.pk %}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" stroke-width="1.5">
-                   <path d="M4 7l16 0"></path>
-                   <path d="M10 11l0 6"></path>
-                   <path d="M14 11l0 6"></path>
-                   <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                   <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                </svg>
-                Confirmar Eliminación {{ stock_day }}
-             </a>
-           {% endif %}
+       <div class="col-8 d-flex align-items-center justify-content-end gap-3">
           <button v-if="!show_form"  @click="show_form = true" class="btn btn-sm btn-default">
              <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
              Mostrar Formulario
@@ -54,6 +26,11 @@
              Todos los Stocks
           </a>
        </div>
+       <div class="col-12 text-center pt-2">
+        <span class="text-dark bg-warning p-2 rounded-1" v-if="show_message">
+          [[ message ]]
+        </span>
+       </div>
     </div>
  </div>
 <div class="container border mt-3 mb-3 rounded shadow">
@@ -64,15 +41,21 @@
     <div class="col-6">
       <div class="mb-4">
         <label for="id_date" class="form-label">Proveedor</label>
-        <input list="suppliers" class="form-control form-control-sm" @change="selectPartner">
-        <datalist id="suppliers">
+        <select class="form-select form-control form-control-sm" @change="selectPartner">
+          <option value="">Seleccione un Proveedor</option>
           {% for item in partners %}
-          <option value="{{ item.name }}"></option>
+          <option value="{{ item }}"> {{item.name}} </option>
           {% endfor %}
-        </datalist>
+        </select>
       </div>
     </div>
-    <div class="col-6 text-end align-items-end">
+    <div class="col-6 d-flex justify-content-end gap-2 align-items-center">
+      <div v-if="partner">
+      <div class="d-flex align-items-center gap-2" v-if="partner.registered_stock">
+        <label for="">Reemplazar</label>
+        <input type="checkbox" v-model="stock.replace" @chage="setReplace">
+      </div>
+    </div>
         <button class="btn btn-lg btn-default mt-3 text-success" @click="sendData" v-if="stock.stock_text">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-settings"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></svg>
             Procesar Texto
@@ -81,7 +64,7 @@
 </div>
 <div class="row border-bottom pb-2">
   <div class="col-12">
-    <textarea v-model='stock.stock_text' rows="8" class="form-control" @change="processText" placeholder="Ingrese aqui el Texto"></textarea>
+    <textarea v-model='stock.stock_text' rows="8" class="form-control" placeholder="Ingrese aqui el Texto"></textarea>
   </div>
 </div>
 </div>
@@ -192,13 +175,33 @@
   var urlPost = "{% url 'stock_detail_create'  stock_day.pk %}";
   var csrfToken = "{{ csrf_token }}";
   var stockDaiID = {{ stock_day.pk }};
+  var partnersExistStock = {{ partners_exist_stock | safe }};
+
+  var partnersExistStock = partnersExistStock.map((i)=>{
+    return {
+      id: i.pk,
+      registered_stock: true,
+      ...i.fields
+    }
+  });
 
   var partners = partners.map((i)=>{
     return {
       id: i.pk,
+      registered_stock: false,
       ...i.fields
     }
   });
+
+ partners = partners.map((i)=>{
+    partnersExistStock.forEach((j)=>{
+      if (i.id == j.id){
+        i.registered_stock = true;
+      }
+    });
+    return i;
+  });
+
   var products = products.map((i)=>{
     return {
       id: i.pk,

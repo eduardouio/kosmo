@@ -1,0 +1,108 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+    <div class="row">
+        <div class="col-6">
+            <span class="text-primary">
+                {{ title_section }}
+            </span>
+        </div>
+        <div class="col-6 d-flex justify-content-end gap-3">
+            <a href="{% url 'stock_detail_detail' stock_day.id %}" class="btn btn-sm btn-default">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ban">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M5.7 5.7l12.6 12.6" />
+                </svg>
+                Cancelar
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-2">
+    <!-- Información de StockDetail -->
+    <div class="card mb-2">
+        <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
+            Información de StockDetail
+        </div>
+        <div class="card-body">
+          <form action="" method="post">
+            {{ form.errors }}
+            {% csrf_token %}
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="stock_day" class="text-muted">Día de Stock:</label>
+                    {{ form.stock_day }}
+                </div>
+                <div class="col-md-4">
+                    <label for="partner" class="text-muted">Socio:</label>
+                    {{ form.partner }}
+                </div>
+                <div class="col-md-4">
+                    <label for="box_model" class="text-muted">Tipo de Caja:</label>
+                    {{ form.box_model }}
+                </div>
+                <div class="col-md-4">
+                    <label for="tot_stem_flower" class="text-muted">Cantidad de Tallos:</label>
+                    {{ form.tot_stem_flower }}
+                </div>
+                <div class="col-md-4">
+                    <label for="stem_cost_price_box" class="text-muted">Precio de Costo Tallo:</label>
+                    {{ form.stem_cost_price_box }}
+                </div>
+                <div class="col-md-4">
+                    <label for="is_active" class="text-muted">Activo:</label>
+                    {{ form.is_active }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-primary upper">
+                    Detalle de de Entrada
+                </div>
+                <div class="col">
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th class="p-0 text-center text-white bg-primary bg-gradient bg-opacity-70">#</th>
+                                <th class="p-0 text-center text-white bg-primary bg-gradient bg-opacity-70">Producto</th>
+                                <th class="p-0 text-center text-white bg-primary bg-gradient bg-opacity-70">Largo</th>
+                                <th class="p-0 text-center text-white bg-primary bg-gradient bg-opacity-70">Tallos</th>
+                                <th class="p-0 text-center text-white bg-primary bg-gradient bg-opacity-70">Costo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in box_items %}
+                            <tr>
+                                <td class="p-0 text-center">{{ forloop.counter }}</td>
+                                <td class="p-0 text-center">
+                                    {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.name }}" class="img-thumbnail" width="50">
+                                    {% else %}
+                                        <img src="/static/img/rosa_placeholder.jpg" alt="Kosmo Flowers" class="img-thumbnail" width="50">
+                                    {% endif %}
+                                    {{ item.product }}
+                                </td>
+                                <td class="p-0 text-center">{{ item.length }}</td>
+                                <td class="p-0 text-center">{{ item.qty_stem_flower }}</td>
+                                <td class="p-0 text-center">{{ item.stem_cost_price }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row bg-gray bg-gradient p-2 rounded border">
+                <div class="col text-end">
+                  <button class="btn btn-sm btn-default">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" />
+                    </svg>
+                    Guardar
+                  </button>
+                </div>
+            </div>
+          </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
