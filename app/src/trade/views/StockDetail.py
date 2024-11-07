@@ -15,20 +15,17 @@ class StockDetailForm(forms.ModelForm):
     class Meta:
         model = StockDetail
         fields = [
-            'stock_day', 'partner', 'box_model', 'tot_stem_flower', 'stem_cost_price_box'
+            'partner', 'box_model', 'tot_stem_flower', 'stem_cost_price_box'
         ]
         widgets = {
-            'stock_day': forms.Select(
-                attrs={'class': 'form-control form-control-sm', 'required': 'required'}
-            ),
             'partner': forms.Select(
-                attrs={'class': 'form-control form-control-sm', 'required': 'required'}
+                attrs={'class': 'form-control form-control-sm', 'required': 'required', 'readonly': 'readonly'}
             ),
             'box_model': forms.Select(
                 attrs={'class': 'form-control form-control-sm', 'required': 'required'}
             ),
             'tot_stem_flower': forms.NumberInput(
-                attrs={'class': 'form-control form-control-sm', 'placeholder': 'Cantidad de tallos'}
+                attrs={'class': 'form-control form-control-sm', 'placeholder': 'Cantidad de tallos', 'readonly': 'readonly'}
             ),
             'stem_cost_price_box': forms.NumberInput(
                 attrs={'class': 'form-control form-control-sm', 'placeholder': 'Precio de costo por tallo'}

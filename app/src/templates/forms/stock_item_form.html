@@ -31,28 +31,20 @@
             {% csrf_token %}
             <div class="row mb-3">
                 <div class="col-md-4">
-                    <label for="stock_day" class="text-muted">Día de Stock:</label>
-                    {{ form.stock_day }}
-                </div>
-                <div class="col-md-4">
                     <label for="partner" class="text-muted">Socio:</label>
                     {{ form.partner }}
                 </div>
-                <div class="col-md-4">
-                    <label for="box_model" class="text-muted">Tipo de Caja:</label>
+                <div class="col-md-2">
+                    <label for="box_model" class="text-muted">Caja:</label>
                     {{ form.box_model }}
                 </div>
-                <div class="col-md-4">
-                    <label for="tot_stem_flower" class="text-muted">Cantidad de Tallos:</label>
+                <div class="col-md-2">
+                    <label for="tot_stem_flower" class="text-muted">Tallos:</label>
                     {{ form.tot_stem_flower }}
                 </div>
                 <div class="col-md-4">
-                    <label for="stem_cost_price_box" class="text-muted">Precio de Costo Tallo:</label>
+                    <label for="stem_cost_price_box" class="text-muted">Costo Tallo:</label>
                     {{ form.stem_cost_price_box }}
-                </div>
-                <div class="col-md-4">
-                    <label for="is_active" class="text-muted">Activo:</label>
-                    {{ form.is_active }}
                 </div>
             </div>
             <div class="row">
