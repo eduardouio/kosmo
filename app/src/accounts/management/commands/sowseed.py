@@ -4,6 +4,7 @@ import secrets
 from datetime import datetime, timedelta
 from decimal import Decimal
 from faker import Faker
+from django.db import connection
 from django.core.management.base import BaseCommand
 from accounts.models import CustomUserModel, License
 from partners.models import Partner, Contact, Bank, DAE
@@ -34,6 +35,7 @@ class Command(BaseCommand):
         self.load_daes(faker)
         print('creamos los productos')
         self.load_products()
+        self.load_images()
         print('creamos los stock_day')
         self.load_stock_day(faker)
         print('creamos los stock_detail')
@@ -58,6 +60,13 @@ class Command(BaseCommand):
             email='eduardouio7@gmail.com',
             is_staff=True,
             is_superuser=True
+        )
+        user.set_password('seguro')
+        user.save()
+
+        # segundo ususaroi
+        user2 = CustomUserModel(
+            email='test@kosmo.com'
         )
         user.set_password('seguro')
         user.save()
@@ -432,3 +441,51 @@ class Command(BaseCommand):
             for i in invoices:
                 payment.invoices.add(i)
                 payment.save()
+
+    def load_images(self):
+        sql = '''
+            UPDATE products_product SET image = 'products/ROSA-VENDELA.jpg' WHERE id = 2;
+            UPDATE products_product SET image = 'products/ROSA-TIBET.jpg' WHERE id = 3;
+            UPDATE products_product SET image = 'products/ROSA-PLAYA_BLANCA.jpg' WHERE id = 4;
+            UPDATE products_product SET image = 'products/ROSA-ESKIMO.jpg' WHERE id = 5;
+            UPDATE products_product SET image = 'products/ROSA-MONDIAL.jpeg' WHERE id = 6;
+            UPDATE products_product SET image = 'products/ROSA-COUNTRY_BLUES.jpg' WHERE id = 7;
+            UPDATE products_product SET image = 'products/ROSA-DEEP_PURPLE.jpg' WHERE id = 8;
+            UPDATE products_product SET image = 'products/ROSA-MODDY_BLUES.jpg' WHERE id = 9;
+            UPDATE products_product SET image = 'products/ROSA-OCEAN_SONG.jpg' WHERE id = 10;
+            UPDATE products_product SET image = 'products/ROSA-BRIGHTON.jpg' WHERE id = 11;
+            UPDATE products_product SET image = 'products/ROSA-HIGH_EXOTIC.jpg' WHERE id = 12;
+            UPDATE products_product SET image = 'products/ROSA-STARDUST.jpg' WHERE id = 13;
+            UPDATE products_product SET image = 'products/ROSA-TARA.jpg' WHERE id = 14;
+            UPDATE products_product SET image = 'products/ROSA-HIGH_MAGIC.jpg' WHERE id = 15;
+            UPDATE products_product SET image = 'products/ROSA-FREE_SPIRIT.jpg' WHERE id = 16;
+            UPDATE products_product SET image = 'products/ROSA-ORANGE_CRUSH.jpg' WHERE id = 17;
+            UPDATE products_product SET image = 'products/ROSA-NINA.jpg' WHERE id = 18;
+            UPDATE products_product SET image = 'products/ROSA-NENA.jpg' WHERE id = 19;
+            UPDATE products_product SET image = 'products/ROSA-HARDROCK.jpg' WHERE id = 20;
+            UPDATE products_product SET image = 'products/ROSA-FULL_MONTY.jpg' WHERE id = 21;
+            UPDATE products_product SET image = 'products/ROSA-ASSORTED.jpg' WHERE id = 22;
+            UPDATE products_product SET image = 'products/ROSA-GOTCHA.jpg' WHERE id = 23;
+            UPDATE products_product SET image = 'products/ROSA-PINK_FLOYD.jpg' WHERE id = 24;
+            UPDATE products_product SET image = 'products/ROSA-SWEET_UNIQUE.jpg' WHERE id = 25;
+            UPDATE products_product SET image = 'products/ROSA-SWEET_AKITO.jpg' WHERE id = 26;
+            UPDATE products_product SET image = 'products/ROSA-SWEET_ESKIMO.jpg' WHERE id = 27;
+            UPDATE products_product SET image = 'products/ROSA-PINK_MONDIAL.jpg' WHERE id = 28;
+            UPDATE products_product SET image = 'products/ROSA-PRICELESS.jpg' WHERE id = 29;
+            UPDATE products_product SET image = 'products/ROSA-HERMOSA.jpg' WHERE id = 30;
+            UPDATE products_product SET image = 'products/ROSA-SHIMMER.jpg' WHERE id = 31;
+            UPDATE products_product SET image = 'products/ROSA-FREEDOM.jpg' WHERE id = 32;
+            UPDATE products_product SET image = 'products/ROSA-EXPLORER.jpg' WHERE id = 33;
+            UPDATE products_product SET image = 'products/ROSA-KAHALA.jpg' WHERE id = 34;
+            UPDATE products_product SET image = 'products/ROSA-SAHARA.jpg' WHERE id = 35;
+            UPDATE products_product SET image = 'products/ROSA-QUICKSAND.jpg' WHERE id = 36;
+            UPDATE products_product SET image = 'products/ROSA-SECRET_GARDEN.jpg' WHERE id = 37;
+            UPDATE products_product SET image = 'products/ROSA-SECRET.jpg' WHERE id = 38;
+            UPDATE products_product SET image = 'products/ROSA-TYFANNY.jpg' WHERE id = 39;
+            UPDATE products_product SET image = 'products/ROSA-TOFEE.jpg' WHERE id = 40;
+            UPDATE products_product SET image = 'products/ROSA-CANDLELIGHT.jpg' WHERE id = 41;
+        '''
+
+        with connection.cursor() as cursor:
+            for line_sql in sql.split('\n'):
+                cursor.execute(line_sql)
