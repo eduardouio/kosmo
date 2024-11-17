@@ -70,7 +70,7 @@ ROOT_URLCONF = 'kosmo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [os.join.path(BASE_DIR, 'templates/')],
+        # 'DIRS': [os.path.join(BASE_DIR, 'templates/')],
         'DIRS': ['templates/'],
         'APP_DIRS': True,
         'OPTIONS': {

@@ -75,8 +75,7 @@ class StockDayDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title_section'] = f'Detalle de Stock Diario {
-            self.object.date}'
+        context['title_section'] = 'Detalle de Stock Diario {}'.format(self.object.date)
         context['action'] = self.request.GET.get('action')
 
         if 'action' in self.request.GET:
