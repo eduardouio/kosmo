@@ -56,6 +56,7 @@ Detalle de Sotokcs
 </ul>
 
 -- Ejemplo de salida esperada por línea, si algun dato no se obtiene se debe asignar el cero los datos requeridos son Variedad Cantidad de Cajas y tipo de caja
+
 ```json
 {
         "quantity_box": 1,
@@ -94,6 +95,7 @@ Detalle de Sotokcs
     <li><strong>300</strong> Es la cantidad de tallos totales que hay en la caja</li>
     <li><strong>0,35</strong> Es el precio de la caja</li>
 </ul>
+
 ```json
 {
         "quantity_box": 2,
@@ -195,6 +197,7 @@ AMARETO 1QB40	$	0,18
     <strong>40</strong> Es la medida de los tallos en la casa, significa que hay una sola medida en la caja
     <strong>0,18</strong>Es el precio de la caja
 </ul>
+
 ```json
 {
         "quantity_box": 1,
@@ -212,6 +215,8 @@ AMARETO 1QB40	$	0,18
 ```
 
 ## Tercer Muestra
+
+```json
 AMOROSA 1HB6070 0.28 0.30
 BE SWEET 1QB5060 0.40 0.50
 BLUSH 1HB40 0.18 
@@ -262,6 +267,7 @@ MIX  4HB60 0.32
 RUSCUS  2HB40
 RUSCUS  4HB50
 RUSCUS  1HB5060
+```
 
 TOPAZ 1HB5060 0.26 0.30
 <ul>
@@ -304,6 +310,7 @@ RUSCUS  2HB40
     <strong>40</strong> Es la medida de los tallos en la casa, significa que hay dos medidas en la caja
     <strong>0</strong>Es el precio de la caja
 </ul>
+
 ```json
 {
         "quantity_box": 2,
