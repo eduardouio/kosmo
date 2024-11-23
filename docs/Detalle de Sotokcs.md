@@ -195,6 +195,7 @@ MIX 2HB60	$	0,28
 ```
 
 AMARETO 1QB40	$	0,18
+
 <ul>
     <strong>1</strong> cantidad
     <strong>QB</strong> tipo de Caja Existen dos tipo que se usan (QB y HB)
