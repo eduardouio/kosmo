@@ -216,7 +216,7 @@ AMARETO 1QB40	$	0,18
 
 ## Tercer Muestra
 
-```json
+```text
 AMOROSA 1HB6070 0.28 0.30
 BE SWEET 1QB5060 0.40 0.50
 BLUSH 1HB40 0.18 
