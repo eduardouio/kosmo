@@ -8,7 +8,7 @@ from django import forms
 
 from products.models import Stock, Product, StockDay, StockDetail, BoxItems
 from partners.models import Partner
-from common import StockAnalyzer
+from common import GPTProcessor
 
 
 class StockDetailForm(forms.ModelForm):
@@ -19,16 +19,20 @@ class StockDetailForm(forms.ModelForm):
         ]
         widgets = {
             'partner': forms.Select(
-                attrs={'class': 'form-control form-control-sm', 'required': 'required', 'readonly': 'readonly'}
+                attrs={'class': 'form-control form-control-sm',
+                       'required': 'required', 'readonly': 'readonly'}
             ),
             'box_model': forms.Select(
-                attrs={'class': 'form-control form-control-sm', 'required': 'required'}
+                attrs={'class': 'form-control form-control-sm',
+                       'required': 'required'}
             ),
             'tot_stem_flower': forms.NumberInput(
-                attrs={'class': 'form-control form-control-sm', 'placeholder': 'Cantidad de tallos', 'readonly': 'readonly'}
+                attrs={'class': 'form-control form-control-sm',
+                       'placeholder': 'Cantidad de tallos', 'readonly': 'readonly'}
             ),
             'stem_cost_price_box': forms.NumberInput(
-                attrs={'class': 'form-control form-control-sm', 'placeholder': 'Precio de costo por tallo'}
+                attrs={'class': 'form-control form-control-sm',
+                       'placeholder': 'Precio de costo por tallo'}
             ),
         }
 
@@ -58,40 +62,25 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         partner = Partner.get_partner_by_id(data['id_partner'])
-        dispo = StockAnalyzer().get_stock(data['stock_text'], partner)
-        stock_day = StockDay.get_by_id(kwargs['pk'])
+        json_dispo = GPTProcessor().process_text(data['stock_text'])
 
+        if isinstance(json_dispo, dict):
+            json_dispo = [json_dispo]
+
+        if isinstance(json_dispo[0], dict) and isinstance(json_dispo, list):
+            json_dispo = json_dispo[0]['flowers']
+
+        stock_day = StockDay.get_by_id(kwargs['pk'])
         if data['replace']:
             StockDetail.disable_stock_detail(stock_day, partner)
 
-        self.create_stock_items(dispo, stock_day, partner)
-        json_dispo = []
-        for itm in dispo:
-            itm_dispo = {
-                'quantity_box': itm['quantity_box'],
-                'text_entry': itm['text_entry'],
-                'box_model': itm['box_model'],
-                'tot_stem_flower': itm['tot_stem_flower'],
-                'lines_recived': len(data['stock_text'].split('\n')),
-                'lines_analized': len(dispo),
-                'box_items': []
-            }
-            for i in itm['box_items']:
-                itm_dispo['box_items'].append({
-                    'product': i['product'].id,
-                    'name': i['product'].name,
-                    'variety': i['product'].variety,
-                    'tot_stem_flower': i['tot_stem_flower'],
-                    'length': i['length'],
-                    'stem_cost_price': i['stem_cost_price'],
-                    'was_created': i['was_created'],
-                })
-            json_dispo.append(itm_dispo)
+        self.create_stock_items(json_dispo, stock_day, partner)
 
         return JsonResponse(json_dispo, safe=False, status=201)
 
-    def create_stock_items(self, dispotext, stock_day, partner):
-        for item in dispotext:
+    def create_stock_items(self, json_dispo, stock_day, partner):
+        import ipdb; ipdb.set_trace()
+        for item in json_dispo:
             stock_detail = StockDetail(
                 stock_day=stock_day,
                 partner=partner,
@@ -100,7 +89,7 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
             )
             stock_detail.save()
             for itm in item['box_items']:
-                product = itm['product']
+                product = Product.get_by_variety(itm['variety'])
                 box_item = BoxItems(
                     stock_detail=stock_detail,
                     product=product,
@@ -109,6 +98,16 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
                     stem_cost_price=itm['stem_cost_price']
                 )
                 box_item.save()
+    
+    def get_or_create_product(self, variety):
+        product = Product.get_by_variety(variety)
+        if not product:
+            product = Product(
+                variety=variety.upper(),
+                name='ROSA VERIFICAR',   
+            )
+            product.save()
+        return product
 
 
 class DetailStockDetail(LoginRequiredMixin, TemplateView):
@@ -172,6 +171,7 @@ class SingleStockDetailUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        url = reverse_lazy('stock_detail_detail', kwargs={'pk': self.object.pk})
+        url = reverse_lazy('stock_detail_detail',
+                           kwargs={'pk': self.object.pk})
         url = '{url}?action=updated'.format(url=url)
         return url
