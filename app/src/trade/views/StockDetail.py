@@ -79,7 +79,6 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
         return JsonResponse(json_dispo, safe=False, status=201)
 
     def create_stock_items(self, json_dispo, stock_day, partner):
-        import ipdb; ipdb.set_trace()
         for item in json_dispo:
             stock_detail = StockDetail(
                 stock_day=stock_day,
