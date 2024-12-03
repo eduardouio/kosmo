@@ -65,6 +65,9 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
         json_dispo = GPTProcessor().process_text(data['stock_text'])
 
         if isinstance(json_dispo, dict):
+            if 'message' in json_dispo:
+                return JsonResponse(json_dispo, safe=False, status=400)
+
             json_dispo = [json_dispo]
 
         if isinstance(json_dispo[0], dict) and isinstance(json_dispo, list):
@@ -73,10 +76,11 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
         stock_day = StockDay.get_by_id(kwargs['pk'])
         if data['replace']:
             StockDetail.disable_stock_detail(stock_day, partner)
-
-        self.create_stock_items(json_dispo, stock_day, partner)
-
-        return JsonResponse(json_dispo, safe=False, status=201)
+        try:
+            self.create_stock_items(json_dispo, stock_day, partner)
+            return JsonResponse(json_dispo, safe=False, status=201)
+        except Exception as e:
+            return JsonResponse({'message': str(e)}, safe=False, status=400)
 
     def create_stock_items(self, json_dispo, stock_day, partner):
         for item in json_dispo:
@@ -88,7 +92,7 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
             )
             stock_detail.save()
             for itm in item['box_items']:
-                product = Product.get_by_variety(itm['variety'])
+                product = self.get_or_create_product(itm['variety'])
                 box_item = BoxItems(
                     stock_detail=stock_detail,
                     product=product,
@@ -97,13 +101,13 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
                     stem_cost_price=itm['stem_cost_price']
                 )
                 box_item.save()
-    
+
     def get_or_create_product(self, variety):
         product = Product.get_by_variety(variety)
         if not product:
             product = Product(
                 variety=variety.upper(),
-                name='ROSA VERIFICAR',   
+                name='ROSA VERIFICAR',
             )
             product.save()
         return product
