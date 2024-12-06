@@ -16,8 +16,13 @@
 1qb Gotcha 60 x 100 0,60
 1qb Hermosa 50/70 x 100 0,50/0,70
 1qb High Magic 60 x 125 0,50
+
+
+
 1hb Lola 40 x 350 0,30
 1hb Nena 40 x 450 0,30
+
+
 1qb Nena 50/60 x 100 0,40/0,45
 1qb Orange Crush 40 x 125 0,35
 1qb Orange Crush 50 x 100 0,50
