@@ -4,6 +4,7 @@ const app = Vue.createApp({
           product:products,
           partners:partners,
           urlPost:urlPost,
+          stockListUrl:stockListUrl,
           csrftoken:csrfToken,
           show_form:true,       
           show_message:false,
@@ -57,6 +58,13 @@ const app = Vue.createApp({
             .then((data) => {
                 this.disponibility = data;
                 this.show_form = false;
+                if ('message' in data){
+                    this.show_message = true;
+                    this.message = "Error al procesar el stock, verifique e intente nuevamente";
+                }else{
+                    console.log('Success:', data);
+                    window.location.href = this.stockListUrl;
+                }
                 console.log('Success:', data);
             })
             .catch((error) => {

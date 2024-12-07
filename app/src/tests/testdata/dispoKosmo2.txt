@@ -1,3 +1,4 @@
+KOSMO AVAILABILITY 01/11/2024
 2hb Freedom 50 x 400 0,30
 1hb Akito 40 x 300 0,50 + extra
 1hb Faith 40/50 x 300 0,50/0,60
@@ -12,6 +13,9 @@
 1qb Quicksand 40/60 x 100 0,70/0,90 + extra
 1hb Secret Garden 60 x 350 0,60 
 1qb Sweet Unique 50/60 x 100 0,50/0,60
+
+
+
 1qb Tara 40 x 125 0,30
 1hb Tara 50 x 300 0,50
 2hb Freedom 50 x 400 0,30
@@ -29,6 +33,10 @@
 4qb Playa Blanca 50 x 100 0,90 
 3qb Playa Blanca 60 x 100 1,00 
 1qb Playa Blanca 70 x 100 1,10 
+
+
+
+
 1qb Priceless 50/60 x 100 0,50/0,60
 1qb Quicksand 40/60 x 100 0,70/0,90 + extra
 1qb Secret Garden 50 x 100 0,50 
@@ -59,6 +67,9 @@
 1qb Nena 50/60 x 100 0,40/0,45
 1qb Orange Crush 40 x 125 0,35
 1qb Orange Crush 50 x 100 0,50
+
+
+
 1qb Ocean Song 40 x 125 0,35
 1hb Ocean Song 50/60 x 350 0,44/0,48
 1hb Pink Floyd 60 x 300 0,60

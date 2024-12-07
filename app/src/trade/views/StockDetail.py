@@ -62,25 +62,29 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         partner = Partner.get_partner_by_id(data['id_partner'])
-        json_dispo = GPTProcessor().process_text(data['stock_text'])
+        data['stock_text'] = data['stock_text'].split('\n')
+        data['stock_text'] = [i for i in data['stock_text'] if i]
+
+        json_dispo = GPTProcessor().process_text('\n'.join(data['stock_text']))
+
+        if json_dispo is None:
+            raise Exception('Error al procesar la disponibilidad')
 
         if isinstance(json_dispo, dict):
-            if 'message' in json_dispo:
+            if 'message' in json_dispo or 'error' in json_dispo:
                 return JsonResponse(json_dispo, safe=False, status=400)
+            json_dispo = [{'flowers': json_dispo}]
 
-            json_dispo = [json_dispo]
-
-        if isinstance(json_dispo[0], dict) and isinstance(json_dispo, list):
-            json_dispo = json_dispo[0]['flowers']
+        if isinstance(json_dispo, dict):
+            json_dispo = json_dispo = [{'flowers': json_dispo}]
 
         stock_day = StockDay.get_by_id(kwargs['pk'])
+
         if data['replace']:
             StockDetail.disable_stock_detail(stock_day, partner)
-        try:
-            self.create_stock_items(json_dispo, stock_day, partner)
-            return JsonResponse(json_dispo, safe=False, status=201)
-        except Exception as e:
-            return JsonResponse({'message': str(e)}, safe=False, status=400)
+        import ipdb; ipdb.set_trace()
+        self.create_stock_items(json_dispo[0]['flowers'], stock_day, partner)
+        return JsonResponse(json_dispo, safe=False, status=201)
 
     def create_stock_items(self, json_dispo, stock_day, partner):
         for item in json_dispo:

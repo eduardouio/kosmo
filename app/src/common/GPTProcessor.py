@@ -2,9 +2,13 @@ import openai
 import json
 
 
+class GPTProcessorError(Exception):
+    pass
+
+
 class GPTProcessor:
     _instance = None
-    _api_key = ""
+    _api_key = "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"
 
     def __new__(cls):
         if cls._instance is None:
@@ -18,7 +22,7 @@ class GPTProcessor:
         self.client = openai.OpenAI(api_key=self._api_key)
         self.dispo = ''
         self.assistant = self.client.beta.assistants.retrieve(
-            "asst_kFVglC6kM6D34GnpXS6JPtu7"
+            "asst_vVqU2SOi7jJefVllFWGqtoop"
         )
         self.thread = self.client.beta.threads.create()
         self._initialized = True
@@ -39,4 +43,6 @@ class GPTProcessor:
                 messages['data'][0]['content'][0]['text']['value'])
             return processed_data
         except Exception as e:
-            return None
+            raise GPTProcessorError(
+                'Error al procesar el texto'.format(str(e))
+            )
