@@ -1,60 +1,56 @@
 import re
 
 
-class TextPrepare(object):
-
+class TextPrepare:
     def __init__(self):
-        self.text_to_delete = [
+
+        self.text_to_delete = {
             'TIPO B',
             'KOSMO',
             'HOLA',
             'AMIGO',
             'BUENOS DIAS',
             'AVAILABILITY',
-            'HOLA',
             'DÍAS',
-            'KOSMO',
             'ECOFLOR',
             'FLORAROMA',
             'DISPO',
             'DISPONIBILIDAD',
             'DIPONIBILIDAD',
-        ]
-        self.characters_to_replace = [
-            {'source': 'Á', 'new': 'A'},
-            {'source': 'É', 'new': 'E'},
-            {'source': 'Í', 'new': 'I'},
-            {'source': 'Ó', 'new': 'O'},
-            {'source': 'Ú', 'new': 'U'},
-        ]
+        }
 
-        self.date_regex = re.compile(r'\d{2}/\d{2}/\d{4}')
-        self.date_regex2 = re.compile(r'\d{2}-\d{2}-\d{4}')
-        self.date_regex3 = re.compile(r'\d{2}\.\d{2}\.\d{4}')
+        self.characters_to_replace = {
+            'Á': 'A',
+            'É': 'E',
+            'Í': 'I',
+            'Ó': 'O',
+            'Ú': 'U',
+        }
+
+        self.date_regex = re.compile(r'\d{2}[/.-]\d{2}[/.-]\d{4}')
+
+    def normalize_text(self, text):
+        text = text.upper().strip()
+        return ''.join(
+            self.characters_to_replace.get(char, char) for char in text
+        )
+
+    def should_skip_line(self, line):
+        return (
+            self.date_regex.search(line) or
+            any(word in line for word in self.text_to_delete)
+        )
 
     def process(self, text):
-        if text == "" or text is None:
+        if not text:
             return None
 
-        text = text.upper().strip()
+        text = self.normalize_text(text)
 
-        for char in self.characters_to_replace:
-            text = text.replace(char['source'], char['new'])
+        processed_text = [
+            line.strip()
+            for line in text.split("\n")
+            if line.strip() and not self.should_skip_line(line.strip())
+        ]
 
-        proccessed_text = []
-        for itm in text.split("\n"):
-            itm = itm.strip()
-            if self.date_regex.search(itm) or self.date_regex2.search(itm) or self.date_regex3.search(itm):
-                continue
-
-            if any(j in itm for j in self.text_to_delete):
-                continue
-
-            proccessed_text.append(itm)
-
-        text = [i.strip() for i in proccessed_text if i != ""]
-        if len(text) == 0:
-            return None
-
-        text = '\n'.join(text)
-        return text
+        return '\n'.join(processed_text) if processed_text else None
