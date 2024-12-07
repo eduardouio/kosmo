@@ -53,7 +53,7 @@ class Test_TestPrepare():
 
         text = self.text_prepare.process(text)
         assert len(text.split("\n")) == 27
-    
+
     def test_text_prepare_santa_clara(self):
         file = "tests/testdata/dispoSantaClara.txt"
         with open(file, "r") as f:
@@ -61,3 +61,15 @@ class Test_TestPrepare():
 
         text = self.text_prepare.process(text)
         assert len(text.split("\n")) == 74
+
+    def test_text_valid(self):
+        text = """
+            Hola
+            Floraroma es un ejemplo
+            Kosmo
+            12/12/2023
+            Buenos días
+            Texto válido
+        """
+        text = self.text_prepare.process(text)
+        assert text == "TEXTO VALIDO"
