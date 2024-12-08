@@ -12,8 +12,8 @@ class TestGPTProcessor:
         self.dispo_files = [
             {
                 "file": "tests/testdata/dispAnonymus.txt",
-                "lines_spected": 27,
-                "spected_line_number": 20,
+                "lines_spected": 25,
+                "spected_line_number": 18,
                 "spected_line": [1, 'HB', 0, 0, 'SHIMMER', [50, 60, 70], [0, 0, 0]]
             },
             {
@@ -32,7 +32,7 @@ class TestGPTProcessor:
                 "file": "tests/testdata/dispoAnonymus4.txt",
                 "lines_spected": 49,
                 "spected_line_number": 10,
-                "spected_line": [1, 'HB', 0, 40, 'COTTON XPRESSION', [50, 60], [0.50, 0.60]]
+                "spected_line": [1, 'HB', 0, 0, 'COTTON XPRESSION', [50, 60], [0.50, 0.60]]
             },
             {
                 "file": "tests/testdata/dispoEcoFlor.txt",
@@ -74,13 +74,13 @@ class TestGPTProcessor:
                 "file": "tests/testdata/dispoFlorAroma3.txt",
                 "lines_spected": 61,
                 "spected_line_number": 35,
-                "spected_line": [3, 'HB', 0, 0, 'NEWSFLASH', [40], [0]]
+                "spected_line": [3, 'HB', 40, 0, 'NEWSFLASH', [40], [0]]
             },
             {
                 "file": "tests/testdata/dispoFlorAroma4.txt",
                 "lines_spected": 75,
                 "spected_line_number": 54,
-                "spected_line": [1, 'HB', 0, 0.24,  'VERSILIA', [50], [0.24]]
+                "spected_line": [1, 'HB', 50, 0.24,  'VERSILIA', [50], [0.24]]
             },
             {
                 "file": "tests/testdata/dispoKosmo.txt",

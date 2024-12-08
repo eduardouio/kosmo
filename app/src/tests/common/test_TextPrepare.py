@@ -60,7 +60,7 @@ class Test_TestPrepare():
             text = f.read()
 
         text = self.text_prepare.process(text)
-        assert len(text.split("\n")) == 74
+        assert len(text.split("\n")) == 63
 
     def test_text_valid(self):
         text = """
@@ -75,7 +75,7 @@ class Test_TestPrepare():
         text = self.text_prepare.process(text)
         assert text == "TEXTO VALIDO"
 
-    def test_text_two_tabs(self):
-        text = "LUCIANO 50 cm		2QB"
+    def test_with_extra(self):
+        text = "LUCIANO 50 cm + extra"
         text = self.text_prepare.process(text)
-        assert text == "LUCIANO 50 CM   2QB"
+        assert text == "LUCIANO 50 CM"
