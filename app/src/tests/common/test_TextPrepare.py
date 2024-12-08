@@ -8,7 +8,7 @@ class Test_TestPrepare():
         self.text_prepare = TextPrepare()
 
     def test_text_prepare_no_valid(self):
-        text = "Hola, buenos días"
+        text = "Hola, buenos        días"
         text = self.text_prepare.process(text)
         assert text is None
         assert self.text_prepare.process("") is None
@@ -20,7 +20,7 @@ class Test_TestPrepare():
             text = f.read()
 
         text = self.text_prepare.process(text)
-        assert len(text.split("\n")) == 78
+        assert len(text.split("\n")) == 68
 
     def test_text_prepare_floraroma(self):
         file = "tests/testdata/dispoFlorAroma4.txt"
@@ -65,6 +65,7 @@ class Test_TestPrepare():
     def test_text_valid(self):
         text = """
             Hola
+            ********
             Floraroma es un ejemplo
             Kosmo
             12/12/2023
@@ -73,3 +74,8 @@ class Test_TestPrepare():
         """
         text = self.text_prepare.process(text)
         assert text == "TEXTO VALIDO"
+
+    def test_text_two_tabs(self):
+        text = "LUCIANO 50 cm		2QB"
+        text = self.text_prepare.process(text)
+        assert text == "LUCIANO 50 CM   2QB"
