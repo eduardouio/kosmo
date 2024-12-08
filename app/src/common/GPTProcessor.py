@@ -39,10 +39,11 @@ class GPTProcessor:
             thread_messages = self.client.beta.threads.messages.list(
                 thread_id=self.thread.id)
             messages = thread_messages.model_dump()
-            processed_data = json.loads(
-                messages['data'][0]['content'][0]['text']['value'])
-            return processed_data
+            data = messages['data'][0]['content'][0]['text']['value']
+            data = data.replace('\n', '').replace(', ', ',')
+            data = '[' + data + ']'
+            data = json.loads(data)
         except Exception as e:
             raise GPTProcessorError(
-                'Error al procesar el texto'.format(str(e))
+                'Error al procesar el texto {}'.format(str(e))
             )

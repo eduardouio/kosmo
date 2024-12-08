@@ -17,6 +17,7 @@ class TextPrepare:
             'DISPO',
             'DISPONIBILIDAD',
             'DIPONIBILIDAD',
+            '*',
         }
 
         self.characters_to_replace = {
