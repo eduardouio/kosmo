@@ -22,7 +22,7 @@ class GPTProcessor:
         self.client = openai.OpenAI(api_key=self._api_key)
         self.dispo = ''
         self.assistant = self.client.beta.assistants.retrieve(
-            "asst_vVqU2SOi7jJefVllFWGqtoop"
+            "asst_LgWHLaKGz1tvHWdsFmNRNJTj"
         )
         self.thread = self.client.beta.threads.create()
         self._initialized = True
@@ -40,9 +40,8 @@ class GPTProcessor:
                 thread_id=self.thread.id)
             messages = thread_messages.model_dump()
             data = messages['data'][0]['content'][0]['text']['value']
-            data = data.replace('\n', '').replace(', ', ',')
-            data = '[' + data + ']'
-            data = json.loads(data)
+            data = data.split("\n")
+            data = [json.loads(i) for i in data]
         except Exception as e:
             raise GPTProcessorError(
                 'Error al procesar el texto {}'.format(str(e))
