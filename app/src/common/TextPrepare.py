@@ -49,7 +49,7 @@ class TextPrepare:
         text = self.normalize_text(text)
 
         processed_text = [
-            line.strip()
+            line.replace('+ EXTRA', '').strip()
             for line in text.split("\n")
             if line.strip() and not self.should_skip_line(line.strip())
         ]
