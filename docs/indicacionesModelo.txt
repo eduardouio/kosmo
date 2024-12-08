@@ -1,165 +1,182 @@
-Procesamiento de datos en texto plano a formato JSON
+Procesamiento de datos en texto plano a formato JSON, el patron en un array de arrays separados por comas
 Objetivo:
-Convertir datos de entrada en texto plano sobre floricultura a una estructura JSON predefinida.
+Convertir datos de entrada en texto plano sobre los stocks disponibles para exportacion de una  floricultura a una estructura JSON predefinida el formato solo tiene arrays no contiene datos en clave valor
+
+[CANTIDAD, MODELO DE CAJA, TALLOS TOTALES, PRECIO TALLO EN CAJA, VARIEDAD, [MEDIDAS], [PRECIOS]]
+
+la salida debe tener el formato indicado en una sola línea para cada una de las lineas de entrada
 
 Formato y estructura del análisis
 Estructura general de los datos: Cada línea de texto contiene información sobre cajas de flores y su contenido. El formato puede variar, pero los elementos clave son:
 
-Cantidad: Número de cajas.
-Modelo de caja: Identificado como HB o QB.
-Variedad de la flor: Nombre de la variedad.
-Medida(s): Longitud de los tallos, puede haber una o más medidas.
-Cantidad de tallos totales: Número total de tallos en la caja.
-Precio(s): Costo de la caja basado en las medidas.
-Precio de Tallo en Caja: Costo mas alto de tallo en caja, si solo hay un precio, se asume que es el precio de todos los tallos.
-Consideraciones especiales:
+CANTIDAD: Número de cajas.
+MODELO DE CAJA: Identificado como HB, QB o FB.
+VARIEDAD: Nombre de la variedad puede haber mas de una variedad, cada variedad es una palabra.
+MEDIDAS: Longitud de los tallos, puede haber una o más medidas por lo que debe ser una lista.
+TALLOS TOTALES: Número total de tallos en la caja
+PRECIOS: Costo de la caja basado en las medidas, es una lista.
+PRECIO TALLO EN CAJA: Costo mas alto de tallo en caja, si solo hay un precio, se asume que es el precio de todos los tallos.
 
-Ignorar cualquier línea que comience con uno de los siguientes nombres (o sus variantes simplificadas):
-Kosmo Flowers SA
-Floraroma SA
-Spring Roses
-Valent Roses
-Flores De La Hacienda
-Florifrut S.A.
-Fairis Garden
-Rosas Del Campo
-Yamiteo Flowers
-Santa Clara
-Moonlight Flower
+EL Formato se espera recibirlo siempre en este formato
+[CANTIDAD, MODELO DE CAJA, TALLOS TOTALES, PRECIO TALLO EN CAJA, VARIEDAD, [MEDIDAS], [PRECIOS]]
+
+Consideraciones:
+Cada línea procesada debe generar el texto como se muestra en el ejemplo
+En caso de múltiples tallos o precios, se deben crear listas que correspondan a las tallos y precios.
+Si no se especifica un precio, se usará 0 como valor predeterminado
+Si no se especifica cantidad de tallos se debe asumir 0 para cada variedad y/o Tallos totales
+Todas las longitudes y precios deben convertirse a números flotantes para precisión usando el seprador "." punto
+Los precios separados por / o espacios deben asignarse a sus respectivas tallos.
+ESCIMO y ESKIMO son la misma variedad, simpre interpretar como ESKIMO
+
 Ejemplo detallado de análisis:
 
-Entrada: 1hb Explorer 40/50 x 250 0,40/0,50
+ENTRADA: 1HB EXPLORER 40/50 X 250 0,40/0,50
+En este ejemplo los espacion son separadores de datos y el signo / es un separador de datos adicional indicando una lista de precios o medidas.
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: HB
+TALLOS TOTALES: 250
+PRECIO TALLO EN CAJA: 0 # es cero porque hay mas de un precio
+VARIEDAD: EXPLORER
+MEDIDAS: 40, 50
+PRECIOS: 0.40,0.50   # precios de los tallos respectivos
+SALIDA ESPERADA:
+[1, "HB", 250, 0 ,"EXPLORER", [40, 50], [0.40, 0.50]]
 
-Cantidad: 1
-Modelo de caja: HB
-Variedad: Explorer
-Tallas: 40, 50
-Total de tallos: 250
-Precios: 0.40 (para 40), 0.50 (para 50)
-Precio de Tallo en Caja: 0.50
-Salida en JSON A RESPETAR
-[
-    {
-        "quantity_box": 1,
-        "box_model": "HB",
-        "tot_stem_flower": 250,
-        "stem_cost_price_box": 0.50,
-        "box_items": [
-            {
-                "variety": "Explorer",
-                "tot_stem_flower": 0,
-                "length": 40,
-                "stem_cost_price": 0.40
-            },
-            {
-                "variety": "Explorer",
-                "tot_stem_flower": 0,
-                "length": 50,
-                "stem_cost_price": 0.50
-            }
-        ]
-    }
-]
-Formatos adicionales de entrada y su análisis:
+ENTRADA:  2HB SWEET ESCIMO 50 X 300 0,35
+Interpretación de la entrada:
+CANTIDAD: 2
+MODELO DE CAJA: HB
+TALLOS TOTALES: 300
+PRECIO TALLO EN CAJA: 0.35 #  porque solo hay un precio y una medida
+VARIEDAD: SWEET ESKIMO # AL SER ESCIMO SE INTERPRETA COMO ESKIMO
+MEDIDAS: 50
+PRECIOS: 0.35
+SALIDA ESPERADA:
+[2, "HB", 300, 0.35, "SWEET ESKIMO", [50], [0.35]]
 
-Entrada: 2hb Sweet Escimo 50 x 300 0,35
-Cantidad: 2
-Modelo de caja: HB
-Variedad: Sweet Escimo
-Tallas: 50
-Total de tallos: 300
-Precio: 0.35
-Precio de Tallo en Caja: 0.35
+ENTRADA: AMARETO 1QB40 $ 0,18
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 40 es una medida
+PRECIO TALLO EN CAJA: 0.18 #  porque solo hay un precio y una medida
+VARIEDAD: AMARETO
+MEDIDAS: 40
+PRECIOS: 0.18
+SALIDA ESPERADA:
+[1, "QB", 0, 0.18, "AMARETO", [40], [0.18]]
 
-Entrada: AMARETO 1QB40 $ 0,18
-Cantidad: 1
-Modelo de caja: QB
-Variedad: Amareto
-Tallas: 40
-Precio: 0.18
-Precio de Tallo en Caja: 0.18
+ENTRADA: TOPAZ 1HB5060 0.26 0.30
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 50 Y 60 son medidas
+PRECIO TALLO EN CAJA: 0 #  porque hay mas de un precio
+VARIEDAD: TOPAZ
+MEDIDAS: 50, 60
+PRECIOS: 0.26, 0.30
+SALIDA ESPERADA:
+[1, "HB", 0, 0, "TOPAZ", [50, 60], [0.26, 0.30]]
 
 
-Entrada: TOPAZ 1HB5060 0.26 0.30
-Cantidad: 1
-Modelo de caja: HB
-Variedad: Topaz
-Tallas: 50, 60
-Precios: 0.26 (para 50), 0.30 (para 60)
-Precio de Tallo en Caja: 0.30
+ENTRADA: RUSCUS 2HB40
+En este caso sole se idica el modelo de caja y la variedad, no hay tallos totales ni precios se asume 0 para ambos
+Interpretación de la entrada:
+CANTIDAD: 2
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 40 es una medida
+PRECIO TALLO EN CAJA: 0 #  porque no hay precio
+VARIEDAD: RUSCUS
+MEDIDAS: 40
+PRECIOS: 0 #  porque no hay precio  de tallos en caja
+SALIDA ESPERADA:
+[2, "HB", 0, 0, "RUSCUS", [40], [0]]
 
-Entrada: RUSCUS 2HB40
-Cantidad: 2
-Modelo de caja: HB
-Variedad: Ruscus
-Tallas: 40
-Precio: 0 (sin precio especificado)
-Precio de Tallo en Caja: 0
+AMARETO 1QB4050 $0.25-0.35
+En este caso los precios de tallos inicia con el signo $ y se separan por - indicando los precios de los tallos respectivos
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 40 y 50 son medidas
+PRECIO TALLO EN CAJA: 0 #  porque hay mas de un precio
+VARIEDAD: AMARETO
+MEDIDAS: 40,50
+PRECIOS: 0.25,0.35
+SALIDA ESPERADA:
+[1, "QB", 0, 0, "AMARETO", [40, 50], [0.25, 0.35]]
 
-Entrada: KINGS CROSS 50 25 2 QB $0,60
-Cantidad: 2
-Modelo de caja: QB
-Variedad: Kings Cross
-Tallas: 50, 25
-Precio: 0.60
-Precio de Tallo en Caja: 0.60
+Entrada MIX 1HB6070  $0.48-0.58
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 60 y 70 son medidas
+PRECIO TALLO EN CAJA: 0 #  porque hay mas de un precio
+VARIEDAD: MIX
+MEDIDAS: 60,70
+PRECIOS: 0.48,0.58
+SALIDA ESPERADA:
+[1, "HB", 0, 0, "MIX", [60, 70], [0.48, 0.58]]
 
 
-Notas sobre el JSON esperado:
+Entrada: 3HB	BLUSH	70
+Interpretación de la entrada:
+CANTIDAD: 3
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 70 es una medida
+PRECIO TALLO EN CAJA: 0 #  porque no hay precio
+VARIEDAD: BLUSH
+MEDIDAS: 70
+PRECIOS: 0 
+SALIDA ESPERADA:
+[3, "HB", 0, 0, "BLUSH", [70], [0]]
 
-Cada línea procesada debe generar un objeto JSON dentro de una lista.
-En caso de múltiples tallas o precios, se deben crear objetos separados dentro de box_items.
-Si no se especifica un precio, se usará 0 como valor predeterminado.
-Ejemplo de salida JSON esperado:
+Entrada: 1QB	COUNTRY HOME	40/50
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 40 y 50 son medidas
+PRECIO TALLO EN CAJA: 0 #  porque no hay precio
+VARIEDAD: COUNTRY HOME
+MEDIDAS: 40,50
+PRECIOS: 0
+SALIDA ESPERADA:
+[1, "QB", 0, 0, "COUNTRY HOME", [40,50], [0,0]]
 
-ESTE ES EL EJMPLO DE SALIDA QUE SE DEBE MANEJAR
-[
-    {
-        "quantity_box": 1,
-        "box_model": "HB",
-        "tot_stem_flower": 250,
-        "stem_cost_price_box": 0.50,
-        "box_items": [
-            {
-                "variety": "Explorer",
-                "tot_stem_flower": 0,
-                "length": 40,
-                "stem_cost_price": 0.40
-            },
-            {
-                "variety": "Explorer",
-                "tot_stem_flower": 0,
-                "length": 50,
-                "stem_cost_price": 0.50
-            }
-        ]
-    },
-    {
-        "quantity_box": 2,
-        "box_model": "QB",
-        "tot_stem_flower": 300,
-        "stem_cost_price_box": 0.60,
-        "box_items": [
-            {
-                "variety": "Kings Cross",
-                "tot_stem_flower": 0,
-                "length": 50,
-                "stem_cost_price": 0.60
-            },
-            {
-                "variety": "Kings Cross",
-                "tot_stem_flower": 0,
-                "length": 25,
-                "stem_cost_price": 0.60
-            }
-        ]
-    }
-]
-Detalles técnicos adicionales:
-Todas las longitudes y precios deben convertirse a números flotantes para precisión.
-Los nombres de variedades deben estar en mayúsculas.
-Los precios separados por / o espacios deben asignarse a sus respectivas tallas.
+Entrada: 1QB	BE SWEET	90
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 90 es una medida
+PRECIO TALLO EN CAJA: 0,
+VARIEDAD: BE SWEET
+MEDIDAS: 90
+PRECIOS: 0
+SALIDA ESPERADA:
+[1, "QB", 0, 0, "BE SWEET", [90], [0]]
 
-Las respuestas no deben estar con
-[{'flowers': [{},{}]}]
-siempre debe ser una lista de objetos [{},{},{}]
+
+Entrada: DEEP PURPLE 60 cm	2HB	1QB
+en este caso son dos salidas juntas ya que hay cajas HB y QB la salida es doble, 
+mismas que comparten la cantidad de tallos y la variedad equivalente a 
+Interpretación de la entrada 1:
+CANTIDAD: 2
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 60 es una medida
+PRECIO TALLO EN CAJA: 0
+VARIEDAD: DEEP PURPLE
+MEDIDAS: 60
+PRECIOS: 0
+# segunda salida
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 60 es una medida
+PRECIO TALLO EN CAJA: 0
+VARIEDAD: DEEP PURPLE
+MEDIDAS: 60
+PRECIOS: 0
+
+SALIDA ESPERADA:
+[2, "HB", 0, 0, "DEEP PURPLE", [60], [0]],
+[1, "QB", 0, 0, "DEEP PURPLE", [60], [0]]
