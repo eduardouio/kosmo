@@ -97,8 +97,8 @@ TODO
 <li>[x] Dispos se sobreescriben si se traen de nuevo </li>
 <li>[x] Al crear una nueva DAE, deshabilitar las anteriores </li>
 <li>[x] Procesar con Chat GPT los Stocks </li>
-<li>[ ] implementar catalogo conforme https://greengoldflowers.com/product/nina/ </li>
-<li>[ ] formulario de carga manual
+<li>[ ] Implementar catalogo conforme https://greengoldflowers.com/product/nina/ </li>
+<li>[ ] Formulario de carga manual
 <li>[ ] Generar Paginas de Clientes y Proveedores </li>
 <li>[ ] Rendimineto en la ficha del socio, sacamos el rendimiento del producto </li>
 <li>[ ] Agregar campos adicionales en el sicio de negocio </li>
