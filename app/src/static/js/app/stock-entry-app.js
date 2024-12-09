@@ -8,6 +8,7 @@ const app = Vue.createApp({
           csrftoken:csrfToken,
           show_form:true,       
           show_message:false,
+          show_loader:true,
           message: '',
           disponibility:null,
           partner:null,
@@ -21,6 +22,8 @@ const app = Vue.createApp({
     },
     methods:{
         selectPartner($event){
+            this.show_message = false;
+            this.message = '';
             this.partner = this.partners.find(
                 partner => partner.name == $event.target.value
             );
@@ -46,6 +49,7 @@ const app = Vue.createApp({
                 return;
             }
             this.show_form = false;
+            this.show_loader = true;
             fetch(this.urlPost, {
                 method: 'POST',
                 headers: {
@@ -54,33 +58,34 @@ const app = Vue.createApp({
                 },
                 body: JSON.stringify(this.stock),
             })
-            .then((response) => response.json())
+            .then((response) => {
+                return response.json();
+            })
             .then((data) => {
                 this.disponibility = data;
                 this.show_form = false;
+                this.show_loader = false;
                 if ('message' in data){
-                    this.show_message = true;
-                    this.message = "Error al procesar el stock, verifique e intente nuevamente";
-                }else{
-                    console.log('Success:', data);
-                    window.location.href = this.stockListUrl;
+                    if (data.status === 'success'){
+                        console.log('Success:', data);
+                        window.location.href = this.stockListUrl;
+                        return;
+                    }
+                    if (data.status === 'error'){
+                        this.show_message = true;
+                        this.message = data.message;
+                    }
                 }
-                console.log('Success:', data);
             })
             .catch((error) => {
                 console.error('Error:', error);
+                alert('Error al enviar los datos');
             });
         },        
-        formatCurrency(number){
-            return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(number);
-        },
     },
     mounted(){
-        console.log('Stock Entry App is mounted');
+        this.show_loader = false;
     },
-    computed:{
-
-    }
 });
 app.config.compilerOptions.delimiters = ['[[', ']]'];
 const vm = app.mount('#app');

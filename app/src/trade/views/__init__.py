@@ -6,7 +6,8 @@ from .Stock import (
 )
 
 from .StockDetail import (
-    DetailStockCreate,
     DetailStockDetail,
     SingleStockDetailUpdateView,
 )
+
+from .DetailStockCreate import DetailStockCreate

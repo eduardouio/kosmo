@@ -8,7 +8,6 @@ from django import forms
 
 from products.models import Stock, Product, StockDay, StockDetail, BoxItems
 from partners.models import Partner
-from common import GPTProcessor
 
 
 class StockDetailForm(forms.ModelForm):
@@ -35,86 +34,6 @@ class StockDetailForm(forms.ModelForm):
                        'placeholder': 'Precio de costo por tallo'}
             ),
         }
-
-
-class DetailStockCreate(LoginRequiredMixin, TemplateView):
-    template_name = 'forms/stock_detail_form.html'
-
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(**kwargs)
-        stock_day = StockDay.get_by_id(kwargs['pk'])
-        partners = Partner.get_suppliers()
-        context['title_section'] = 'Carga Detalle de Stock  {}'.format(
-            stock_day.date.strftime('%d/%m/%Y')
-        )
-        partners_exist_stock = StockDetail.get_partner_by_stock_day(
-            stock_day
-        )
-        context['partners_exist_stock'] = serialize(
-            'json', partners_exist_stock
-        )
-        context['title_page'] = 'Detalle de Stock'
-        context['partners'] = partners
-        context['partners_json'] = serialize('json', partners)
-        context['stock_day'] = stock_day
-        return context
-
-    def post(self, request, *args, **kwargs):
-        data = json.loads(request.body)
-        partner = Partner.get_partner_by_id(data['id_partner'])
-        data['stock_text'] = data['stock_text'].split('\n')
-        data['stock_text'] = [i for i in data['stock_text'] if i]
-
-        json_dispo = GPTProcessor().process_text('\n'.join(data['stock_text']))
-
-        if json_dispo is None:
-            raise Exception('Error al procesar la disponibilidad')
-
-        if isinstance(json_dispo, dict):
-            if 'message' in json_dispo or 'error' in json_dispo:
-                return JsonResponse(json_dispo, safe=False, status=400)
-            json_dispo = [{'flowers': json_dispo}]
-
-        if isinstance(json_dispo, dict):
-            json_dispo = json_dispo = [{'flowers': json_dispo}]
-
-        stock_day = StockDay.get_by_id(kwargs['pk'])
-
-        if data['replace']:
-            StockDetail.disable_stock_detail(stock_day, partner)
-        import ipdb; ipdb.set_trace()
-        self.create_stock_items(json_dispo[0]['flowers'], stock_day, partner)
-        return JsonResponse(json_dispo, safe=False, status=201)
-
-    def create_stock_items(self, json_dispo, stock_day, partner):
-        for item in json_dispo:
-            stock_detail = StockDetail(
-                stock_day=stock_day,
-                partner=partner,
-                box_model=item['box_model'],
-                tot_stem_flower=item['tot_stem_flower'],
-            )
-            stock_detail.save()
-            for itm in item['box_items']:
-                product = self.get_or_create_product(itm['variety'])
-                box_item = BoxItems(
-                    stock_detail=stock_detail,
-                    product=product,
-                    length=itm['length'],
-                    qty_stem_flower=itm['tot_stem_flower'],
-                    stem_cost_price=itm['stem_cost_price']
-                )
-                box_item.save()
-
-    def get_or_create_product(self, variety):
-        product = Product.get_by_variety(variety)
-        if not product:
-            product = Product(
-                variety=variety.upper(),
-                name='ROSA VERIFICAR',
-            )
-            product.save()
-        return product
 
 
 class DetailStockDetail(LoginRequiredMixin, TemplateView):
