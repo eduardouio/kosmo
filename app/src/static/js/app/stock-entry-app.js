@@ -78,6 +78,9 @@ const app = Vue.createApp({
                 }
             })
             .catch((error) => {
+                this.show_loader = false;
+                this.show_message = true;
+                this.message = 'Error al enviar los datos, intente nuevamente';
                 console.error('Error:', error);
                 alert('Error al enviar los datos');
             });

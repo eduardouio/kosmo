@@ -1,5 +1,6 @@
 import openai
 import json
+from common.secrets import GPT_API_KEY
 
 
 class GPTProcessorError(Exception):
@@ -8,7 +9,7 @@ class GPTProcessorError(Exception):
 
 class GPTProcessor:
     _instance = None
-    _api_key = ""
+    _api_key = GPT_API_KEY
 
     def __new__(cls):
         if cls._instance is None:
