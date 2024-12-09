@@ -8,7 +8,7 @@ class GPTProcessorError(Exception):
 
 class GPTProcessor:
     _instance = None
-    _api_key = "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"
+    _api_key = ""
 
     def __new__(cls):
         if cls._instance is None:
