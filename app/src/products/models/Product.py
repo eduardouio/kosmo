@@ -20,6 +20,13 @@ class Product(BaseModel):
         blank=True,
         null=True
     )
+    colors = models.CharField(
+        'Colores Seprados por Comas',
+        max_length=255,
+        blank=True,
+        null=True,
+        default=None
+    )
     default_rend = models.DecimalField(
         'Rendimiento por defecto',
         max_digits=10,

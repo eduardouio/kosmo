@@ -66,6 +66,14 @@ pip install -r requirements.txt
 ./manage.py sowseed 
 ```
 
+## cmd windows
+```bash
+python manage.py makemigrations accounts partners products trade
+python manage.py migrate
+python manage.py sowseed 
+```
+
+
 # Lista de Fincas a Verificar
 
 | **Nombre de la Finca**              | **Verificado** |

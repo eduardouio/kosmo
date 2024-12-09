@@ -182,7 +182,7 @@ class Command(BaseCommand):
                 partner=supplier,
                 dae=dae,
                 date_begin=date_now,
-                date_end=date_now.replace(month=date_now.month + 1)
+                date_end=date_now.replace(year=date_now.year + 1),
             )
 
     def load_products(self):
