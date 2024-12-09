@@ -70,25 +70,44 @@ pip install -r requirements.txt
 
 | **Nombre de la Finca**              | **Verificado** |
 |-------------------------------------|----------------|
-| Finca Moonlight Flowers             | No             |
-| Finca Santa Clara                   | No             |
-| Finca Yamiteo Flowers               | No             |
-| Finca Rosas Del Campo               | No             |
-| Finca Fairis Garden                 | No             |
-| Finca Florifrut S.A.                | No             |
-| Finca Flores De La Hacienda         | No             |
-| Finca Valent Roses                  | No             |
-| Finca Spring Roses                  | No             |
-| Finca Floraroma SA                  | Sí             |
-| Finca Kosmo Flowers SA              | Sí             |
+| Finca Moonlight Flowers             | Si             |
+| Finca Santa Clara                   | Si             |
+| Finca Yamiteo Flowers               | Si             |
+| Finca Rosas Del Campo               | Si             |
+| Finca Fairis Garden                 | Si             |
+| Finca Florifrut S.A.                | Si             |
+| Finca Flores De La Hacienda         | Si             |
+| Finca Valent Roses                  | Si             |
+| Finca Spring Roses                  | Si             |
+| Finca Floraroma SA                  | Si             |
+| Finca Kosmo Flowers SA              | Si             |
 
 
 
 TODO
-[] Al crear una nueva DAE, deshabilitar las anteriores
-[] Dispos se sobreescriben si se traen de nuevo
+[x] Dispos se sobreescriben si se traen de nuevo
+[x] Al crear una nueva DAE, deshabilitar las anteriores
+[x] Procesar con Chat GPT los Stocks
 [] implementar catalogo conforme https://greengoldflowers.com/product/nina/
 [] formulario de carga manual
+[] Generar Paginas de Clientes y Proveedores
+[] Rendimineto en la ficha del socio, sacamos el rendimiento del producto
+[] Agregar campos adicionales en el sicio de negocio
+[] Agregar campos de contacto, email de pagos, skype, web
+[] Cambiar la etiqueta de RUC a ID/RUC/TAX ID
+[] Agregar campos para 2 referencias en la ficha de socio de negocio
+[] Crear un formulario para el alta de los socios de negocio para posterior aprobación conforme el formato
+[] Incluir en el formulario de alta los terminos y condiciones de Kosmo, politica de credito, politica de perecibilidad de las flores, notas de credito con plazo de 10 dias
+[] Los vendedores no pueden ver el proveedor de las flores, solo se mostrará Kosmo como proveedor en el stock
+[] Las ordenes de los vendedores deben ser aprobadas por el administrador
+[] La pantalla de los vendedores mostrará información de su progreso mensual
+[] Agregar multiples colores por producto en la ficha del catalogo, permitiendo filtrar por color las variedades, ofrecer un color similar en una variedad diferente
+[] Permitir consultas por color en la tabla de stocks, el catalogo de productos
+[] Incorporar el rendimiento en las tablas de pedido
+[] Asegurar un margen positivo en cada pedido
+[] Campos relevantes para los pedidos: Variedad, Tamaño, Costo, Precio de venta (automatico), Rentabilidad (basada en el catalogo), Tipo de caja
+[] Cargar facturas de proveedores al sistema
+[] Formulario para registro en línea del proveedor o cliente debe estar igual que el Excell con macros
 
 
 # cargar imagenes de productos
