@@ -46,6 +46,4 @@ class GPTProcessor:
             data = [json.loads(i) for i in data]
             return data
         except Exception as e:
-            raise GPTProcessorError(
-                'Error al procesar el texto {}'.format(str(e))
-            )
+            return 'Error al procesar el `texto {}'.format(str(e))
