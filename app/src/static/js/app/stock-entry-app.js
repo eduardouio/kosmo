@@ -63,8 +63,6 @@ const app = Vue.createApp({
             })
             .then((data) => {
                 this.disponibility = data;
-                this.show_form = false;
-                this.show_loader = false;
                 if ('message' in data){
                     if (data.status === 'success'){
                         console.log('Success:', data);
@@ -72,6 +70,8 @@ const app = Vue.createApp({
                         return;
                     }
                     if (data.status === 'error'){
+                        this.show_form = false;
+                        this.show_loader = false;
                         this.show_message = true;
                         this.message = data.message;
                     }
