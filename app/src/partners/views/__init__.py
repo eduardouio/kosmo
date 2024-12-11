@@ -1,9 +1,6 @@
-from .Partner import (
-    PartnerDetailView,
-    PartnerListView,
+from .PartnerCreateUpdate import (
     PartnerCreateView,
     PartnerUpdateView,
-    PartnerDeleteView,
     PartnerUpdateParent,
 )
 
@@ -30,3 +27,7 @@ from .DAE import (
     DAEListView,
     DAEDetailView,
 )
+
+from .PartnerDelete import PartnerDeleteView
+from .PartnerDetail import PartnerDetailView
+from .PartnerList import PartnerListView
