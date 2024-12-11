@@ -1,14 +1,4 @@
-import json
-from django.urls import reverse_lazy
-from django import forms
-from django.http import HttpResponseRedirect
-from django.views.generic import (
-    CreateView,
-    UpdateView,
-    RedirectView,
-    ListView,
-    DetailView
-)
+from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from products.models import Product
 

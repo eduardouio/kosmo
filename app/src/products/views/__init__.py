@@ -1,7 +1,8 @@
-from .Product import (
+from .ProductCreateUpdate import (
     ProductCreateView,
-    ProductUpdateView,
-    ProductDeleteView,
-    ProductListView,
-    ProductDetailView
+    ProductUpdateView
 )
+from .ProductDetail import ProductDetailView
+from .ProductDelete import ProductDeleteView
+from .ProductDetail import ProductDetailView
+from .ProductList import ProductListView
