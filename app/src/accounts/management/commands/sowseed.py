@@ -245,6 +245,7 @@ class Command(BaseCommand):
 
                     stock_detail = StockDetail.objects.create(
                         stock_day=stock_day,
+                        quantity=random.randint(1, 5),
                         partner=partner,
                         box_model=box_model,
                         tot_stem_flower=qty_stem,

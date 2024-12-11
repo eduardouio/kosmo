@@ -3,10 +3,6 @@ import json
 from common.secrets import GPT_API_KEY
 
 
-class GPTProcessorError(Exception):
-    pass
-
-
 class GPTProcessor:
     _instance = None
     _api_key = GPT_API_KEY
@@ -47,6 +43,6 @@ class GPTProcessor:
             data = [json.loads(i) for i in data]
             return data
         except Exception as e:
-            return 'Error al procesar stock, no se puede leer el formato {}'.format(
-                str(e)
+            return 'Error al procesar stock, no se puede leer el formato {} {}'.format(
+                str(e), messages['data'][0]['content'][0]['text']['value']
             )

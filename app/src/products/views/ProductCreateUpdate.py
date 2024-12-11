@@ -12,7 +12,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            'name', 'image', 'variety', 'default_rend', 'notes'
+            'name', 'image', 'variety', 'default_rend', 'notes', 'colors'
         ]
         widgets = {
             'name': forms.TextInput(
@@ -24,6 +24,13 @@ class ProductForm(forms.ModelForm):
                 }
             ),
             'image': forms.ClearableFileInput(),
+            'colors': forms.TextInput(
+                attrs={
+                    'maxlength': '255',
+                    'class': 'form-control form-control-sm',
+                    'placeholder': 'Colores',
+                }
+            ),
             'variety': forms.TextInput(
                 attrs={
                     'maxlength': '255',
