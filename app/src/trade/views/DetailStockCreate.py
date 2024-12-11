@@ -70,30 +70,23 @@ class DetailStockCreate(LoginRequiredMixin, TemplateView):
             stock_detail = StockDetail(
                 stock_day=stock_day,
                 partner=partner,
+                quantity=item[0],
                 box_model=item[1],
                 tot_stem_flower=item[2],
+                stem_cost_price_box=item[3],
             )
+            
             stock_detail.save()
             product = self.get_or_create_product(item[4])
-            if len(item[-1]) == 1:
-                box_item = BoxItems(
-                    stock_detail=stock_detail,
-                    product=product,
-                    length=item[-1][0],
-                    qty_stem_flower=item[2],
-                    stem_cost_price=item[-2][0]
-                )
-                box_item.save()
-            else:
-                for price, sizes in zip(item[-1], item[-2]):
-                    box_item = BoxItems(
-                        stock_detail=stock_detail,
-                        product=product,
-                        length=sizes,
-                        qty_stem_flower=0,
-                        stem_cost_price=price
-                    )
-                    box_item.save()
+            box_item = BoxItems(
+                stock_detail=stock_detail,
+                product=product,
+                length=item[-1][0],
+                qty_stem_flower=item[2],
+                stem_cost_price=item[-2][0],
+                stem_cost_price_box=item[3],
+            )
+            box_item.save()
         return True
 
     def get_or_create_product(self, variety):

@@ -61,6 +61,11 @@ class StockDetail(BaseModel):
         Partner,
         on_delete=models.CASCADE
     )
+    quantity = models.IntegerField(
+        'Cantidad Cajas',
+        default=0,
+        help_text='Cantidad de cajas'
+    )
     box_model = models.CharField(
         'Tipo de caja',
         max_length=50,

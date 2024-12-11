@@ -85,28 +85,44 @@
                      <h4 class="card-title">{{ product.name }} / {{ product.variety }}</h4>
                   </div>
                </div>
-               <div class="row">
-                  <div class="col-8">
-                     <section>
-                        <span class="text-muted">Variedad:</span>
+               <div class="row rounded-1 p-1">
+                  <div class="col-4 pt-2">
+                     <strong class="text-muted">Variedad:</strong>
+                  </div>
+                  <div class="col-8 pt-2">
                         <span>{{ product.variety }}</span>
-                     </section>
-                     <section>
-                        <span class="text-muted">Rendimiento por Defecto:</span>
+                  </div>
+                  <div class="col-4 pt-2">
+                     <strong class="text-muted">Rendimiento por Defecto:</strong>
+                  </div>
+                  <div class="col-8 pt-2">
                         <span>{{ product.default_rend }}</span>
-                     </section>
                   </div>
-                  <div class="col-4">
-                     <section>
-                        <span class="text-muted d-block">Observaciones:</span>
-                        <span>
-                        {% if product.notes %}
+                  <div class="col-4 pt-2">
+                     <strong class="text-muted d-block">Observaciones:</strong>
+                  </div>
+                  <div class="col-8 pt-2">
+                     {% if product.notes %}
                         {{ product.notes }}
-                        {% endif %}
+                        {% else %}
+                        <span class="text-muted">
+                           No 
                         </span>
+                     {% endif %}
+                  </div>
+                  <div class="col-4 pt-2">
+                     <strong class="text-muted">Colores:</strong>
+                  </div>
+                  <div class="col-8 pt-2">
+                     <section class="d-flex justify-content-start gap-3">
+                        {% for color in product.colors %}
+                        <span class="badge border text-dark border-info bg-gray p-1">
+                           {{ color }}
+                        </span>
+                        {% endfor %}
                      </section>
                   </div>
-               </div>
+                  </div>
                <!-- Metadata-->
                <div class="row bg-gray rounded-1 mt-5 border">
                   <div class="col">
@@ -124,7 +140,7 @@
                         <span class="text-muted">Autor:</span>
                         <smal’¿>
                         {% if product.get_create_user %}
-                        {{ product.get_create_user }}
+                           {{ product.get_create_user }}
                         {% else %}
                         SYSTEM
                         {% endif %}
