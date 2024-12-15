@@ -24,7 +24,8 @@ from .views import (
 )
 
 urlpatterns = [
-    path('socios/', PartnerListView.as_view(), name='partner_list'),
+    path('socios/clientes', PartnerListView.as_view(), name='customers_list'),
+    path('socios/proveedores', PartnerListView.as_view(), name='supliers_list'),
     path('socios/<int:pk>/', PartnerDetailView.as_view(), name='partner_detail'),
     path('socios/nuevo/', PartnerCreateView.as_view(), name='partner_create'),
     path('socios/actualizar/<int:pk>/', PartnerUpdateView.as_view(), name='partner_update'),

@@ -21,11 +21,16 @@
                 <path d="M12 5l0 14" />
                 <path d="M5 12l14 0" />
               </svg>
-            Nuevo Cliente
+            {% if source_page == 'clientes' %}
+                Nuevo Cliente
+            {% else %}
+                Nuevo Proveedor
+            {% endif %}
         </a>
     </div>
 </div>
 <div class="container container-lg mx-auto">
+    {{ source_page }}
     <table class="table table-bordered table-striped" id="myTable">
         <thead>
         <tr>

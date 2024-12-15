@@ -24,6 +24,7 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
             'suplier': serialize('json', [i['suplier']]),
             'selected': i['selected']
         } for i in parent_suppliers])
+        context['source_page'] = 'clientes' if self.object.type_partner == 'CLIENTE' else 'proveedores'
 
         if 'action' not in self.request.GET:
             return context

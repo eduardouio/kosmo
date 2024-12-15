@@ -62,7 +62,8 @@
             </svg>
             Agregar
          </a>
-         <a href="{% url 'partner_list' %}" class="btn btn-sm btn-default">
+         {% if source_page == 'clientes' %}
+         <a href="{% url 'customers_list' %}" class="btn btn-sm btn-default">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M5 12l14 0" />
                <path d="M5 12l6 6" />
@@ -70,6 +71,16 @@
             </svg>
             Volver
          </a>
+         {% else %}
+         <a href="{% url 'supliers_list' %}" class="btn btn-sm btn-default">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M5 12l14 0" />
+               <path d="M5 12l6 6" />
+               <path d="M5 12l6 -6" />
+            </svg>
+            Volver
+         </a>
+         {% endif %}
       </div>
    </div>
 </div>
