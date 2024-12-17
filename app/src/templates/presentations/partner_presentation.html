@@ -159,6 +159,28 @@
                               <span class="text-muted">Consolidado:</span>
                               <span class="ps-2">{{ partner.consolidate |yesno:'Si,No' }}</span>
                            </section>
+                           {% if partner.type_partner == 'PROVEEDOR' %}
+                           <section>
+                              <span class="text-muted">Margen:</span>
+                              <span class="ps-2">{{ partner.margin }}</span>
+                           </section>
+                           {% endif %}
+                           <section>
+                              <span class="text-muted">Referencia 1:</span>
+                              <span class="ps-2">
+                                 {% if partner.reference_1 %}
+                                 {{ partner.reference_1 }}
+                                 {% endif %}
+                              </span>
+                           </section>
+                           <section>
+                              <span class="text-muted">Referencia 2:</span>
+                              <span class="ps-2">
+                                 {% if partner.reference_2 %}
+                                 {{ partner.reference_2 }}
+                                 {% endif %}
+                              </span>
+                           </section>
                         </div>
                         <div class="col-6">
                            <section>
@@ -205,9 +227,41 @@
                               </span>
                               {% endif %}
                            </section>
+                           {% if partner.type_partner == 'PROVEEDOR' %}
+                           <section>
+                              <span class="text-muted">Margen Incluido en Costo:</span>
+                              <span class="ps-2">
+                                    {% if  partner.is_margin_included %}
+                                    <span class="badge border bg-warning" title="El margen esta incluido en el costo de compra">
+                                       SI
+                                    </span>
+                                    {% else %}
+                                    <span class="badge border bg-secondary" title="El margen no esta incluido en el costo de compra">
+                                    NO
+                                    </span>
+                                    {% endif %}
+                              </span>
+                           </section>
+                           {% endif %}
+                           <section>
+                              <span class="text-muted">Contacto Ref1:</span>
+                              <span class="ps-2">
+                                 {% if partner.contact_reference_1 %}
+                                    {{ partner.contact_reference_1 }}
+                                 {% endif %}
+                              </span>
+                           </section>
+                           <section>
+                              <span class="text-muted">Contacto Ref2:</span>
+                              <span class="ps-2">
+                                 {% if partner.contact_reference_2 %}
+                                    {{ partner.contact_reference_2 }}
+                                 {% endif %}
+                              </span>
+                           </section>
                         </div>
                         <div class="col-12">
-                           <section>
+                           <section class="border p-2">
                               <span class="text-muted">Notas:</span>
                               <span class="ps-2">
                                  {% if partner.notes %}

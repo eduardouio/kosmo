@@ -52,6 +52,16 @@ class Partner(BaseModel):
         blank=True,
         null=True
     )
+    is_margin_included = models.BooleanField(
+        'Margen Incluido',
+        default=False
+    )
+    margin = models.DecimalField(
+        'Margen',
+        max_digits=5,
+        decimal_places=2,
+        default=0
+    )
     credit_term = models.IntegerField(
         'Plazo de crédito',
         help_text="Tiempo de crédito en días, cero para prepago",
@@ -81,6 +91,12 @@ class Partner(BaseModel):
         blank=True,
         null=True
     )
+    email_payment = models.EmailField(
+        'Correo Electrónico de Pago',
+        max_length=255,
+        blank=True,
+        null=True
+    )
     dispatch_days = models.PositiveIntegerField(
         'Días de Envío',
         blank=True,
@@ -106,6 +122,30 @@ class Partner(BaseModel):
     consolidate = models.BooleanField(
         'Consolidado',
         default=False
+    )
+    reference_1 = models.CharField(
+        'Referencia 1',
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    contact_reference_1 = models.CharField(
+        'Contacto Referencia 1',
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    reference_2 = models.CharField(
+        'Referencia 2',
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    contact_reference_2 = models.CharField(
+        'Contacto Referencia 2',
+        max_length=255,
+        blank=True,
+        null=True
     )
 
     @classmethod

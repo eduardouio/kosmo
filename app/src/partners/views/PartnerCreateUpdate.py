@@ -19,7 +19,9 @@ class PartnerForm(forms.ModelForm):
             'business_tax_id', 'name', 'country', 'city', 'zip_code', 'address',
             'phone', 'email', 'type_partner', 'credit_term', 'website', 'skype',
             'dispatch_address', 'dispatch_days', 'cargo_reference', 'consolidate',
-            'is_active', 'notes'
+            'is_active', 'notes', 'margin', 'is_margin_included', 'email_payment', 
+            'reference_1', 'contact_reference_1','reference_2',
+            'contact_reference_2'
         ]
         widgets = {
             'business_tax_id': forms.TextInput(attrs={'maxlength': '15', 'class': 'form-control form-control-sm'}),
@@ -40,6 +42,13 @@ class PartnerForm(forms.ModelForm):
             'consolidate': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'notes': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
+            'margin': forms.NumberInput(attrs={'class': 'form-control form-control-sm'}),
+            'is_margin_included': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'email_payment': forms.EmailInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'reference_1': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'contact_reference_1': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'reference_2': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'contact_reference_2': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
         }
 
 
