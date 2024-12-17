@@ -7,7 +7,7 @@ class ProductAdmin(SimpleHistoryAdmin):
     list_display = (
         'name',
         'variety',
-        'default_rent',
+        'default_profit_margin',
     )
 
     search_fields = (

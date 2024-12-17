@@ -12,7 +12,7 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = [
-            'name', 'image', 'variety', 'default_rent', 'notes', 'colors'
+            'name', 'image', 'variety', 'default_profit_margin', 'notes', 'colors'
         ]
         widgets = {
             'name': forms.TextInput(
@@ -39,7 +39,7 @@ class ProductForm(forms.ModelForm):
                     'required': 'required'
                 }
             ),
-            'default_rent': forms.NumberInput(
+            'default_profit_margin': forms.NumberInput(
                 attrs={
                     'step': '0.01',
                     'class': 'form-control form-control-sm',

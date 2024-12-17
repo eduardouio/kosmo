@@ -27,7 +27,7 @@ class Product(BaseModel):
         null=True,
         default=None
     )
-    default_rent = models.DecimalField(
+    default_profit_margin = models.DecimalField(
         'Rendimiento por defecto',
         max_digits=10,
         decimal_places=2,
