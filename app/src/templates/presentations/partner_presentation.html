@@ -162,7 +162,7 @@
                            {% if partner.type_partner == 'PROVEEDOR' %}
                            <section>
                               <span class="text-muted">Margen:</span>
-                              <span class="ps-2">{{ partner.margin }}</span>
+                              <span class="ps-2">{{ partner.default_rent }}</span>
                            </section>
                            {% endif %}
                            <section>
@@ -231,7 +231,7 @@
                            <section>
                               <span class="text-muted">Margen Incluido en Costo:</span>
                               <span class="ps-2">
-                                    {% if  partner.is_margin_included %}
+                                    {% if  partner.is_rent_included %}
                                     <span class="badge border bg-warning" title="El margen esta incluido en el costo de compra">
                                        SI
                                     </span>

@@ -52,15 +52,15 @@ class Partner(BaseModel):
         blank=True,
         null=True
     )
-    is_margin_included = models.BooleanField(
+    is_rent_included = models.BooleanField(
         'Margen Incluido',
         default=False
     )
-    margin = models.DecimalField(
-        'Margen',
+    default_rent = models.DecimalField(
+        'Rendimiento por defecto',
         max_digits=5,
         decimal_places=2,
-        default=0
+        default=0.06
     )
     credit_term = models.IntegerField(
         'Plazo de crédito',
