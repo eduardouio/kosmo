@@ -52,7 +52,7 @@ class Partner(BaseModel):
         blank=True,
         null=True
     )
-    id_profit_margin_included = models.BooleanField(
+    is_profit_margin_included = models.BooleanField(
         'Margen Incluido',
         default=False
     )
