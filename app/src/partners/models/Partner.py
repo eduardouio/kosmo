@@ -36,6 +36,12 @@ class Partner(BaseModel):
         'País',
         max_length=50
     )
+    area_code = models.CharField(
+        'Código de Área',
+        max_length=10,
+        blank=True,
+        null=True
+    )
     city = models.CharField(
         'Ciudad',
         max_length=50
@@ -135,6 +141,12 @@ class Partner(BaseModel):
         blank=True,
         null=True
     )
+    phone_reference_1 = models.CharField(
+        'Teléfono Referencia 1',
+        max_length=20,
+        blank=True,
+        null=True
+    )
     reference_2 = models.CharField(
         'Referencia 2',
         max_length=255,
@@ -144,6 +156,12 @@ class Partner(BaseModel):
     contact_reference_2 = models.CharField(
         'Contacto Referencia 2',
         max_length=255,
+        blank=True,
+        null=True
+    )
+    phone_reference_2 = models.CharField(
+        'Teléfono Referencia 2',
+        max_length=20,
         blank=True,
         null=True
     )

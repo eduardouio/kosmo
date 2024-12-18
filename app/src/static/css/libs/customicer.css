@@ -14,6 +14,10 @@
 	background-color: rgb(194,66,39)
 }
 
+.border-kosmo-primary {
+	border: 1px solid rgb(194,66,39)
+}
+
 .text-kosmo-secondary {
 	color: rgb(234, 90, 40)
 }

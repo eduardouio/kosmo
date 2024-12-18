@@ -21,7 +21,8 @@ class PartnerForm(forms.ModelForm):
             'website', 'skype', 'dispatch_address', 'dispatch_days',
             'cargo_reference', 'consolidate', 'is_active', 'notes',
             'default_profit_margin', 'is_profit_margin_included', 'email_payment',
-            'reference_1', 'contact_reference_1', 'reference_2',
+            'reference_1', 'contact_reference_1', 'reference_2', 'area_code'
+            'phone_reference_1', 'phone_reference_2'
             'contact_reference_2'
         ]
         widgets = {
@@ -51,6 +52,9 @@ class PartnerForm(forms.ModelForm):
             'contact_reference_1': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
             'reference_2': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
             'contact_reference_2': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'area_code': forms.TextInput(attrs={'maxlength': '10', 'class': 'form-control form-control-sm'}),
+            'phone_reference_1': forms.TextInput(attrs={'maxlength': '20', 'class': 'form-control form-control-sm'}),
+            'phone_reference_2': forms.TextInput(attrs={'maxlength': '20', 'class': 'form-control form-control-sm'}),
         }
 
 

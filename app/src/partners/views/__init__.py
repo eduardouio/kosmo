@@ -31,3 +31,4 @@ from .DAE import (
 from .PartnerDelete import PartnerDeleteView
 from .PartnerDetail import PartnerDetailView
 from .PartnerList import PartnerListView
+from .PartnerAutoRegister import PartnerAutoRegister

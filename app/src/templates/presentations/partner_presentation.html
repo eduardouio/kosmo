@@ -186,6 +186,14 @@
                                  {% endif %}
                               </span>
                            </section>
+                           <section>
+                              <span class="text-muted">Telefono Ref1:</span>
+                              <span class="ps-2">
+                                 {% if partner.phone_reference_1 %}
+                                    {{ partner.phone_reference_1 }}
+                                 {% endif %}
+                              </span>
+                           </section>
                         </div>
                         <div class="col-6">
                            <section>
@@ -261,6 +269,14 @@
                               <span class="ps-2">
                                  {% if partner.contact_reference_2 %}
                                     {{ partner.contact_reference_2 }}
+                                 {% endif %}
+                              </span>
+                           </section>
+                           <section>
+                              <span class="text-muted">Telefono Ref2:</span>
+                              <span class="ps-2">
+                                 {% if partner.phone_reference_2 %}
+                                    {{ partner.phone_reference_2 }}
                                  {% endif %}
                               </span>
                            </section>
