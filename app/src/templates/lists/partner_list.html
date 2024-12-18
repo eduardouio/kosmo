@@ -9,7 +9,7 @@
         <span class="bg-peisol-secondary bg-gradient p-2 rounded">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                 <path d="M9 12l2 2l4 -4" />
               </svg>
             {{ message }}
@@ -36,10 +36,12 @@
         <tr>
             <th class="bg-secondary bg-opacity-25">#</th>
             <th class="bg-secondary bg-opacity-25">Nombre</th>
-            <th class="bg-secondary bg-opacity-25">Tipo</th>
             <th class="bg-secondary bg-opacity-25">Correo Electrónico</th>
             <th class="bg-secondary bg-opacity-25">Pais</th>                
             <th class="bg-secondary bg-opacity-25">D Crédito</th>
+            <th class="bg-secondary bg-opacity-25">Verificado</th>
+            <th class="bg-secondary bg-opacity-25">Activo</th>
+            <th class="bg-secondary bg-opacity-25">Consolidado</th>
         </tr>
         </thead>
         <tbody>
@@ -73,8 +75,13 @@
                     {{ item.name }}
                 </a>
                 </td>
-                <td class="p-0">{{ item.type_partner }}</td>
-                <td class="p-0">{{ item.email }}</td>
+                <td class="p-0">
+                    {% if item.email  %}
+                        {{ item.email }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </td>
                 <td class="p-0">{{ item.country }}</td>
                 <td class="p-0">
                     {% if item.credit_term %}
@@ -83,6 +90,15 @@
                         Contado
                     {% endif %}
                 </td>  
+                <td class="p-0">
+                    {{ item.is_verified | yesno:"Si,No" }}
+                </td>
+                <td class="p-0">
+                    {{ item.is_active | yesno:"Si,No" }}
+                </td>
+                <td class="p-0">
+                    {{ item.consolidate | yesno:"Si,No" }}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

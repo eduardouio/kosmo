@@ -99,6 +99,11 @@
                         <path d="M11 12h1v4h1" />
                      </svg>
                      {{ partner.type_partner }} - {{ partner.name  }}
+                     {%  if partner.is_verified %}
+                        PROVEEDOR VERIFICADO
+                     {% else %}
+                        PROVEEDOR NO VERIFICADO
+                     {% endif %}
                   </div>
                   <div class="col-6 text-end">
                      {% if partner.type_partner == 'PROVEEDOR' and last_dae%}

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Formulario Kosmo Flowers</title>
+    <link rel="icon" href="/static/img/logo.png">
+      <link href="/static/css/libs/bootstrap.min.css" rel="stylesheet">
+      <link href="/static/css/libs/customicer.css" rel="stylesheet">
+      <link rel="stylesheet" href="/static/css/libs/dataTables.dataTables.min.css">
+      <script src="/static/js/libs/vue@3.js"></script>
+</head>
+<body class="bg-light">
+    <div class="container my-3">
+        <div class="row text-center">
+            <h6>Registro de Proveedor</h6>
+        </div>
+        <div class="card border-1 border-warning shadow">
+            <div class="card-body p-2">
+                <div class="text-center mb-3">
+                    <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" alt="Kosmo Flowers" class="img-fluid" style="max-width: 200px;">
+                </div>
+                <form>
+                    <div class="row g-1 mb-2 mx-auto">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Fecha</label></div>
+                        <div class="col-5"><input type="date" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Nombre del Cliente</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Ciudad</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">País</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Dirección</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Código de Área</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Tiempo de Pago</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Contacto Gerencia</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Contacto Ventas</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Contacto de Pagos</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">E-mail de Gerencia</label></div>
+                        <div class="col-5"><input type="email" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">E-mail de Ventas</label></div>
+                        <div class="col-5"><input type="email" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">E-mail de Pagos</label></div>
+                        <div class="col-5"><input type="email" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Skype</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Web</label></div>
+                        <div class="col-5"><input type="url" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">I.D.</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Años en el Negocio</label></div>
+                        <div class="col-5"><input type="number" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Consolidado</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Días de Despacho</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Referencia Carguera</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Contacto</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Teléfono</label></div>
+                        <div class="col-5"><input type="tel" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Referencias Finca 1</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Contacto</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Teléfono</label></div>
+                        <div class="col-5"><input type="tel" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Referencias Finca 2</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Contacto</label></div>
+                        <div class="col-5"><input type="text" class="form-control"></div>
+                    </div>
+                    <div class="row g-1 mb-2">
+                        <div class="col-1"></div>
+                        <div class="col-3 text-end"><label class="form-label">Teléfono</label></div>
+                        <div class="col-5"><input type="tel" class="form-control"></div>
+                    </div>
+                    <div class="text-center mt-3 bg-danger">
+                        <p class="mb-0">www.kosmoflowers.com Quito - Ecuador</p>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">NOTA: Autorizo a Kosmo Flowers a verificar todas las referencias que
+                            hemos entregado y que puedan ser requeridas para determinar nuestras capacidades de crédito
+                            y solicitar información relevante de las agencias de informes de crédito.</small>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

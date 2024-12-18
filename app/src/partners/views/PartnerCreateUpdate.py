@@ -45,6 +45,7 @@ class PartnerForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
             'default_profit_margin': forms.NumberInput(attrs={'class': 'form-control form-control-sm'}),
             'is_profit_margin_included': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'email_payment': forms.EmailInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
             'reference_1': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
             'contact_reference_1': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),

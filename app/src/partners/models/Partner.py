@@ -147,6 +147,10 @@ class Partner(BaseModel):
         blank=True,
         null=True
     )
+    is_verified = models.BooleanField(
+        'Verificado',
+        default=False
+    )
 
     @classmethod
     def get_customers(cls):
