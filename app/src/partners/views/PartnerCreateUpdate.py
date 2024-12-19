@@ -20,9 +20,9 @@ class PartnerForm(forms.ModelForm):
             'address', 'phone', 'email', 'type_partner', 'credit_term',
             'website', 'skype', 'dispatch_address', 'dispatch_days',
             'cargo_reference', 'consolidate', 'is_active', 'notes',
-            'default_profit_margin', 'is_profit_margin_included', 'email_payment',
-            'reference_1', 'contact_reference_1', 'reference_2', 'area_code'
-            'phone_reference_1', 'phone_reference_2'
+            'default_profit_margin', 'is_profit_margin_included',
+            'email_payment','reference_1', 'contact_reference_1',
+            'reference_2','area_code','phone_reference_1', 'phone_reference_2',
             'contact_reference_2'
         ]
         widgets = {
