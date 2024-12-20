@@ -204,8 +204,8 @@ class Partner(BaseModel):
 
         order_list = [
             x for x in list_suppliers if x['selected']
-            ] + [
-                x for x in list_suppliers if not x['selected']
+        ] + [
+            x for x in list_suppliers if not x['selected']
         ]
 
         return order_list
