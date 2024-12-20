@@ -27,4 +27,5 @@ urlpatterns = [
     path('', include('accounts.urls')),
     path('', include('partners.urls')),
     path('', include('trade.urls')),
+    path('', include('api.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
