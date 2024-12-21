@@ -1,17 +1,53 @@
 <script setup>
 import { ref } from 'vue'
-const listado = ref([
-    { cant: 1, producto: 'Explorer', proveedor: 'Finca Las Moras', costo: 0.25, margen: 0.06, pvp: 0.31 },
-    { cant: 2, producto: 'Explorer', proveedor: 'Finca Las Moras', costo: 0.25, margen: 0.06, pvp: 0.31 },
-    { cant: 3, producto: 'Explorer', proveedor: 'Finca Las Moras', costo: 0.25, margen: 0.06, pvp: 0.31 }
-])
+import { reactive } from 'vue';
+import { onMounted } from 'vue'
+import stock from '../data/stock.json'
+
+const indicator = ref({})
+
+const my_stock = reactive(stock.stock)
+const colors = ref({
+    'AMARILLO': 'bg-yellow-400 bg-gradient',
+    'CREMA': 'bg-amber-400 bg-gradient',
+    'ROJO': 'bg-red-400 bg-gradient',
+    'BLANCO': 'bg-light',
+    'TINTURADO': 'bg-gray-400 bg-gradient',
+    'NARANJA': 'bg-orange-400 bg-gradient',
+    'VIOLETA': 'bg-indigo-400 bg-gradient',
+    'MORADO': 'bg-indigo-400 bg-gradient',
+})
 
 const selectText = (event) => {
     event.target.select()
 }
 
-const handleKeydown = (event, index) => {
-    const inputs = document.querySelectorAll('.my-input');
+const stockIdicator = (quantity) => {
+    let my_indicator = {
+        'total_QB': 0,
+        'total_HB': 0,
+        'total_stems': 0,
+        'total_suppliers': [],
+    }
+    if (!my_stock || my_stock.length === 0) {
+        console.warn('my_stock is empty or undefined.');
+        indicator.value = my_indicator;
+    }
+
+    my_stock.forEach(item => {
+        my_indicator.total_QB += item.box_model === 'HB' ? item.quantity : 0; 
+        my_indicator.total_HB += item.box_model === 'QB' ? item.quantity : 0;
+        my_indicator.total_stems += item.tot_stem_flower;
+        if (!my_indicator.total_suppliers.includes(item.partner.name)) {
+                my_indicator.total_suppliers.push(item.partner.name);
+        }
+    });
+    console.log(my_indicator);
+    indicator.value = my_indicator; // no fuciona
+}
+
+const handleKeydown = (event, index, cssClass) => {
+    const inputs = document.querySelectorAll(cssClass);
     const currentIndex = Array.prototype.indexOf.call(inputs, event.target);
     if (event.key === 'Enter' && currentIndex < inputs.length - 1) {
         inputs[currentIndex + 1].focus();
@@ -21,16 +57,10 @@ const handleKeydown = (event, index) => {
     }
 }
 
-const handleKeydown2 = (event, index) => {
-    const inputs = document.querySelectorAll('.my-input-2');
-    const currentIndex = Array.prototype.indexOf.call(inputs, event.target);
-    if (event.key === 'Enter' && currentIndex < inputs.length - 1) {
-        inputs[currentIndex + 1].focus();
-    }
-    if (event.key === 'Enter' && event.shiftKey   && currentIndex > 0) {
-        inputs[currentIndex - 1].focus();
-    }
-}
+
+onMounted(function(){
+    stockIdicator();
+})
 
 </script>
 <template>
@@ -68,7 +98,17 @@ const handleKeydown2 = (event, index) => {
                         Proveedores
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        12
+                        <span v-if="indicator.total_suppliers">
+                            {{ indicator.total_suppliers.length }}
+                        </span>
+                    </span>
+                </div>
+                <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
+                    <span class="text-white bg-blue-600 ps-1 pe-2">
+                        Pedidos
+                    </span>
+                    <span class="text-blue-600 ps-1 pe-2">
+                        8
                     </span>
                 </div>
                 <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
@@ -76,21 +116,21 @@ const handleKeydown2 = (event, index) => {
                         QB's
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        5
+                        {{ indicator.total_QB }}
                     </span>
                 </div><div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                     <span class="text-white bg-blue-600 ps-1 pe-2">
                         HB's
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        5
+                        {{ indicator.total_HB }}
                     </span>
                 </div><div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                     <span class="text-white bg-blue-600 ps-1 pe-2">
                         Tallos
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        52254
+                        {{ indicator.total_stems }}
                     </span>
                 </div>
             </div>
@@ -133,35 +173,65 @@ const handleKeydown2 = (event, index) => {
                 <thead>
                     <tr class="text-center">
                         <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Cant</th>
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Productos</th>
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Proveedor</th>
                         <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Tallos</th>
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Costo</th>
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Margen</th>
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">PVP</th>
+                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Proveedor</th>
+                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Colores</th>
+                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50 d-flex justify-content-between gap-3">
+                            <section class="pl-5">
+                            </section>
+                            <section class="d-flex gap-3 justify-content-between w-50">
+                                <span>Productos</span>
+                                <span>Tallos</span>
+                                <span>Costo</span>
+                                <span>Margen</span>
+                                <span>Total</span>
+                            </section>
+                        </th>
                         <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-settings"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></svg>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                        <tr v-for="item in listado" :key="item">
-                            <td class="p-0 text-start ps-3">{{ item.cant }} QB</td>
-                            <td class="p-0 d-flex flex-column justify-content-start text-start">
-                            <span> Explorer </span>
+                        <tr v-for="item in my_stock" :key="item">
+                            <td class="p-1 text-start ps-3">
+                                {{ item.quantity }} {{ item.box_model }}
                             </td>
-                            <td class="p-0 text-start">Finca Las Moras</td>
-                            <td class="p-0 text-end">
-                                {{  item * 3 }}
+                            <td class="p-1 text-end">
+                                {{ item.tot_stem_flower }}
                             </td>
-                            <td class="p-0 text-end">
-                                <input type="number" step="0.01" class="my-input-2 border" v-model="item.pvp" @focus="selectText"  @keydown="handleKeydown2($event, index)">
+                            <td class="p-1 text-start">
+                                {{ item.partner.name }}
+                                <i v-if="item.partner.is_profit_margin_included" class="text-info" title="Incluye margen de beneficio">
+                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-pin-end"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 11v-5a1 1 0 0 0 -1 -1h-16a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h9" /><path d="M19 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M10 13v-4h4" /><path d="M14 13l-4 -4" /></svg>
+                                </i>
                             </td>
-                            <td class="p-0 text-end bg-green-100">
-                                <input type="number" step="0.01" class="my-input border" v-model="item.pvp" @focus="selectText"  @keydown="handleKeydown($event, index)">
+                            <td class="p-1">
+                                <section v-for="box in item.box_items" :key="box" class="d-flex gap-1">
+                                <div  class="d-flex gap-1">
+                                        <small v-for="color in box.product_colors" :key="color" class="badge text-slate-500 border-sky-500" :class="colors[color]">
+                                            {{ color }}
+                                        </small>
+                                    </div>
+                                    </section>
                             </td>
-                            <td class="p-0 text-end bg-green-100">0.31</td>
-                            <td class="p-0 text-center">
+                            <td class="p-1">
+                                <section v-for="box in item.box_items" :key="box" class="text-end d-flex justify-content-end gap-2">
+                                    <span>
+                                        <small class="badge border-gray-300 text-gray-400">{{ box.product_id }}</small> {{ box.product_name }}
+                                    </span>
+                                    <span> {{ box.product_variety }} </span>
+                                    <span class="text-slate-300">|</span>
+                                    <input type="number" class="my-input-3 w-15 text-end" @keydown="event => handleKeydown(event, index, '.my-input-3')" @focus="selectText" v-model="qty_stem_flower">
+                                    <span class="text-slate-300">|</span>
+                                    <input type="number" class="my-input w-15 text-end" @keydown="event => handleKeydown(event, index, 'my-input')" @focus="selectText" v-model="box.stem_cost_price">
+                                    <input type="number" class="my-input-2 w-15 text-end" @keydown="event => handleKeydown2(event, index, 'my-input-2')" @focus="selectText" v-model="box.margin">
+                                    <span class="text-gray-600 fw-semibold border-gray-300 w-15 text-end">
+                                        {{  (box.margin +  box.stem_cost_price).toFixed(2) }}
+                                    </span>
+                                </section>
+                            </td>
+                            <td class="p-1 text-center">
                                 <input type="checkbox" name="" id="">
                             </td>
                         </tr>
@@ -178,8 +248,16 @@ const handleKeydown2 = (event, index) => {
         height: 15px;
     }
     .my-input {
-        width: 30%;
-        height: 20px;
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        text-align: right;
+    }
+    .my-input-2 {
+        border: 1px solid #ccc;
+        border-radius: 2px;
+        text-align: right;
+    }
+    .my-input-3 {
         border: 1px solid #ccc;
         border-radius: 2px;
         text-align: right;
