@@ -28,23 +28,29 @@ class StockDetailAPI(View):
 
         for stock in stock_details:
             box_items = BoxItems.get_box_items(stock)
+            have_margin = True if stock.partner.default_profit_margin else False
+            margin = float(stock.partner.default_profit_margin)
+
             item = {
                 'stock_detail_id': stock.id,
                 'box_items': [],
                 'quantity': stock.quantity,
+                'is_visible': True,
+                'is_selected': False,
+                'is_in_order': False,
                 'box_model': stock.box_model,
                 'tot_stem_flower': stock.tot_stem_flower,
                 'stem_cost_price_box': float(stock.stem_cost_price_box),
                 'id_user_created': stock.id_user_created,
                 'is_active': stock.is_active,
-                'parner': {
+                'partner': {
                     'id': stock.partner.id,
                     'name': stock.partner.name,
                     'business_tax_id': stock.partner.business_tax_id,
                     'address': stock.partner.address,
                     'city': stock.partner.city,
-                    'default_profit_margin': float(stock.partner.default_profit_margin),
-                    'is_profit_margin_included': float(stock.partner.is_profit_margin_included),
+                    'default_profit_margin': margin,
+                    'is_profit_margin_included': have_margin,
                     'website': stock.partner.website,
                     'credit_term': stock.partner.credit_term,
                     'skype': stock.partner.skype,
@@ -55,19 +61,22 @@ class StockDetailAPI(View):
             }
 
             for box in box_items:
+                cost_product = float(box.stem_cost_price)
+                url_image = box.product.image.url if box.product.image else ''
+                colors = box.product.colors.split(',') if box.product.colors else []
                 item_box = {
                     'id': box.id,
                     'stock_detail_id': box.stock_detail_id,
                     'product_id': box.product_id,
                     'product_name': box.product.name,
                     'product_variety': box.product.variety,
-                    'product_image': box.product.image.url if box.product.image else '',
-                    'product_colors': box.product.colors,
-                    'product_default_profit_margin': float(box.product.default_profit_margin),
+                    'product_image': url_image,
+                    'product_colors': colors,
                     'product_notes': box.product.notes,
                     'length': box.length,
                     'qty_stem_flower': box.qty_stem_flower,
-                    'stem_cost_price': float(box.stem_cost_price),
+                    'stem_cost_price': cost_product,
+                    'margin': margin if have_margin else float(0),
                     'is_active': box.is_active
                 }
                 item['box_items'].append(item_box)
