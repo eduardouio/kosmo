@@ -223,7 +223,6 @@ onMounted(function(){
                                     <span> {{ box.product_variety }} </span>
                                     <span class="text-slate-300">|</span>
                                     <input type="number" class="my-input-3 w-15 text-end" @keydown="event => handleKeydown(event, index, '.my-input-3')" @focus="selectText" v-model="qty_stem_flower">
-                                    <span class="text-slate-300">|</span>
                                     <input type="number" class="my-input w-15 text-end" @keydown="event => handleKeydown(event, index, 'my-input')" @focus="selectText" v-model="box.stem_cost_price">
                                     <input type="number" class="my-input-2 w-15 text-end" @keydown="event => handleKeydown2(event, index, 'my-input-2')" @focus="selectText" v-model="box.margin">
                                     <span class="text-gray-600 fw-semibold border-gray-300 w-15 text-end">
