@@ -82,6 +82,12 @@ class StockDetail(BaseModel):
         decimal_places=2,
         default=0.00
     )
+    profit_margin = models.DecimalField(
+        'Margen de Ganancia',
+        max_digits=5,
+        decimal_places=2,
+        default=0.06
+    )
 
     @classmethod
     def get_by_stock_day(cls, stock_day):
@@ -161,6 +167,12 @@ class BoxItems(BaseModel):
         'Precio de costo Tallo',
         max_digits=10,
         decimal_places=2
+    )
+    profit_margin = models.DecimalField(
+        'Margen de Ganancia',
+        max_digits=5,
+        decimal_places=2,
+        default=0.06
     )
 
     @classmethod

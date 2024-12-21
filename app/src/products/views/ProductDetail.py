@@ -35,5 +35,6 @@ class ProductDetailView(LoginRequiredMixin, DetailView):
     def get_object(self):
         '''Access the object and split the colors'''
         object = super().get_object()
-        object.colors = object.colors.split(',')
+        if object.colors:
+            object.colors = object.colors.split(',')
         return object
