@@ -2,24 +2,23 @@
 import { ref } from 'vue'
 import { reactive } from 'vue';
 import { onMounted } from 'vue'
-import stock from '../data/stock.json'
+import { useStockStore } from '@/stores/stock';
+import { useColorsStore } from '@/stores/colors';
+import ModalProduct from '@/components/ModalProduct.vue';
+
 
 const indicator = ref({})
+const stockStore = useStockStore();
+const colorsStore = useColorsStore();
+stockStore.setData();
+const my_stock = stockStore.stock;
+const colors = colorsStore.colors;
+const productSelected = ref(null);
 
-const my_stock = reactive(stock.stock)
-const colors = ref({
-    'AMARILLO': 'bg-yellow-400 bg-gradient',
-    'CREMA': 'bg-amber-400 bg-gradient',
-    'ROJO': 'bg-red-400 bg-gradient',
-    'BLANCO': 'bg-light',
-    'TINTURADO': 'bg-gray-400 bg-gradient',
-    'NARANJA': 'bg-orange-400 bg-gradient',
-    'VIOLETA': 'bg-indigo-400 bg-gradient',
-    'MORADO': 'bg-indigo-400 bg-gradient',
-})
+console.log(colors);
 
 const selectText = (event) => {
-    event.target.select()
+    event.target.select();
 }
 
 const stockIdicator = (quantity) => {
@@ -218,7 +217,13 @@ onMounted(function(){
                             <td class="p-1">
                                 <section v-for="box in item.box_items" :key="box" class="text-end d-flex justify-content-end gap-2">
                                     <span>
-                                        <small class="badge border-gray-300 text-gray-400">{{ box.product_id }}</small> {{ box.product_name }}
+                                        <small @click="productSelected=box" class="badge border-gray-400 text-gray-500" data-bs-toggle="modal" data-bs-target="#productModal">
+                                            <i class="text-primary">
+                                                <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                            </i>
+                                            {{ box.product_id }}
+                                        </small>
+                                        {{ box.product_name }}
                                     </span>
                                     <span> {{ box.product_variety }} </span>
                                     <span class="text-slate-300">|</span>
@@ -239,6 +244,7 @@ onMounted(function(){
         </div>
         </div>
         </div>
+            <ModalProduct :product="productSelected"/>
         </div>
 </template>
 <style scoped>
