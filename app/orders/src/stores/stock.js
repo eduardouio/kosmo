@@ -10,7 +10,7 @@ export const useStockStore = defineStore('stockStore', {
     actions: {
       async loadData(){
         console.log('Cargando datos Remotos');
-        const response = await fetch(`${appConfig.apiBaseUrl}/api/stock_detail/${appConfig.idStock}/`);
+        const response = await fetch(appConfig.urlDispo);
         const data = await response.json();
         this.stock = data;
         this.is_loading = false;
