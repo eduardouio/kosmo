@@ -173,13 +173,15 @@ class Partner(BaseModel):
     @classmethod
     def get_customers(cls):
         return cls.objects.filter(
-            type_partner='CLIENTE'
+            type_partner='CLIENTE',
+            is_active=True
         )
 
     @classmethod
     def get_suppliers(cls):
         return cls.objects.filter(
-            type_partner='PROVEEDOR'
+            type_partner='PROVEEDOR',
+            is_active=True
         )
 
     @classmethod
