@@ -16,7 +16,7 @@ export const useBaseStore = defineStore("baseStore", {
         is_loading: true,
     }),
     actions: {
-      async loadData(){
+      async loadSupp(){
         console.log('Cargando datos Remotos');
         const response = await fetch(`${appConfig.apiBaseUrl}/api/colors/`);
         const data = await response.json();

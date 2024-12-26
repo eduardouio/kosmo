@@ -1,21 +1,20 @@
 <script setup>
 import { ref } from 'vue'
-import { reactive } from 'vue';
 import { onMounted } from 'vue'
 import { useStockStore } from '@/stores/stock';
-import { useColorsStore } from '@/stores/colors';
+import { useBaseStore } from '@/stores/base';
 import ModalProduct from '@/components/ModalProduct.vue';
+import ModalSuplier from '@/components/ModalSuplier.vue';
 
 
 const indicator = ref({})
 const stockStore = useStockStore();
-const colorsStore = useColorsStore();
+const baseStore = useBaseStore();
 stockStore.setData();
 const my_stock = stockStore.stock;
-const colors = colorsStore.colors;
+const colors = baseStore.colors;
 const productSelected = ref(null);
-
-console.log(colors);
+const suplierSelected = ref(null);
 
 const selectText = (event) => {
     event.target.select();
@@ -200,7 +199,12 @@ onMounted(function(){
                                 {{ item.tot_stem_flower }}
                             </td>
                             <td class="p-1 text-start">
-                                {{ item.partner.name }}
+                                <span @click="suplierSelected=item.partner">
+                                    <i class="text-primary" data-bs-toggle="modal" data-bs-target="#suplierModal">
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                    </i>
+                                    {{ item.partner.name }}
+                                </span>
                                 <i v-if="item.partner.is_profit_margin_included" class="text-info" title="Incluye margen de beneficio">
                                     <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-pin-end"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 11v-5a1 1 0 0 0 -1 -1h-16a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h9" /><path d="M19 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M10 13v-4h4" /><path d="M14 13l-4 -4" /></svg>
                                 </i>
@@ -216,12 +220,11 @@ onMounted(function(){
                             </td>
                             <td class="p-1">
                                 <section v-for="box in item.box_items" :key="box" class="text-end d-flex justify-content-end gap-2">
-                                    <span>
-                                        <small @click="productSelected=box" class="badge border-gray-400 text-gray-500" data-bs-toggle="modal" data-bs-target="#productModal">
+                                    <span @click="productSelected=box">
+                                        <small class="" data-bs-toggle="modal" data-bs-target="#productModal">
                                             <i class="text-primary">
                                                 <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
                                             </i>
-                                            {{ box.product_id }}
                                         </small>
                                         {{ box.product_name }}
                                     </span>
@@ -245,6 +248,7 @@ onMounted(function(){
         </div>
         </div>
             <ModalProduct :product="productSelected"/>
+            <ModalSuplier :suplier="suplierSelected"/>
         </div>
 </template>
 <style scoped>
