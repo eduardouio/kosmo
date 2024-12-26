@@ -12,30 +12,16 @@ export const useBaseStore = defineStore("baseStore", {
                 'TINTURADO': 'bg-gray-400 bg-gradient',
                 'NARANJA': 'bg-orange-400 bg-gradient',
         },
-        supliers:[],
-        is_loading: true,
+        suppliers:[],
+        isLoading: true,
     }),
     actions: {
-      async loadSupp(){
-        console.log('Cargando datos Remotos');
-        const response = await fetch(`${appConfig.apiBaseUrl}/api/colors/`);
+      async loadSuppliers(){
+        if (this.suppliers.length > 0) return;
+        const response = await fetch(appConfig.urlAllSuppliers);
         const data = await response.json();
-        this.colors = data;
-        this.is_loading = false;
+        this.suppliers = data;
+        this.isLoading = false;
       },
-      loadSupliers(){
-        console.log('Cargando datos Remotos');
-        fetch(`${appConfig.apiBaseUrl}/api/supliers/`)
-        .then(response => response.json())
-        .then(data => {
-          this.supliers = data;
-        });
-      },
-      filterData(){
-        console.log('Estamos en filterData');
-        let data = this.colors;
-        let filteredData = data.filter(item => item.stock > 0);
-        return filteredData;
-      }
     },
 });
