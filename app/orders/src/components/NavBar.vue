@@ -1,5 +1,5 @@
 <script setup>
-   import appConfig from '@/AppConfig';
+   import { appConfig } from '@/AppConfig';
 </script>
 <template>
 <nav class="navbar navbar-expand-lg bg-gray bg-gradient border-bottom">

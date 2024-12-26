@@ -1,6 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import appConfig from "@/AppConfig.js"
+import { appConfig } from "@/AppConfig.js"
 import NavBar from "@/components/NavBar.vue"
 import SideBar from './components/SideBar.vue';
 </script>
