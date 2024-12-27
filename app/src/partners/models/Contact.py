@@ -55,6 +55,10 @@ class Contact(BaseModel):
     def get_by_partner(cls, partner):
         return cls.objects.filter(partner=partner)
 
+    @classmethod
+    def get_principal_by_partner(cls, partner):
+        return cls.objects.filter(partner=partner, is_principal=True).first()
+
     def __str__(self):
         return self.name
 
