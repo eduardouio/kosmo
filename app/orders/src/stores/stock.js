@@ -1,22 +1,19 @@
 import { defineStore } from 'pinia';
 import { appConfig } from '@/AppConfig';
-import stock from '@/data/stock.json';
+
 
 export const useStockStore = defineStore('stockStore', {
     state: () => ({
         stock: null,
-        is_loading: true,
     }),
     actions: {
-      async loadData(){
+      async getStock(baseStore){
         console.log('Cargando datos Remotos');
+        baseStore.setLoading(true);
         const response = await fetch(appConfig.urlDispo);
         const data = await response.json();
         this.stock = data;
-        this.is_loading = false;
-      },
-      setData(){
-        this.stock = stock.stock;
+        baseStore.setLoading(false);
       },
       filterData(){
         console.log('Estamos en filterData');

@@ -1,18 +1,24 @@
 <script setup>
-import { ref } from 'vue'
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import ModalProduct from '@/components/ModalProduct.vue';
 import ModalSuplier from '@/components/ModalSuplier.vue';
+import Loader from '@/components/Loader.vue';
 
 
-const indicator = ref({})
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
-stockStore.setData();
-const my_stock = stockStore.stock;
-const colors = baseStore.colors;
+const my_stock = ref(null);
+const colors = ref(null);
+const generalIndicators = ref({
+    total_QB: 0,
+    total_HB: 0,
+    total_stems: 0,
+    total_suppliers: [],
+});
+const stockHeaders = ref(null);
+const ordersByDipo = ref(null);
 const productSelected = ref(null);
 const suplierSelected = ref(null);
 
@@ -20,28 +26,19 @@ const selectText = (event) => {
     event.target.select();
 }
 
-const stockIdicator = (quantity) => {
-    let my_indicator = {
-        'total_QB': 0,
-        'total_HB': 0,
-        'total_stems': 0,
-        'total_suppliers': [],
-    }
+const calcIndicators = (quantity) => {
     if (!my_stock || my_stock.length === 0) {
-        console.warn('my_stock is empty or undefined.');
-        indicator.value = my_indicator;
+        return;
     }
-
+    debugger;
     my_stock.forEach(item => {
-        my_indicator.total_QB += item.box_model === 'HB' ? item.quantity : 0; 
-        my_indicator.total_HB += item.box_model === 'QB' ? item.quantity : 0;
-        my_indicator.total_stems += item.tot_stem_flower;
-        if (!my_indicator.total_suppliers.includes(item.partner.name)) {
-                my_indicator.total_suppliers.push(item.partner.name);
+        generalIndicators.total_QB += item.box_model === 'HB' ? item.quantity : 0;
+        generalIndicators.total_HB += item.box_model === 'QB' ? item.quantity : 0;
+        generalIndicators.total_stems += item.tot_stem_flower;
+        if (!generalIndicators.total_suppliers.includes(item.partner.name)) {
+                generalIndicators.total_suppliers.push(item.partner.name);
         }
     });
-    console.log(my_indicator);
-    indicator.value = my_indicator; // no fuciona
 }
 
 const handleKeydown = (event, index, cssClass) => {
@@ -56,8 +53,11 @@ const handleKeydown = (event, index, cssClass) => {
 }
 
 
-onMounted(function(){
-    stockIdicator();
+onMounted(async()=>{
+    const stockData = await stockStore.getStock(baseStore);
+    my_stock.value = stockData.stock;
+    calcIndicators(my_stock);
+    colors.value = baseStore.colors;
 })
 
 </script>
@@ -67,7 +67,7 @@ onMounted(function(){
             <div class="col d-flex gap-2 justify-content-start align-items-center">
                 <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                     <span class="text-white bg-blue-600 ps-1 pe-2">
-                        Disponibilidad 
+                        Disponibilidad
                     </span>
                     <span class="text-secondary ps-1 pe-2">
                         01/01/2024
@@ -75,7 +75,7 @@ onMounted(function(){
                 </div>
                 <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                     <span class="text-white bg-blue-600 ps-1 pe-2">
-                        Estado 
+                        Estado
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
                         <i class="text-success">
@@ -96,8 +96,8 @@ onMounted(function(){
                         Proveedores
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        <span v-if="indicator.total_suppliers">
-                            {{ indicator.total_suppliers.length }}
+                        <span v-if="generalIndicators.total_suppliers">
+                            {{ generalIndicators.total_suppliers.length }}
                         </span>
                     </span>
                 </div>
@@ -114,21 +114,21 @@ onMounted(function(){
                         QB's
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        {{ indicator.total_QB }}
+                        {{ generalIndicators.total_QB }}
                     </span>
                 </div><div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                     <span class="text-white bg-blue-600 ps-1 pe-2">
                         HB's
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        {{ indicator.total_HB }}
+                        {{ generalIndicators.total_HB }}
                     </span>
                 </div><div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                     <span class="text-white bg-blue-600 ps-1 pe-2">
                         Tallos
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        {{ indicator.total_stems }}
+                        {{ generalIndicators.total_stems }}
                     </span>
                 </div>
             </div>
@@ -163,7 +163,7 @@ onMounted(function(){
                         Armar Pedido
                     </a>
             </div>
-        </div>        
+        </div>
         <div class="row">
             <div class="col">
             <div class="table-responsive">

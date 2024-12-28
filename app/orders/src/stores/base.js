@@ -14,6 +14,7 @@ export const useBaseStore = defineStore("baseStore", {
         },
         suppliers:[],
         isLoading: true,
+        idStock: appConfig.idStock,
     }),
     actions: {
       async loadSuppliers(){
@@ -23,5 +24,8 @@ export const useBaseStore = defineStore("baseStore", {
         this.suppliers = data;
         this.isLoading = false;
       },
+      setLoading(value){
+        this.isLoading = value;
+      }
     },
 });
