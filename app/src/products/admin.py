@@ -1,6 +1,6 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
-from products.models import Product, StockDay, StockDetail
+from products.models import Product, StockDay, StockDetail, BoxItems
 
 
 class ProductAdmin(SimpleHistoryAdmin):
@@ -13,6 +13,23 @@ class ProductAdmin(SimpleHistoryAdmin):
     search_fields = (
         'name',
         'variety',
+    )
+
+
+class BoxItemsAdmin(SimpleHistoryAdmin):
+    list_display = (
+        'id',
+        'stock_detail',
+        'product',
+        'length',
+        'qty_stem_flower',
+        'stem_cost_price',
+        'profit_margin',
+    )
+
+    search_fields = (
+        'stock_detail__stock_day__date',
+        'product__name',
     )
 
 
@@ -42,3 +59,4 @@ class StockDetailAdmin(SimpleHistoryAdmin):
 admin.site.register(Product, ProductAdmin)
 admin.site.register(StockDay, StockAdmin)
 admin.site.register(StockDetail, StockDetailAdmin)
+admin.site.register(BoxItems, BoxItemsAdmin)
