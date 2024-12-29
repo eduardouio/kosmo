@@ -93,6 +93,14 @@ class Order(BaseModel):
     def __str__(self):
         return f"Pedido {self.id} - {self.partner.name}"
 
+    @classmethod
+    def get_orders_by_stock_day(cls, stock_day):
+        # TODO Validar que retorna
+        orders = OrderItems.objects.filter(
+            stock_detail__stock_day=stock_day
+        ).values_list('order', flat=True).distinct()
+        return orders
+
 
 class OrderItems(BaseModel):
     id = models.AutoField(

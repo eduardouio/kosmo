@@ -1,7 +1,7 @@
-import json
 from django.http import JsonResponse
 from django.views import View
 from products.models import StockDetail, StockDay, BoxItems
+from trade.models import Order
 
 
 class StockDetailAPI(View):
@@ -10,7 +10,7 @@ class StockDetailAPI(View):
         if not stock_day:
             return JsonResponse(
                 {
-                    'error': 'Stock day not found'
+                    'error': 'Stock details not found'
                 },
                 status=404
             )
@@ -63,7 +63,8 @@ class StockDetailAPI(View):
             for box in box_items:
                 cost_product = float(box.stem_cost_price)
                 url_image = box.product.image.url if box.product.image else ''
-                colors = box.product.colors.split(',') if box.product.colors else []
+                colors = box.product.colors.split(
+                    ',') if box.product.colors else []
                 item_box = {
                     'id': box.id,
                     'stock_detail_id': box.stock_detail_id,
@@ -82,9 +83,18 @@ class StockDetailAPI(View):
                 item['box_items'].append(item_box)
 
             result_dict.append(item)
+
+        stock_day = StockDay.get_by_id(stock_day_id)
+        orders = Order.get_orders_by_stock_day(stock_day)
         return JsonResponse(
             {
-                'stock': result_dict
+                'stock': result_dict,
+                'stockDay': {
+                    'id': stock_day.id,
+                    'date': stock_day.date,
+                    'is_active': stock_day.is_active,
+                },
+                'orders': [o.id for o in orders],
             },
             status=200
         )
