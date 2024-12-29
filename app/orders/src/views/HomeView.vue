@@ -5,20 +5,30 @@ import { useBaseStore } from '@/stores/base';
 import ModalProduct from '@/components/ModalProduct.vue';
 import ModalSuplier from '@/components/ModalSuplier.vue';
 import Loader from '@/components/Loader.vue';
-
-
+import {
+    IconCheckbox,
+    IconSquare,
+    IconAlertTriangle,
+    IconGenderAndrogyne,
+    IconEye,
+    IconShare,
+    IconLockOpen2,
+    IconLock,
+    IconCurrencyDollar,
+    IconShoppingCart,
+    IconSettings,
+} from '@tabler/icons-vue';
+                           
+                           
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
-const my_stock = ref(null);
 const colors = ref(null);
 const generalIndicators = ref({
     total_QB: 0,
     total_HB: 0,
     total_stems: 0,
     total_suppliers: [],
-});
-const stockHeaders = ref(null);
-const ordersByDipo = ref(null);
+});                        
 const productSelected = ref(null);
 const suplierSelected = ref(null);
 
@@ -27,16 +37,16 @@ const selectText = (event) => {
 }
 
 const calcIndicators = (quantity) => {
+    let my_stock = stockStore.stock;
     if (!my_stock || my_stock.length === 0) {
         return;
     }
-    debugger;
     my_stock.forEach(item => {
-        generalIndicators.total_QB += item.box_model === 'HB' ? item.quantity : 0;
-        generalIndicators.total_HB += item.box_model === 'QB' ? item.quantity : 0;
-        generalIndicators.total_stems += item.tot_stem_flower;
-        if (!generalIndicators.total_suppliers.includes(item.partner.name)) {
-                generalIndicators.total_suppliers.push(item.partner.name);
+        generalIndicators.value.total_QB += item.box_model === 'HB' ? item.quantity : 0;
+        generalIndicators.value.total_HB += item.box_model === 'QB' ? item.quantity : 0;
+        generalIndicators.value.total_stems += item.tot_stem_flower;
+        if (!generalIndicators.value.total_suppliers.includes(item.partner.name)) {
+                generalIndicators.value.total_suppliers.push(item.partner.name);
         }
     });
 }
@@ -52,25 +62,28 @@ const handleKeydown = (event, index, cssClass) => {
     }
 }
 
-
 onMounted(async()=>{
-    const stockData = await stockStore.getStock(baseStore);
-    my_stock.value = stockData.stock;
-    calcIndicators(my_stock);
-    colors.value = baseStore.colors;
+    baseStore.isLoading = true;
+    console.log('iniciando llamada');
+    await stockStore.getStock(baseStore);
+    calcIndicators(stockStore.my_stock);
 })
 
 </script>
 <template>
     <div class="container-fluid p-0">
+        <div class="row" v-if="baseStore.isLoading">
+            <Loader/>
+        </div>
+        <div class="row ps-2" v-else="">
         <div class="row pt-1 pb-3">
-            <div class="col d-flex gap-2 justify-content-start align-items-center">
+            <div class="col d-flex gap-1 justify-content-start align-items-center">
                 <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                     <span class="text-white bg-blue-600 ps-1 pe-2">
                         Disponibilidad
                     </span>
                     <span class="text-secondary ps-1 pe-2">
-                        01/01/2024
+                        {{ stockStore.stockDay.date }}
                     </span>
                 </div>
                 <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
@@ -78,19 +91,18 @@ onMounted(async()=>{
                         Estado
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        <i class="text-success">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-lock-open-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /><path d="M9 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" /><path d="M13 11v-4a4 4 0 1 1 8 0v4" /></svg>
-                        </i>
-                        <i class="text-dark">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-lock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6z" /><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" /><path d="M8 11v-4a4 4 0 1 1 8 0v4" /></svg>
-                        </i>
-                        <span>
+                        <span class="text-success" v-if="stockStore.stockDay.is_active">
+                            <IconLockOpen2 size="20" stroke="1.5"/>
                             Activa
+                        </span>
+                        <span class="text-danger" v-else>
+                            <IconLock size="20" stroke="1.5"/>
+                            Inactiva
                         </span>
                     </span>
                 </div>
             </div>
-            <div class="col d-flex gap-2 justify-content-end align-items-center">
+            <div class="col d-flex gap-1 justify-content-end align-items-center">
                 <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                     <span class="text-white bg-blue-600 ps-1 pe-2">
                         Proveedores
@@ -139,27 +151,23 @@ onMounted(async()=>{
             </div>
             <div class="col-8 d-flex gap-3 justify-content-end">
                     <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package-import"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 21l-8 -4.5v-9l8 -4.5l8 4.5v4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12v9" /><path d="M12 12l-8 -4.5" /><path d="M22 18h-7" /><path d="M18 15l-3 3l3 3" /></svg>
-                        Importar
-                    </a>
-                    <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>
+                        <IconShare size="15" stroke="1.5"/>
                         Compartir
                     </a>
                     <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l3 3l8 -8" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
+                        <IconCheckbox size="15" stroke="1.5"/>
                         Todos
                     </a>
                     <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /></svg>
+                        <IconSquare size="15" stroke="1.5"/>
                         Ninguno
                     </a>
                     <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <svg xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-currency-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.7 8a3 3 0 0 0 -2.7 -2h-4a3 3 0 0 0 0 6h4a3 3 0 0 1 0 6h-4a3 3 0 0 1 -2.7 -2" /><path d="M12 3v3m0 12v3" /></svg>
+                        <IconCurrencyDollar size="15" stroke="1.5"/>
                         Editar
                     </a>
                     <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M13 17h-7v-14h-2" /><path d="M6 5l14 1l-.575 4.022m-4.925 2.978h-8.5" /><path d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" /><path d="M19 21v1m0 -8v1" /></svg>
+                        <IconShoppingCart size="15" stroke="1.5"/>
                         Armar Pedido
                     </a>
             </div>
@@ -186,12 +194,12 @@ onMounted(async()=>{
                             </section>
                         </th>
                         <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
-                                <svg  xmlns="http://www.w3.org/2000/svg"  width="18"  height="18"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-settings"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /></svg>
+                            <IconSettings size="20" stroke="1.5"/>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                        <tr v-for="item in my_stock" :key="item">
+                        <tr v-for="item in stockStore.stock" :key="item">
                             <td class="p-1 text-start ps-3">
                                 {{ item.quantity }} {{ item.box_model }}
                             </td>
@@ -201,13 +209,10 @@ onMounted(async()=>{
                             <td class="p-1 text-start">
                                 <span @click="suplierSelected=item.partner">
                                     <i class="text-primary" data-bs-toggle="modal" data-bs-target="#suplierModal">
-                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                        <IconEye size="15" stroke="1.5"/>
                                     </i>
                                     {{ item.partner.name }}
                                 </span>
-                                <i v-if="item.partner.is_profit_margin_included" class="text-info" title="Incluye margen de beneficio">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-pin-end"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 11v-5a1 1 0 0 0 -1 -1h-16a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h9" /><path d="M19 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M10 13v-4h4" /><path d="M14 13l-4 -4" /></svg>
-                                </i>
                             </td>
                             <td class="p-1">
                                 <section v-for="box in item.box_items" :key="box" class="d-flex gap-1">
@@ -223,7 +228,7 @@ onMounted(async()=>{
                                     <span @click="productSelected=box">
                                         <small class="" data-bs-toggle="modal" data-bs-target="#productModal">
                                             <i class="text-primary">
-                                                <svg  xmlns="http://www.w3.org/2000/svg"  width="15"  height="15"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                                                <IconEye size="15" stroke="1.5"/>
                                             </i>
                                         </small>
                                         {{ box.product_name }}
@@ -249,6 +254,7 @@ onMounted(async()=>{
         </div>
             <ModalProduct :product="productSelected"/>
             <ModalSuplier :suplier="suplierSelected"/>
+        </div>
         </div>
 </template>
 <style scoped>

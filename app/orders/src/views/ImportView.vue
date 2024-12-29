@@ -1,16 +1,15 @@
 <script setup>
+import { ref, onMounted } from 'vue';
 import { useBaseStore } from '@/stores/base';
-import { ref } from 'vue';
+import { appConfig } from '@/AppConfig';
 import Loader from '@/components/Loader.vue';
 import {
     IconCheckbox,
     IconAlertTriangle,
-    IconLock,
-    IconLockOpen,
-    IconEye,
     IconChevronCompactRight,
     IconSparkles,
 } from '@tabler/icons-vue';
+
 
 const storeBase = useBaseStore();
 storeBase.loadSuppliers();
@@ -19,18 +18,39 @@ const stockText = ref('');
 const profitMargin = ref(0.06);
 const appendStock = ref(true);
 
-const analyzeStock = () => {
+const analyzeStock = async () => {
     storeBase.isLoading = true;
-    console.log('Analyze Stock', stockText.value);
-    setTimeout(() => {
+    try {
+        const payload = {
+            idStock: storeBase.idStock,
+            stockText: stockText.value,
+            profitMargin: profitMargin.value,
+            appendStock: appendStock.value,
+            supplier: selectedSupplier.value,
+        };
+
+        const response = await fetch(appConfig.urlAnalyce, {
+            method: 'POST',
+            headers: appConfig.headers,
+            body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+    } catch (error) {
+        console.error("Error en analyzeStock:", error);
+        alert(`Ocurrió un error: ${error.message}`);
+    } finally {
         storeBase.isLoading = false;
-    }, 2000);
+    }
 };
-
-
 </script>
 <template>
     <div class="container-fluid p-0">
+        <div class="row">
         <div class="col">
             <Loader v-if="storeBase.isLoading" />
             <div v-else="">
@@ -46,7 +66,7 @@ const analyzeStock = () => {
                         </div>
                     </div>
                     <div class="col-9">
-                        <select class="form-select form-select-sm border-gray-500" v-model="selectedSupplier">
+                        <select class="form-select form-select-sm border-gray-500" v-model="selectedSupplier" @change="profitMargin = selectedSupplier.default_profit_margin">
                             <option>Seleccionar Proveedor</option>
                             <option v-for="supplier in storeBase.suppliers" :key="supplier" :value="supplier">
                                 {{ supplier.name }}
@@ -189,8 +209,8 @@ const analyzeStock = () => {
                                         No incluido
                                     </span>
                                 </div>
-                                <hr class="w-100 " />
-                                <button class="btn btn-sm btn-default" @click="analyzeStock">
+                                <br/>
+                                <button class="btn btn-default" @click="analyzeStock">
                                     <IconSparkles size="20" stroke="1.5" />
                                     Analizar Stock
                                 </button>
@@ -200,6 +220,7 @@ const analyzeStock = () => {
 
                 </div>
             </div>
+        </div>
         </div>
     </div>
 </template>
