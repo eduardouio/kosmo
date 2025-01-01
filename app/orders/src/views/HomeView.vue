@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import ModalProduct from '@/components/ModalProduct.vue';
@@ -8,8 +8,6 @@ import Loader from '@/components/Loader.vue';
 import {
     IconCheckbox,
     IconSquare,
-    IconAlertTriangle,
-    IconGenderAndrogyne,
     IconEye,
     IconShare,
     IconLockOpen2,
@@ -17,8 +15,9 @@ import {
     IconCurrencyDollar,
     IconShoppingCart,
     IconSettings,
+    IconTrash,
 } from '@tabler/icons-vue';
-                           
+import { IconEmergencyBed } from '@tabler/icons-vue';
                            
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
@@ -67,6 +66,10 @@ onMounted(async()=>{
     console.log('iniciando llamada');
     await stockStore.getStock(baseStore);
     calcIndicators(stockStore.my_stock);
+})
+
+const filterData = computed(() => {
+    return stockStore.stock.filter(item => item.is_visible);
 })
 
 </script>
@@ -146,30 +149,40 @@ onMounted(async()=>{
             </div>
         </div>
         <div class="row d-flex justify-content-start p-1 rounded-1">
-            <div class="col-4">
+            <div class="col-3">
                 <input type="email" class="form-control form-control-sm rounded-1 border-slate-500" placeholder="Buscar">
             </div>
-            <div class="col-8 d-flex gap-3 justify-content-end">
-                    <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <IconShare size="15" stroke="1.5"/>
+            <div class="col-3">
+            </div>
+            <div class="col-6 d-flex gap-3 justify-content-end">
+                    <button class="btn btn-sm btn-default">
+                        <IconShare size="15" stroke="1.5" class="text-sky-600"/>
                         Compartir
-                    </a>
-                    <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <IconCheckbox size="15" stroke="1.5"/>
+                    </button>
+                    <button class="btn btn-sm btn-default">
+                        <IconCheckbox size="15" stroke="1.5" class="text-sky-600"/>
                         Todos
-                    </a>
-                    <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <IconSquare size="15" stroke="1.5"/>
+                    </button>
+                    <button class="btn btn-sm btn-default">
+                        <IconSquare size="15" stroke="1.5" class="text-sky-600"/>
                         Ninguno
-                    </a>
-                    <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <IconCurrencyDollar size="15" stroke="1.5"/>
-                        Editar
-                    </a>
-                    <a href="" class="border-slate-500 p-0 ps-2 pe-2 d-flex gap-2  align-items-center rounded-1 bg-slate-200">
-                        <IconShoppingCart size="15" stroke="1.5"/>
-                        Armar Pedido
-                    </a>
+                    </button>
+                    <button class="btn btn-sm btn-default">
+                        <IconCurrencyDollar size="15" stroke="1.5" class="text-sky-600"/>
+                        Costo
+                    </button>
+                    <button class="btn btn-sm btn-default">
+                        <IconCurrencyDollar size="15" stroke="1.5" class="text-sky-600"/>
+                        Margen
+                    </button>
+                    <button class="btn btn-sm btn-default">
+                        <IconShoppingCart size="15" stroke="1.5" class="text-sky-600"/>
+                        Pedido
+                    </button>
+                    <button class="btn btn-sm btn-default text-danger">
+                        <IconTrash size="15" stroke="1.5"/>
+                        Eliminar
+                    </button>
             </div>
         </div>
         <div class="row">
@@ -199,8 +212,9 @@ onMounted(async()=>{
                     </tr>
                 </thead>
                 <tbody>
-                        <tr v-for="item in stockStore.stock" :key="item">
+                        <tr v-for="item in filterData" :key="item">
                             <td class="p-1 text-start ps-3">
+                                {{ item.is_visible }}
                                 {{ item.quantity }} {{ item.box_model }}
                             </td>
                             <td class="p-1 text-end">
