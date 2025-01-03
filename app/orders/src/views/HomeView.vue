@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import ModalProduct from '@/components/ModalProduct.vue';
@@ -21,6 +21,7 @@ import { IconEmergencyBed } from '@tabler/icons-vue';
                            
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
+const route = useRoute();
 const colors = ref(null);
 const generalIndicators = ref({
     total_QB: 0,
@@ -30,10 +31,19 @@ const generalIndicators = ref({
 });                        
 const productSelected = ref(null);
 const suplierSelected = ref(null);
+const querySearch = ref('');
 
 const selectText = (event) => {
     event.target.select();
 }
+
+watch(
+    () => querySearch.value,
+    (newValue) => {
+        stockStore.filterStock(newValue);
+    },
+    { immediate: true }
+);
 
 const calcIndicators = (quantity) => {
     let my_stock = stockStore.stock;
@@ -50,7 +60,7 @@ const calcIndicators = (quantity) => {
     });
 }
 
-const handleKeydown = (event, index, cssClass) => {
+const handleKeydown = (event, cssClass) => {
     const inputs = document.querySelectorAll(cssClass);
     const currentIndex = Array.prototype.indexOf.call(inputs, event.target);
     if (event.key === 'Enter' && currentIndex < inputs.length - 1) {
@@ -61,17 +71,38 @@ const handleKeydown = (event, index, cssClass) => {
     }
 }
 
-onMounted(async()=>{
+const loadData = ()=> {
     baseStore.isLoading = true;
-    console.log('iniciando llamada');
-    await stockStore.getStock(baseStore);
+    stockStore.getStock(baseStore);
     calcIndicators(stockStore.my_stock);
-})
+};
 
 const filterData = computed(() => {
     return stockStore.stock.filter(item => item.is_visible);
 })
 
+const formatNumber = (event) => {
+    let value = event.target.value;
+    value = value.replace(',', '.');
+    if (value === '' || value === '.' || value === ',' || isNaN(value) || value < 0 || value === ' ' || value === '0') {
+        event.target.value = '0.00';
+        return;
+    }
+    event.target.value = parseFloat(value).toFixed(2);
+}
+
+const formatInteger = (event) => {
+    let value = event.target.value;
+    value = value.replace(',', '.');
+    if (value === '' || value === '.' || value === ',' || isNaN(value) || value < 0 || value === ' ' || value === '0') {
+        event.target.value = '0';
+        return;
+    }
+    event.target.value = parseInt(value);
+}
+
+
+loadData();
 </script>
 <template>
     <div class="container-fluid p-0">
@@ -150,7 +181,11 @@ const filterData = computed(() => {
         </div>
         <div class="row d-flex justify-content-start p-1 rounded-1">
             <div class="col-3">
-                <input type="email" class="form-control form-control-sm rounded-1 border-slate-500" placeholder="Buscar">
+                <input type="text"
+                class="form-control form-control-sm rounded-1 border-slate-500" 
+                placeholder="Buscar"
+                v-model="querySearch"
+                >
             </div>
             <div class="col-3">
             </div>
@@ -214,7 +249,6 @@ const filterData = computed(() => {
                 <tbody>
                         <tr v-for="item in filterData" :key="item">
                             <td class="p-1 text-start ps-3">
-                                {{ item.is_visible }}
                                 {{ item.quantity }} {{ item.box_model }}
                             </td>
                             <td class="p-1 text-end">
@@ -249,11 +283,11 @@ const filterData = computed(() => {
                                     </span>
                                     <span> {{ box.product_variety }} </span>
                                     <span class="text-slate-300">|</span>
-                                    <input type="number" class="my-input-3 w-15 text-end" @keydown="event => handleKeydown(event, index, '.my-input-3')" @focus="selectText" v-model="qty_stem_flower">
-                                    <input type="number" class="my-input w-15 text-end" @keydown="event => handleKeydown(event, index, 'my-input')" @focus="selectText" v-model="box.stem_cost_price">
-                                    <input type="number" class="my-input-2 w-15 text-end" @keydown="event => handleKeydown2(event, index, 'my-input-2')" @focus="selectText" v-model="box.margin">
+                                    <input type="number" step="1" class="my-input w-15 text-end" @keydown="event => handleKeydown(event, '.my-input')" @focus="selectText" @change="formatInteger" v-model="box.qty_stem_flower">
+                                    <input type="number" step="0.01" class="my-input-2 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-2')" @focus="selectText" @change="formatNumber"  v-model="box.stem_cost_price">
+                                    <input type="number" step="0.01" class="my-input-3 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-3')" @focus="selectText" @change="formatNumber" v-model="box.margin">
                                     <span class="text-gray-600 fw-semibold border-gray-300 w-15 text-end">
-                                        {{  (box.margin +  box.stem_cost_price).toFixed(2) }}
+                                        {{ (box.margin +  box.stem_cost_price).toFixed(2) }}
                                     </span>
                                 </section>
                             </td>
@@ -276,17 +310,7 @@ const filterData = computed(() => {
         width: 15px;
         height: 15px;
     }
-    .my-input {
-        border: 1px solid #ccc;
-        border-radius: 2px;
-        text-align: right;
-    }
-    .my-input-2 {
-        border: 1px solid #ccc;
-        border-radius: 2px;
-        text-align: right;
-    }
-    .my-input-3 {
+    .my-input, .my-input-2, .my-input-3 {
         border: 1px solid #ccc;
         border-radius: 2px;
         text-align: right;

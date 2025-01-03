@@ -26,10 +26,19 @@ export const useStockStore = defineStore('stockStore', {
         );
         this.suppliers = suppliers.map(item =>({...item, is_selected: false}));
       },
-      filterData(query){
-        let data = this.stock;
-        let filteredData = data.filter(item => item.stock > 0);
-        return filteredData;
+      filterStock(querySearch){
+        if (!querySearch){
+          if( this.stock){
+            this.stock.forEach(item => item.is_visible = true);
+          }
+          return;
+        }
+        console.log('filterStock');
+        this.stock.forEach(item => {
+          item.box_items.forEach(subItem => {
+            item.is_visible = subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase());
+          });
+        });
       },
       filterBySupplier(){
         console.log('filterBySupplier');
