@@ -35,6 +35,21 @@ const buttonsVisibility = ref({
     order: false,
     delete: false,
 });
+const confirmDelete = ref(false);
+
+
+// METHODS
+
+const deleteSelected = () => {
+    if (!confirmDelete.value) {
+        confirmDelete.value = true;
+        return;
+    }
+    stockStore.deleteSelected();
+    setVibilityButtons();
+    calcIndicators();
+    confirmDelete.value = false;
+}
 
 const setVibilityButtons = () => {
     let haveSelected = stockStore.stock.some(item => item.is_selected);
@@ -59,7 +74,9 @@ const setVibilityButtons = () => {
         order: false,
         delete: false,
     }
+    confirmDelete.value = false;
 }
+
 
 const selectText = (event) => {
     event.target.select();
@@ -132,7 +149,7 @@ const calcTotalStems = (box_items) => {
     box_items.forEach(item => {
         total += item.qty_stem_flower;
     });
-    return total;    
+    return total;
 }
 
 // Computed
@@ -145,6 +162,7 @@ watch(
     () => querySearch.value,
     (newValue) => {
         stockStore.filterStock(newValue);
+        confirmDelete.value = false;
     },
     { immediate: true }
 );
@@ -235,9 +253,14 @@ loadData();
                 >
             </div>
             <div class="col-9 d-flex gap-3 justify-content-end">
-                    <button class="btn btn-sm btn-default text-danger" v-if="buttonsVisibility.delete">
+                    <button class="btn btn-sm btn-default text-danger" v-if="buttonsVisibility.delete" @click="deleteSelected">
                         <IconTrash size="15" stroke="1.5"/>
-                        Eliminar
+                        <span v-if="!confirmDelete">
+                            Eliminar
+                        </span>
+                        <span v-else="">
+                            Confirmar Borrado
+                        </span>
                     </button>
                     <button class="btn btn-sm btn-default" v-if="buttonsVisibility.share">
                         <IconShare size="15" stroke="1.5"/>

@@ -10,6 +10,7 @@ export const appConfig = {
     "urlDispo": apiBaseUrl + "/api/stock_detail/" + idStockDay + "/",
     "urlAnalyce": apiBaseUrl + "/api/analize_stock_text/",
     "urlAllSuppliers": apiBaseUrl + "/api/partners/all-supliers/",
+    'urlDeleteStockDetail': apiBaseUrl + "/api/delete_stock_detail/",
     "headers": {
         'Accept': 'application/json',
         'Content-Type': 'application/json',

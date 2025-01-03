@@ -33,7 +33,6 @@ export const useStockStore = defineStore('stockStore', {
           }
           return;
         }
-        console.log('filterStock');
         this.stock.forEach(item => {
           item.box_items.forEach(subItem => {
             item.is_visible = subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase());
@@ -41,7 +40,6 @@ export const useStockStore = defineStore('stockStore', {
         });
       },
       selectAll(option){
-        console.log('selectAll');
         this.stock.forEach(item => {
           if( item.is_visible === true){
             item.is_selected = option;
@@ -49,7 +47,6 @@ export const useStockStore = defineStore('stockStore', {
         });
       },
       filterBySupplier(){
-        console.log('filterBySupplier');
         let selectedSuppliers = this.suppliers.filter(
           item => item.is_selected)
           .map(item => item.id);
@@ -57,6 +54,17 @@ export const useStockStore = defineStore('stockStore', {
         this.stock.forEach(item => {
           item.is_visible = selectedSuppliers.includes(item.partner.id);
       });
+      },
+      async deleteSelected(){
+        let toDelete = this.stock.filter(item => item.is_selected);
+        this.stock = this.stock.filter(item => !item.is_selected);
+        const response = await fetch(appConfig.urlDeleteStockDetail, {
+          method: 'POST',
+          headers: appConfig.headers,
+          body: JSON.stringify(toDelete)
+        });
+        const data = await response.json();
+        console.dir(data);
       },
       selectAllSuppliers(select=false){
         this.suppliers = this.suppliers.map(item => ({...item, is_selected: select}));
