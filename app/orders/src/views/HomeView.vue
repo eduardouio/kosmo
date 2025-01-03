@@ -110,7 +110,7 @@ const loadData = ()=> {
 const formatNumber = (event) => {
     let value = event.target.value;
     value = value.replace(',', '.');
-    if (value === '' || value === '.' || value === ',' || isNaN(value) || value < 0 || value === ' ' || value === '0') {
+    if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
         event.target.value = '0.00';
         return;
     }
@@ -120,7 +120,7 @@ const formatNumber = (event) => {
 const formatInteger = (event) => {
     let value = event.target.value;
     value = value.replace(',', '.');
-    if (value === '' || value === '.' || value === ',' || isNaN(value) || value < 0 || value === ' ' || value === '0') {
+    if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
         event.target.value = '0';
         return;
     }
@@ -141,7 +141,6 @@ const filterData = computed(() => {
 })
 
 // Watchers
-
 watch(
     () => querySearch.value,
     (newValue) => {
@@ -241,27 +240,27 @@ loadData();
                         Eliminar
                     </button>
                     <button class="btn btn-sm btn-default" v-if="buttonsVisibility.share">
-                        <IconShare size="15" stroke="1.5" class="text-sky-600"/>
+                        <IconShare size="15" stroke="1.5"/>
                         Compartir
                     </button>
                     <button class="btn btn-sm btn-default" v-if="buttonsVisibility.cost">
-                        <IconCurrencyDollar size="15" stroke="1.5" class="text-sky-600"/>
+                        <IconCurrencyDollar size="15" stroke="1.5"/>
                         Costo
                     </button>
                     <button class="btn btn-sm btn-default" v-if="buttonsVisibility.margin">
-                        <IconCurrencyDollar size="15" stroke="1.5" class="text-sky-600"/>
+                        <IconCurrencyDollar size="15" stroke="1.5"/>
                         Margen
                     </button>
                     <button class="btn btn-sm btn-default" v-if="buttonsVisibility.order">
-                        <IconShoppingCart size="15" stroke="1.5" class="text-sky-600"/>
+                        <IconShoppingCart size="15" stroke="1.5"/>
                         Pedido
                     </button>
                     <button class="btn btn-sm btn-default" v-if="buttonsVisibility.all" @click="stockStore.selectAll(true);setVibilityButtons()">
-                        <IconCheckbox size="15" stroke="1.5" class="text-sky-600"/>
+                        <IconCheckbox size="15" stroke="1.5"/>
                         Todos
                     </button>
                     <button class="btn btn-sm btn-default" v-if="buttonsVisibility.none" @click="stockStore.selectAll(false);setVibilityButtons()">
-                        <IconSquare size="15" stroke="1.5" class="text-sky-600"/>
+                        <IconSquare size="15" stroke="1.5"/>
                         Ninguno
                     </button>
             </div>
@@ -331,7 +330,7 @@ loadData();
                                     <span class="text-slate-300">|</span>
                                     <input type="number" step="1" class="my-input w-15 text-end" @keydown="event => handleKeydown(event, '.my-input')" @focus="selectText" @change="formatInteger" @input="calcIndicators" v-model="box.qty_stem_flower">
                                     <input type="number" step="0.01" class="my-input-2 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-2')" @focus="selectText" @change="formatNumber"  v-model="box.stem_cost_price">
-                                    <input type="number" step="0.01" class="my-input-3 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-3')" @focus="selectText" @change="formatNumber" v-model="box.margin">
+                                    <input type="number" step="0.01" class="my-input-3 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-3')" @focus="selectText" @change="formatNumber" v-model="box.margin" :class="{'bg-danger': parseFloat(box.margin) <= 0.00 }">
                                     <span class="text-gray-600 fw-semibold border-gray-300 w-15 text-end">
                                         {{ (box.margin +  box.stem_cost_price).toFixed(2) }}
                                     </span>
