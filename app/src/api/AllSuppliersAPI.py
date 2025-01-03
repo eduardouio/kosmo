@@ -1,4 +1,3 @@
-import json
 from django.http import JsonResponse
 from django.views import View
 from partners.models import Partner, Contact
@@ -46,7 +45,8 @@ class AllSuppliersAPI(View):
                 'email': supplier.email,
                 'phone': supplier.phone,
                 'is_active': supplier.is_active,
-                'contact': contact_dict
+                'contact': contact_dict,
+                'is_selected': False
             }
             result_dict.append(item)
 

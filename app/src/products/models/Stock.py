@@ -90,6 +90,15 @@ class StockDetail(BaseModel):
     )
 
     @classmethod
+    def get_by_id(cls, stock_detail_id):
+        try:
+            return cls.objects.get(
+                pk=stock_detail_id
+            )
+        except ObjectDoesNotExist:
+            return None
+
+    @classmethod
     def get_by_stock_day(cls, stock_day):
         return cls.objects.filter(
             stock_day=stock_day,

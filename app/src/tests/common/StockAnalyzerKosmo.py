@@ -1,24 +1,24 @@
-import pytest
-from common import StockAnalyzer
+import pytest         
+from common import StockAnalyzer 
 from partners.models import Partner
 from products.models import Product
-
-
-@pytest.mark.django_db
-class TestStockAnalyzerKosmo():
-
-    def setup_method(self):
+                                 
+                                 
+@pytest.mark.django_db           
+class TestStockAnalyzerKosmo():  
+                                 
+    def setup_method(self):      
         self.stock_analyzer = StockAnalyzer()
         self.partner = Partner.get_by_parcial_name("kosmo")
-
+                                 
     def test_get_stock_kosm_single(self):
-        stock_entry = """
+        stock_entry = """        
         1qb Freedom 40 x 125 0,30
-        """
-
+        """                      
+                                 
         product = Product.get_by_variety("Freedom")
-
-        spected_data = [{
+                                 
+        spected_data = [{        
             'text_entry': '1qb Freedom 40 x 125 0,30',
             'quantity_box': 1,
             'box_model': 'QB',
