@@ -52,7 +52,7 @@ watch(
         </router-link>
     </div>
     <div v-if="!isLoading">
-    <div class="text-center ms-1 me-1 fw-semibold p-1 bg-gray-200 mb-1">
+    <div class="text-center ms-1 me-1 fw-semibold p-1 bg-gray-100 mb-1">
         <div class="d-flex gap-3 justify-content-between">
             <span class="text-success" @click="stockStore.selectAllSuppliers(true);stockStore.filterBySupplier()">
                 <IconCheckbox size="20" stroke="1.5" />
@@ -66,7 +66,7 @@ watch(
         </div>
     </div>
         <ul class="list-group rounded-0">
-            <li v-for="supplier in stockStore.suppliers" :key="supplier.id" class="list-group-item" :class="{'bg-lime-200': supplier.is_selected}" @click="supplier.is_selected = !supplier.is_selected;stockStore.filterBySupplier()">
+            <li v-for="supplier in stockStore.suppliers" :key="supplier.id" class="list-group-item p-1" :class="{'bg-lime-200': supplier.is_selected}" @click="supplier.is_selected = !supplier.is_selected;stockStore.filterBySupplier()">
                 <IconCheckbox size="20" stroke="1.5" class="float-start" v-if="supplier.is_selected"/>
                 <span class="ps-3" :class="{'fw-semibold': supplier.is_selected}">
                     {{ supplier.name }}
@@ -75,7 +75,7 @@ watch(
         </ul>
     </div>
     <div v-if="!isLoading">
-    <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-gray-200 mb-1 mt-2">
+    <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-gray-100 mb-1 mt-2">
         <div class="d-flex gap-3 justify-content-between">
             <span class="text-success" @click="stockStore.selectAllSuppliers(true);stockStore.filterBySupplier()">
                 <IconCheckbox size="20" stroke="1.5" />

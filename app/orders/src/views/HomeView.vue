@@ -4,6 +4,7 @@ import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import ModalProduct from '@/components/ModalProduct.vue';
 import ModalSuplier from '@/components/ModalSuplier.vue';
+import ModalShareStock from '@/components/ModalShareStock.vue';
 import Loader from '@/components/Loader.vue';
 import {
     IconCheckbox,
@@ -53,6 +54,7 @@ const deleteSelected = () => {
 
 const setVibilityButtons = () => {
     let haveSelected = stockStore.stock.some(item => item.is_selected);
+    stockStore.stockToText();
     if (haveSelected) {
         buttonsVisibility.value = {
             share: true,
@@ -158,9 +160,7 @@ const filterData = computed(() => {
 })
 
 // Watchers
-watch(
-    () => querySearch.value,
-    (newValue) => {
+watch(() => querySearch.value,(newValue) => {
         stockStore.filterStock(newValue);
         confirmDelete.value = false;
     },
@@ -262,7 +262,7 @@ loadData();
                             Confirmar Borrado
                         </span>
                     </button>
-                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.share">
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.share" data-bs-toggle="modal" data-bs-target="#shareModal">
                         <IconShare size="15" stroke="1.5"/>
                         Compartir
                     </button>
@@ -342,7 +342,7 @@ loadData();
                             <td class="p-1">
                                 <section v-for="box in item.box_items" :key="box" class="text-end d-flex justify-content-end gap-2">
                                     <span @click="productSelected=box">
-                                        <small class="" data-bs-toggle="modal" data-bs-target="#productModal">
+                                        <small data-bs-toggle="modal" data-bs-target="#productModal">
                                             <i class="text-primary">
                                                 <IconEye size="15" stroke="1.5"/>
                                             </i>
@@ -355,7 +355,7 @@ loadData();
                                     <input type="number" step="0.01" class="my-input-2 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-2')" @focus="selectText" @change="formatNumber"  v-model="box.stem_cost_price">
                                     <input type="number" step="0.01" class="my-input-3 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-3')" @focus="selectText" @change="formatNumber" v-model="box.margin" :class="{'bg-danger': parseFloat(box.margin) <= 0.00 }">
                                     <span class="text-gray-600 fw-semibold border-gray-300 w-15 text-end">
-                                        {{ (box.margin +  box.stem_cost_price).toFixed(2) }}
+                                        {{ (parseFloat(box.margin) +  parseFloat(box.stem_cost_price)).toFixed(2) }}
                                     </span>
                                 </section>
                             </td>
@@ -370,6 +370,7 @@ loadData();
         </div>
             <ModalProduct :product="productSelected"/>
             <ModalSuplier :suplier="suplierSelected"/>
+            <ModalShareStock/>
         </div>
         </div>
 </template>

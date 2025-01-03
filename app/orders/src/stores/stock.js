@@ -5,6 +5,7 @@ import { appConfig } from '@/AppConfig';
 export const useStockStore = defineStore('stockStore', {
     state: () => ({
         stock: null,
+        stockText: 'Sin Seleccion',
         orders: [],
         stockDay: null,
         suppliers: [],
@@ -45,6 +46,7 @@ export const useStockStore = defineStore('stockStore', {
             item.is_selected = option;
           }
         });
+        this.stockToText();
       },
       filterBySupplier(){
         let selectedSuppliers = this.suppliers.filter(
@@ -68,6 +70,21 @@ export const useStockStore = defineStore('stockStore', {
       },
       selectAllSuppliers(select=false){
         this.suppliers = this.suppliers.map(item => ({...item, is_selected: select}));
+      },
+      stockToText(){
+        this.stockText = 'QTY\tBOX\tTOTAL\tSUPPLIER\tPRODUCT\tLENGTH\tQTY\tPRICE\tCOSTBOX\n';
+        let selected = this.stock.filter(item => item.is_selected);
+        selected.forEach(item => {
+          const totalStem = item.box_items.reduce((acc, subItem) => acc + subItem.qty_stem_flower, 0);
+          let line_text = `${item.quantity}\t${item.box_model}\t${totalStem}\t${ item.partner.name}`;
+          item.box_items.forEach(subItem => {
+            let cost = subItem.stem_cost_price + subItem.margin;
+            cost = cost.toFixed(2);
+            line_text += `\t[${subItem.product_variety}\t${subItem.length}CM\t${subItem.qty_stem_flower}\t${cost}]`;
+          });
+          const totalValue = item.box_items.reduce((acc, subItem) => acc + ((subItem.stem_cost_price + subItem.margin) * subItem.qty_stem_flower), 0);
+          this.stockText += line_text + `\t $ ${totalValue.toFixed(2)} \n`;
+        });
       },
     },
   })
