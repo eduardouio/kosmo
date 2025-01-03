@@ -17,11 +17,9 @@ import {
     IconSettings,
     IconTrash,
 } from '@tabler/icons-vue';
-import { IconEmergencyBed } from '@tabler/icons-vue';
                            
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
-const route = useRoute();
 const colors = ref(null);
 const generalIndicators = ref({
     total_QB: 0,

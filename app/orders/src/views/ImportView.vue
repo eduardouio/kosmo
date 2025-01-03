@@ -12,7 +12,6 @@ import {
 
 
 const storeBase = useBaseStore();
-storeBase.loadSuppliers();
 const selectedSupplier = ref(false);
 const stockText = ref('');
 const profitMargin = ref(0.06);
@@ -47,6 +46,10 @@ const analyzeStock = async () => {
         storeBase.isLoading = false;
     }
 };
+
+onMounted(() => {
+    storeBase.loadSuppliers();
+});
 </script>
 <template>
     <div class="container-fluid p-0">
