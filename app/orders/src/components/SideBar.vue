@@ -24,30 +24,29 @@ watch(
 <template>
     <div class="p-2 list-group rounded-0">
         <router-link to="/import" class="list-group-item hover-opacity">
-            <div class="b rounded-1 p-1 text-end text-slate-600 fw-semibold ">
+            <div class="b rounded-1 p-0 text-end text-slate-600 fw-semibold ">
                 Importar Disponibilidad
             </div>
         </router-link>
         <router-link to="/" class="list-group-item hover-opacity">
-            <div class="b rounded-1 p-1 text-end text-slate-600 fw-semibold">
+            <div class="b rounded-1 p-0 text-end text-slate-600 fw-semibold">
                 Disponibilidad Actual
             </div>
         </router-link>
 
         <router-link to="/" class="list-group-item hover-opacity">
-            <div class="rounded-1 p-1 text-end text-slate-600 fw-semibold">
+            <div class="rounded-1 p-0 text-end text-slate-600 fw-semibold">
                 Pedidos de Clientes
             </div>
         </router-link>
         <router-link to="/" class="list-group-item hover-opacity">
-            <div class="rounded-1 p-1 text-end text-slate-600 fw-semibold">
+            <div class="rounded-1 p-0 text-end text-slate-600 fw-semibold">
                 Compras a Proveedor
             </div>
         </router-link>
     </div>
     <div v-if="!isLoading">
-    <hr />
-    <div class="text-center ms-1 me-1 fw-semibold text-slate-600">
+    <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-gray-200 mb-1">
         <div class="d-flex gap-3 justify-content-between">
             <span class="text-success" @click="stockStore.selectAllSuppliers(true);stockStore.filterBySupplier()">
                 <IconCheckbox size="20" stroke="1.5" />
@@ -60,7 +59,6 @@ watch(
             </span>
         </div>
     </div>
-    <hr />
         <ul class="list-group rounded-0">
             <li v-for="supplier in stockStore.suppliers" :key="supplier.id" class="list-group-item" :class="{'bg-lime-200': supplier.is_selected}" @click="supplier.is_selected = !supplier.is_selected;stockStore.filterBySupplier()">
                 <IconCheckbox size="20" stroke="1.5" class="float-start" v-if="supplier.is_selected"/>
@@ -70,7 +68,53 @@ watch(
             </li>
         </ul>
     </div>
-
+    <div v-if="!isLoading">
+    <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-gray-200 mb-1 mt-2">
+        <div class="d-flex gap-3 justify-content-between">
+            <span class="text-success" @click="stockStore.selectAllSuppliers(true);stockStore.filterBySupplier()">
+                <IconCheckbox size="20" stroke="1.5" />
+            </span>
+            <span>
+                COLORES
+            </span>
+            <span class="text-danger" @click="stockStore.selectAllSuppliers(false);stockStore.filterBySupplier()">
+                <IconSquare size="20" stroke="1.5" />
+            </span>
+        </div>
+    </div>
+    <hr />
+        <section class="d-flex flex-wrap gap-2">
+            <span class="badge bg-yellow-300 text-dark border-gray-400">
+                <IconCheckbox size="15" stroke="1.5" />
+                Amarillo
+            </span>
+            <span class="badge bg-blue-300 text-dark border-gray-400">
+                <IconCheckbox size="15" stroke="1.5" />
+                Azul
+            </span>
+            <span class="badge bg-red-300 text-dark border-gray-400">
+                <IconCheckbox size="15" stroke="1.5" />
+                Rojo
+            </span>
+            <span class="badge bg-green-300 text-dark border-gray-400">
+                <IconCheckbox size="15" stroke="1.5" />
+                Verde
+            </span>
+            <span class="badge bg-gray-300 text-dark border-gray-400">
+                <IconCheckbox size="15" stroke="1.5" />
+                Gris
+            </span>
+            <span class="badge bg-purple-300 text-dark border-gray-400">
+                <IconCheckbox size="15" stroke="1.5" />
+                Morado
+            </span>
+            <span class="badge bg-orange-300 text-dark border-gray-400">
+                <IconCheckbox size="15" stroke="1.5" />
+                Naranja
+            </span>
+        
+        </section>
+    </div>
 
 </template>
 

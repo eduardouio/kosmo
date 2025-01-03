@@ -24,7 +24,7 @@ export const useStockStore = defineStore('stockStore', {
         let suppliers = this.stock.map(item => item.partner).filter(
           (value, index, self) => self.findIndex(t => (t.id === value.id)) === index
         );
-        this.suppliers = suppliers.map(item =>({...item, is_selected: false}));
+        this.suppliers = suppliers.map(item =>({...item, is_selected: true}));
       },
       filterStock(querySearch){
         if (!querySearch){
@@ -38,6 +38,14 @@ export const useStockStore = defineStore('stockStore', {
           item.box_items.forEach(subItem => {
             item.is_visible = subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase());
           });
+        });
+      },
+      selectAll(option){
+        console.log('selectAll');
+        this.stock.forEach(item => {
+          if( item.is_visible === true){
+            item.is_selected = option;
+          }
         });
       },
       filterBySupplier(){

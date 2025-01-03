@@ -17,41 +17,71 @@ import {
     IconSettings,
     IconTrash,
 } from '@tabler/icons-vue';
-                           
+
+// VARIABLES
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
 const colors = ref(null);
-const generalIndicators = ref({
-    total_QB: 0,
-    total_HB: 0,
-    total_stems: 0,
-    total_suppliers: [],
-});                        
+const generalIndicators = ref({});                        
 const productSelected = ref(null);
 const suplierSelected = ref(null);
 const querySearch = ref('');
+const buttonsVisibility = ref({
+    share: false,
+    all: true,
+    none: false,
+    cost: false,
+    margin: false,
+    order: false,
+    delete: false,
+});
+
+const setVibilityButtons = () => {
+    let haveSelected = stockStore.stock.some(item => item.is_selected);
+    if (haveSelected) {
+        buttonsVisibility.value = {
+            share: true,
+            all: false,
+            none: true,
+            cost: true,
+            margin: true,
+            order: true,
+            delete: true,
+        }
+        return;
+    }
+    buttonsVisibility.value = {
+        share: false,
+        all: true,
+        none: false,
+        cost: false,
+        margin: false,
+        order: false,
+        delete: false,
+    }
+}
 
 const selectText = (event) => {
     event.target.select();
 }
 
-watch(
-    () => querySearch.value,
-    (newValue) => {
-        stockStore.filterStock(newValue);
-    },
-    { immediate: true }
-);
+const calcIndicators = () => {
+    generalIndicators.value = {
+        total_QB: 0,
+        total_HB: 0,
+        total_stems: 0,
+        total_suppliers: [],
+    }
 
-const calcIndicators = (quantity) => {
-    let my_stock = stockStore.stock;
-    if (!my_stock || my_stock.length === 0) {
+    if (!stockStore.stock || stockStore.stock.length === 0) {
         return;
     }
-    my_stock.forEach(item => {
-        generalIndicators.value.total_QB += item.box_model === 'HB' ? item.quantity : 0;
-        generalIndicators.value.total_HB += item.box_model === 'QB' ? item.quantity : 0;
-        generalIndicators.value.total_stems += item.tot_stem_flower;
+
+    stockStore.stock.forEach(item => {
+        console.log(typeof(item.quantity));
+        generalIndicators.value.total_HB += item.box_model === 'HB' ? item.quantity : 0;
+        generalIndicators.value.total_QB += item.box_model === 'QB' ? item.quantity : 0;
+        generalIndicators.value.total_stems += item.box_items.reduce((acc, box) => acc + box.qty_stem_flower, 0);
         if (!generalIndicators.value.total_suppliers.includes(item.partner.name)) {
                 generalIndicators.value.total_suppliers.push(item.partner.name);
         }
@@ -72,12 +102,10 @@ const handleKeydown = (event, cssClass) => {
 const loadData = ()=> {
     baseStore.isLoading = true;
     stockStore.getStock(baseStore);
-    calcIndicators(stockStore.my_stock);
+    setTimeout(() => {
+        calcIndicators();
+    }, 1000);
 };
-
-const filterData = computed(() => {
-    return stockStore.stock.filter(item => item.is_visible);
-})
 
 const formatNumber = (event) => {
     let value = event.target.value;
@@ -99,6 +127,28 @@ const formatInteger = (event) => {
     event.target.value = parseInt(value);
 }
 
+const calcTotalStems = (box_items) => {
+    let total = 0;
+    box_items.forEach(item => {
+        total += item.qty_stem_flower;
+    });
+    return total;    
+}
+
+// Computed
+const filterData = computed(() => {
+    return stockStore.stock.filter(item => item.is_visible);
+})
+
+// Watchers
+
+watch(
+    () => querySearch.value,
+    (newValue) => {
+        stockStore.filterStock(newValue);
+    },
+    { immediate: true }
+);
 
 loadData();
 </script>
@@ -185,36 +235,34 @@ loadData();
                 v-model="querySearch"
                 >
             </div>
-            <div class="col-3">
-            </div>
-            <div class="col-6 d-flex gap-3 justify-content-end">
-                    <button class="btn btn-sm btn-default">
+            <div class="col-9 d-flex gap-3 justify-content-end">
+                    <button class="btn btn-sm btn-default text-danger" v-if="buttonsVisibility.delete">
+                        <IconTrash size="15" stroke="1.5"/>
+                        Eliminar
+                    </button>
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.share">
                         <IconShare size="15" stroke="1.5" class="text-sky-600"/>
                         Compartir
                     </button>
-                    <button class="btn btn-sm btn-default">
-                        <IconCheckbox size="15" stroke="1.5" class="text-sky-600"/>
-                        Todos
-                    </button>
-                    <button class="btn btn-sm btn-default">
-                        <IconSquare size="15" stroke="1.5" class="text-sky-600"/>
-                        Ninguno
-                    </button>
-                    <button class="btn btn-sm btn-default">
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.cost">
                         <IconCurrencyDollar size="15" stroke="1.5" class="text-sky-600"/>
                         Costo
                     </button>
-                    <button class="btn btn-sm btn-default">
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.margin">
                         <IconCurrencyDollar size="15" stroke="1.5" class="text-sky-600"/>
                         Margen
                     </button>
-                    <button class="btn btn-sm btn-default">
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.order">
                         <IconShoppingCart size="15" stroke="1.5" class="text-sky-600"/>
                         Pedido
                     </button>
-                    <button class="btn btn-sm btn-default text-danger">
-                        <IconTrash size="15" stroke="1.5"/>
-                        Eliminar
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.all" @click="stockStore.selectAll(true);setVibilityButtons()">
+                        <IconCheckbox size="15" stroke="1.5" class="text-sky-600"/>
+                        Todos
+                    </button>
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.none" @click="stockStore.selectAll(false);setVibilityButtons()">
+                        <IconSquare size="15" stroke="1.5" class="text-sky-600"/>
+                        Ninguno
                     </button>
             </div>
         </div>
@@ -250,7 +298,7 @@ loadData();
                                 {{ item.quantity }} {{ item.box_model }}
                             </td>
                             <td class="p-1 text-end">
-                                {{ item.tot_stem_flower }}
+                                {{ calcTotalStems(item.box_items) }}
                             </td>
                             <td class="p-1 text-start">
                                 <span @click="suplierSelected=item.partner">
@@ -281,7 +329,7 @@ loadData();
                                     </span>
                                     <span> {{ box.product_variety }} </span>
                                     <span class="text-slate-300">|</span>
-                                    <input type="number" step="1" class="my-input w-15 text-end" @keydown="event => handleKeydown(event, '.my-input')" @focus="selectText" @change="formatInteger" v-model="box.qty_stem_flower">
+                                    <input type="number" step="1" class="my-input w-15 text-end" @keydown="event => handleKeydown(event, '.my-input')" @focus="selectText" @change="formatInteger" @input="calcIndicators" v-model="box.qty_stem_flower">
                                     <input type="number" step="0.01" class="my-input-2 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-2')" @focus="selectText" @change="formatNumber"  v-model="box.stem_cost_price">
                                     <input type="number" step="0.01" class="my-input-3 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-3')" @focus="selectText" @change="formatNumber" v-model="box.margin">
                                     <span class="text-gray-600 fw-semibold border-gray-300 w-15 text-end">
@@ -290,7 +338,7 @@ loadData();
                                 </section>
                             </td>
                             <td class="p-1 text-center">
-                                <input type="checkbox" name="" id="">
+                                <input type="checkbox" v-model="item.is_selected" @change="setVibilityButtons()">
                             </td>
                         </tr>
                     </tbody>
