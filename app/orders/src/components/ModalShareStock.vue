@@ -1,5 +1,4 @@
 <script setup>
-import {ref, computed} from 'vue';
 import { useBaseStore } from '@/stores/base';
 import { useStockStore } from '@/stores/stock';
 import { IconClipboard, IconX  } from '@tabler/icons-vue';

@@ -6,6 +6,7 @@ import ModalProduct from '@/components/ModalProduct.vue';
 import ModalSuplier from '@/components/ModalSuplier.vue';
 import ModalShareStock from '@/components/ModalShareStock.vue';
 import ModalUpdateValues from '@/components/ModalUpdateValues.vue';
+import ModalEditBox from '@/components/ModalEditBox.vue';
 import Loader from '@/components/Loader.vue';
 import {
     IconCheckbox,
@@ -20,6 +21,7 @@ import {
     IconTrash,
     IconPointFilled,
     IconPoint,
+    IconEdit,
 } from '@tabler/icons-vue';
 
 // VARIABLES
@@ -29,6 +31,7 @@ const colors = ref(null);
 const generalIndicators = ref({});                        
 const productSelected = ref(null);
 const suplierSelected = ref(null);
+const stockItemSeletec = ref(null);
 const querySearch = ref('');
 const buttonsVisibility = ref({
     share: false,
@@ -343,6 +346,7 @@ loadData();
                                 {{ index + 1 }}
                             </td>
                             <td class="p-1 text-start ps-3">
+                                <IconEdit size="15" stroke="1.5" class="text-primary" @click="stockItemSeletec=item" data-bs-toggle="modal" data-bs-target="#editBoxModal"/>
                                 {{ item.quantity }} {{ item.box_model }}
                             </td>
                             <td class="p-1 text-end">
@@ -428,6 +432,7 @@ loadData();
         </div>
             <ModalProduct :product="productSelected"/>
             <ModalSuplier :suplier="suplierSelected"/>
+            <ModalEditBox :stock-item="stockItemSeletec"/>
             <ModalShareStock/>
             <ModalUpdateValues/>
         </div>
