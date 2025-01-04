@@ -10,6 +10,7 @@ export const useStockStore = defineStore('stockStore', {
         orders: [],
         stockDay: null,
         suppliers: [],
+        colors:[],
     }),
     actions: {
       async getStock(baseStore){
@@ -25,6 +26,7 @@ export const useStockStore = defineStore('stockStore', {
         this.stockDay = data.stockDay;
         baseStore.setLoading(false);
         this.extractSuppliers();
+        this.extractColors();
       },
       async updateStockDetail(item){
         const response = await fetch(appConfig.urlUpdateStockDetail, {
@@ -34,6 +36,13 @@ export const useStockStore = defineStore('stockStore', {
         });
         const data = await response.json();
         console.dir(data);
+      },
+      extractColors(){
+        let colors = this.stock.map(item => item.box_items).flat().map(item => item.product_colors)
+        .flat().filter(
+          (value, index, self) => self.findIndex(t => (t === value)) === index
+        );
+        this.colors = colors
       },
       extractSuppliers(){
         let suppliers = this.stock.map(item => item.partner).filter(
@@ -92,7 +101,7 @@ export const useStockStore = defineStore('stockStore', {
           const totalStem = item.box_items.reduce((acc, subItem) => acc + subItem.qty_stem_flower, 0);
           let line_text = `${item.quantity}\t${item.box_model}\t${totalStem}\t${ item.partner.name}`;
           item.box_items.forEach(subItem => {
-            let cost = subItem.stem_cost_price + subItem.margin;
+            let cost = parseFloat(subItem.stem_cost_price) + parseFloat(subItem.margin);
             cost = cost.toFixed(2);
             line_text += `\t[${subItem.product_variety}\t${subItem.length}CM\t${subItem.qty_stem_flower}\t${cost}]`;
           });

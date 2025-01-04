@@ -18,6 +18,7 @@ import {
     IconShoppingCart,
     IconSettings,
     IconTrash,
+    IconPointFilled,
 } from '@tabler/icons-vue';
 
 // VARIABLES
@@ -163,6 +164,16 @@ const filterData = computed(() => {
     return stockStore.stock.filter(item => item.is_visible);
 })
 
+const getClass = (color) => {
+    if (color === null || color === undefined || color === '' || color === ' ') {
+        return baseStore.colors.OTRO;
+    }
+    if (color in baseStore.colors) {
+        return baseStore.colors[color];
+    }
+    return baseStore.colors.OTRO;
+}
+
 // Watchers
 watch(() => querySearch.value,(newValue) => {
         stockStore.filterStock(newValue);
@@ -256,7 +267,10 @@ loadData();
                 v-model="querySearch"
                 >
             </div>
-            <div class="col-9 d-flex gap-3 justify-content-end">
+            <div class="col-2 text-start text-secondary">
+                    {{ stockStore.stock.length }} Registros Totales
+            </div>
+            <div class="col-7 d-flex gap-3 justify-content-end">
                     <button class="btn btn-sm btn-default text-danger" v-if="buttonsVisibility.delete" @click="deleteSelected">
                         <IconTrash size="15" stroke="1.5"/>
                         <span v-if="!confirmDelete">
@@ -306,9 +320,6 @@ loadData();
                         <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
                             Proveedor
                         </th>
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
-                            Colores
-                        </th>
                         <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50 d-flex justify-content-between gap-3">
                             <section class="pl-5">
                             </section>
@@ -345,15 +356,6 @@ loadData();
                                 </span>
                             </td>
                             <td class="p-1">
-                                <section v-for="box in item.box_items" :key="box" class="d-flex gap-1">
-                                <div  class="d-flex gap-1">
-                                        <small v-for="color in box.product_colors" :key="color" class="badge text-slate-500 border-sky-500" :class="colors[color]">
-                                            {{ color }}
-                                        </small>
-                                    </div>
-                                    </section>
-                            </td>
-                            <td class="p-1">
                                 <section v-for="box in item.box_items" :key="box" class="text-end d-flex justify-content-end gap-2">
                                     <span @click="productSelected=box">
                                         <small data-bs-toggle="modal" data-bs-target="#productModal">
@@ -364,6 +366,16 @@ loadData();
                                         {{ box.product_name }}
                                     </span>
                                     <span> {{ box.product_variety }} </span>
+                                    <section v-for="box in item.box_items" :key="box" class="d-flex gap-1">
+                                <div  class="d-flex gap-1">
+                                        <span 
+                                            v-for="color in box.product_colors" 
+                                            :key="color"
+                                            :class="getClass(color)">
+                                            <IconPointFilled size="20" stroke="1.5"/>
+                                        </span>
+                                    </div>
+                                    </section>
                                     <span class="badge bg-blue-100 text-dark border-blue-300">
                                         {{ box.length }}
                                     </span>

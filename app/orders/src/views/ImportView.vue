@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useBaseStore } from '@/stores/base';
 import { appConfig } from '@/AppConfig';
 import Loader from '@/components/Loader.vue';
@@ -16,6 +17,7 @@ const selectedSupplier = ref(false);
 const stockText = ref('');
 const profitMargin = ref(0.06);
 const appendStock = ref(true);
+const route = useRouter();
 
 const analyzeStock = async () => {
     storeBase.isLoading = true;
@@ -38,12 +40,14 @@ const analyzeStock = async () => {
         }
 
         const data = await response.json();
+        console.dir(data);
 
     } catch (error) {
         console.error("Error en analyzeStock:", error);
         alert(`Ocurrió un error: ${error.message}`);
     } finally {
         storeBase.isLoading = false;
+        route.push('/');
     }
 };
 
