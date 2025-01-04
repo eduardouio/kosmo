@@ -1,16 +1,19 @@
 from django.http import JsonResponse
 from django.views import View
 from partners.models import Partner, Contact
+from products.models import StockDetail, StockDay
 
 
 class AllSuppliersAPI(View):
 
     def get(self, request, *args, **kwargs):
+        id_stock = request.GET.get('id_stock', None)
+        stock_day = StockDay.get_by_id(id_stock)
         suppliers = Partner.get_suppliers()
-        if not suppliers:
+        if not suppliers or not stock_day:
             return JsonResponse(
                 {
-                    'error': 'Suppliers not found'
+                    'error': 'Proveedor o Stock no encontrado'
                 },
                 status=404
             )
@@ -29,7 +32,9 @@ class AllSuppliersAPI(View):
                     'email': contact.email,
                     'is_principal': contact.is_principal
                 }
-
+            have_stock = len(StockDetail.get_stock_day_partner(
+                stock_day, supplier)
+            ) > 0
             item = {
                 'id': supplier.id,
                 'name': supplier.name,
@@ -46,7 +51,8 @@ class AllSuppliersAPI(View):
                 'phone': supplier.phone,
                 'is_active': supplier.is_active,
                 'contact': contact_dict,
-                'is_selected': False
+                'is_selected': False,
+                'have_stock': have_stock,
             }
             result_dict.append(item)
 

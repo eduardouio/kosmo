@@ -185,11 +185,8 @@ onMounted(() => {
                             </div>
                             <div class="col-6 pt-2 d-flex flex-column gap-2 align-items-start">
                                 <div class="pt-2 mt-2">
-                                    <div class="alert alert-primary p-1">
+                                    <div class="alert alert-primary p-1" v-if="selectedSupplier.have_stock">
                                         <IconAlertTriangle size="20" stroke="1.5" />
-                                        <span>
-                                            Esta Disponibilidad sera <strong> creada o reeemplazada</strong>
-                                        </span>
                                         <span>
                                             Esta Disponibilidad será <strong> anexado al existente</strong>
                                         </span>

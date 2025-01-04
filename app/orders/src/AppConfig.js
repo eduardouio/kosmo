@@ -9,7 +9,7 @@ export const appConfig = {
     "urlLogo": apiBaseUrl + "/static/img/logo-kosmo.png",
     "urlDispo": apiBaseUrl + "/api/stock_detail/" + idStockDay + "/",
     "urlAnalyce": apiBaseUrl + "/api/analize_stock_text/",
-    "urlAllSuppliers": apiBaseUrl + "/api/partners/all-supliers/",
+    "urlAllSuppliers": apiBaseUrl + "/api/partners/all-supliers/?id_stock=" + idStockDay,
     'urlDeleteStockDetail': apiBaseUrl + "/api/delete_stock_detail/",
     'urlUpdateStockDetail': apiBaseUrl + "/api/update_stock_detail/",
     "headers": {
