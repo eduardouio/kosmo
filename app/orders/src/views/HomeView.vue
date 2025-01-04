@@ -83,7 +83,6 @@ const setVibilityButtons = () => {
     confirmDelete.value = false;
 }
 
-
 const selectText = (event) => {
     event.target.select();
 }
@@ -101,7 +100,6 @@ const calcIndicators = () => {
     }
 
     stockStore.stock.forEach(item => {
-        console.log(typeof(item.quantity));
         generalIndicators.value.total_HB += item.box_model === 'HB' ? item.quantity : 0;
         generalIndicators.value.total_QB += item.box_model === 'QB' ? item.quantity : 0;
         generalIndicators.value.total_stems += item.box_items.reduce((acc, box) => acc + box.qty_stem_flower, 0);
@@ -130,7 +128,7 @@ const loadData = ()=> {
     }, 1000);
 };
 
-const formatNumber = (event) => {
+const formatNumber = (event, box=null) => {
     let value = event.target.value;
     value = value.replace(',', '.');
     if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
@@ -138,9 +136,10 @@ const formatNumber = (event) => {
         return;
     }
     event.target.value = parseFloat(value).toFixed(2);
+    stockStore.updateStockDetail(box);
 }
 
-const formatInteger = (event) => {
+const formatInteger = (event,  box=null) => {
     let value = event.target.value;
     value = value.replace(',', '.');
     if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
@@ -148,6 +147,7 @@ const formatInteger = (event) => {
         return;
     }
     event.target.value = parseInt(value);
+    stockStore.updateStockDetail(box);
 }
 
 const calcTotalStems = (box_items) => {
@@ -350,10 +350,38 @@ loadData();
                                         {{ box.product_name }}
                                     </span>
                                     <span> {{ box.product_variety }} </span>
-                                    <span class="text-slate-300">|</span>
-                                    <input type="number" step="1" class="my-input w-15 text-end" @keydown="event => handleKeydown(event, '.my-input')" @focus="selectText" @change="formatInteger" @input="calcIndicators" v-model="box.qty_stem_flower">
-                                    <input type="number" step="0.01" class="my-input-2 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-2')" @focus="selectText" @change="formatNumber"  v-model="box.stem_cost_price">
-                                    <input type="number" step="0.01" class="my-input-3 w-15 text-end" @keydown="event => handleKeydown(event, '.my-input-3')" @focus="selectText" @change="formatNumber" v-model="box.margin" :class="{'bg-danger': parseFloat(box.margin) <= 0.00 }">
+                                    <span class="badge bg-blue-100 text-dark border-blue-300">
+                                        {{ box.length }}
+                                    </span>
+                                    <input 
+                                        type="number" 
+                                        step="1"
+                                        class="my-input w-15 text-end"
+                                        @keydown="event => handleKeydown(event, '.my-input')"
+                                        @focus="selectText"
+                                        @change="(event) => formatInteger(event, box)"
+                                        @input="calcIndicators"
+                                        v-model="box.qty_stem_flower"
+                                        >
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        class="my-input-2 w-15 text-end"
+                                        @keydown="event => handleKeydown(event, '.my-input-2')"
+                                        @focus="selectText"
+                                        @change="(event) => formatNumber(event, box)"
+                                        v-model="box.stem_cost_price"
+                                    >
+                                    <input 
+                                        type="number" 
+                                        step="0.01" 
+                                        class="my-input-3 w-15 text-end" 
+                                        @keydown="event => handleKeydown(event, '.my-input-3')" 
+                                        @focus="selectText" 
+                                        @change="(event) => formatNumber(event, box)"
+                                        v-model="box.margin" 
+                                        :class="{'bg-danger': parseFloat(box.margin) <= 0.00 }"
+                                    >
                                     <span class="text-gray-600 fw-semibold border-gray-300 w-15 text-end">
                                         {{ (parseFloat(box.margin) +  parseFloat(box.stem_cost_price)).toFixed(2) }}
                                     </span>

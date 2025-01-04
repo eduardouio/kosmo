@@ -11,6 +11,7 @@ export const appConfig = {
     "urlAnalyce": apiBaseUrl + "/api/analize_stock_text/",
     "urlAllSuppliers": apiBaseUrl + "/api/partners/all-supliers/",
     'urlDeleteStockDetail': apiBaseUrl + "/api/delete_stock_detail/",
+    'urlUpdateStockDetail': apiBaseUrl + "/api/update_stock_detail/",
     "headers": {
         'Accept': 'application/json',
         'Content-Type': 'application/json',

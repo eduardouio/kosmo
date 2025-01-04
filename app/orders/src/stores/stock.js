@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { appConfig } from '@/AppConfig';
+import { watch } from 'vue';
 
 
 export const useStockStore = defineStore('stockStore', {
@@ -20,6 +21,15 @@ export const useStockStore = defineStore('stockStore', {
         this.stockDay = data.stockDay;
         baseStore.setLoading(false);
         this.extractSuppliers();
+      },
+      async updateStockDetail(item){
+        const response = await fetch(appConfig.urlUpdateStockDetail, {
+          method: 'POST',
+          headers: appConfig.headers,
+          body: JSON.stringify(item)
+        });
+        const data = await response.json();
+        console.dir(data);
       },
       extractSuppliers(){
         let suppliers = this.stock.map(item => item.partner).filter(
@@ -95,4 +105,4 @@ export const useStockStore = defineStore('stockStore', {
           };});
       },
     },
-  })
+  });
