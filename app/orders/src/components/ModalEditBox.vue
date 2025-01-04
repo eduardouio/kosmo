@@ -55,7 +55,7 @@ const baseStore = useBaseStore();
                             </thead>
                             <tbody>
                                 <tr v-for="box in stockItem.box_items">
-                                    <td>{{ box.product_name }}</td>
+                                    <td>{{ box.product_name }} {{ box.product_variety }}</td>
                                     <td>{{ box.length }}</td>
                                     <td>{{ box.qty_stem_flower }}</td>
                                     <td>{{ box.stem_cost_price }}</td>
