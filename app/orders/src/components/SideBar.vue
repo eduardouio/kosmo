@@ -68,19 +68,23 @@ watch(
             </div>
         </router-link>
     </div>
-    <div v-if="route.path === '/'">
+    <div v-if="route.path === '/'" class="mt-4">
     <div v-if="!isLoading">
     <div class="text-center ms-1 me-1 fw-semibold p-1 bg-gray-100 mb-1">
         <div class="d-flex gap-3 justify-content-between">
-            <span class="text-success" @click="stockStore.selectAllSuppliers(true);stockStore.filterBySupplier()">
-                <IconCheckbox size="20" stroke="1.5" />
-            </span>
             <span>
                 PROVEEDORES
             </span>
+            <section class="d-flex justify-content-between gap-3">
             <span class="text-danger" @click="stockStore.selectAllSuppliers(false);stockStore.filterBySupplier()">
+                <small>Nin.</small>
                 <IconSquare size="20" stroke="1.5" />
             </span>
+            <span class="text-success" @click="stockStore.selectAllSuppliers(true);stockStore.filterBySupplier()">
+                <small>Tod.</small>
+                <IconCheckbox size="20" stroke="1.5" />
+            </span>
+        </section>
         </div>
     </div>
         <ul class="list-group rounded-0">
@@ -92,18 +96,22 @@ watch(
             </li>
         </ul>
     </div>
-    <div v-if="!isLoading">
+    <div v-if="!isLoading" class="mt-4">
     <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-gray-100 mb-1 mt-2">
-        <div class="d-flex gap-3 justify-content-between">
-            <span class="text-success" @click="stockStore.selectAllColors(true);stockStore.filterByColor()">
-                <IconCheckbox size="20" stroke="1.5" />
-            </span>
+        <div class="d-flex justify-content-between  gap-3">
             <span>
                 COLORES
             </span>
+            <section class="d-flex justify-content-between gap-3">
             <span class="text-danger" @click="stockStore.selectAllColors(false);stockStore.filterByColor()">
+                <small>Nin.</small>
                 <IconSquare size="20" stroke="1.5" />
             </span>
+            <span class="text-success" @click="stockStore.selectAllColors(true);stockStore.filterByColor()">
+                <small>Tod.</small>
+                <IconCheckbox size="20" stroke="1.5" />
+            </span>
+        </section>
         </div>
     </div>
     <hr />
