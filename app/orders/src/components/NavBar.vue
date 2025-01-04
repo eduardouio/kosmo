@@ -7,7 +7,6 @@
        <a class="navbar-brand text-sm" href="/">
        <img :src="appConfig.urlLogo" alt="Logo" width="auto" height="30" class="">
        </a>        
-       <span class="badge text-bg-info">{{ title_page }}</span>
        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
        <span class="navbar-toggler-icon"></span>
        </button>

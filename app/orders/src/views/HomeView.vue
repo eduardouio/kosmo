@@ -390,6 +390,7 @@ loadData();
                                         @change="(event) => formatInteger(event, box)"
                                         @input="calcIndicators"
                                         v-model="box.qty_stem_flower"
+                                        :class="{ 'bg-red-200': parseInt(box.qty_stem_flower) <= 0 }"
                                         >
                                     <input
                                         type="number"
@@ -399,6 +400,7 @@ loadData();
                                         @focus="selectText"
                                         @change="(event) => formatNumber(event, box)"
                                         v-model="box.stem_cost_price"
+                                        :class="{'bg-red-200': parseFloat(box.stem_cost_price) <= 0.00}"
                                     >
                                     <input 
                                         type="number" 
@@ -408,7 +410,7 @@ loadData();
                                         @focus="selectText" 
                                         @change="(event) => formatNumber(event, box)"
                                         v-model="box.margin" 
-                                        :class="{'bg-danger': parseFloat(box.margin) <= 0.00 }"
+                                        :class="{'bg-red-200': parseFloat(box.margin) <= 0.00 }"
                                     >
                                     <span class="text-gray-600 fw-semibold border-gray-300 w-15 text-end">
                                         {{ (parseFloat(box.margin) +  parseFloat(box.stem_cost_price)).toFixed(2) }}

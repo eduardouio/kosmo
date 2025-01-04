@@ -122,7 +122,7 @@ export const useStockStore = defineStore('stockStore', {
             cost = cost.toFixed(2);
             line_text += `\t[${subItem.product_variety}\t${subItem.length}CM\t${subItem.qty_stem_flower}\t${cost}]`;
           });
-          const totalValue = item.box_items.reduce((acc, subItem) => acc + ((subItem.stem_cost_price + subItem.margin) * subItem.qty_stem_flower), 0);
+          const totalValue = item.box_items.reduce((acc, subItem) => acc + ((parseFloat(subItem.stem_cost_price) + parseFloat(subItem.margin)) * parseInt(subItem.qty_stem_flower)), 0);
           this.stockText += line_text + `\t $ ${totalValue.toFixed(2)} \n`;
         });
       },
