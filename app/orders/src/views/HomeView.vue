@@ -5,6 +5,7 @@ import { useBaseStore } from '@/stores/base';
 import ModalProduct from '@/components/ModalProduct.vue';
 import ModalSuplier from '@/components/ModalSuplier.vue';
 import ModalShareStock from '@/components/ModalShareStock.vue';
+import ModalUpdateValues from '@/components/ModalUpdateValues.vue';
 import Loader from '@/components/Loader.vue';
 import {
     IconCheckbox,
@@ -37,7 +38,10 @@ const buttonsVisibility = ref({
     delete: false,
 });
 const confirmDelete = ref(false);
-
+const newValue = ref({
+    profitMargin : 0.00,
+    stemCostPrice : 0.00,
+});
 
 // METHODS
 
@@ -266,13 +270,9 @@ loadData();
                         <IconShare size="15" stroke="1.5"/>
                         Compartir
                     </button>
-                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.cost">
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.cost" data-bs-toggle="modal" data-bs-target="#updateValuesModal">
                         <IconCurrencyDollar size="15" stroke="1.5"/>
-                        Costo
-                    </button>
-                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.margin">
-                        <IconCurrencyDollar size="15" stroke="1.5"/>
-                        Margen
+                        Valores
                     </button>
                     <button class="btn btn-sm btn-default" v-if="buttonsVisibility.order">
                         <IconShoppingCart size="15" stroke="1.5"/>
@@ -371,6 +371,7 @@ loadData();
             <ModalProduct :product="productSelected"/>
             <ModalSuplier :suplier="suplierSelected"/>
             <ModalShareStock/>
+            <ModalUpdateValues/>
         </div>
         </div>
 </template>

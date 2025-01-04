@@ -86,5 +86,13 @@ export const useStockStore = defineStore('stockStore', {
           this.stockText += line_text + `\t $ ${totalValue.toFixed(2)} \n`;
         });
       },
+      updateValues(newValue, column){
+        this.stock.forEach(stockItem => {
+          if(stockItem.is_selected){
+            stockItem.box_items.forEach(item => {
+              item[column] = newValue;
+            });
+          };});
+      },
     },
   })
