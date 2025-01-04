@@ -2588,3 +2588,19 @@ body {
 	border-bottom: 2px solid #022c22;
 	background-color: #4b5 !important;
 }
+
+.bg-pink-400 {
+	background-color: #f472b6 !important;
+}
+
+.bg-brown-400 {
+	background-color: #a85400 !important;
+}
+
+.text-pink-400 {
+	background-color: #f472b6 !important;
+}
+
+.text-brown-400 {
+	background-color: #a85400 !important;
+}

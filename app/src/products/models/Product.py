@@ -25,7 +25,7 @@ class Product(BaseModel):
         max_length=255,
         blank=True,
         null=True,
-        default=None
+        default='NO DEFINIDO'
     )
     default_profit_margin = models.DecimalField(
         'Rendimiento por defecto',
