@@ -99,12 +99,12 @@ TODO
 <li>[x] Procesar con Chat GPT los Stocks </li>
 <li>[ ] Implementar catalogo conforme https://greengoldflowers.com/product/nina/ </li>
 <li>[ ] Formulario de carga manual
-<li>[ ] Generar Paginas de Clientes y Proveedores </li>
-<li>[ ] Rendimineto en la ficha del socio, sacamos el rendimiento del producto </li>
-<li>[ ] Agregar campos adicionales en el sicio de negocio </li>
-<li>[ ] Agregar campos de contacto, email de pagos, skype, web </li>
-<li>[ ] Cambiar la etiqueta de RUC a ID/RUC/TAX ID </li>
-<li>[ ] Agregar campos para 2 referencias en la ficha de socio de negocio </li>
+<li>[x] Generar Paginas de Clientes y Proveedores </li>
+<li>[x] Rendimineto en la ficha del socio, sacamos el rendimiento del producto </li>
+<li>[x] Agregar campos adicionales en el sicio de negocio </li>
+<li>[x] Agregar campos de contacto, email de pagos, skype, web </li>
+<li>[x] Cambiar la etiqueta de RUC a ID/RUC/TAX ID </li>
+<li>[x] Agregar campos para 2 referencias en la ficha de socio de negocio </li>
 <li>[ ] Crear un formulario para el alta de los socios de negocio para posterior aprobación conforme el formato </li>
 <li>[ ] Incluir en el formulario de alta los terminos y condiciones de Kosmo, politica de credito, politica de perecibilidad de las flores, notas de credito con plazo de 10 dias </li>
 <li>[ ] Los vendedores no pueden ver el proveedor de las flores, solo se mostrará Kosmo como proveedor en el stock </li>
@@ -113,8 +113,8 @@ TODO
 <li>[ ] Agregar multiples colores por producto en la ficha del catalogo, permitiendo filtrar por color las variedades, ofrecer un color similar en una variedad diferente </li>
 <li>[ ] Permitir consultas por color en la tabla de stocks, el catalogo de productos </li>
 <li>[ ] Incorporar el rendimiento en las tablas de pedido </li>
-<li>[ ] Asegurar un margen positivo en cada pedido </li>
-<li>[ ] Campos relevantes para los pedidos: Variedad, Tamaño, Costo, Precio de venta (automatico), Rentabilidad (basada en el catalogo), Tipo de caja </li>
+<li>[x] Asegurar un margen positivo en cada pedido </li>
+<li>[x] Campos relevantes para los pedidos: Variedad, Tamaño, Costo, Precio de venta (automatico), Rentabilidad (basada en el catalogo), Tipo de caja </li>
 <li>[ ] Cargar facturas de proveedores al sistema </li>
 <li>[ ] Formulario para registro en línea del proveedor o cliente debe estar igual que el Excell con macros </li>
 </ul>
