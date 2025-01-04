@@ -14,7 +14,7 @@ class StockDetailForm(forms.ModelForm):
     class Meta:
         model = StockDetail
         fields = [
-            'partner', 'box_model', 'tot_stem_flower', 'stem_cost_price_box'
+            'partner', 'box_model', 'tot_stem_flower', 'tot_cost_price_box'
         ]
         widgets = {
             'partner': forms.Select(
@@ -29,7 +29,7 @@ class StockDetailForm(forms.ModelForm):
                 attrs={'class': 'form-control form-control-sm',
                        'placeholder': 'Cantidad de tallos', 'readonly': 'readonly'}
             ),
-            'stem_cost_price_box': forms.NumberInput(
+            'tot_cost_price_box': forms.NumberInput(
                 attrs={'class': 'form-control form-control-sm',
                        'placeholder': 'Precio de costo por tallo'}
             ),

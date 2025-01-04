@@ -63,7 +63,7 @@ onMounted(() => {
                             <span>
                                 <IconChevronCompactRight size="20" stroke="1.5" class="text-gray-500" />
                             </span>
-                            <span class="text-white bg-gray-400 bg-gradient ps-1 pe-1">
+                            <span class="text-white bg-gray-400 ps-1 pe-1">
                                 Seleccione un Proveedor:
                             </span>
                         </div>
@@ -78,7 +78,7 @@ onMounted(() => {
                     </div>
                     <div class="col-12 p-2 m-1 " v-if="selectedSupplier">
                         <div class="row">
-                            <div class="col-1 bg-gray-400 text-white bg-gradient border text-end">
+                            <div class="col-1 bg-gray-500 text-white border text-end">
                                 <span class="p-1">
                                     Finca:
                                 </span>
@@ -89,7 +89,7 @@ onMounted(() => {
                                     {{ selectedSupplier.name }}
                                 </span>
                             </div>
-                            <div class="col-1 bg-gray-400 text-white bg-gradient border text-end">
+                            <div class="col-1 bg-gray-500 text-white border text-end">
                                 <span class="p-1">
                                     Dirección:
                                 </span>
@@ -100,7 +100,7 @@ onMounted(() => {
                                     {{ selectedSupplier.address }}
                                 </span>
                             </div>
-                            <div class="col-1 bg-gray-400 text-white bg-gradient border text-end">
+                            <div class="col-1 bg-gray-500 text-white border text-end">
                                 <span class="p-1">
                                     Correo:
                                 </span>
@@ -110,7 +110,7 @@ onMounted(() => {
                                     {{ selectedSupplier.email }}
                                 </span>
                             </div>
-                            <div class="col-1 bg-gray-400 text-white bg-gradient border text-end">
+                            <div class="col-1 bg-gray-500 text-white border text-end">
                                 <span class="p-1">
                                     Crédito:
                                 </span>
@@ -121,7 +121,7 @@ onMounted(() => {
                                     {{ selectedSupplier.credit_term }} días
                                 </span>
                             </div>
-                            <div class="col-1 bg-gray-400 text-white bg-gradient border text-end">
+                            <div class="col-1 bg-gray-500 text-white border text-end">
                                 <span class="p-1">
                                     Margen:
                                 </span>
@@ -135,7 +135,7 @@ onMounted(() => {
                                     No Incluido
                                 </span>
                             </div>
-                            <div class="col-1 bg-gray-400 text-white bg-gradient border text-end">
+                            <div class="col-1 bg-gray-500 text-white border text-end">
                                 <span class="p-1">
                                     Skype:
                                 </span>
@@ -145,7 +145,7 @@ onMounted(() => {
                                     {{ selectedSupplier.skype }}
                                 </span>
                             </div>
-                            <div class="col-1 bg-gray-400 text-white bg-gradient border text-end">
+                            <div class="col-1 bg-gray-500 text-white border text-end">
                                 <span class="p-1">
                                     Telef:
                                 </span>
@@ -155,7 +155,7 @@ onMounted(() => {
                                     {{ selectedSupplier.phone }}
                                 </span>
                             </div>
-                            <div class="col-1 bg-gray-400 text-white bg-gradient border text-end">
+                            <div class="col-1 bg-gray-500 text-white border text-end">
                                 <span class="p-1">
                                     Contacto:
                                 </span>
@@ -165,7 +165,7 @@ onMounted(() => {
                                     {{ selectedSupplier.contact.name }}
                                 </span>
                             </div>
-                            <div class="col-1 bg-gray-400 text-white bg-gradient border text-end">
+                            <div class="col-1 bg-gray-500 text-white border text-end">
                                 <span class="p-1">
                                     Tel:
                                 </span>

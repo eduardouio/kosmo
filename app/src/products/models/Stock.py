@@ -76,8 +76,8 @@ class StockDetail(BaseModel):
         default=0,
         help_text='Cantidad de tallos de flor'
     )
-    stem_cost_price_box = models.DecimalField(
-        'Precio de costo Tallo',
+    tot_cost_price_box = models.DecimalField(
+        'Precio de costo Caja',
         max_digits=10,
         decimal_places=2,
         default=0.00
@@ -151,6 +151,22 @@ class StockDetail(BaseModel):
             self.stock_day
         )
 
+    @classmethod
+    def rebuild_stock_detail(cls, stock_detail):
+        box_items = BoxItems.get_box_items(stock_detail)
+        total_stem_flower = 0
+        total_cost_price = 0
+        total_margin = 0
+        for box in box_items:
+            total_stem_flower += box.qty_stem_flower
+            total_cost_price += box.stem_cost_price
+            total_margin += box.profit_margin
+
+        stock_detail.tot_stem_flower = total_stem_flower
+        stock_detail.tot_cost_price_box = total_cost_price
+        stock_detail.profit_margin = total_margin
+        stock_detail.save()
+
 
 class BoxItems(BaseModel):
     id = models.AutoField(
@@ -183,6 +199,15 @@ class BoxItems(BaseModel):
         decimal_places=2,
         default=0.06
     )
+
+    @classmethod
+    def get_by_id(cls, box_id):
+        try:
+            return cls.objects.get(
+                pk=box_id
+            )
+        except ObjectDoesNotExist:
+            return None
 
     @classmethod
     def get_box_items(cls, stock_detail):
