@@ -29,13 +29,22 @@ export const useStockStore = defineStore('stockStore', {
         this.extractColors();
       },
       async updateStockDetail(boxes){
-        const response = await fetch(appConfig.urlUpdateStockDetail, {
-          method: 'POST',
-          headers: appConfig.headers,
-          body: JSON.stringify(boxes)
-        });
-        const data = await response.json();
-        console.dir(data);
+        try {
+          const response = await fetch(appConfig.urlUpdateStockDetail, {
+            method: 'POST',
+            headers: appConfig.headers,
+            body: JSON.stringify(boxes)
+          });
+      
+          if (!response.ok) {
+            throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
+          }
+          const data = await response.json();
+        } catch (error) {
+          console.error('Error al actualizar el stock:', error);
+          alert(`Hubo un error al actualizar el stock: ${error.message}`);
+          return null;
+        }
       },
       extractColors(){
         let colors = this.stock.map(item => item.box_items).flat().map(item => item.product_colors)

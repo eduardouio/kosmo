@@ -110,8 +110,8 @@ TODO
 <li>[ ] Los vendedores no pueden ver el proveedor de las flores, solo se mostrará Kosmo como proveedor en el stock </li>
 <li>[ ] Las ordenes de los vendedores deben ser aprobadas por el administrador </li>
 <li>[ ] La pantalla de los vendedores mostrará información de su progreso mensual </li>
-<li>[ ] Agregar multiples colores por producto en la ficha del catalogo, permitiendo filtrar por color las variedades, ofrecer un color similar en una variedad diferente </li>
-<li>[ ] Permitir consultas por color en la tabla de stocks, el catalogo de productos </li>
+<li>[x] Agregar multiples colores por producto en la ficha del catalogo, permitiendo filtrar por color las variedades, ofrecer un color similar en una variedad diferente </li>
+<li>[x] Permitir consultas por color en la tabla de stocks, el catalogo de productos </li>
 <li>[ ] Incorporar el rendimiento en las tablas de pedido </li>
 <li>[x] Asegurar un margen positivo en cada pedido </li>
 <li>[x] Campos relevantes para los pedidos: Variedad, Tamaño, Costo, Precio de venta (automatico), Rentabilidad (basada en el catalogo), Tipo de caja </li>
