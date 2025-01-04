@@ -19,6 +19,7 @@ import {
     IconSettings,
     IconTrash,
     IconPointFilled,
+    IconPoint,
 } from '@tabler/icons-vue';
 
 // VARIABLES
@@ -232,7 +233,7 @@ loadData();
                         Pedidos
                     </span>
                     <span class="text-blue-600 ps-1 pe-2">
-                        8
+                        0
                     </span>
                 </div>
                 <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
@@ -372,7 +373,8 @@ loadData();
                                             v-for="color in box.product_colors" 
                                             :key="color"
                                             :class="getClass(color)">
-                                            <IconPointFilled size="20" stroke="1.5"/>
+                                            <IconPoint size="20" stroke="1.5" v-if="color==='BLANCO'"/>
+                                            <IconPointFilled size="20" stroke="1.5" v-else=""/>
                                         </span>
                                     </div>
                                     </section>

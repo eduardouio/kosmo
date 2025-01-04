@@ -54,6 +54,7 @@ export const useStockStore = defineStore('stockStore', {
         if (!querySearch){
           if( this.stock){
             this.filterBySupplier();
+            this.filterByColor();
           }
           return;
         }
@@ -77,7 +78,6 @@ export const useStockStore = defineStore('stockStore', {
         let selectedSuppliers = this.suppliers.filter(
           item => item.is_selected)
           .map(item => item.id);
-
         this.stock.forEach(item => {
           item.is_visible = selectedSuppliers.includes(item.partner.id);
       });
@@ -86,10 +86,10 @@ export const useStockStore = defineStore('stockStore', {
         let selectedColors = this.colors.filter(
           item => item.is_selected)
           .map(item => item.name);
-
-        this.stock.forEach(item => {
-          item.is_visible = item.box_items.some(
-            subItem => selectedColors.includes(subItem.product_colors));
+          this.stock.forEach(item => {
+            item.is_visible = item.box_items.some(subItem => {
+              return subItem.product_colors.some(color => selectedColors.includes(color));
+            });
       });
       },
       async deleteSelected(){
@@ -105,9 +105,11 @@ export const useStockStore = defineStore('stockStore', {
       },
       selectAllSuppliers(select=false){
         this.suppliers = this.suppliers.map(item => ({...item, is_selected: select}));
+        this.filterBySupplier();
       },
       selectAllColors(select=false){
         this.colors = this.colors.map(item => ({...item, is_selected: select}));
+        this.filterByColor();
       },
       stockToText(){
         this.stockText = 'QTY\tBOX\tTOTAL\tSUPPLIER\tPRODUCT\tLENGTH\tQTY\tPRICE\tCOSTBOX\n';

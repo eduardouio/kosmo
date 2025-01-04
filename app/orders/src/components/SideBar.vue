@@ -76,11 +76,11 @@ watch(
                 PROVEEDORES
             </span>
             <section class="d-flex justify-content-between gap-3">
-            <span class="text-danger" @click="stockStore.selectAllSuppliers(false);stockStore.filterBySupplier()">
+            <span class="text-danger" @click="stockStore.selectAllSuppliers(false)">
                 <small>Nin.</small>
                 <IconSquare size="20" stroke="1.5" />
             </span>
-            <span class="text-success" @click="stockStore.selectAllSuppliers(true);stockStore.filterBySupplier()">
+            <span class="text-success" @click="stockStore.selectAllSuppliers(true)">
                 <small>Tod.</small>
                 <IconCheckbox size="20" stroke="1.5" />
             </span>
@@ -103,11 +103,11 @@ watch(
                 COLORES
             </span>
             <section class="d-flex justify-content-between gap-3">
-            <span class="text-danger" @click="stockStore.selectAllColors(false);stockStore.filterByColor()">
+            <span class="text-danger" @click="stockStore.selectAllColors(false)">
                 <small>Nin.</small>
                 <IconSquare size="20" stroke="1.5" />
             </span>
-            <span class="text-success" @click="stockStore.selectAllColors(true);stockStore.filterByColor()">
+            <span class="text-success" @click="stockStore.selectAllColors(true)">
                 <small>Tod.</small>
                 <IconCheckbox size="20" stroke="1.5" />
             </span>
@@ -116,7 +116,7 @@ watch(
     </div>
     <hr />
         <section class="d-flex flex-wrap gap-2">
-            <span v-for="item in stockStore.colors" :class="getClass(item)" class="rounded-1 p-1 text-white" @click="item.is_selected = !item.is_selected;stockStore.filterByColor()">
+            <span v-for="item in stockStore.colors" :class="getClass(item)" class="rounded-1 p-1" @click="item.is_selected = !item.is_selected;stockStore.filterByColor()">
                 <IconCheckbox size="15" stroke="1.5" v-if="item.is_selected"/>
                 {{ item.name }}
             </span>
