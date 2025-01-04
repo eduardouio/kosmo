@@ -55,6 +55,9 @@ class AnalizeStockText(View):
         )
 
     def create_stock_items(self, **kwargs):
+        print('-----------')
+        print(kwargs)
+        print('-----------')
         for item in kwargs['result_dispo']:
             stock_detail = StockDetail(
                 stock_day=kwargs['stock_day'],
@@ -63,15 +66,12 @@ class AnalizeStockText(View):
                 box_model=item[1],
                 tot_stem_flower=item[2],
             )
-
             stock_detail.save()
             product = self.get_or_create_product(item[4])
             for idx in range(len(item[5])):
-                price = item[-1][idx]
+                price = float(item[-1][idx])
                 if kwargs['profit_is_included']:
-                    price = price - kwargs['profit_margin'] if price > 0 else 0
-                else:
-                    price = price + kwargs['profit_margin'] if price > 0 else 0
+                    price = price - float(kwargs['profit_margin']) if price > 0.00 else 0.00
 
                 length = item[-2]
                 BoxItems.objects.create(

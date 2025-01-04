@@ -16,6 +16,10 @@ export const useStockStore = defineStore('stockStore', {
         baseStore.setLoading(true);
         const response = await fetch(appConfig.urlDispo);
         const data = await response.json();
+        if (data.error){
+          alert(data.error);
+          return;
+        }
         this.stock = data.stock;
         this.orders = data.orders;
         this.stockDay = data.stockDay;

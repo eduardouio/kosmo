@@ -10,7 +10,7 @@ class StockDetailAPI(View):
         if not stock_day:
             return JsonResponse(
                 {
-                    'error': 'Stock details not found'
+                    'error': 'No hay detalles para esta diponibilidad, debe importar primero'
                 },
                 status=404
             )
@@ -19,7 +19,7 @@ class StockDetailAPI(View):
         if not stock_details:
             return JsonResponse(
                 {
-                    'error': 'Stock details not found'
+                    'error': 'No hay detalles para esta diponibilidad, debe importar primero'
                 },
                 status=404
             )
@@ -28,8 +28,6 @@ class StockDetailAPI(View):
 
         for stock in stock_details:
             box_items = BoxItems.get_box_items(stock)
-            have_margin = True if stock.partner.default_profit_margin else False
-            margin = float(stock.partner.default_profit_margin)
 
             item = {
                 'stock_detail_id': stock.id,
@@ -40,7 +38,7 @@ class StockDetailAPI(View):
                 'is_in_order': False,
                 'box_model': stock.box_model,
                 'tot_stem_flower': stock.tot_stem_flower,
-                'stem_cost_price_box': float(stock.stem_cost_price_box),
+                'tot_cost_price_box': float(stock.tot_cost_price_box),
                 'id_user_created': stock.id_user_created,
                 'is_active': stock.is_active,
                 'partner': {
@@ -49,8 +47,7 @@ class StockDetailAPI(View):
                     'business_tax_id': stock.partner.business_tax_id,
                     'address': stock.partner.address,
                     'city': stock.partner.city,
-                    'default_profit_margin': margin,
-                    'is_profit_margin_included': have_margin,
+                    'default_profit_margin': stock.partner.default_profit_margin,
                     'website': stock.partner.website,
                     'credit_term': stock.partner.credit_term,
                     'skype': stock.partner.skype,
@@ -77,7 +74,7 @@ class StockDetailAPI(View):
                     'length': box.length,
                     'qty_stem_flower': box.qty_stem_flower,
                     'stem_cost_price': cost_product,
-                    'margin': margin if have_margin else float(0),
+                    'margin': box.profit_margin,
                     'is_active': box.is_active
                 }
                 item['box_items'].append(item_box)
