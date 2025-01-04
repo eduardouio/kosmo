@@ -10,6 +10,23 @@ const baseStore = useBaseStore();
 const isLoading = ref(true);
 const route = useRoute();
 
+
+const getClass = (item) => {
+    let color = item.name;
+    if(color === null | color === undefined | color === '' | color === ' ') {
+        return baseStore.bgColor.OTRO;
+    }
+    
+    if (item.is_selected) {
+        if(color in baseStore.bgColor) {
+            return baseStore.bgColor[color];
+        } else {
+            return baseStore.bgColor.OTRO;
+        }    
+    }
+    return 'bg-gray-200 text-gray-500';    
+};
+
 watch(
     () => baseStore.isLoading,
     (newValue) => {
@@ -78,48 +95,23 @@ watch(
     <div v-if="!isLoading">
     <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-gray-100 mb-1 mt-2">
         <div class="d-flex gap-3 justify-content-between">
-            <span class="text-success" @click="stockStore.selectAllSuppliers(true);stockStore.filterBySupplier()">
+            <span class="text-success" @click="stockStore.selectAllColors(true);stockStore.filterByColor()">
                 <IconCheckbox size="20" stroke="1.5" />
             </span>
             <span>
                 COLORES
             </span>
-            <span class="text-danger" @click="stockStore.selectAllSuppliers(false);stockStore.filterBySupplier()">
+            <span class="text-danger" @click="stockStore.selectAllColors(false);stockStore.filterByColor()">
                 <IconSquare size="20" stroke="1.5" />
             </span>
         </div>
     </div>
     <hr />
         <section class="d-flex flex-wrap gap-2">
-            <span class="badge bg-yellow-300 text-dark border-gray-400">
+            <span v-for="item in stockStore.colors" :class="getClass(item)" class="rounded-1 p-1 text-white" @click="item.is_selected = !item.is_selected;stockStore.filterByColor()">
                 <IconCheckbox size="15" stroke="1.5" />
-                Amarillo
+                {{ item.name }}
             </span>
-            <span class="badge bg-blue-300 text-dark border-gray-400">
-                <IconCheckbox size="15" stroke="1.5" />
-                Azul
-            </span>
-            <span class="badge bg-red-300 text-dark border-gray-400">
-                <IconCheckbox size="15" stroke="1.5" />
-                Rojo
-            </span>
-            <span class="badge bg-green-300 text-dark border-gray-400">
-                <IconCheckbox size="15" stroke="1.5" />
-                Verde
-            </span>
-            <span class="badge bg-gray-300 text-dark border-gray-400">
-                <IconCheckbox size="15" stroke="1.5" />
-                Gris
-            </span>
-            <span class="badge bg-purple-300 text-dark border-gray-400">
-                <IconCheckbox size="15" stroke="1.5" />
-                Morado
-            </span>
-            <span class="badge bg-orange-300 text-dark border-gray-400">
-                <IconCheckbox size="15" stroke="1.5" />
-                Naranja
-            </span>
-        
         </section>
     </div>
 </div>

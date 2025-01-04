@@ -42,7 +42,7 @@ export const useStockStore = defineStore('stockStore', {
         .flat().filter(
           (value, index, self) => self.findIndex(t => (t === value)) === index
         );
-        this.colors = colors
+        this.colors = colors.map(item => ({name: item, is_selected: true}));
       },
       extractSuppliers(){
         let suppliers = this.stock.map(item => item.partner).filter(
@@ -80,6 +80,16 @@ export const useStockStore = defineStore('stockStore', {
           item.is_visible = selectedSuppliers.includes(item.partner.id);
       });
       },
+      filterByColor(){
+        let selectedColors = this.colors.filter(
+          item => item.is_selected)
+          .map(item => item.name);
+
+        this.stock.forEach(item => {
+          item.is_visible = item.box_items.some(
+            subItem => selectedColors.includes(subItem.product_colors));
+      });
+      },
       async deleteSelected(){
         let toDelete = this.stock.filter(item => item.is_selected);
         this.stock = this.stock.filter(item => !item.is_selected);
@@ -93,6 +103,9 @@ export const useStockStore = defineStore('stockStore', {
       },
       selectAllSuppliers(select=false){
         this.suppliers = this.suppliers.map(item => ({...item, is_selected: select}));
+      },
+      selectAllColors(select=false){
+        this.colors = this.colors.map(item => ({...item, is_selected: select}));
       },
       stockToText(){
         this.stockText = 'QTY\tBOX\tTOTAL\tSUPPLIER\tPRODUCT\tLENGTH\tQTY\tPRICE\tCOSTBOX\n';
