@@ -40,7 +40,7 @@ class GPTProcessor:
             data = data.replace('[\n[', '[')
             data = data.replace(']\n]', ']')
             data = data.split(',\n')
-            data = [json.loads(i) for i in data]
+            data = [json.loads(i.replace('\n', '')) for i in data]
             return data
         except Exception as e:
             return 'Error al procesar stock, no se puede leer el formato {} {}'.format(

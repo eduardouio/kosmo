@@ -6,7 +6,7 @@ from products.models import Product, StockDay, StockDetail, BoxItems
 from common import GPTProcessor, TextPrepare
 
 
-class AnalizeStockText(View):
+class AnalizeStockTextAPI(View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         partner = Partner.get_partner_by_id(data['supplier']['id'])
@@ -55,9 +55,6 @@ class AnalizeStockText(View):
         )
 
     def create_stock_items(self, **kwargs):
-        print('-----------')
-        print(kwargs)
-        print('-----------')
         for item in kwargs['result_dispo']:
             stock_detail = StockDetail(
                 stock_day=kwargs['stock_day'],

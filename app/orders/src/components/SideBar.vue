@@ -51,6 +51,7 @@ watch(
             </div>
         </router-link>
     </div>
+    <div v-if="route.path === '/'">
     <div v-if="!isLoading">
     <div class="text-center ms-1 me-1 fw-semibold p-1 bg-gray-100 mb-1">
         <div class="d-flex gap-3 justify-content-between">
@@ -121,7 +122,7 @@ watch(
         
         </section>
     </div>
-
+</div>
 </template>
 
 <style scoped>

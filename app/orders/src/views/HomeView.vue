@@ -294,10 +294,21 @@ loadData();
             <table class="table table-bordered table-hover">
                 <thead>
                     <tr class="text-center">
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Cant</th>
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Tallos</th>
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Proveedor</th>
-                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">Colores</th>
+                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
+                            #
+                        </th>
+                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
+                            Cant
+                        </th>
+                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
+                            Tallos
+                        </th>
+                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
+                            Proveedor
+                        </th>
+                        <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
+                            Colores
+                        </th>
                         <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50 d-flex justify-content-between gap-3">
                             <section class="pl-5">
                             </section>
@@ -315,7 +326,10 @@ loadData();
                     </tr>
                 </thead>
                 <tbody>
-                        <tr v-for="item in filterData" :key="item">
+                        <tr v-for="item, index in filterData" :key="item">
+                            <td class="p-1 text-center bg-gray-200">
+                                {{ index + 1 }}
+                            </td>
                             <td class="p-1 text-start ps-3">
                                 {{ item.quantity }} {{ item.box_model }}
                             </td>
@@ -387,7 +401,7 @@ loadData();
                                     </span>
                                 </section>
                             </td>
-                            <td class="p-1 text-center">
+                            <td class="p-1 text-center bg-gray-200">
                                 <input type="checkbox" v-model="item.is_selected" @change="setVibilityButtons()">
                             </td>
                         </tr>
