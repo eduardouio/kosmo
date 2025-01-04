@@ -53,14 +53,16 @@ export const useStockStore = defineStore('stockStore', {
       filterStock(querySearch){
         if (!querySearch){
           if( this.stock){
-            this.stock.forEach(item => item.is_visible = true);
+            this.filterBySupplier();
           }
           return;
         }
         this.stock.forEach(item => {
+          if(item.is_visible){
           item.box_items.forEach(subItem => {
             item.is_visible = subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase());
           });
+        }
         });
       },
       selectAll(option){

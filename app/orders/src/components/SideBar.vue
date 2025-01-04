@@ -109,7 +109,7 @@ watch(
     <hr />
         <section class="d-flex flex-wrap gap-2">
             <span v-for="item in stockStore.colors" :class="getClass(item)" class="rounded-1 p-1 text-white" @click="item.is_selected = !item.is_selected;stockStore.filterByColor()">
-                <IconCheckbox size="15" stroke="1.5" />
+                <IconCheckbox size="15" stroke="1.5" v-if="item.is_selected"/>
                 {{ item.name }}
             </span>
         </section>
