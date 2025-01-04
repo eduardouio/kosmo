@@ -62,6 +62,7 @@ class StockDetailAPI(View):
                 url_image = box.product.image.url if box.product.image else ''
                 colors = box.product.colors.split(
                     ',') if box.product.colors else []
+                colors = [c.strip() for c in colors if c.strip()]
                 item_box = {
                     'id': box.id,
                     'stock_detail_id': box.stock_detail_id,

@@ -1,27 +1,33 @@
 [
   {
     "name": "ROSA",
-    "variety": "AKITO"
+    "variety": "AKITO",
+    "colors": "BLANCO,CREMA"
   },
   {
     "name": "ROSA",
-    "variety": "VENDELA"
+    "variety": "VENDELA",
+    "colors": "CREMA,AMARILLO"
   },
   {
     "name": "ROSA",
-    "variety": "TIBET"
+    "variety": "TIBET",
+    "colors": "BLANCO"
   },
   {
     "name": "ROSA",
-    "variety": "PLAYA BLANCA"
+    "variety": "PLAYA BLANCA",
+    "colors": "BLANCO,CREMA"
   },
   {
     "name": "ROSA",
-    "variety": "ESKIMO"
+    "variety": "ESKIMO",
+    "colors": "BLANCO"
   },
   {
     "name": "ROSA",
-    "variety": "MONDIAL"
+    "variety": "MONDIAL",
+    "colors": "BLANCO,CREMA"
   },
   {
     "name": "ROSA",
@@ -29,142 +35,177 @@
   },
   {
     "name": "ROSA",
-    "variety": "DEEP PURPLE"
+    "variety": "DEEP PURPLE",
+    "colors":"AZUL,MORADO,TINTURADO"
   },
   {
     "name": "ROSA",
-    "variety": "MODDY BLUES"
+    "variety": "MODDY BLUES",
+    "colors": "AZUL,MORADO"
   },
   {
     "name": "ROSA",
-    "variety": "OCEAN SONG"
+    "variety": "OCEAN SONG",
+    "colors": "AZUL,MORADO"
   },
   {
     "name": "ROSA",
-    "variety": "BRIGHTON"
+    "variety": "BRIGHTON",
+    "colors": "AMARILLO,NARANJA"
   },
   {
     "name": "ROSA",
-    "variety": "HIGH EXOTIC"
+    "variety": "HIGH EXOTIC",
+    "colors": "AMARILLO,NARANJA,TINTURADO"
   },
   {
     "name": "ROSA",
-    "variety": "STARDUST"
+    "variety": "STARDUST",
+    "colors": "AMARILLO"
   },
   {
     "name": "ROSA",
-    "variety": "TARA"
+    "variety": "TARA",
+    "colors": "AMARILLO,CREMA"
   },
   {
     "name": "ROSA",
-    "variety": "HIGH MAGIC"
+    "variety": "HIGH MAGIC",
+    "colors": "NARANJA,ROJO,TINTURADO"
   },
   {
     "name": "ROSA",
-    "variety": "FREE SPIRIT"
+    "variety": "FREE SPIRIT",
+    "colors": "ROSADO,NARANJA"
   },
   {
     "name": "ROSA",
-    "variety": "ORANGE CRUSH"
+    "variety": "ORANGE CRUSH",
+    "colors": "NARANJA"
   },
   {
     "name": "ROSA",
-    "variety": "NINA"
+    "variety": "NINA",
+    "colors": "ROJO"
   },
   {
     "name": "ROSA",
-    "variety": "NENA"
+    "variety": "NENA",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "HARD&ROCK"
+    "variety": "HARD&ROCK",
+    "colors": "ROJO,MORADO"
   },
   {
     "name": "ROSA",
-    "variety": "FULL MONTY"
+    "variety": "FULL MONTY",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "ASSORTED"
+    "variety": "ASSORTED",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "GOTCHA"
+    "variety": "GOTCHA",
+    "colors": "ROJO"
   },
   {
     "name": "ROSA",
-    "variety": "PINK FLOYD"
+    "variety": "PINK FLOYD",
+    "colors": "ROSADO"
   },
   {
     "name": "ROSA",
-    "variety": "SWEET UNIQUE"
+    "variety": "SWEET UNIQUE",
+    "colors": "ROSADO,CREMA"
   },
   {
     "name": "ROSA",
-    "variety": "SWEET AKITO"
+    "variety": "SWEET AKITO",
+    "colors": "ROSADO,BLANCO"
   },
   {
     "name": "ROSA",
-    "variety": "SWEET ESKIMO "
+    "variety": "SWEET ESKIMO ",
+    "colors": "ROSADO,BLANCO"
   },
   {
     "name": "ROSA",
-    "variety": "PINK MONDIAL"
+    "variety": "PINK MONDIAL",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "PRICELESS"
+    "variety": "PRICELESS",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "HERMOSA"
+    "variety": "HERMOSA",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "SHIMMER"
+    "variety": "SHIMMER",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "FREEDOM"
+    "variety": "FREEDOM",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "EXPLORER"
+    "variety": "EXPLORER",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "KAHALA"
+    "variety": "KAHALA",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "SAHARA"
+    "variety": "SAHARA",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "QUICKSAND "
+    "variety": "QUICKSAND ",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "SECRET GARDEN"
+    "variety": "SECRET GARDEN",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "SECRET"
+    "variety": "SECRET",
+    "colors": ""
   },
   {
     "name": "ROSA",
-    "variety": "TYFANNY"
+    "variety": "TYFANNY",
+    "colors": "CREMA, BLANCO"
   },
   {
     "name": "ROSA",
-    "variety": "TOFEE"
+    "variety": "TOFEE",
+    "colors": "CREMA, CAFE"
   },
   {
     "name":"ROSA",
-    "variety": "CANDLELIGHT"
+    "variety": "CANDLELIGHT",
+    "colors": "CREMA, BLANCO"
   },
   {
     "name":"MIX",
-    "variety": "MIX"
+    "variety": "MIX",
+    "colors": "MIX"
   }
 ]

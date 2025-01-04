@@ -43,6 +43,11 @@ class GPTProcessor:
             data = [json.loads(i.replace('\n', '')) for i in data]
             return data
         except Exception as e:
+            import ipdb; ipdb.set_trace()
+            print('------------------')
+            print(data)
+            print(messages['data'][0]['content'][0]['text']['value'])
+            print('------------------')
             return 'Error al procesar stock, no se puede leer el formato {} {}'.format(
                 str(e), messages['data'][0]['content'][0]['text']['value']
             )

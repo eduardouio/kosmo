@@ -66,7 +66,12 @@ class AnalizeStockTextAPI(View):
             stock_detail.save()
             product = self.get_or_create_product(item[4])
             for idx in range(len(item[5])):
-                price = float(item[-1][idx])
+                price = 0.00
+                if len(item[-1]) == len(item[-2]):
+                    price = float(item[-1][idx])
+                else:
+                    price = float(item[-1][0])
+
                 if kwargs['profit_is_included']:
                     price = price - float(kwargs['profit_margin']) if price > 0.00 else 0.00
 
