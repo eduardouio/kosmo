@@ -138,7 +138,7 @@ const formatNumber = (event, box=null) => {
         return;
     }
     event.target.value = parseFloat(value).toFixed(2);
-    stockStore.updateStockDetail(box);
+    stockStore.updateStockDetail([box]);
 }
 
 const formatInteger = (event,  box=null) => {
@@ -149,7 +149,7 @@ const formatInteger = (event,  box=null) => {
         return;
     }
     event.target.value = parseInt(value);
-    stockStore.updateStockDetail(box);
+    stockStore.updateStockDetail([box]);
 }
 
 const calcTotalStems = (box_items) => {

@@ -28,11 +28,11 @@ export const useStockStore = defineStore('stockStore', {
         this.extractSuppliers();
         this.extractColors();
       },
-      async updateStockDetail(item){
+      async updateStockDetail(boxes){
         const response = await fetch(appConfig.urlUpdateStockDetail, {
           method: 'POST',
           headers: appConfig.headers,
-          body: JSON.stringify(item)
+          body: JSON.stringify(boxes)
         });
         const data = await response.json();
         console.dir(data);
@@ -81,6 +81,7 @@ export const useStockStore = defineStore('stockStore', {
         this.stock.forEach(item => {
           item.is_visible = selectedSuppliers.includes(item.partner.id);
       });
+      this.filterByColor();
       },
       filterByColor(){
         let selectedColors = this.colors.filter(
@@ -91,6 +92,7 @@ export const useStockStore = defineStore('stockStore', {
               return subItem.product_colors.some(color => selectedColors.includes(color));
             });
       });
+      
       },
       async deleteSelected(){
         let toDelete = this.stock.filter(item => item.is_selected);
@@ -127,12 +129,15 @@ export const useStockStore = defineStore('stockStore', {
         });
       },
       updateValues(newValue, column){
+        let box_items = [];
         this.stock.forEach(stockItem => {
           if(stockItem.is_selected){
             stockItem.box_items.forEach(item => {
               item[column] = newValue;
+              box_items.push(item);
             });
           };});
+        this.updateStockDetail(box_items);
       },
     },
   });
