@@ -28,7 +28,7 @@ export const useStockStore = defineStore('stockStore', {
         this.extractSuppliers();
         this.extractColors();
       },
-      async updateStockDetail(boxes){
+      async updateStockDetail(boxes, boxDelete=false){
         try {
           const response = await fetch(appConfig.urlUpdateStockDetail, {
             method: 'POST',
@@ -40,11 +40,19 @@ export const useStockStore = defineStore('stockStore', {
             throw new Error(`Error en la solicitud: ${response.status} ${response.statusText}`);
           }
           const data = await response.json();
+          console.dir(data);
+          this.deleteBoxItem(boxes[0]);
         } catch (error) {
           console.error('Error al actualizar el stock:', error);
           alert(`Hubo un error al actualizar el stock: ${error.message}`);
           return null;
         }
+      },
+      deleteBoxItem(boxItem){
+        console.log('deleteBoxItem', boxItem);
+        this.stock.forEach(item => {
+          item.box_items = item.box_items.filter(subItem => subItem.id !== boxItem.id);
+        });
       },
       extractColors(){
         let colors = this.stock.map(item => item.box_items).flat().map(item => item.product_colors)
@@ -84,15 +92,44 @@ export const useStockStore = defineStore('stockStore', {
         this.stockToText();
       },
       filterBySupplier(){
+        this.filterStockSidebar();
+        reutrn;
         let selectedSuppliers = this.suppliers.filter(
           item => item.is_selected)
           .map(item => item.id);
         this.stock.forEach(item => {
           item.is_visible = selectedSuppliers.includes(item.partner.id);
       });
-      this.filterByColor();
+
       },
+      filterStockSidebar() {
+        // Obtener los proveedores seleccionados
+        const selectedSuppliers = this.suppliers
+          .filter(item => item.is_selected)
+          .map(item => item.id);
+      
+        // Obtener los colores seleccionados
+        const selectedColors = this.colors
+          .filter(item => item.is_selected)
+          .map(item => item.name);
+      
+        // Aplicar ambos filtros
+        this.stock.forEach(item => {
+          // Filtrar por proveedor
+          const supplierMatch = selectedSuppliers.length === 0 || selectedSuppliers.includes(item.partner.id);
+      
+          // Filtrar por color
+          const colorMatch = selectedColors.length === 0 || item.box_items.some(subItem => {
+            return subItem.product_colors.some(color => selectedColors.includes(color));
+          });
+      
+          // El elemento es visible si cumple ambos filtros
+          item.is_visible = supplierMatch && colorMatch;
+        });
+      },      
       filterByColor(){
+        this.filterStockSidebar();
+        reutrn;
         let selectedColors = this.colors.filter(
           item => item.is_selected)
           .map(item => item.name);
@@ -115,12 +152,13 @@ export const useStockStore = defineStore('stockStore', {
         console.dir(data);
       },
       selectAllSuppliers(select=false){
+        console.log('selectAllSuppliers', select);
         this.suppliers = this.suppliers.map(item => ({...item, is_selected: select}));
-        this.filterBySupplier();
+        this.filterStock();
       },
       selectAllColors(select=false){
         this.colors = this.colors.map(item => ({...item, is_selected: select}));
-        this.filterByColor();
+        this.filterStockSidebar();
       },
       stockToText(){
         this.stockText = 'QTY\tBOX\tTOTAL\tSUPPLIER\tPRODUCT\tLENGTH\tQTY\tPRICE\tCOSTBOX\n';

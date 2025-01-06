@@ -13,6 +13,7 @@ class UpdateStockDetailAPI(View):
             box_item.qty_stem_flower = box['qty_stem_flower']
             box_item.stem_cost_price = box['stem_cost_price']
             box_item.profit_margin = box['margin']
+            box_item.is_active = box['is_active']
             box_item.save()
             StockDetail.rebuild_stock_detail(box_item.stock_detail)
         return JsonResponse(
