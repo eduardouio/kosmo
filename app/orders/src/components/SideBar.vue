@@ -54,7 +54,7 @@ watch(
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
             </div>
         </router-link>
-
+<!--
         <router-link to="/" class="list-group-item hover-opacity">
             <div class="rounded-1 p-0 fw-semibold">
                 Pedidos de Clientes
@@ -67,6 +67,7 @@ watch(
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
             </div>
         </router-link>
+        -->
     </div>
     <div v-if="route.path === '/'" class="mt-4">
     <div v-if="!isLoading">

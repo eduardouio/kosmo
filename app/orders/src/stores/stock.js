@@ -41,7 +41,9 @@ export const useStockStore = defineStore('stockStore', {
           }
           const data = await response.json();
           console.dir(data);
-          this.deleteBoxItem(boxes[0]);
+          if (boxDelete){
+            this.deleteBoxItem(boxes[0]);
+          }
         } catch (error) {
           console.error('Error al actualizar el stock:', error);
           alert(`Hubo un error al actualizar el stock: ${error.message}`);

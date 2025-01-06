@@ -33,6 +33,7 @@ export const useBaseStore = defineStore("baseStore", {
           'OTRO' : 'bg-gray-500 text-white',
         },
         suppliers:[],
+        products:[],
         isLoading: true,
         idStock: appConfig.idStock,
     }),

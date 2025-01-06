@@ -212,7 +212,8 @@ class BoxItems(BaseModel):
     @classmethod
     def get_box_items(cls, stock_detail):
         return cls.objects.filter(
-            stock_detail=stock_detail
+            stock_detail=stock_detail,
+            is_active=True
         )
 
     def __str__(self):
