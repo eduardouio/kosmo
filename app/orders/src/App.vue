@@ -1,15 +1,11 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import { appConfig } from "@/AppConfig.js"
-import NavBar from "@/components/NavBar.vue"
 import SideBar from './components/SideBar.vue';
 </script>
 
 <template>
   <div class="container-fluid">
-    <div class="row">
-      <NavBar />
-    </div>
     <div class="row">
       <div class="col-2 bg-light p-1 m-1 bg-opacity-50">
         <SideBar />
