@@ -1,10 +1,11 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useBaseStore } from '@/stores/base';
 import { useStockStore } from '@/stores/stock';
+import { appConfig } from '@/AppConfig';
+import Autocomplete from '@/components/Autocomplete.vue';
 import { 
     IconX,
-    IconCheck,
     IconPlus,
     IconTrash,
     IconSettings,
@@ -19,6 +20,34 @@ const tabShowIdx = ref({
     tabAddProduct: false,
 });
 const confirmDelete = ref(false);
+const newBoxItem = ref({
+    "id": 0,
+    "stock_detail_id": null,
+    "product_id": null,
+    "product_name": "ELEGIR",
+    "product_variety": "EJELIR",
+    "product_image": null,
+    "product_colors": [],
+    "product_notes": null,
+    "length": null,
+    "qty_stem_flower": 0,
+    "stem_cost_price": 0,
+    "margin": 0.06,
+    "is_active": true
+});
+
+const isValidData = computed(() => {
+    return newBoxItem.value.length > 0 && newBoxItem.value.qty_stem_flower > 0 && newBoxItem.value.stem_cost_price > 0 && newBoxItem.value.margin > 0;
+});
+
+const createBoxItem = () => {
+    console.log('Manamos a crear un nuevo detalle de una caja');
+    if (baseStore.selectedProduct === null) {
+        alert('Debe seleccionar un producto');
+        return;
+    }
+    console.log(newBoxItem.value);
+}
 
 const changeTab = (tab) => {
     Object.keys(tabShowIdx.value).forEach((key) => {
@@ -61,18 +90,18 @@ const updateBoxItem = (boxItem, deleteBox=false) => {
 
 </script>
 <template>
-    <div class="modal fade modal-xl" id="editBoxModal" tabindex="-1" aria-labelledby="editBoxModal" aria-hidden="true" v-if="!baseStore.isLoading && stockItem">
+    <div class="modal fade modal-xl" id="editBoxModal" tabindex="-1" aria-labelledby="editBoxModal" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-kosmo-primary p-1 text-white">
-                    <span class="modal-title fs-6 ps-3" id="editBoxModal">
+                    <span class="modal-title fs-6 ps-3" id="editBoxModal" v-if="!baseStore.isLoading && stockItem">
                         Editar Disponibilidad de Stock {{ stockItem.partner.name }}
                     </span>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                   <div class="container">
-                    <div class="row">
+                   <div class="container" v-if="!baseStore.isLoading && stockItem">
+                    <div class="row border p-1">
                         <div class="col-2">
                             <span class="text-secondary">ID:</span>
                             {{ stockItem.stock_detail_id }}
@@ -82,20 +111,21 @@ const updateBoxItem = (boxItem, deleteBox=false) => {
                             {{ stockItem.partner.name }}
                         </div>
                         <div class="col-3">
-                            <span class="text-secondary">Margen:</span>
-                            {{ stockItem.partner.default_profit_margin }}
+                            <span class="text-secondary">Cajas:</span>
+                            {{ stockItem.quantity }} {{ stockItem.box_model }}
                         </div>
                         <div class="col-3">
-                            <span class="text-secondary">Costo Caja:</span>
-                            {{ stockItem.tot_cost_price_box }}
+                            <span class="text-secondary">Tallos:</span>
+                            {{ stockItem.tot_stem_flower }}
                         </div>
                     </div>
+                    <div class="row">
                     <div class="col-12 pt-4 pb-2 d-flex justify-content-between">
                         <ul class="nav nav-tabs">
                         <li class="nav-item">
                             <a class="nav-link" aria-current="page" href="#" @click="changeTab('tabEditBox')" :class="{'active': tabShowIdx.tabEditBox}">
                                 <IconEdit size="20" stroke="1.5" />
-                                Modificar Contenido de Caja
+                                Modificar Contenido por C/{{ stockItem.box_model }}
                             </a>
                         </li>
                         <li class="nav-item">
@@ -176,42 +206,81 @@ const updateBoxItem = (boxItem, deleteBox=false) => {
                     </div>
                     <div class="col-12" v-if="tabShowIdx.tabAddProduct">
                         <div class="row">
-                            <div class="col-6">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text">Producto</span>
-                                    <select class="form-select" v-model="newProduct">
-                                        <option v-for="product in products" :value="product.id">
-                                            {{ product.name }} {{ product.variety }}
-                                        </option>
-                                    </select>
+                            <div class="d-flex justify-content-between  pt-2 pb-5 gap-2 h-40">
+                                <div class="w-50">
+                                    <Autocomplete/>
+                            </div>
+                            <div class="text-end">
+                                <div v-if="baseStore.selectedProduct">
+                                    <img :src="appConfig.apiBaseUrl + baseStore.selectedProduct.image" alt="" class="img-thumbnail" style="height: 250px; width: auto;">
                                 </div>
                             </div>
-                            <div class="col-3">
+                        </div>
+                            <div class="col-2">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Tallos</span>
+                                    <input
+                                        type="number"
+                                        v-model="newBoxItem.qty_stem_flower"
+                                        @change="formatInteger" 
+                                        step="1" 
+                                        class="form-control text-end"
+                                        :class="{'text-danger border-danger': newBoxItem.qty_stem_flower <= 0}"
+                                        />
+                                </div>
+                            </div>
+                            <div class="col-2">
                                 <div class="input-group mb-3">
                                     <span class="input-group-text">Largo</span>
-                                    <input type="number" v-model="newLength" @change="formatInteger" step="1" class="form-control text-end" />
+                                    <input
+                                        type="number"
+                                        v-model="newBoxItem.length"
+                                        @change="formatInteger" 
+                                        step="1" 
+                                        class="form-control text-end"
+                                        :class="{'text-danger border-danger': newBoxItem.length <= 0}"
+                                        />
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="input-group mb-3">
-                                    <span class="input-group-text">Cantidad</span>
-                                    <input type="number" v-model="newQtyStemFlower" @change="formatInteger" step="1" class="form-control text-end" />
+                                    <span class="input-group-text">Costo Tallo</span>
+                                    <input
+                                        type="number"
+                                        v-model="newBoxItem.stem_cost_price"
+                                        @change="formatNumber" 
+                                        step="0.01" 
+                                        class="form-control text-end"
+                                        :class="{'text-danger border-danger': newBoxItem.stem_cost_price <= 0}"
+                                        />
                                 </div>
                             </div>
-                            <div class="col-3">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text">Costo</span>
-                                    <input type="number" v-model="newStemCostPrice" @change="formatNumber" step="0.01" class="form-control text-end" />
-                                </div>
-                            </div>
-                            <div class="col-3">
+                            <div class="col-2">
                                 <div class="input-group mb-3">
                                     <span class="input-group-text">Margen</span>
-                                    <input type="number" v-model="newMargin" @change="formatNumber" step="0.01" class="form-control text-end" />
+                                    <input
+                                        type="number"
+                                        v-model="newBoxItem.margin"
+                                        @change="formatNumber" 
+                                        step="0.01" 
+                                        class="form-control text-end"
+                                        :class="{'text-danger border-danger': newBoxItem.margin <= 0}"
+                                        />
                                 </div>
                             </div>
-                            <div class="col-3">
-                                <button class="btn btn-sm btn-default">
+                            <div class="col-2">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Precio</span>
+                                    <input
+                                        type="number"
+                                        :value="(newBoxItem.stem_cost_price + newBoxItem.margin)" 
+                                        class="form-control text-end"
+                                        :class="{'text-danger border-danger': newBoxItem.margin + newBoxItem.stem_cost_price <= 0}"
+                                        />
+                                </div>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <button class="btn btn-sm btn-default" :disabled="!isValidData" @click="createBoxItem">
                                     <IconPlus size="20" stroke="1.5" />
                                     Agregar Producto
                                 </button>
@@ -219,6 +288,7 @@ const updateBoxItem = (boxItem, deleteBox=false) => {
                         </div>
 
                     </div>
+                </div>
                    </div>
                 </div>
                 <div class="modal-footer bg-secondary bg-gradient p-1">

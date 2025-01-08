@@ -94,8 +94,6 @@ export const useStockStore = defineStore('stockStore', {
         this.stockToText();
       },
       filterBySupplier(){
-        this.filterStockSidebar();
-        reutrn;
         let selectedSuppliers = this.suppliers.filter(
           item => item.is_selected)
           .map(item => item.id);
@@ -104,34 +102,7 @@ export const useStockStore = defineStore('stockStore', {
       });
 
       },
-      filterStockSidebar() {
-        // Obtener los proveedores seleccionados
-        const selectedSuppliers = this.suppliers
-          .filter(item => item.is_selected)
-          .map(item => item.id);
-      
-        // Obtener los colores seleccionados
-        const selectedColors = this.colors
-          .filter(item => item.is_selected)
-          .map(item => item.name);
-      
-        // Aplicar ambos filtros
-        this.stock.forEach(item => {
-          // Filtrar por proveedor
-          const supplierMatch = selectedSuppliers.length === 0 || selectedSuppliers.includes(item.partner.id);
-      
-          // Filtrar por color
-          const colorMatch = selectedColors.length === 0 || item.box_items.some(subItem => {
-            return subItem.product_colors.some(color => selectedColors.includes(color));
-          });
-      
-          // El elemento es visible si cumple ambos filtros
-          item.is_visible = supplierMatch && colorMatch;
-        });
-      },      
       filterByColor(){
-        this.filterStockSidebar();
-        reutrn;
         let selectedColors = this.colors.filter(
           item => item.is_selected)
           .map(item => item.name);

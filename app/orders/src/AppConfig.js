@@ -12,6 +12,8 @@ export const appConfig = {
     "urlAllSuppliers": apiBaseUrl + "/api/partners/all-supliers/?id_stock=" + idStockDay,
     'urlDeleteStockDetail': apiBaseUrl + "/api/delete_stock_detail/",
     'urlUpdateStockDetail': apiBaseUrl + "/api/update_stock_detail/",
+    'urlAllProducts': apiBaseUrl + "/api/products/all_products/",
+
     "headers": {
         'Accept': 'application/json',
         'Content-Type': 'application/json',

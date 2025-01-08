@@ -129,6 +129,7 @@ const loadData = () => {
     baseStore.isLoading = true;
     stockStore.getStock(baseStore);
     setTimeout(() => {
+        baseStore.loadProducts();
         calcIndicators();
     }, 1000);
 };

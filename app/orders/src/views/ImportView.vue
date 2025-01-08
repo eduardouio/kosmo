@@ -53,6 +53,7 @@ const analyzeStock = async () => {
 
 onMounted(() => {
     storeBase.loadSuppliers();
+    storeBase.loadProducts();
 });
 </script>
 <template>

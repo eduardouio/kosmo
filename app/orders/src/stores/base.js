@@ -36,14 +36,36 @@ export const useBaseStore = defineStore("baseStore", {
         products:[],
         isLoading: true,
         idStock: appConfig.idStock,
+        selectedProduct: null,
     }),
     actions: {
       async loadSuppliers(){
         if (this.suppliers.length > 0) return;
-        const response = await fetch(appConfig.urlAllSuppliers);
-        const data = await response.json();
-        this.suppliers = data;
-        this.isLoading = false;
+        try {
+          this.isLoading = true;
+          const response = await fetch(appConfig.urlAllSuppliers);
+          const data = await response.json();
+          this.suppliers = data;
+          this.isLoading = false;
+          this.loadProducts();
+        }
+        catch (error) {
+          console.error('Error al cargar los proveedores:', error);
+          alert(`Hubo un error al cargar los proveedores: ${error.message}`);
+          this.isLoading = false;
+        }
+      },
+      async loadProducts(){
+        if (this.products.length > 0) return;
+        try{
+          const response = await fetch(appConfig.urlAllProducts);
+          const data = await response.json();
+          this.products = data.products;
+        }
+        catch (error) {
+          console.error('Error al cargar los productos:', error);
+          alert(`Hubo un error al cargar los productos: ${error.message}`);
+        }
       },
       setLoading(value){
         this.isLoading = value;

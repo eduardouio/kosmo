@@ -14,5 +14,5 @@ urlpatterns = [
     path('api/analize_stock_text/', AnalizeStockTextAPI.as_view(), name='analize_stock_text'),
     path('api/delete_stock_detail/', DeleteStockDetailAPI.as_view(), name='delete_stock_detail'),
     path('api/update_stock_detail/', UpdateStockDetailAPI.as_view(), name='update_stock_detail'),
-    path('api/all_products/', AllProductsAPI.as_view(), name='all_products'),
+    path('api/products/all_products/', AllProductsAPI.as_view(), name='all_products'),
 ]
