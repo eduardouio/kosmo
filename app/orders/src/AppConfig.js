@@ -11,6 +11,7 @@ export const appConfig = {
     "urlDispo": apiBaseUrl + "/api/stock_detail/" + idStockDay + "/",
     "urlAnalyce": apiBaseUrl + "/api/analize_stock_text/",
     "urlAllSuppliers": apiBaseUrl + "/api/partners/all-supliers/?id_stock=" + idStockDay,
+    'urlAllCustomers': apiBaseUrl + "/api/partners/all-customers/",
     'urlDeleteStockDetail': apiBaseUrl + "/api/delete_stock_detail/",
     'urlUpdateStockDetail': apiBaseUrl + "/api/update_stock_detail/",
     'urlAllProducts': apiBaseUrl + "/api/products/all_products/",

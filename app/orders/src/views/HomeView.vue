@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import ModalProduct from '@/components/ModalProduct.vue';
@@ -27,7 +27,6 @@ import {
 // VARIABLES
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
-const colors = ref(null);
 const generalIndicators = ref({});
 const productSelected = ref(null);
 const suplierSelected = ref(null);
@@ -43,10 +42,6 @@ const buttonsVisibility = ref({
     delete: false,
 });
 const confirmDelete = ref(false);
-const newValue = ref({
-    profitMargin: 0.00,
-    stemCostPrice: 0.00,
-});
 
 // METHODS
 

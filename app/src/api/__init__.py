@@ -5,3 +5,4 @@ from .DeleteStockDetailAPI import DeleteStockDetailAPI
 from .UpdateStockDetailAPI import UpdateStockDetailAPI
 from .AllProductsAPI import AllProductsAPI
 from .AddBoxItemAPI import AddBoxItemAPI
+from .AllCustomerAPI import AllCustomerAPI
