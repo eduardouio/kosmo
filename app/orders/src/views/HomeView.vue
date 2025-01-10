@@ -1,7 +1,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'; 
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
+import { useOrdersStore } from '@/stores/orders';
 import ModalProduct from '@/components/ModalProduct.vue';
 import ModalSuplier from '@/components/ModalSuplier.vue';
 import ModalShareStock from '@/components/ModalShareStock.vue';
@@ -27,6 +29,7 @@ import {
 // VARIABLES
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
+const ordersStore = useOrdersStore();
 const generalIndicators = ref({});
 const productSelected = ref(null);
 const suplierSelected = ref(null);
@@ -42,9 +45,9 @@ const buttonsVisibility = ref({
     delete: false,
 });
 const confirmDelete = ref(false);
+const router = useRouter();
 
 // METHODS
-
 const deleteSelected = () => {
     if (!confirmDelete.value) {
         confirmDelete.value = true;
@@ -85,6 +88,12 @@ const setVibilityButtons = () => {
 
 const selectText = (event) => {
     event.target.select();
+}
+
+const addToOrder = () => {
+    const new_orders = stockStore.getSelection();
+    ordersStore.new_order = new_orders;
+    router.push('/customer-orders/');
 }
 
 const calcIndicators = () => {
@@ -196,6 +205,7 @@ loadData();
             <Loader />
         </div>
         <div class="row ps-2" v-else="">
+            <div class="cntainer">
             <div class="row pt-1 pb-3">
                 <div class="col d-flex gap-1 justify-content-start align-items-center">
                     <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
@@ -296,7 +306,7 @@ loadData();
                         <IconCurrencyDollar size="15" stroke="1.5" />
                         Valores
                     </button>
-                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.order">
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.order" @click="addToOrder()">
                         <IconShoppingCart size="15" stroke="1.5" />
                         Pedido
                     </button>
@@ -432,6 +442,7 @@ loadData();
             <ModalEditBox :stockItem="stockItemSeletec" />
             <ModalShareStock />
             <ModalUpdateValues />
+        </div>
         </div>
     </div>
 </template>

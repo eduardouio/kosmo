@@ -59,7 +59,7 @@ onMounted(() => {
 <template>
     <div class="container-fluid p-0">
         <div class="row">
-        <div class="col">
+        <div class="container">
             <Loader v-if="storeBase.isLoading" />
             <div v-else="">
                 <div class="row pt-1 pb-2 pe-2 ps-3">
