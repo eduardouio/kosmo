@@ -173,7 +173,6 @@ const uniqueColors = (boxItems) => {
     return [...new Set(allColors)];
 }
 
-
 // Computed
 const filterData = computed(() => {
     return stockStore.stock.filter(item => item.is_visible);

@@ -27,6 +27,7 @@ const getClass = (item) => {
     return 'bg-gray-200 text-gray-500';    
 };
 
+
 watch(
     () => baseStore.isLoading,
     (newValue) => {
@@ -89,7 +90,7 @@ watch(
         </div>
     </div>
         <ul class="list-group rounded-0">
-            <li v-for="supplier in stockStore.suppliers" :key="supplier.id" class="list-group-item p-1" :class="{'bg-gray-100': supplier.is_selected}" @click="supplier.is_selected = !supplier.is_selected;stockStore.filterBySupplier()">
+            <li v-for="supplier in stockStore.suppliers" :key="supplier.id" class="list-group-item p-1" :class="{'bg-gray-100': supplier.is_selected}" @click="supplier.is_selected = !supplier.is_selected;stockStore.filterCategories()">
                 <IconCheckbox size="20" stroke="1.5" class="float-start" v-if="supplier.is_selected"/>
                 <span class="ps-3" :class="{'fw-semibold': supplier.is_selected}">
                     {{ supplier.name }}
@@ -117,7 +118,7 @@ watch(
     </div>
     <hr />
         <section class="d-flex flex-wrap gap-2">
-            <span v-for="item in stockStore.colors" :class="getClass(item)" class="rounded-1 p-1" @click="item.is_selected = !item.is_selected;stockStore.filterByColor()">
+            <span v-for="item in stockStore.colors" :class="getClass(item)" class="rounded-1 p-1" @click="item.is_selected = !item.is_selected;stockStore.filterCategories()">
                 <IconCheckbox size="15" stroke="1.5" v-if="item.is_selected"/>
                 {{ item.name }}
             </span>

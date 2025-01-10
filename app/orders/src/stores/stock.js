@@ -92,8 +92,7 @@ export const useStockStore = defineStore('stockStore', {
       filterStock(querySearch){
         if (!querySearch){
           if( this.stock){
-            this.filterBySupplier();
-            this.filterByColor();
+            this.filterCategories();
           }
           return;
         }
@@ -113,26 +112,33 @@ export const useStockStore = defineStore('stockStore', {
         });
         this.stockToText();
       },
-      filterBySupplier(){
-        let selectedSuppliers = this.suppliers.filter(
-          item => item.is_selected)
-          .map(item => item.id);
-        this.stock.forEach(item => {
-          item.is_visible = selectedSuppliers.includes(item.partner.id);
-      });
-
+      filterCategories(){
+        console.log('filterCategories');
+        const selectedSuppliers = this.suppliers.filter(item => item.is_selected).map(item => item.id);
+        const selectedColors = this.colors.filter(item => item.is_selected).map(item => item.name);
+        this.stock.forEach(item => item.is_visible = false);
+        if(selectedColors.length === 0 || selectedSuppliers.length === 0){
+          return;
+        }
+        
+        // filtro proveedores
+        this.stock.forEach((item) => {
+          if(selectedSuppliers.includes(item.partner.id)){
+            item.is_visible = true;
+            return;
+          }
+        });
+        // filtro colores
+        this.stock.forEach((item) => {
+          if(item.is_visible){
+           item.is_visible = this.checkColors(item.box_items, selectedColors); 
+          }
+        });
       },
-      filterByColor(){
-        let selectedColors = this.colors.filter(
-          item => item.is_selected)
-          .map(item => item.name);
-          this.stock.forEach(item => {
-            item.is_visible = item.box_items.some(subItem => {
-              return subItem.product_colors.some(color => selectedColors.includes(color));
-            });
-      });
-      
-      },
+      checkColors(boxItems, colors){
+        let colorsInStock = boxItems.map(item => item.product_colors).flat();
+        return colorsInStock.some(item => colors.includes(item));
+      },   
       async deleteSelected(){
         let toDelete = this.stock.filter(item => item.is_selected);
         this.stock = this.stock.filter(item => !item.is_selected);
@@ -145,13 +151,12 @@ export const useStockStore = defineStore('stockStore', {
         console.dir(data);
       },
       selectAllSuppliers(select=false){
-        console.log('selectAllSuppliers', select);
         this.suppliers = this.suppliers.map(item => ({...item, is_selected: select}));
-        this.filterStock();
+        this.filterCategories();
       },
       selectAllColors(select=false){
         this.colors = this.colors.map(item => ({...item, is_selected: select}));
-        this.filterStockSidebar();
+        this.filterCategories();
       },
       getSelection(){
         return this.stock.filter(item => item.is_selected);
