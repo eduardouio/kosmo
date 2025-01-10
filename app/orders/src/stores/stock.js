@@ -97,12 +97,13 @@ export const useStockStore = defineStore('stockStore', {
           return;
         }
         this.stock.forEach(item => {
-          if(item.is_visible){
-            item.box_items.forEach((subItem) => {
-              item.is_visible = subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase());
-          });
-        }
+          if (item.is_visible) {
+            item.is_visible = item.box_items.some(subItem => 
+              subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase())
+            );
+          }
         });
+        
       },
       selectAll(option){
         this.stock.forEach(item => {
@@ -113,7 +114,6 @@ export const useStockStore = defineStore('stockStore', {
         this.stockToText();
       },
       filterCategories(){
-        console.log('filterCategories');
         const selectedSuppliers = this.suppliers.filter(item => item.is_selected).map(item => item.id);
         const selectedColors = this.colors.filter(item => item.is_selected).map(item => item.name);
         this.stock.forEach(item => item.is_visible = false);
