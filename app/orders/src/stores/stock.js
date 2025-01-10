@@ -101,8 +101,8 @@ export const useStockStore = defineStore('stockStore', {
         }
         this.stock.forEach(item => {
           if(item.is_visible){
-          item.box_items.forEach(subItem => {
-            item.is_visible = subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase());
+            item.box_items.forEach((subItem) => {
+              item.is_visible = subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase());
           });
         }
         });
