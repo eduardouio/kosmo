@@ -98,6 +98,7 @@ export const useStockStore = defineStore('stockStore', {
         }
         this.stock.forEach(item => {
           if (item.is_visible) {
+            // Si al menos un subItem coincide, el item debe ser visible
             item.is_visible = item.box_items.some(subItem => 
               subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase())
             );
@@ -113,32 +114,29 @@ export const useStockStore = defineStore('stockStore', {
         });
         this.stockToText();
       },
-      filterCategories(){
+      filterCategories() {
         const selectedSuppliers = this.suppliers.filter(item => item.is_selected).map(item => item.id);
         const selectedColors = this.colors.filter(item => item.is_selected).map(item => item.name);
-        this.stock.forEach(item => item.is_visible = false);
-        if(selectedColors.length === 0 || selectedSuppliers.length === 0){
+      
+        // Si no hay proveedores o colores seleccionados, ocultamos todo
+        if (selectedColors.length === 0 || selectedSuppliers.length === 0) {
+          this.stock.forEach(item => item.is_visible = false);
           return;
         }
-        
-        // filtro proveedores
-        this.stock.forEach((item) => {
-          if(selectedSuppliers.includes(item.partner.id)){
-            item.is_visible = true;
-            return;
+      
+        // Unificamos la lógica de proveedores y colores
+        this.stock.forEach(item => {
+          // Verificamos si el proveedor está seleccionado
+          if (selectedSuppliers.includes(item.partner.id)) {
+            // Si el proveedor está seleccionado, verificamos los colores
+            item.is_visible = item.box_items.some(subItem => 
+              subItem.product_colors.some(color => selectedColors.includes(color))
+            );
+          } else {
+            item.is_visible = false;
           }
         });
-        // filtro colores
-        this.stock.forEach((item) => {
-          if(item.is_visible){
-           item.is_visible = this.checkColors(item.box_items, selectedColors); 
-          }
-        });
-      },
-      checkColors(boxItems, colors){
-        let colorsInStock = boxItems.map(item => item.product_colors).flat();
-        return colorsInStock.some(item => colors.includes(item));
-      },   
+      },  
       async deleteSelected(){
         let toDelete = this.stock.filter(item => item.is_selected);
         this.stock = this.stock.filter(item => !item.is_selected);
