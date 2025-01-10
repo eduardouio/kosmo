@@ -6,6 +6,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     state: () => ({
         customers:[],
         orders: [],
+        new_order:[],
     }),
     actions:{
         async loadCustomers(){

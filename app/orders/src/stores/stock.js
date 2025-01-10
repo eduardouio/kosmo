@@ -153,6 +153,9 @@ export const useStockStore = defineStore('stockStore', {
         this.colors = this.colors.map(item => ({...item, is_selected: select}));
         this.filterStockSidebar();
       },
+      getSelection(){
+        return this.stock.filter(item => item.is_selected);
+      },
       stockToText(){
         this.stockText = 'QTY\tBOX\tTOTAL\tSUPPLIER\tPRODUCT\tLENGTH\tQTY\tPRICE\tCOSTBOX\n';
         let selected = this.stock.filter(item => item.is_selected);
