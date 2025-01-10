@@ -22,6 +22,8 @@ onMounted( async () => {
         <div class="row" v-if="baseStore.isLoading">
             <Loader />
         </div>
-        <div class="row" v-else></div>
+        <div class="row" v-else>
+            Hola
+        </div>
     </div>
 </template>

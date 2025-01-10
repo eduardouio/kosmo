@@ -1,7 +1,5 @@
 import { defineStore } from 'pinia';
 import { appConfig } from '@/AppConfig';
-import { watch } from 'vue';
-
 
 export const useStockStore = defineStore('stockStore', {
     state: () => ({

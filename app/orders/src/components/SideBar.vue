@@ -42,7 +42,7 @@ watch(
 
 <template>
     <div class="p-2 list-group rounded-0">
-        <router-link to="/import" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/import'}">
+        <router-link to="/import/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/import'}">
             <div class="b rounded-1 p-0 fw-semibold ">
                 Importar Disponibilidad
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
@@ -54,13 +54,13 @@ watch(
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
             </div>
         </router-link>
-<!--
-        <router-link to="/" class="list-group-item hover-opacity">
+        <router-link to="/customer-orders/" class="list-group-item hover-opacity">
             <div class="rounded-1 p-0 fw-semibold">
                 Pedidos de Clientes
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
             </div>
         </router-link>
+        <!--
         <router-link to="/" class="list-group-item hover-opacity">
             <div class="rounded-1 p-0 fw-semibold">
                 Compras a Proveedor
