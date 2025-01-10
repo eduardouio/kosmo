@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useBaseStore } from '@/stores/base';
 import { useStockStore } from '@/stores/stock';
 import { appConfig } from '@/AppConfig';
@@ -20,33 +20,51 @@ const tabShowIdx = ref({
     tabAddProduct: false,
 });
 const confirmDelete = ref(false);
-const newBoxItem = ref({
-    "id": 0,
-    "stock_detail_id": null,
-    "product_id": null,
-    "product_name": "ELEGIR",
-    "product_variety": "EJELIR",
-    "product_image": null,
-    "product_colors": [],
-    "product_notes": null,
-    "length": null,
-    "qty_stem_flower": 0,
-    "stem_cost_price": 0,
-    "margin": 0.06,
-    "is_active": true
-});
+const newBoxItem = ref({});
+
+const setDefaultBoxItem = () => {
+    newBoxItem.value = {
+        "id": 0,
+        "stock_detail_id": null,
+        "product_id": null,
+        "product_name": "ELEGIR",
+        "product_variety": "EJELIR",
+        "product_image": null,
+        "product_colors": [],
+        "product_notes": null,
+        "length": null,
+        "qty_stem_flower": 0,
+        "stem_cost_price": 0,
+        "margin": 0.06,
+        "is_active": true
+    };
+}
+
 
 const isValidData = computed(() => {
-    return newBoxItem.value.length > 0 && newBoxItem.value.qty_stem_flower > 0 && newBoxItem.value.stem_cost_price > 0 && newBoxItem.value.margin > 0;
+    const { length, qty_stem_flower, stem_cost_price, margin } = newBoxItem.value;
+    return length > 0 &&
+           qty_stem_flower > 0 &&
+           stem_cost_price > 0 &&
+           margin > 0 &&
+           baseStore.selectedProduct !== null;
 });
 
-const createBoxItem = () => {
-    console.log('Manamos a crear un nuevo detalle de una caja');
-    if (baseStore.selectedProduct === null) {
+const createBoxItem = async() => {
+    if (!isValidData.value) {
         alert('Debe seleccionar un producto');
         return;
     }
-    console.log(newBoxItem.value);
+    newBoxItem.value.stock_detail_id = props.stockItem.stock_detail_id;
+    newBoxItem.value.product_id = baseStore.selectedProduct.id;
+    newBoxItem.value.product_name = baseStore.selectedProduct.name;
+    newBoxItem.value.product_variety = baseStore.selectedProduct.variety;
+    newBoxItem.value.product_colors = baseStore.selectedProduct.colors;
+    newBoxItem.value.product_notes = baseStore.selectedProduct.notes;
+    newBoxItem.value.product_image = baseStore.selectedProduct.image;
+    const data =  await stockStore.addBoxItem(newBoxItem.value);
+    console.log(data);
+    setDefaultBoxItem();
 }
 
 const changeTab = (tab) => {
@@ -87,6 +105,10 @@ const updateBoxItem = (boxItem, deleteBox=false) => {
     } 
     stockStore.updateStockDetail([boxItem]);
 }
+
+onMounted(() => {
+    setDefaultBoxItem();
+});
 
 </script>
 <template>
@@ -209,11 +231,13 @@ const updateBoxItem = (boxItem, deleteBox=false) => {
                             <div class="d-flex justify-content-between  pt-2 pb-5 gap-2 h-40">
                                 <div class="w-50">
                                     <Autocomplete/>
-                            </div>
-                            <div class="text-end">
-                                <div v-if="baseStore.selectedProduct">
-                                    <img :src="appConfig.apiBaseUrl + baseStore.selectedProduct.image" alt="" class="img-thumbnail" style="height: 250px; width: auto;">
-                                </div>
+                                    <div v-if="baseStore.selectedProduct">
+                                        <img v-if="baseStore.selectedProduct.image" :src="appConfig.apiBaseUrl + baseStore.selectedProduct.image" :alt="baseStore.selectedProduct.name" class="img-thumbnail" style="height: 200px; width: auto;">
+                                        <img v-else :src="appConfig.imgPlaceholder" alt="En Espera" class="img-thumbnail" style="height: 200px; width: auto;">
+                                    </div>
+                                    <div v-else>
+                                        <img :src="appConfig.imgPlaceholder" alt="En Espera" class="img-thumbnail" style="height: 200px; width: auto;">
+                                    </div>
                             </div>
                         </div>
                             <div class="col-2">

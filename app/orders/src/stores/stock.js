@@ -28,6 +28,28 @@ export const useStockStore = defineStore('stockStore', {
         this.extractSuppliers();
         this.extractColors();
       },
+      async addBoxItem(boxItem){
+        try {
+          const response = await fetch(appConfig.urlAddBoxItem, {
+            method: 'POST',
+            headers: appConfig.headers,
+            body: JSON.stringify(boxItem)
+        });
+        const data = await response.json();
+        boxItem.id = data.box_item.id;
+        this.stock.forEach(item => {
+          if(item.stock_detail_id === boxItem.stock_detail_id){
+            console.log('item', item);  
+            item.box_items.push(boxItem);
+          }
+        });
+        return data;
+        } catch (error) {
+          console.error('Error al agregar el item a la caja:', error);
+          alert(`Hubo un error al agregar el item a la caja: ${error.message}`);
+          return null;
+        }
+      },
       async updateStockDetail(boxes, boxDelete=false){
         try {
           const response = await fetch(appConfig.urlUpdateStockDetail, {

@@ -434,7 +434,7 @@ loadData();
             </div>
             <ModalProduct :product="productSelected" />
             <ModalSuplier :suplier="suplierSelected" />
-            <ModalEditBox :stock-item="stockItemSeletec" />
+            <ModalEditBox :stockItem="stockItemSeletec" />
             <ModalShareStock />
             <ModalUpdateValues />
         </div>

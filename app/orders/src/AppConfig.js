@@ -6,6 +6,7 @@ export const appConfig = {
     "apiBaseUrl": apiBaseUrl,
     "csrfToken": csrfToken,
     "idStock": idStockDay,
+    "imgPlaceholder": apiBaseUrl + "/static/img/rosa_placeholder.jpg",
     "urlLogo": apiBaseUrl + "/static/img/logo-kosmo.png",
     "urlDispo": apiBaseUrl + "/api/stock_detail/" + idStockDay + "/",
     "urlAnalyce": apiBaseUrl + "/api/analize_stock_text/",
@@ -13,6 +14,7 @@ export const appConfig = {
     'urlDeleteStockDetail': apiBaseUrl + "/api/delete_stock_detail/",
     'urlUpdateStockDetail': apiBaseUrl + "/api/update_stock_detail/",
     'urlAllProducts': apiBaseUrl + "/api/products/all_products/",
+    'urlAddBoxItem': apiBaseUrl + "/api/stock/add_box_item/",
 
     "headers": {
         'Accept': 'application/json',

@@ -1,5 +1,6 @@
 from django.db import models
 from common import BaseModel
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Product(BaseModel):
@@ -37,6 +38,13 @@ class Product(BaseModel):
 
     class Meta:
         unique_together = ('name', 'variety')
+
+    @classmethod
+    def get_by_id(cls, id):
+        try:
+            return cls.objects.get(id=id)
+        except cls.DoesNotExist:
+            return None
 
     @classmethod
     def get_all(cls):
