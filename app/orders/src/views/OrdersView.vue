@@ -14,7 +14,6 @@ onMounted( async () => {
     baseStore.isLoading = false;
 });
 
-
 </script>
 
 <template>

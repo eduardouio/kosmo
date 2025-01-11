@@ -1,7 +1,6 @@
 from django.http import JsonResponse
 from django.views import View
 from partners.models import Partner, Contact
-from products.models import StockDetail, StockDay
 
 
 class AllCustomerAPI(View):
@@ -29,6 +28,7 @@ class AllCustomerAPI(View):
                 'name': supplier.name,
                 'business_tax_id': supplier.business_tax_id,
                 'address': supplier.address,
+                'country': supplier.country,
                 'city': supplier.city,
                 'website': supplier.website,
                 'credit_term': supplier.credit_term,
