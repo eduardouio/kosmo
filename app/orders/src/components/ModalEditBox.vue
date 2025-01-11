@@ -4,6 +4,7 @@ import { useBaseStore } from '@/stores/base';
 import { useStockStore } from '@/stores/stock';
 import { appConfig } from '@/AppConfig';
 import Autocomplete from '@/components/Autocomplete.vue';
+import ProductImage from '@/components/ProductImage.vue';
 import { 
     IconX,
     IconPlus,
@@ -63,7 +64,6 @@ const createBoxItem = async() => {
     newBoxItem.value.product_notes = baseStore.selectedProduct.notes;
     newBoxItem.value.product_image = baseStore.selectedProduct.image;
     const data =  await stockStore.addBoxItem(newBoxItem.value);
-    console.log(data);
     setDefaultBoxItem();
 }
 
@@ -162,22 +162,23 @@ onMounted(() => {
                         <table class="table table-bordered table-striped">
                             <thead>
                                 <tr class="text-center">
-                                    <th>Producto</th>
-                                    <th class="w-15">Largo</th>
-                                    <th class="w-15">Cantidad</th>
-                                    <th class="w-15">Costo</th>
-                                    <th class="w-15">Margen</th>
-                                    <th class="w-10">
+                                    <th class="bg-gray-200">Producto</th>
+                                    <th class="w-15 bg-gray-200">Largo</th>
+                                    <th class="w-15 bg-gray-200">Cantidad</th>
+                                    <th class="w-15 bg-gray-200">Costo</th>
+                                    <th class="w-15 bg-gray-200">Margen</th>
+                                    <th class="w-10 bg-gray-200">
                                     <IconSettings size="20" stroke="1.5" />
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="box in stockItem.box_items">
-                                    <td>
+                                    <td class="p-1">
+                                        <ProductImage :product="box" style="height: 30px;"/>
                                         {{ box.product_name }} {{ box.product_variety }}
                                     </td>
-                                    <td>
+                                    <td class="p-1">
                                         <input 
                                             type="number"
                                             v-model="box.length"
@@ -187,7 +188,7 @@ onMounted(() => {
                                             :class="{'text-danger border-danger': box.length <= 0}" 
                                         />
                                     </td>
-                                    <td>
+                                    <td class="p-1">
                                         <input 
                                             type="number"
                                             v-model="box.qty_stem_flower"
@@ -197,7 +198,7 @@ onMounted(() => {
                                             :class="{'text-danger border-danger': box.qty_stem_flower <= 0}" 
                                         />
                                     </td>
-                                    <td>
+                                    <td class="p-1">
                                         <input 
                                             type="number"
                                             v-model="box.stem_cost_price"
@@ -207,7 +208,7 @@ onMounted(() => {
                                             :class="{'text-danger border-danger': box.stem_cost_price <= 0}" 
                                         />
                                     </td>
-                                    <td>
+                                    <td class="p-1">
                                         <input 
                                             type="number"
                                             v-model="box.margin"
@@ -217,7 +218,7 @@ onMounted(() => {
                                             :class="{'text-danger border-danger': box.margin <= 0}" 
                                         />
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center p-1">
                                         <button class="btn btn-sm btn-default">
                                             <IconTrash size="20" stroke="1.5" :class="{'text-danger':confirmDelete}" @click="updateBoxItem(box,true)"/>
                                         </button>

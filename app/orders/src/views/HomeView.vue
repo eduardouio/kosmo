@@ -9,6 +9,7 @@ import ModalSuplier from '@/components/ModalSuplier.vue';
 import ModalShareStock from '@/components/ModalShareStock.vue';
 import ModalUpdateValues from '@/components/ModalUpdateValues.vue';
 import ModalEditBox from '@/components/ModalEditBox.vue';
+import ModalOrderPreview from '@/components/ModalOrderPreview.vue';
 import Loader from '@/components/Loader.vue';
 import {
     IconCheckbox,
@@ -91,9 +92,8 @@ const selectText = (event) => {
 }
 
 const addToOrder = () => {
-    const new_orders = stockStore.getSelection();
-    ordersStore.new_order = new_orders;
-    router.push('/customer-orders/');
+    ordersStore.newOrder = stockStore.getSelection();
+    ordersStore.setLimits(stockStore.getSelection());
 }
 
 const calcIndicators = () => {
@@ -134,6 +134,7 @@ const loadData = () => {
     stockStore.getStock(baseStore);
     setTimeout(() => {
         baseStore.loadProducts();
+        ordersStore.loadCustomers();
         calcIndicators();
     }, 1000);
 };
@@ -305,9 +306,9 @@ loadData();
                         <IconCurrencyDollar size="15" stroke="1.5" />
                         Valores
                     </button>
-                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.order" @click="addToOrder()">
+                    <button class="btn btn-sm btn-default" v-if="buttonsVisibility.order" data-bs-toggle="modal" data-bs-target="#orderPreviewModal" @click="addToOrder">
                         <IconShoppingCart size="15" stroke="1.5" />
-                        Pedido
+                        Crear Pedido
                     </button>
                     <button class="btn btn-sm btn-default" v-if="buttonsVisibility.all"
                         @click="stockStore.selectAll(true); setVibilityButtons()">
@@ -441,6 +442,7 @@ loadData();
             <ModalEditBox :stockItem="stockItemSeletec" />
             <ModalShareStock />
             <ModalUpdateValues />
+            <ModalOrderPreview />
         </div>
         </div>
     </div>

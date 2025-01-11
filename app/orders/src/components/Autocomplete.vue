@@ -5,7 +5,6 @@ import { useBaseStore } from '@/stores/base'
 const baseStore = useBaseStore();
 const products = ref(baseStore.products);
 
-
 const searchTerm = ref("")
 const filteredProducts = ref([])
 const selectedProductId = ref(null)
@@ -55,6 +54,7 @@ function handleKeyDown(e) {
         v-model="searchTerm"
         @input="filterProducts"
         @keydown="handleKeyDown"
+        autofocus
       >
       <ul 
         class="list-group position-absolute w-100"
