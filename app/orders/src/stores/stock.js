@@ -118,17 +118,13 @@ export const useStockStore = defineStore('stockStore', {
         const selectedSuppliers = this.suppliers.filter(item => item.is_selected).map(item => item.id);
         const selectedColors = this.colors.filter(item => item.is_selected).map(item => item.name);
       
-        // Si no hay proveedores o colores seleccionados, ocultamos todo
         if (selectedColors.length === 0 || selectedSuppliers.length === 0) {
           this.stock.forEach(item => item.is_visible = false);
           return;
         }
       
-        // Unificamos la lógica de proveedores y colores
         this.stock.forEach(item => {
-          // Verificamos si el proveedor está seleccionado
           if (selectedSuppliers.includes(item.partner.id)) {
-            // Si el proveedor está seleccionado, verificamos los colores
             item.is_visible = item.box_items.some(subItem => 
               subItem.product_colors.some(color => selectedColors.includes(color))
             );
@@ -157,7 +153,9 @@ export const useStockStore = defineStore('stockStore', {
         this.filterCategories();
       },
       getSelection(){
-        return this.stock.filter(item => item.is_selected);
+        return this.stock.filter(
+          item => item.is_selected).map(i=>({...i})
+        );
       },
       stockToText(){
         this.stockText = 'QTY\tBOX\tTOTAL\tSUPPLIER\tPRODUCT\tLENGTH\tQTY\tPRICE\tCOSTBOX\n';
