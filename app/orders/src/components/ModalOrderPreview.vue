@@ -14,9 +14,17 @@ const calcTotalByItem = (item)=>{
   return total.toFixed(2);
 };
 
-const delimitedNumber = (number) => {
-  
+const delimitedNumber = (event, item) => {
+  let value = parseInt(event.target.value);
+  let maxValue = ordersStore.limitsNewOrder.filter(i=>i.stock_detail_id === item.stock_detail_id).map(i=>i.quantity);
+  if (value > maxValue) {
+    item.quantity = maxValue;
+  }
 };
+
+const selectText = (event) => {
+    event.target.select();
+}
 
 // computed Properties
 const totalOrder = computed(() => {
@@ -56,7 +64,7 @@ const totalCost = computed(() => {
 const totalBoxesQB = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
-    total += item.box_model === 'QB' ? item.quantity : 0;
+    total += item.box_model === 'QB' ? parseInt(item.quantity) : 0;
   });
   return total;
 });
@@ -64,7 +72,7 @@ const totalBoxesQB = computed(() => {
 const totalBoxesHB = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
-    total += item.box_model === 'HB' ? item.quantity : 0;
+    total += item.box_model === 'HB' ? parseInt(item.quantity) : 0;
   });
   return total;
 });
@@ -82,7 +90,7 @@ const totalStems = computed(() => {
 <template>
   <div class="modal fade modal-xl" id="orderPreviewModal" tabindex="-1" aria-labelledby="orderPreviewModal" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
+      <div class="modal-content" v-if="ordersStore.newOrder.length">
         <div class="modal-header bg-kosmo-primary p-1 text-white">
           <span class="modal-title fs-6 ps-3" id="orderPreviewModal">
             Vista Preeliminar de Pedido
@@ -94,8 +102,8 @@ const totalStems = computed(() => {
             <div class="col-12">
                   <AutocompleteCustomer/>
             </div>
-            <div class="col-12 bg-gray-200 bg-gradient rounded-1 shadow-sm p-2">
-              <div class="row" v-if="ordersStore.selectedCustomer">
+            <div class="col-12 bg-gray-200 bg-gradient rounded-1 shadow-sm p-2" v-if="ordersStore.selectedCustomer">
+              <div class="row">
                 <div class="col-1 text-end">ID:</div>
                 <div class="col-1">{{ ordersStore.selectedCustomer.business_tax_id }}</div>
                 <div class="col-1 text-end">Dir:</div>
@@ -110,8 +118,8 @@ const totalStems = computed(() => {
                 <div class="col-1 text-end">Contacto:</div>
                 <div class="col-8 d-flex gap-2">
                   <span>{{ ordersStore.selectedCustomer.contact.name }}</span> 
-                  <span>{{  ordersStore.selectedCustomer.contact.email  }}</span>
-                  <span>{{ ordersStore.selectedCustomer.contact.phone }}</span>
+                  <span >{{  ordersStore.selectedCustomer.contact.email  }}</span>
+                  <span >{{ ordersStore.selectedCustomer.contact.phone }}</span>
                   <span class="badge bg-green-600">{{  ordersStore.selectedCustomer.contact.contact_type }}</span>
                 </div>
                 <div class="col-1 text-end fw-semibold">
@@ -142,7 +150,14 @@ const totalStems = computed(() => {
           <div v-for="item,idx in ordersStore.newOrder" :key="item.id" class="row mb-1 border my-hover-2" :class="{'bg-gray': idx % 2 === 0}">
             <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
               <IconTrash class="text-danger" size="30" stroke="1.5"/> 
-              <input type="number" step="1" class="form-control form-control-sm text-end" v-model="item.quantity" />
+              <input 
+                type="number"
+                step="1"
+                class="form-control form-control-sm text-end"
+                v-model="item.quantity"
+                @change="(event) => delimitedNumber(event, item)"
+                @focus="selectText"
+                />
             </div>
             <div class="col-1 text-end border-end d-flex align-items-end">{{ item.box_model }}</div>
             <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">{{ item.tot_stem_flower }}</div>

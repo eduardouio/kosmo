@@ -93,7 +93,9 @@ const selectText = (event) => {
 
 const addToOrder = () => {
     ordersStore.newOrder = stockStore.getSelection();
-    ordersStore.setLimits(stockStore.getSelection());
+    ordersStore.setLimits(stockStore.getSelection().map((i)=>{
+         return {stock_detail_id:i.stock_detail_id, quantity:i.quantity}
+    }));
 }
 
 const calcIndicators = () => {

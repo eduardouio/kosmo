@@ -23,8 +23,8 @@ export const useOrdersStore = defineStore("ordersStore", {
               alert(`Hubo un error al cargar los clientes: ${error.message}`)
             }   
           },
-          setLimits(values){
-            this.limitsNewOrder = values
+          setLimits(orderDetail){
+            this.limitsNewOrder = orderDetail
           }
     }
 })
