@@ -2588,6 +2588,10 @@ body {
 	border-bottom: 2px solid #022c22;
 	background-color: #4b5 !important;
 }
+.my-hover-2:hover {
+	border-bottom: 2px solid #022c22;
+	background-color: #f5e278 !important;
+}
 
 .bg-pink-400 {
 	background-color: #f472b6 !important;

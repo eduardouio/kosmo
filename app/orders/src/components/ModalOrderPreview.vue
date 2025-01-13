@@ -1,10 +1,14 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useOrdersStore } from '@/stores/orders';
 import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
 import { IconTrash, IconCheckbox, IconX } from '@tabler/icons-vue';
 
 const ordersStore = useOrdersStore();
+const confirmDelete = ref(false);
+const exceedLimit = ref(false);
+const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
+const exceedLimitMessage = ref();
 const calcTotalByItem = (item)=>{ 
   let total = 0;
   let items = item.box_items.map(item => item)
@@ -15,15 +19,27 @@ const calcTotalByItem = (item)=>{
 };
 
 const delimitedNumber = (event, item) => {
+  exceedLimit.value = false;
   let value = parseInt(event.target.value);
   let maxValue = ordersStore.limitsNewOrder.filter(i=>i.stock_detail_id === item.stock_detail_id).map(i=>i.quantity);
   if (value > maxValue) {
     item.quantity = maxValue;
+    exceedLimitMessage.value = `La cantidad máxima permitida para este item es de ${maxValue}`;
+    exceedLimit.value = true;
   }
 };
 
 const selectText = (event) => {
     event.target.select();
+}
+
+const deleteOrderItem = (item) => {
+  if (item.confirm_delete) {
+    ordersStore.newOrder = ordersStore.newOrder.filter(i => i.stock_detail_id !== item.stock_detail_id);
+  } else {
+    conmfirmDelete.value = true;
+    item.confirm_delete = true;
+  }
 }
 
 // computed Properties
@@ -147,9 +163,19 @@ const totalStems = computed(() => {
             </div>
             <div class="col-1 fw-bold fs-6 bg-kosmo-green text-white">C/USD</div>
           </div>
+          <div class="row">
+            <div class="col-12 text-center fs-6 fw-semibold text-warning" v-if="exceedLimit || confirmDelete">
+              <span v-if="confirmDelete">
+                {{  deleteMessage }}
+              </span>
+              <span v-if="exceedLimit">
+                {{ exceedLimitMessage }}
+              </span>
+            </div>
+          </div>
           <div v-for="item,idx in ordersStore.newOrder" :key="item.id" class="row mb-1 border my-hover-2" :class="{'bg-gray': idx % 2 === 0}">
             <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
-              <IconTrash class="text-danger" size="30" stroke="1.5"/> 
+              <IconTrash size="30" stroke="1.5"  :class="item.confirm_delete ? 'text-danger' : 'text-dark'" @click="deleteOrderItem(item)"/> 
               <input 
                 type="number"
                 step="1"
