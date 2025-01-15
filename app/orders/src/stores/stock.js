@@ -9,6 +9,7 @@ export const useStockStore = defineStore('stockStore', {
         stockDay: null,
         suppliers: [],
         colors:[],
+        lengths:[],
     }),
     actions: {
       async getStock(baseStore){
@@ -25,6 +26,7 @@ export const useStockStore = defineStore('stockStore', {
         baseStore.setLoading(false);
         this.extractSuppliers();
         this.extractColors();
+        this.extractLengths();
       },
       async addBoxItem(boxItem){
         try {
@@ -89,6 +91,14 @@ export const useStockStore = defineStore('stockStore', {
         );
         this.suppliers = suppliers.map(item =>({...item, is_selected: true}));
       },
+      extractLengths(){
+        let lengths = this.stock.map(item => item.box_items).flat().map(item => item.length)
+        .filter(
+          (value, index, self) => self.findIndex(t => (t === value)) === index
+        );
+        this.lengths = lengths.map(item => ({name: item, is_selected: true}));
+        this.lengths.sort((a,b) => a.name - b.name);
+      },
       filterStock(querySearch){
         if (!querySearch){
           if( this.stock){
@@ -117,8 +127,10 @@ export const useStockStore = defineStore('stockStore', {
       filterCategories() {
         const selectedSuppliers = this.suppliers.filter(item => item.is_selected).map(item => item.id);
         const selectedColors = this.colors.filter(item => item.is_selected).map(item => item.name);
+        const selectedLengths = this.lengths.filter(item => item.is_selected).map(item => item.name); // Nuevo filtro
       
-        if (selectedColors.length === 0 || selectedSuppliers.length === 0) {
+        // Si alguno de los filtros está vacío, ocultamos todo
+        if (selectedColors.length === 0 || selectedSuppliers.length === 0 || selectedLengths.length === 0) {
           this.stock.forEach(item => item.is_visible = false);
           return;
         }
@@ -126,13 +138,14 @@ export const useStockStore = defineStore('stockStore', {
         this.stock.forEach(item => {
           if (selectedSuppliers.includes(item.partner.id)) {
             item.is_visible = item.box_items.some(subItem => 
-              subItem.product_colors.some(color => selectedColors.includes(color))
+              subItem.product_colors.some(color => selectedColors.includes(color)) &&
+              selectedLengths.includes(subItem.length)
             );
           } else {
             item.is_visible = false;
           }
         });
-      },  
+      },        
       async deleteSelected(){
         let toDelete = this.stock.filter(item => item.is_selected);
         this.stock = this.stock.filter(item => !item.is_selected);
@@ -150,6 +163,10 @@ export const useStockStore = defineStore('stockStore', {
       },
       selectAllColors(select=false){
         this.colors = this.colors.map(item => ({...item, is_selected: select}));
+        this.filterCategories();
+      },
+      selectAllLengths(select=false){
+        this.lengths = this.lengths.map(item => ({...item, is_selected: select}));
         this.filterCategories();
       },
       getSelection(){
