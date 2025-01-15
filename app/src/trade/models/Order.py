@@ -1,13 +1,13 @@
 from django.db import models
-from products.models import StockDetail
+from products.models import StockDetail, Product
 from common import BaseModel
 from partners.models import Partner
 
 STATUS_CHOICES = (
     ('PENDIENTE', 'PENDIENTE'),
-    ('ENTREGADO', 'ENTREGADO'),
-    ('CANCELADO', 'CANCELADO'),
+    ('CONFIRMADO', 'CONFIRMADO'),
     ('FACTURADO', 'FACTURADO'),
+    ('CANCELADO', 'CANCELADO'),
 )
 
 TYPE_DOCUMENT_CHOICES = (
@@ -124,6 +124,28 @@ class OrderItems(BaseModel):
         default=0,
         help_text='Cantidad de tallos de flor'
     )
+    box_model = models.CharField(
+        'Tipo de caja',
+        max_length=50,
+        choices=BOX_CHOICES
+    )
+    tot_stem_flower = models.IntegerField(
+        'Cant Tallos',
+        default=0,
+        help_text='Cantidad de tallos de flor'
+    )
+    tot_cost_price_box = models.DecimalField(
+        'Precio de costo Caja',
+        max_digits=10,
+        decimal_places=2,
+        default=0.00
+    )
+    profit_margin = models.DecimalField(
+        'Margen de Ganancia',
+        max_digits=5,
+        decimal_places=2,
+        default=0.06
+    )
 
     @classmethod
     def get_suppliers_by_order(cls, order):
@@ -150,3 +172,36 @@ class OrderItems(BaseModel):
 
     def __str__(self):
         return f"Item {self.id} - {self.stock_detail.product.name}"
+
+
+class OrderBoxItems(BaseModel):
+    id = models.AutoField(
+        primary_key=True
+    )
+    order_item = models.ForeignKey(
+        OrderItems,
+        on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE
+    )
+    length = models.PositiveSmallIntegerField(
+        'Largo CM',
+    )
+    qty_stem_flower = models.IntegerField(
+        'Cant Tallos',
+        default=0,
+        help_text='Cantidad de tallos de flor'
+    )
+    stem_cost_price = models.DecimalField(
+        'Precio de costo Tallo',
+        max_digits=10,
+        decimal_places=2
+    )
+    profit_margin = models.DecimalField(
+        'Margen de Ganancia',
+        max_digits=5,
+        decimal_places=2,
+        default=0.06
+    )

@@ -10,4 +10,3 @@ from .StockDetail import (
     SingleStockDetailUpdateView,
 )
 
-from .DetailStockCreate import DetailStockCreate

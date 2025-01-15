@@ -33,8 +33,7 @@ class StockDayCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         all_stock_days = StockDay.objects.all().exclude(pk=self.object.id)
         [StockDay.disable(i) for i in all_stock_days]
-        url = reverse_lazy('stock_detail_create', kwargs={'pk': self.object.id})
-        url += '?action=created'
+        url = reverse_lazy('stock_detail_detail', kwargs={'pk': self.object.id})
         return url
 
 
