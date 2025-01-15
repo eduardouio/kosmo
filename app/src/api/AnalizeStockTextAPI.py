@@ -82,7 +82,7 @@ class AnalizeStockTextAPI(View):
                     stem_cost_price=price,
                     profit_margin=kwargs['profit_margin'],
                     length=length[idx],
-                    qty_stem_flower=item[2],
+                    qty_stem_flower=item[2] if idx == 0 else 0,
                 )
         return True
 
