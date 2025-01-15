@@ -6,11 +6,13 @@
 <div id="appVue"></div>
 {% endblock %}
 {% block script %}
-   <script>
-      var csrf_token = "{{ csrf_token }}";
-      var stock_id = "{{ stock_id }}";
-      var base_url = "";
-   </script>
+<script>
+   window.djangoConfig = {
+     csrfToken: "{{ csrf_token }}",
+     stockId: "{{ stock_id }}",
+     baseUrl: ""
+   };
+ </script>
 {% endblock %}
 {% block script_app %}
 <script src="/static/js/app/stock/app-order.js"></script>

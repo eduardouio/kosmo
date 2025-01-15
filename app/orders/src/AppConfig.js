@@ -1,6 +1,8 @@
-const idStockDay = 1;
-const apiBaseUrl = 'http://localhost:8000';
-const csrfToken = 'aqui_va_el_csrf_token';
+const idStockDay = window.djangoConfig?.stockId ?? 1;
+const apiBaseUrl = window.djangoConfig?.baseUrl ?? 'http://localhost:8000';
+const csrfToken = window.djangoConfig?.csrfToken ?? '';
+
+
 
 export const appConfig = {
     "apiBaseUrl": apiBaseUrl,

@@ -2,11 +2,10 @@
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router';
 import { 
-    IconCheckbox, IconSquare, IconChevronCompactRight, IconFilterOff
+    IconCheckbox, IconSquare, IconChevronCompactRight, IconFilterOff, IconFilter
 } from '@tabler/icons-vue';
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
-import { IconEye } from '@tabler/icons-vue';
 
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
@@ -17,14 +16,17 @@ const route = useRoute();
 const showAllSuppliers = ref(true);
 const showAllColors = ref(true);
 const showAllStock = ref(true);
+const showAllLengths = ref(true);
 
 const showAllStockSwitch = () => {
     showAllStock.value = !showAllStock.value;
     stockStore.selectAllSuppliers(showAllStock.value);
     stockStore.selectAllColors(showAllStock.value);
+    stockStore.selectAllLengths(showAllStock.value);
     stockStore.filterCategories();
     showAllSuppliers.value = showAllStock.value;
-    showAllColors.value = showAllStock.value; 
+    showAllColors.value = showAllStock.value;
+    showAllLengths.value = showAllStock.value;
 };
 
 const getClass = (item) => {
@@ -86,21 +88,26 @@ watch(
         -->
     </div>
     <div v-if="route.path === '/'" class="mt-4">
+    <div v-if="!isLoading" class="text-center border-bottom">
+        <small class="text-muted">
+            Filtros de Stock
+        </small>
+    </div>
     <div v-if="!isLoading">
-        <div class="text-center mt-2 mb-2">
-            <button @click="showAllStockSwitch" class="btn btn-sm btn-default">
+        <div class="text-center mt-4 mb-4">
+            <button @click="showAllStockSwitch" class="btn btn-sm bg-gray-200 btn-block w-100 border shadow">
                 <span v-if="showAllStock">
-                    <IconFilterOff size="20" stroke="1.5"/> Quitar Filtros
+                    <IconFilterOff size="20" stroke="1.5"/> Desmarcar Todos
                 </span>
                 <span v-else>
-                    <IconEye size="20" stroke="1.5" /> Ver Todo El Stock
+                    <IconFilter size="20" stroke="1.5" /> Marcar Todos
                 </span>
             </button>
         </div>
-    <div class="text-center ms-1 me-1 fw-semibold p-1 bg-gray-100 mb-1">
+    <div class="text-center ms-1 me-1 fw-semibold p-1 mb-3 bg-yellow-200 mb-1">
         <div class="d-flex gap-3 justify-content-between">
             <span>
-                PROVEEDORES
+                <IconFilter size="20" stroke="1.5" /> PROVEEDORES
             </span>
             <section class="d-flex justify-content-between gap-3">
             <span class="text-danger" @click="stockStore.selectAllSuppliers(false);showAllSuppliers=!showAllSuppliers" v-if="showAllSuppliers">
@@ -117,6 +124,7 @@ watch(
         <ul class="list-group rounded-0">
             <li v-for="supplier in stockStore.suppliers" :key="supplier.id" class="list-group-item p-1" :class="{'bg-gray-100': supplier.is_selected}" @click="supplier.is_selected = !supplier.is_selected;stockStore.filterCategories()">
                 <IconCheckbox size="20" stroke="1.5" class="float-start" v-if="supplier.is_selected"/>
+                <IconSquare size="15" stroke="1.5" v-else class="text-danger"/>
                 <span class="ps-3" :class="{'fw-semibold': supplier.is_selected}">
                     {{ supplier.name }}
                 </span>
@@ -124,10 +132,10 @@ watch(
         </ul>
     </div>
     <div v-if="!isLoading" class="mt-4">
-    <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-gray-100 mb-1 mt-2">
+    <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-lime-200 mb-1 mt-2">
         <div class="d-flex justify-content-between  gap-3">
             <span>
-                COLORES
+                <IconFilter size="20" stroke="1.5" /> COLORES
             </span>
             <section class="d-flex justify-content-between gap-3">
             <span class="text-danger" @click="stockStore.selectAllColors(false);showAllColors=!showAllColors" v-if="showAllColors">
@@ -145,11 +153,38 @@ watch(
         <section class="d-flex flex-wrap gap-2">
             <span v-for="item in stockStore.colors" :class="getClass(item)" class="rounded-1 p-1" @click="item.is_selected = !item.is_selected;stockStore.filterCategories()">
                 <IconCheckbox size="15" stroke="1.5" v-if="item.is_selected"/>
+                <IconSquare size="15" stroke="1.5" v-else class="text-danger"/>
                 {{ item.name }}
             </span>
         </section>
     </div>
-    
+    <div v-if="!isLoading" class="mt-4">
+    <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-cyan-200 mb-1 mt-2">
+        <div class="d-flex justify-content-between  gap-3">
+            <span>
+                <IconFilter size="20" stroke="1.5" /> LONGITUD DE TALLO
+            </span>
+            <section class="d-flex justify-content-between gap-3">
+            <span class="text-danger" @click="stockStore.selectAllLengths(false);showAllLengths=!showAllLengths" v-if="showAllLengths">
+                <small>Desmarcar</small>
+                <IconSquare size="20" stroke="1.5" />
+            </span>
+            <span class="text-success" @click="stockStore.selectAllLengths(true)" v-else>
+                <small>Marcar</small>
+                <IconCheckbox size="20" stroke="1.5" />
+            </span>
+        </section>
+        </div>
+    </div>
+    <hr />
+        <section class="d-flex flex-wrap gap-2">
+            <span v-for="item in stockStore.lengths" :class="getClass(item)" class="rounded-1 p-1" @click="item.is_selected = !item.is_selected;stockStore.filterCategories()">
+                <IconCheckbox size="15" stroke="1.5" v-if="item.is_selected"/>
+                <IconSquare size="15" stroke="1.5" v-else class="text-danger"/>
+                {{ item.name }}
+            </span>
+        </section>
+    </div>
 </div>
 </template>
 
