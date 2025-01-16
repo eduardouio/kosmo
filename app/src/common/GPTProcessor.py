@@ -31,16 +31,13 @@ class GPTProcessor:
                 thread_id=self.thread.id,
                 assistant_id=self.assistant.id,
                 additional_messages=[{"role": "user", "content": self.dispo}],
-                temperature=0
+                temperature=0.01
             )
             thread_messages = self.client.beta.threads.messages.list(
                 thread_id=self.thread.id)
             messages = thread_messages.model_dump()
-            data = messages['data'][0]['content'][0]['text']['value']
-            data = data.replace('[\n[', '[')
-            data = data.replace(']\n]', ']')
-            data = data.split(',\n')
-            data = [json.loads(i.replace('\n', '')) for i in data]
+            data = json.loads(messages['data'][0]['content'][0]['text']['value'])
+            data = data['result']
             return data
         except Exception as e:
             import ipdb; ipdb.set_trace()

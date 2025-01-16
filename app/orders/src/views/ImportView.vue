@@ -61,7 +61,7 @@ onMounted(() => {
         <div class="row">
         <div class="container">
             <Loader v-if="storeBase.isLoading" />
-            <div v-else="">
+            <div v-else>
                 <div class="row pt-1 pb-2 pe-2 ps-3">
                     <div class="col-3 ">
                         <div class="d-flex justify-content-end align-items-center gap-2 border-gray-400 rounded-1">

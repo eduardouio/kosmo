@@ -3,7 +3,7 @@ import { appConfig } from '@/AppConfig';
 
 export const useStockStore = defineStore('stockStore', {
     state: () => ({
-        stock: null,
+        stock: [],
         stockText: 'Sin Seleccion',
         orders: [],
         stockDay: null,
@@ -99,22 +99,20 @@ export const useStockStore = defineStore('stockStore', {
         this.lengths = lengths.map(item => ({name: item, is_selected: true}));
         this.lengths.sort((a,b) => a.name - b.name);
       },
-      filterStock(querySearch){
-        if (!querySearch){
-          if( this.stock){
-            this.filterCategories();
-          }
+      filterStock(querySearch) {
+        if (!querySearch) {
+          this.stock.forEach(item => {
+            item.is_visible = true;
+          });
+          this.filterCategories();
           return;
         }
+      
         this.stock.forEach(item => {
-          if (item.is_visible) {
-            // Si al menos un subItem coincide, el item debe ser visible
-            item.is_visible = item.box_items.some(subItem => 
-              subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase())
-            );
-          }
+          item.is_visible = item.box_items.some(subItem =>
+            subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase())
+          );
         });
-        
       },
       selectAll(option){
         this.stock.forEach(item => {
@@ -127,14 +125,12 @@ export const useStockStore = defineStore('stockStore', {
       filterCategories() {
         const selectedSuppliers = this.suppliers.filter(item => item.is_selected).map(item => item.id);
         const selectedColors = this.colors.filter(item => item.is_selected).map(item => item.name);
-        const selectedLengths = this.lengths.filter(item => item.is_selected).map(item => item.name); // Nuevo filtro
+        const selectedLengths = this.lengths.filter(item => item.is_selected).map(item => item.name);
       
-        // Si alguno de los filtros está vacío, ocultamos todo
         if (selectedColors.length === 0 || selectedSuppliers.length === 0 || selectedLengths.length === 0) {
           this.stock.forEach(item => item.is_visible = false);
           return;
         }
-      
         this.stock.forEach(item => {
           if (selectedSuppliers.includes(item.partner.id)) {
             item.is_visible = item.box_items.some(subItem => 

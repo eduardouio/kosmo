@@ -70,7 +70,7 @@ class StockDetailAPI(View):
                     'product_name': box.product.name,
                     'product_variety': box.product.variety,
                     'product_image': url_image,
-                    'product_colors': colors,
+                    'product_colors': colors if colors else ['NO DEFINIDO'],
                     'product_notes': box.product.notes,
                     'length': box.length,
                     'qty_stem_flower': box.qty_stem_flower,
