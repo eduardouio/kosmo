@@ -140,7 +140,7 @@
                            </section>
                            <section>
                               <span class="text-muted">Nombre:</span>
-                              <span class="ps-2">{{ partner.name }}</span>
+                              <span class="ps-2">{{ partner.name }}{% if partner.short_name %} / <span class="fw-bold"> {{ partner.short_name }} </span>{% endif %}</span>
                            </section>
                            <section>
                               <span class="text-muted">Crédito:</span>

@@ -2608,3 +2608,9 @@ body {
 .text-brown-400 {
 	background-color: #a85400 !important;
 }
+
+
+.form-control {
+	border: 1px solid #bbb;
+	border-radius: 2px;
+}
