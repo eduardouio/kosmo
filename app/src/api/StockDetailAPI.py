@@ -44,6 +44,7 @@ class StockDetailAPI(View):
                 'partner': {
                     'id': stock.partner.id,
                     'name': stock.partner.name,
+                    'short_name': stock.partner.short_name,
                     'business_tax_id': stock.partner.business_tax_id,
                     'address': stock.partner.address,
                     'city': stock.partner.city,

@@ -38,6 +38,7 @@ class AllSuppliersAPI(View):
             item = {
                 'id': supplier.id,
                 'name': supplier.name,
+                'short_name': supplier.short_name,
                 'business_tax_id': supplier.business_tax_id,
                 'address': supplier.address,
                 'city': supplier.city,

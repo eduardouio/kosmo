@@ -146,8 +146,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.sep.join(os.path.abspath(
     __file__).split(os.sep)[:-2]+['static_django'])
 
-STATIC_ROOT = os.sep.join(os.path.abspath(
-    __file__).split(os.sep)[:-2]+['static_django'])
+# STATIC_ROOT = os.path.join(os.path.abspath(
+#     __file__).split(os.sep)[:-2]+['static_django'])
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

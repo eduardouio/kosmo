@@ -23,7 +23,7 @@ class PartnerForm(forms.ModelForm):
             'default_profit_margin', 'is_profit_margin_included',
             'email_payment','reference_1', 'contact_reference_1',
             'reference_2','area_code','phone_reference_1', 'phone_reference_2',
-            'contact_reference_2'
+            'contact_reference_2', 'short_name', 'is_verified'
         ]
         widgets = {
             'business_tax_id': forms.TextInput(attrs={'maxlength': '15', 'class': 'form-control form-control-sm'}),
@@ -55,6 +55,7 @@ class PartnerForm(forms.ModelForm):
             'area_code': forms.TextInput(attrs={'maxlength': '10', 'class': 'form-control form-control-sm'}),
             'phone_reference_1': forms.TextInput(attrs={'maxlength': '20', 'class': 'form-control form-control-sm'}),
             'phone_reference_2': forms.TextInput(attrs={'maxlength': '20', 'class': 'form-control form-control-sm'}),
+            'short_name': forms.TextInput(attrs={'maxlength': '50', 'class': 'form-control form-control-sm'}),
         }
 
 

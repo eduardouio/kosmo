@@ -26,6 +26,7 @@ class TextPrepare:
             'Í': 'I',
             'Ó': 'O',
             'Ú': 'U',
+            ',': '.',
         }
 
         self.date_regex = re.compile(r'\d{2}[/.-]\d{2}[/.-]\d{4}')

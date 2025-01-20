@@ -1,6 +1,7 @@
 [
     {
       "name": "Premier Floral Corp",
+      "short_name": "P Floral",
       "business_tax_id": "39048452",
       "address": "3555 Nw 82nd Ave, Doral, Fl 33122, United States",
       "dispatch_address": "3555 Nw 82nd Ave, Doral, Fl 33122, United States",
@@ -12,6 +13,7 @@
     },
     {
       "name": "A&C Wholesle Flower",
+      "short_name": "A&C Flowers",
       "business_tax_id": "390484522",
       "address": "823 San Julian St",
       "dispatch_address": "823 San Julian St",
@@ -23,6 +25,7 @@
     },
     {
       "name": "Aliance Floral Co",
+      "short_name": "Aliance F",
       "business_tax_id": "390484524",
       "address": "5858 Dryden Pl, Ste 17",
       "dispatch_address": "5858 Dryden Pl, Ste 17",
@@ -34,6 +37,7 @@
     },
     {
       "name": "Mary & Gm Flower",
+      "short_name": "Mary & Gm",
       "business_tax_id": "390484525",
       "address": "7410 State St, Huntington Park, Ca 90257",
       "dispatch_address": "7410 State St, Huntington Park, Ca 90257",
@@ -45,6 +49,7 @@
     },
     {
       "name": "Global Flowers",
+      "short_name": "Global F",
       "business_tax_id": "390484526",
       "address": "Av. Quijano Y Ordoñez Entre Tarqui Y Gral. Maldonado",
       "dispatch_address": "Av. Quijano Y Ordoñez Entre Tarqui Y Gral. Maldonado",
@@ -56,6 +61,7 @@
     },
     {
       "name": "Miaflora Farms Llc",
+      "short_name": "Miaflora",
       "business_tax_id": "390484527",
       "address": "2801 Nw 74th Ave Suite 209 Fl 33122",
       "dispatch_address": "2801 Nw 74th Ave Suite 209 Fl 33122",
@@ -67,6 +73,7 @@
     },
     {
       "name": "Rainbow Landflowers Corp",
+      "short_name": "Rainbow L",
       "business_tax_id": "390484582",
       "address": "4540 37th Ave, Queens, Ny 11101",
       "dispatch_address": "4540 37th Ave, Queens, Ny 11101",
@@ -78,6 +85,7 @@
     },
     {
       "name": "Florida Floral Connection",
+      "short_name": "Florida F",
       "business_tax_id": "390484529",
       "address": "2730 Nw. 72 Ave. Miami Florida 33122",
       "dispatch_address": "2730 Nw. 72 Ave. Miami Florida 33122",
@@ -89,6 +97,7 @@
     },
     {
       "name": "Logistic Farms Zamba Flowers",
+      "short_name": "Logistic F",
       "business_tax_id": "390438452",
       "address": "9440 Nw 12th St Doral,",
       "dispatch_address": "9440 Nw 12th St Doral,",
@@ -100,6 +109,7 @@
     },
     {
       "name": "Plantaciones El Trebol Cia. Ltda.",
+      "short_name": "P Trebol",
       "business_tax_id": "390484352",
       "address": "Garcilazo De La Vega Y 1ro De Mayo",
       "dispatch_address": "Garcilazo De La Vega Y 1ro De Mayo",
@@ -111,6 +121,7 @@
     },
     {
       "name": "Roses Land S.A",
+      "short_name": "Roses Land",
       "business_tax_id": "390485452",
       "address": "Cumbaya, Av.Pampite, Ed.Yoocumbaya, 514",
       "dispatch_address": "Cumbaya, Av.Pampite, Ed.Yoocumbaya, 514",
@@ -122,6 +133,7 @@
     },
     {
       "name": "Ecuador Direct Roses",
+      "short_name": "Ecuador D R",
       "business_tax_id": "390486452",
       "address": "1500 Weston Rd Ste 214, Weston, Fl. 33326",
       "dispatch_address": "1500 Weston Rd Ste 214, Weston, Fl. 33326",
@@ -133,6 +145,7 @@
     },
     {
       "name": "Blossom Mfs",
+      "short_name": "Blossom",
       "business_tax_id": "390484752",
       "address": "9220 Fontaineblue",
       "dispatch_address": "9220 Fontaineblue",
@@ -144,6 +157,7 @@
     },
     {
       "name": "Comtransflor  Big Art",
+      "short_name": "Comtransflor",
       "business_tax_id": "390498452",
       "address": "Galaxias Lote 21 Y Venus",
       "dispatch_address": "Galaxias Lote 21 Y Venus",
@@ -155,6 +169,7 @@
     },
     {
       "name": "Latitud Cero Export Gh Scc",
+      "short_name": "Latitud Cero",
       "business_tax_id": "390428452",
       "address": "Ecuador/Pichincha/Quito/Mariscal Sucre/Pasaje E 13c N22 -115 Y Calle Lugo / Sierra",
       "dispatch_address": "Ecuador/Pichincha/Quito/Mariscal Sucre/Pasaje E 13c N22 -115 Y Calle Lugo / Sierra",
@@ -166,6 +181,7 @@
     },
     {
       "name": "Interflora Logistic Narcis Tamara",
+      "short_name": "Interflora L",
       "business_tax_id": "3902348452",
       "address": "Kasajstan, Almmaty, Ul. Kisilua, 115-45",
       "dispatch_address": "Kasajstan, Almmaty, Ul. Kisilua, 115-45",
@@ -177,6 +193,7 @@
     },
     {
       "name": "Elena Kramskova  Galan Art",
+      "short_name": "Elena Kramskova",
       "business_tax_id": "3904738452",
       "address": "Carlos Julio Arosemena  E14-171 Y Guanguiltagua Batan Alto",
       "dispatch_address": "Carlos Julio Arosemena  E14-171 Y Guanguiltagua Batan Alto",
@@ -188,6 +205,7 @@
     },
     {
       "name": "Zion Flowers Inc.",
+      "short_name": "Zion F",
       "business_tax_id": "3904548452",
       "address": "5700 Sw 88th Street Pinecrest,Fl-33156",
       "dispatch_address": "5700 Sw 88th Street Pinecrest,Fl-33156",
@@ -199,6 +217,7 @@
     },
     {
       "name": "Jet Fresh Flowers Distributors",
+      "short_name": "Jet Fresh",
       "business_tax_id": "39048456322",
       "address": "2000 Nw 70th Ave Miami, Fl 33122",
       "dispatch_address": "2000 Nw 70th Ave Miami, Fl 33122",
@@ -210,6 +229,7 @@
     },
     {
       "name": "Moneymaker",
+      "short_name": "Moneymaker",
       "business_tax_id": "39320048452",
       "address": "",
       "dispatch_address": "",
@@ -221,6 +241,7 @@
     },
     {
       "name": "L.A.Premium/Vinbal Inc",
+      "short_name": "L.A.Premium",
       "business_tax_id": "39052048452",
       "address": "Alhambra/ California",
       "dispatch_address": "Alhambra/ California",
@@ -232,6 +253,7 @@
     },
     {
       "name": "Impex Flowers",
+      "short_name": "Impex F",
       "business_tax_id": "390487898452",
       "address": "Kazajstan, Almaty Altayskaya St., Tauly",
       "dispatch_address": "Kazajstan, Almaty Altayskaya St., Tauly",
@@ -243,6 +265,7 @@
     },
     {
       "name": "Cvflor",
+      "short_name": "Cvflor",
       "business_tax_id": "390412118452",
       "address": "7410 State St, Huntington Park, Ca 90257",
       "dispatch_address": "7410 State St, Huntington Park, Ca 90257",
@@ -254,6 +277,7 @@
     },
     {
       "name": "Roseec /  Ivan's Flowers",
+      "short_name": "Roseec",
       "business_tax_id": "390455648452",
       "address": "714 San Predro St Los Angeles",
       "dispatch_address": "714 San Predro St Los Angeles",
@@ -265,6 +289,7 @@
     },
     {
       "name": "Cute Lilies Flower Chocolate&Gifts",
+      "short_name": "Cute Lilies",
       "business_tax_id": "367889048452",
       "address": "Zone - 55,Street - 820,Building - 9 Muither",
       "dispatch_address": "Zone - 55,Street - 820,Building - 9 Muither",
@@ -276,6 +301,7 @@
     },
     {
       "name": "Flourish And Grace Llc  / Morales Flowers",
+      "short_name": "Flourish And Grace",
       "business_tax_id": "390486768452",
       "address": "100 Se 2nd St Ste 2000, Miami, Fl 33131",
       "dispatch_address": "100 Se 2nd St Ste 2000, Miami, Fl 33131",

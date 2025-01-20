@@ -37,14 +37,11 @@ class GPTProcessor:
                 thread_id=self.thread.id)
             messages = thread_messages.model_dump()
             data = json.loads(messages['data'][0]['content'][0]['text']['value'])
-            data = data['result']
+            data = data[next(iter(data.keys()))]
             return data
         except Exception as e:
-            import ipdb; ipdb.set_trace()
             print('------------------')
             print(data)
             print(messages['data'][0]['content'][0]['text']['value'])
             print('------------------')
-            return 'Error al procesar stock, no se puede leer el formato {} {}'.format(
-                str(e), messages['data'][0]['content'][0]['text']['value']
-            )
+            raise Exception('Error al procesar texto: {}'.format(str(e)))

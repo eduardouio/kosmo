@@ -28,6 +28,13 @@ class Partner(BaseModel):
         'Nombre',
         max_length=255
     )
+    short_name = models.CharField(
+        'Nombre Corto',
+        max_length=50,
+        blank=True,
+        null=True,
+        default=None
+    )
     address = models.CharField(
         'Dirección',
         max_length=255

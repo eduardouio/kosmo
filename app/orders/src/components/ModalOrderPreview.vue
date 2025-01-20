@@ -2,7 +2,13 @@
 import { computed, ref } from 'vue';
 import { useOrdersStore } from '@/stores/orders';
 import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
-import { IconTrash, IconCheckbox, IconX } from '@tabler/icons-vue';
+import { 
+  IconTrash,
+  IconCheckbox,
+  IconX,
+  IconSitemap,
+  IconLayersIntersect2 
+} from '@tabler/icons-vue';
 
 const ordersStore = useOrdersStore();
 const confirmDelete = ref(false);
@@ -43,6 +49,13 @@ const deleteOrderItem = (item) => {
 }
 
 // computed Properties
+
+const isTwoQBSelected = computed(() => {
+  let qb = ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_seleted);
+  return qb.length === 2;
+});
+
+
 const totalOrder = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
@@ -147,6 +160,14 @@ const totalStems = computed(() => {
               </div>
             </div>
           </div>
+          <div class="row pb-2 pt-2 text-end">
+            <div class="col">
+              <button class="btn btn-sm btn-default" v-if="isTwoQBSelected" @click="ordersStore.mergeQB">
+                <IconLayersIntersect2 size="20" stroke="1.5"/>
+                Unificar a HB
+              </button>
+            </div>
+          </div>
           <div class="row bg-light text-center py-2 rounded-1 bg-gray-300 border-gray-400">
             <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-white">Cant</div>
             <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-white">Mdl</div>
@@ -185,7 +206,12 @@ const totalStems = computed(() => {
                 @focus="selectText"
                 />
             </div>
-            <div class="col-1 text-end border-end d-flex align-items-end">{{ item.box_model }}</div>
+            <div class="col-1 text-end border-end d-flex align-items-end gap-2 ">
+              {{ item.box_model }}
+              <span>/</span>
+              <IconSitemap size="20" stroke="1.5" @click="ordersStore.splitHB(item)" v-if="item.box_model === 'HB'"/>
+              <input type="checkbox" v-model="item.is_seleted" v-if="item.box_model === 'QB'"/>
+            </div>
             <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">{{ item.tot_stem_flower }}</div>
             <div class="col-2 d-flex align-items-end">
               <small>

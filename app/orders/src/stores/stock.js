@@ -171,18 +171,17 @@ export const useStockStore = defineStore('stockStore', {
         );
       },
       stockToText(){
-        this.stockText = 'QTY\tBOX\tTOTAL\tSUPPLIER\tPRODUCT\tLENGTH\tQTY\tPRICE\tCOSTBOX\n';
+        this.stockText = 'CANT TALLOS FINCA PRODUCTO LENGTH QTY PRICE COSTBOX\n';
         let selected = this.stock.filter(item => item.is_selected);
         selected.forEach(item => {
           const totalStem = item.box_items.reduce((acc, subItem) => acc + subItem.qty_stem_flower, 0);
-          let line_text = `${item.quantity}\t${item.box_model}\t${totalStem}\t${ item.partner.name}`;
+          let line_text = `${item.quantity}${item.box_model} ${totalStem}`;
           item.box_items.forEach(subItem => {
             let cost = parseFloat(subItem.stem_cost_price) + parseFloat(subItem.margin);
             cost = cost.toFixed(2);
-            line_text += `\t[${subItem.product_variety}\t${subItem.length}CM\t${subItem.qty_stem_flower}\t${cost}]`;
+            line_text += ` ${subItem.product_variety} ${subItem.length}cmX${subItem.qty_stem_flower} $${cost}`;
           });
-          const totalValue = item.box_items.reduce((acc, subItem) => acc + ((parseFloat(subItem.stem_cost_price) + parseFloat(subItem.margin)) * parseInt(subItem.qty_stem_flower)), 0);
-          this.stockText += line_text + `\t $ ${totalValue.toFixed(2)} \n`;
+          this.stockText += line_text + ` ${ item.partner.short_name}\n`
         });
       },
       updateValues(newValue, column){

@@ -379,7 +379,7 @@ loadData();
                                                 data-bs-target="#suplierModal">
                                                 <IconEye size="15" stroke="1.5" />
                                             </i>
-                                            {{ item.partner.name }}
+                                            {{ item.partner.short_name }}
                                         </span>
                                     </td>
                                     <td class="p-1">
