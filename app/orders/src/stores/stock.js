@@ -167,7 +167,7 @@ export const useStockStore = defineStore('stockStore', {
       },
       getSelection(){
         return this.stock.filter(
-          item => item.is_selected).map(i=>({...i,confirm_delete:false})
+          item => item.is_selected).map(i=>({...i,confirm_delete:false, is_selected:false})
         );
       },
       stockToText(){

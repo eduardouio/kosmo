@@ -53,17 +53,32 @@ export const useOrdersStore = defineStore("ordersStore", {
             this.newOrder = newOrder.map(i=>({...i}));
           },
           mergeQB(){
-            const newOrder = this.newOrder;
-            const qbItems = newOrder.filter(i => i.box_model === 'QB');
-            const id = qbItems[0].stock_detail_id;
-            const qbItemsQty = qbItems.map(i => i.tot_stem_flower).reduce((a,b) => a+b, 0);
-            const newOrderFiltered = newOrder.filter(i => i.stock_detail_id !== id);
-            newOrderFiltered.push({
-              ...qbItems[0],
-              tot_stem_flower: qbItemsQty,
-              box_model: 'HB',
-            });
-            this.newOrder = newOrderFiltered.map(i=>({...i}));
+            const selectedQBs = this.newOrder.filter(i => i.is_selected);
+            const newOrderItem = {...selectedQBs[0], box_model: 'HB', is_selected: false};
+            this.newOrder = this.newOrder.filter(i => !i.is_selected);
+            newOrderItem.tot_stem_flower = selectedQBs.reduce(
+              (acc, i) => acc + i.tot_stem_flower, 0
+            );
+            newOrderItem.box_items = selectedQBs.reduce((acc, i) => {
+              acc.push(...i.box_items);
+              return acc;
+            }, []);
+            
+            const groupedBoxItems = Object.values(
+              newOrderItem.box_items.reduce((acc, item) => {
+                  const key = `${item.product_name}-${item.product_variety}-${item.length}`;
+                  if (!acc[key]) {
+                      acc[key] = { ...item };
+                  } else {
+                      acc[key].qty_stem_flower += item.qty_stem_flower;
+                  }
+                  return acc;
+              }, {})
+            );
+
+            newOrderItem.box_items = groupedBoxItems;
+
+            this.newOrder.push(newOrderItem);
           },
     }
 })

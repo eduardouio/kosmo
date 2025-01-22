@@ -51,7 +51,7 @@ const deleteOrderItem = (item) => {
 // computed Properties
 
 const isTwoQBSelected = computed(() => {
-  let qb = ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_seleted);
+  let qb = ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
   return qb.length === 2;
 });
 
@@ -210,7 +210,7 @@ const totalStems = computed(() => {
               {{ item.box_model }}
               <span>/</span>
               <IconSitemap size="20" stroke="1.5" @click="ordersStore.splitHB(item)" v-if="item.box_model === 'HB'"/>
-              <input type="checkbox" v-model="item.is_seleted" v-if="item.box_model === 'QB'"/>
+              <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'"/>
             </div>
             <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">{{ item.tot_stem_flower }}</div>
             <div class="col-2 d-flex align-items-end">
