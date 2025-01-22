@@ -170,20 +170,45 @@ export const useStockStore = defineStore('stockStore', {
           item => item.is_selected).map(i=>({...i,confirm_delete:false, is_selected:false})
         );
       },
-      stockToText(){
+      stockToText() {
         this.stockText = 'CANT TALLOS FINCA PRODUCTO LENGTH QTY PRICE COSTBOX\n';
         let selected = this.stock.filter(item => item.is_selected);
+      
         selected.forEach(item => {
           const totalStem = item.box_items.reduce((acc, subItem) => acc + subItem.qty_stem_flower, 0);
-          let line_text = `${item.quantity}${item.box_model} ${totalStem}`;
-          item.box_items.forEach(subItem => {
+          let line_text = `#${item.partner.id} ${item.quantity}${item.box_model} ${totalStem}`;
+      
+          const groupedBoxItems = Object.values(
+            item.box_items.reduce((acc, subItem) => {
+              const key = `${subItem.product_variety}-${subItem.length}`;
+              if (!acc[key]) {
+                acc[key] = { ...subItem };
+              } else {
+                acc[key].qty_stem_flower += subItem.qty_stem_flower;
+              }
+              return acc;
+            }, {})
+          );
+      
+          let costText = '';
+          let currentVariety = null; 
+          groupedBoxItems.forEach(subItem => {
             let cost = parseFloat(subItem.stem_cost_price) + parseFloat(subItem.margin);
             cost = cost.toFixed(2);
-            line_text += ` ${subItem.product_variety} ${subItem.length}cmX${subItem.qty_stem_flower} $${cost}`;
+      
+            if (subItem.product_variety !== currentVariety) {
+              line_text += ` ${subItem.product_variety}`;
+              currentVariety = subItem.product_variety; 
+            }
+      
+            line_text += ` ${subItem.length}X${subItem.qty_stem_flower}`;
+            costText += ` $${cost}`;
           });
-          this.stockText += line_text + ` ${ item.partner.short_name}\n`
+      
+          line_text += costText;
+          this.stockText += line_text + `\n`;
         });
-      },
+      },         
       updateValues(newValue, column){
         let box_items = [];
         this.stock.forEach(stockItem => {
