@@ -40,9 +40,9 @@ export const useBaseStore = defineStore("baseStore", {
     }),
     actions: {
       async loadSuppliers(){
+        this.isLoading = true;
         if (this.suppliers.length > 0) return;
         try {
-          this.isLoading = true;
           const response = await fetch(appConfig.urlAllSuppliers);
           const data = await response.json();
           this.suppliers = data;

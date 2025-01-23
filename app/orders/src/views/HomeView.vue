@@ -138,6 +138,9 @@ const loadData = () => {
         baseStore.loadProducts();
         ordersStore.loadCustomers();
         calcIndicators();
+    }, 900);
+    setTimeout(() => {
+        baseStore.loadSuppliers();
     }, 1000);
 };
 

@@ -1,9 +1,13 @@
 <script setup>
+import { watch } from 'vue';
 import { useBaseStore } from '@/stores/base';
-import { useStockStore } from '@/stores/stock';
+import { useOrdersStore } from '@/stores/orders';
 import { IconClipboard, IconX  } from '@tabler/icons-vue';
+import AutocompleteCustomer from './AutocompleteCustomer.vue';
+import { useStockStore } from '@/stores/stock';
 
 const baseStore = useBaseStore();
+const orderStore = useOrdersStore();
 const stockStore = useStockStore();
 
 const copyToClipboard = () => {
@@ -11,6 +15,14 @@ const copyToClipboard = () => {
     textArea.select();
     navigator.clipboard.writeText(stockStore.stockText);
 }
+
+
+watch(() => orderStore.selectedCustomer, (newValue) => {
+    if (newValue) {
+        stockStore.selectedCustomer = newValue;
+        stockStore.stockToText();
+    }
+});
 
 </script>
 
@@ -25,7 +37,34 @@ const copyToClipboard = () => {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                   <textarea class="form-control" v-model="stockStore.stockText" readonly rows="20"></textarea>
+                    <div class="row d-flex align-items-center">
+                        <div class="col">
+                            <AutocompleteCustomer />
+                        </div>
+                    </div>
+                    <div class="row pb-3" v-if="stockStore.selectedCustomer">
+                        <div class="col-12 text-cyan-500">
+                            Proveedores Relacionados
+                        </div>
+                        <div class="col-12 p-1 bg-yellow-100" v-if="stockStore.selectedCustomer.related_partners">
+                            <section v-for="supplier in stockStore.selectedCustomer.related_partners" class="d-flex gap-2" :key="supplier">
+                                <span class="border p-1 rounded-1 shadow bg-gray-100 bg-gradient">
+                                    <strong>
+                                        #{{ supplier.id }} 
+                                    </strong>
+                                    {{ supplier.name }}
+                                </span>
+                            </section>
+                        </div>
+                        <div class="col-12 p-1 bg-red-100" v-else="">
+                            <span class="text-red-500">No tiene Proveedores Relacionados</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <textarea class="form-control" v-model="stockStore.stockText" readonly rows="20"></textarea>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer bg-secondary bg-gradient p-1">
                     <button type="button" class="btn btn-default btn-sm" data-bs-dismiss="modal">
