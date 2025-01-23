@@ -21,6 +21,22 @@ class AllSuppliersAPI(View):
         result_dict = []
 
         for supplier in suppliers:
+            related_customers = supplier.partner.all()
+            related_customers = [{
+                'id': c.id,
+                'name': c.name,
+                'business_tax_id': c.business_tax_id,
+                'country': c.country,
+                'city': c.city,
+                'website': c.website,
+                'credit_term': c.credit_term,
+                'consolidate': c.consolidate,
+                'skype': c.skype,
+                'email': c.email,
+                'phone': c.phone,
+                'is_active': c.is_active,
+            } for c in related_customers if c.is_active]
+
             contact = Contact.get_principal_by_partner(supplier)
             contact_dict = {}
             if contact:
@@ -54,6 +70,7 @@ class AllSuppliersAPI(View):
                 'contact': contact_dict,
                 'is_selected': False,
                 'have_stock': have_stock,
+                'related_partners': related_customers
             }
             result_dict.append(item)
 
