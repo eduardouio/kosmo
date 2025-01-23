@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
 import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
 import { 
@@ -15,6 +16,9 @@ const confirmDelete = ref(false);
 const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
 const exceedLimitMessage = ref();
+const router = useRouter();
+
+// Methods
 const calcTotalByItem = (item)=>{ 
   let total = 0;
   let items = item.box_items.map(item => item)
@@ -48,8 +52,13 @@ const deleteOrderItem = (item) => {
   }
 }
 
-// computed Properties
+const createOrder = () => {
+  ordersStore.confirmedOrder = ordersStore.newOrder.map(i => ({ ...i}));
+  router.push('/customer-orders/');
 
+} 
+
+// computed Properties
 const isTwoQBSelected = computed(() => {
   let qb = ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
   return qb.length === 2;
@@ -269,7 +278,7 @@ const totalStems = computed(() => {
             <IconX size="20" stroke="1.5"/>
             Cancelar  
           </button>
-          <button type="button" class="btn btn-sm btn-default" >
+          <button type="button" class="btn btn-sm btn-default" data-bs-dismiss="modal" @click="createOrder">
             <IconCheckbox size="20" stroke="1.5"/>
             Crear Pedido
           </button>
