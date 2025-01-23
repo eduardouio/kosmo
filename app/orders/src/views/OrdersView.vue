@@ -1,19 +1,21 @@
 <script setup>
-import { ref, onMounted } from 'vue';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
-import { appConfig } from '@/AppConfig';
+import { useStockStore } from '@/stores/stock';
 import Loader from '@/components/Loader.vue';
 
 const baseStore = useBaseStore();
+const stockStore = useStockStore();
 const ordersStore = useOrdersStore();
 
-onMounted( async () => {
-    baseStore.isLoading = true;
-    await ordersStore.loadCustomers();
-    baseStore.isLoading = false;
-});
-
+const loadData = () => {
+    setTimeout(() => {
+        baseStore.loadProducts();
+        ordersStore.loadCustomers();
+        baseStore.loadSuppliers();
+    }, 100);
+};
+loadData();
 </script>
 
 <template>
@@ -25,7 +27,7 @@ onMounted( async () => {
             <div class="container">
                 <div class="row">
                     <div class="col-12">
-                        <h1>Vamos por los pedidos de lo clientes</h1>
+                        <strong>Listado de pedidos de Stock {{ stockStore.stockDay }}</strong>
                     </div>
                 </div>
             </div>
