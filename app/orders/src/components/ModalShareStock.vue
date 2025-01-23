@@ -16,16 +16,13 @@ const copyToClipboard = () => {
     navigator.clipboard.writeText(stockStore.stockText);
 }
 
-
 watch(() => orderStore.selectedCustomer, (newValue) => {
     if (newValue) {
         stockStore.selectedCustomer = newValue;
         stockStore.stockToText();
     }
 });
-
 </script>
-
 <template>
     <div class="modal fade modal-lg" id="shareModal" tabindex="-1" aria-labelledby="shareModal" aria-hidden="true" v-if="!baseStore.isLoading">
         <div class="modal-dialog">

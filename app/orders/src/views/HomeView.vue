@@ -137,11 +137,9 @@ const loadData = () => {
     setTimeout(() => {
         baseStore.loadProducts();
         ordersStore.loadCustomers();
-        calcIndicators();
-    }, 900);
-    setTimeout(() => {
         baseStore.loadSuppliers();
-    }, 1000);
+        calcIndicators();
+    }, 800);
 };
 
 const formatNumber = (event, box = null) => {

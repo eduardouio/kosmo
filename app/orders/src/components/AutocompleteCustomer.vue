@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useOrdersStore } from '@/stores/orders';
 
 const ordersStore = useOrdersStore();
-const customers = ref(ordersStore.customers);
+ordersStore.loadCustomers();
 
 const searchTerm = ref("")
 const filteredCustomers = ref([])
@@ -13,7 +13,7 @@ const highlightIndex = ref(-1)
 
 function filterCustomers() {
   showSuggestions.value = searchTerm.value.length > 0
-  filteredCustomers.value = customers.value.filter(customer =>
+  filteredCustomers.value = ordersStore.customers.filter(customer =>
     customer.name.toLowerCase().includes(searchTerm.value.toLowerCase())
   )
   highlightIndex.value = -1
@@ -44,18 +44,20 @@ function handleKeyDown(e) {
     }
   }
 }
+
+watch(()=>searchTerm.value, (newValue) => {
+  filterCustomers();
+})
 </script>
 
 <template>
-  <div class="position-relative mb-3">
+  <div class="position-relative mb-3" v-if="ordersStore.customers.length">
     <input 
       type="text"
       class="form-control"
       placeholder="Buscar cliente"
       v-model="searchTerm"
-      @input="filterCustomers"
       @keydown="handleKeyDown"
-      autofocus
     >
     <ul 
       class="list-group position-absolute w-100"
