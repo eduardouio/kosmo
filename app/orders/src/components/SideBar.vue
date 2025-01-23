@@ -1,11 +1,15 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router';
-import { 
-    IconCheckbox, IconSquare, IconChevronCompactRight, IconFilterOff, IconFilter
-} from '@tabler/icons-vue';
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
+import { 
+    IconCheckbox,
+    IconSquare,
+    IconChevronCompactRight,
+    IconFilterOff,
+    IconFilter
+} from '@tabler/icons-vue';
 
 const stockStore = useStockStore();
 const baseStore = useBaseStore();

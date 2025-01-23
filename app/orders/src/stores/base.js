@@ -45,13 +45,11 @@ export const useBaseStore = defineStore("baseStore", {
           const response = await fetch(appConfig.urlAllSuppliers);
           const data = await response.json();
           this.suppliers = data;
-          this.isLoading = false;
           this.loadProducts();
         }
         catch (error) {
           console.error('Error al cargar los proveedores:', error);
           alert(`Hubo un error al cargar los proveedores: ${error.message}`);
-          this.isLoading = false;
         }
       },
       async loadProducts(){

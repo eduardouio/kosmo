@@ -64,12 +64,12 @@ onMounted(() => {
             <div v-else>
                 <div class="row pt-1 pb-2 pe-2 ps-3">
                     <div class="col-3 ">
-                        <div class="d-flex justify-content-end align-items-center gap-2 border-gray-400 rounded-1">
-                            <span>
-                                <IconChevronCompactRight size="20" stroke="1.5" class="text-gray-500" />
-                            </span>
-                            <span class="text-white bg-gray-400 ps-1 pe-1">
+                        <div class="d-flex justify-content-end align-items-center gap-2 border-gray-600 rounded-1 bg-secondary">
+                            <span class="text-white ps-1 pe-1">
                                 Seleccione un Proveedor:
+                            </span>
+                            <span class="bg-gray ps-3 pe-3">
+                                <IconChevronCompactRight size="20" stroke="1.5" class="text-gray-500" />
                             </span>
                         </div>
                     </div>

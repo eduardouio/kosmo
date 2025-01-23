@@ -139,6 +139,7 @@ const loadData = () => {
         ordersStore.loadCustomers();
         baseStore.loadSuppliers();
         calcIndicators();
+        baseStore.isLoading = false;
     }, 800);
 };
 

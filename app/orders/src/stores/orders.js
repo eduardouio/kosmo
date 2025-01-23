@@ -9,6 +9,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         selectedCustomer: null,
         limitsNewOrder: [],
         newOrder:[],
+        confirmedOrder: [],
     }),
     actions:{
         async loadCustomers(){
