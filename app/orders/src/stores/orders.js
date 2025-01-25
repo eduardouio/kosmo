@@ -9,7 +9,6 @@ export const useOrdersStore = defineStore("ordersStore", {
         selectedCustomer: null,
         limitsNewOrder: [],
         newOrder:[],
-        confirmedOrder: [],
     }),
     actions:{
         async loadCustomers(){
@@ -24,6 +23,25 @@ export const useOrdersStore = defineStore("ordersStore", {
               alert(`Hubo un error al cargar los clientes: ${error.message}`)
             }   
           },
+          async sendOrder() {
+            try {
+                const response = await fetch(appConfig.urlCreateOrder, {
+                    method: 'POST',
+                    headers: appConfig.headers,
+                    body: JSON.stringify(this.newOrder)
+                })
+                if (!response.ok) {
+                    throw new Error('Error al enviar el pedido')
+                }
+                const data = await response.json()
+                alert('Pedido creado exitosamente')
+                this.newOrder = []
+                this.selectedCustomer = null
+            } catch (error) {
+                console.error('Error al enviar el pedido:', error)
+                alert(`Hubo un error al enviar el pedido: ${error.message}`)
+            }
+        },
           setLimits(orderDetail){
             this.limitsNewOrder = orderDetail
           },
