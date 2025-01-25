@@ -10,12 +10,14 @@ const filteredCustomers = ref([])
 const selectedCustomerId = ref(null)
 const showSuggestions = ref(false)
 const highlightIndex = ref(-1)
+const isCustomerSelected = ref(false)
 
 function filterCustomers() {
-  showSuggestions.value = searchTerm.value.length > 0
-  filteredCustomers.value = ordersStore.customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-  )
+  if (!isCustomerSelected.value) {
+    filteredCustomers.value = ordersStore.customers.filter(customer =>
+      customer.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+    )
+  }
   highlightIndex.value = -1
 }
 
@@ -24,6 +26,7 @@ function selectCustomer(customer) {
   selectedCustomerId.value = customer.id
   searchTerm.value = customer.name
   showSuggestions.value = false
+  isCustomerSelected.value = true
 }
 
 function handleKeyDown(e) {
@@ -42,11 +45,18 @@ function handleKeyDown(e) {
     if (highlightIndex.value >= 0) {
       selectCustomer(filteredCustomers.value[highlightIndex.value])
     }
+  } else if (e.key === 'Escape') {
+    showSuggestions.value = false
   }
 }
 
-watch(()=>searchTerm.value, (newValue) => {
-  filterCustomers();
+watch(() => searchTerm.value, (newValue) => {
+  if (isCustomerSelected.value) {
+    isCustomerSelected.value = false
+    return
+  }
+  showSuggestions.value = newValue.length > 0
+  filterCustomers()
 })
 </script>
 
@@ -58,6 +68,7 @@ watch(()=>searchTerm.value, (newValue) => {
       placeholder="Buscar cliente"
       v-model="searchTerm"
       @keydown="handleKeyDown"
+      @focus="showSuggestions = true"
     >
     <ul 
       class="list-group position-absolute w-100"
