@@ -9,7 +9,9 @@ import {
   IconX,
   IconSitemap,
   IconBan,
-  IconLayersIntersect2 
+  IconLayersIntersect2,
+  IconAlertTriangle
+
 } from '@tabler/icons-vue';
 
 const ordersStore = useOrdersStore();
@@ -94,7 +96,6 @@ const formatInteger = (event, box = null) => {
         return;
     }
     event.target.value = parseInt(value);
-    stockStore.updateStockDetail([box]);
 }
 
 // computed Properties
@@ -161,24 +162,30 @@ const totalStems = computed(() => {
 });
 
 const orderHaveCeroItem = computed(() => {
-  // Recorre cada elemento en ordersStore.newOrder
   for (const order of ordersStore.newOrder) {
-    // Filtra los box_items que tienen qty_stem_flower igual a 0
     let ceroBoxesStem = order.box_items.filter(
       i => i.qty_stem_flower === 0
     );
 
-    // Filtra los box_items que tienen stem_cost_price igual a 0
     let ceroBoxesCost = order.box_items.filter(
       i => i.stem_cost_price === 0
     );
 
-    // Si se encuentran items con cantidad 0 o costo 0, muestra el mensaje y retorna true
     if (ceroBoxesStem.length > 0 || ceroBoxesCost.length > 0) {
       exceedLimitMessage.value = 'No se permiten items con cantidad 0 o costo 0';
       exceedLimit.value = true;
       return true;
     }
+
+    if (ordersStore.selectedCustomer === null) {
+      exceedLimitMessage.value = 'Debe seleccionar un cliente';
+      exceedLimit.value = true;
+      return true;
+    }
+
+    exceedLimitMessage.value = '';
+    exceedLimit.value = false;
+    return false;
   }
 
   // Si no se encuentran items con cantidad 0 o costo 0, limpia el mensaje y retorna false
@@ -194,7 +201,20 @@ const orderHaveCeroItem = computed(() => {
       <div class="col-12">
         <AutocompleteCustomer />
       </div>
-      <div class="col-12 bg-gray-200 bg-gradient rounded-1 shadow-sm p-2" v-if="ordersStore.selectedCustomer">
+    </div>
+    <div class="row">
+      <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
+        <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
+        <span v-if="confirmDelete">
+          {{ deleteMessage }}
+        </span>
+        <span v-if="exceedLimit">
+          {{ exceedLimitMessage }}
+        </span>
+      </div>
+    </div>
+      <div class="row">  
+      <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white" v-if="ordersStore.selectedCustomer">
         <div class="row">
           <div class="col text-center">
             <h5>
@@ -260,16 +280,6 @@ const orderHaveCeroItem = computed(() => {
         </div>
       </div>
       <div class="col-1 fw-bold fs-6 bg-kosmo-green">C/USD</div>
-    </div>
-    <div class="row">
-      <div class="col-12 text-center fs-6 fw-semibold text-warning" v-if="exceedLimit || confirmDelete">
-        <span v-if="confirmDelete">
-          {{ deleteMessage }}
-        </span>
-        <span v-if="exceedLimit">
-          {{ exceedLimitMessage }}
-        </span>
-      </div>
     </div>
     <div v-for="item, idx in ordersStore.newOrder" :key="item.id" class="row mb-1 border my-hover-2"
       :class="{ 'bg-gray': idx % 2 === 0 }">

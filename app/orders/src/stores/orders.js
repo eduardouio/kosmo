@@ -28,7 +28,10 @@ export const useOrdersStore = defineStore("ordersStore", {
                 const response = await fetch(appConfig.urlCreateOrder, {
                     method: 'POST',
                     headers: appConfig.headers,
-                    body: JSON.stringify(this.newOrder)
+                    body: JSON.stringify({
+                      customer: this.selectedCustomer, 
+                      order : this.newOrder
+                    })
                 })
                 if (!response.ok) {
                     throw new Error('Error al enviar el pedido')

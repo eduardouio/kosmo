@@ -53,6 +53,7 @@ const deleteOrderItem = (item) => {
 }
 
 const createOrder = () => {
+  console.log('Crear Pedido');
   router.push('/customer-orders/');
 
 } 
