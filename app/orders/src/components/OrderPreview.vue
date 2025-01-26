@@ -18,7 +18,6 @@ const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
 const exceedLimitMessage = ref();
 const router = useRouter();
-
 // Methods
 const calcTotalByItem = (item)=>{ 
   let total = 0;
@@ -29,12 +28,9 @@ const calcTotalByItem = (item)=>{
   return total.toFixed(2);
 };
 
-const confirmOrder = () => {
-  ordersStore.sendOrder();
-};
-
 const cancelOrder = () => {
   ordersStore.newOrder = [];
+  ordersStore.selectedCustomer = null;
   router.push('/');
 };  
 
@@ -63,7 +59,7 @@ const deleteOrderItem = (item) => {
 }
 
 const createOrder = () => {
-  ordersStore.newOrder = ordersStore.newOrder.map(i => ({ ...i}));
+  ordersStore.sendOrder();
   ordersStore.newOrder = [];
   ordersStore.selectedCustomer = null;
   router.push('/customer-orders/');
@@ -163,6 +159,33 @@ const totalStems = computed(() => {
   });
   return total;
 });
+
+const orderHaveCeroItem = computed(() => {
+  // Recorre cada elemento en ordersStore.newOrder
+  for (const order of ordersStore.newOrder) {
+    // Filtra los box_items que tienen qty_stem_flower igual a 0
+    let ceroBoxesStem = order.box_items.filter(
+      i => i.qty_stem_flower === 0
+    );
+
+    // Filtra los box_items que tienen stem_cost_price igual a 0
+    let ceroBoxesCost = order.box_items.filter(
+      i => i.stem_cost_price === 0
+    );
+
+    // Si se encuentran items con cantidad 0 o costo 0, muestra el mensaje y retorna true
+    if (ceroBoxesStem.length > 0 || ceroBoxesCost.length > 0) {
+      exceedLimitMessage.value = 'No se permiten items con cantidad 0 o costo 0';
+      exceedLimit.value = true;
+      return true;
+    }
+  }
+
+  // Si no se encuentran items con cantidad 0 o costo 0, limpia el mensaje y retorna false
+  exceedLimitMessage.value = '';
+  exceedLimit.value = false;
+  return false;
+});
 </script>
 
 <template>
@@ -172,6 +195,13 @@ const totalStems = computed(() => {
         <AutocompleteCustomer />
       </div>
       <div class="col-12 bg-gray-200 bg-gradient rounded-1 shadow-sm p-2" v-if="ordersStore.selectedCustomer">
+        <div class="row">
+          <div class="col text-center">
+            <h5>
+              {{ ordersStore.selectedCustomer.name }}
+            </h5>
+          </div>
+        </div>
         <div class="row">
           <div class="col-1 text-end">ID:</div>
           <div class="col-1">{{ ordersStore.selectedCustomer.business_tax_id }}</div>
@@ -321,9 +351,9 @@ const totalStems = computed(() => {
           <IconBan size="20" stroke="1.5" />
           Cancelar Pedido
         </button>
-        <button type="button" class="btn btn-sm btn-default" @click="createOrder">
+        <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem">
           <IconCheckbox size="20" stroke="1.5" />
-          Crear Pedido
+          Confirmar Pedido
         </button>
       </div>
     </div>

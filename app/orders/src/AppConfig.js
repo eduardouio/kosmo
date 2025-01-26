@@ -18,6 +18,7 @@ export const appConfig = {
     'urlUpdateStockDetail': apiBaseUrl + "/api/update_stock_detail/",
     'urlAllProducts': apiBaseUrl + "/api/products/all_products/",
     'urlAddBoxItem': apiBaseUrl + "/api/stock/add_box_item/",
+    'urlCreateOrder': apiBaseUrl + "/api/order/create_order/",
 
     "headers": {
         'Accept': 'application/json',

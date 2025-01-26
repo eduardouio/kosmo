@@ -53,7 +53,6 @@ const deleteOrderItem = (item) => {
 }
 
 const createOrder = () => {
-  ordersStore.confirmedOrder = ordersStore.newOrder.map(i => ({ ...i}));
   router.push('/customer-orders/');
 
 } 

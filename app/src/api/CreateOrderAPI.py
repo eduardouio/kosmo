@@ -1,90 +1,65 @@
 from django.http import JsonResponse
 from django.views import View
-from trade.models import Order, OrderItems
-from products.models import StockDetail
+from django.utils.dateparse import parse_datetime
+from trade.models import Order, OrderItems, OrderBoxItems
+from products.models import StockDetail, BoxItems
 from partners.models import Partner
 import json
-from decimal import Decimal
 
 
 class CreateOrderAPI(View):
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         try:
             data = json.loads(request.body)
+            if not data:
+                return JsonResponse({'error': 'No data provided'}, status=400)
+            
+            import ipdb; ipdb.set_trace()
 
-            # Validate required fields
-            required_fields = ['partner_id', 'type_document', 'items']
-            for field in required_fields:
-                if field not in data:
-                    return JsonResponse({'error': f'Missing required field: {field}'}, status=400)
+            for order_data in data:
+                partner_data = order_data.get('partner', {}).get('_custom', {}).get('value', {})
+                partner = Partner.objects.get(id=partner_data['id'])
 
-            # Get partner
-            partner = Partner.objects.filter(id=data['partner_id']).first()
-            if not partner:
-                return JsonResponse({'error': 'Partner not found'}, status=404)
-
-            # Create order
-            order = Order.objects.create(
-                partner=partner,
-                type_document=data['type_document'],
-                status='PENDIENTE',
-                num_order=data.get('num_order'),
-                delivery_date=data.get('delivery_date'),
-                discount=data.get('discount', 0)
-            )
-
-            # Process order items
-            total_price = Decimal('0.00')
-            qb_total = 0
-            hb_total = 0
-
-            for item in data['items']:
-                stock_detail = StockDetail.objects.filter(
-                    id=item['stock_detail_id']).first()
-                if not stock_detail:
-                    order.delete()
-                    return JsonResponse({'error': f'Stock detail not found: {item["stock_detail_id"]}'}, status=404)
-
-                # Calculate line price with margin
-                line_price = (
-                    stock_detail.stem_cost_price_box
-                    * stock_detail.tot_stem_flower
-                    * Decimal('1.06')
+                order = Order.objects.create(
+                    partner=partner,
+                    type_document='ORD_VENTA',
+                    status='PENDIENTE',
+                    qb_total=0,
+                    hb_total=0,
+                    total_price=0,
                 )
 
-                # Create order item
-                order_item = OrderItems.objects.create(
-                    order=order,
-                    stock_detail=stock_detail,
-                    line_price=line_price,
-                    qty_stem_flower=stock_detail.tot_stem_flower,
-                    box_model=item.get('box_model', 'QB'),
-                    tot_stem_flower=stock_detail.tot_stem_flower,
-                    tot_cost_price_box=stock_detail.stem_cost_price_box,
-                    profit_margin=Decimal('0.06')
-                )
+                for item_data in order_data['box_items']:
+                    item = item_data['_custom']['value']
+                    stock_detail = StockDetail.objects.get(id=item['stock_detail_id'])
 
-                total_price += line_price
-                if order_item.box_model == 'QB':
-                    qb_total += 1
-                elif order_item.box_model == 'HB':
-                    hb_total += 1
+                    order_item = OrderItems.objects.create(
+                        order=order,
+                        stock_detail=stock_detail,
+                        line_price=item['stem_cost_price'],
+                        qty_stem_flower=item['qty_stem_flower'],
+                        box_model=order_data['box_model'],
+                        tot_stem_flower=order_data['tot_stem_flower'],
+                        tot_cost_price_box=order_data['tot_cost_price_box'],
+                        profit_margin=item['margin'],
+                    )
 
-            # Update order totals
-            order.total_price = total_price
-            order.qb_total = qb_total
-            order.hb_total = hb_total
-            order.save()
+                    OrderBoxItems.objects.create(
+                        order_item=order_item,
+                        product_id=item['product_id'],
+                        length=item['length'],
+                        qty_stem_flower=item['qty_stem_flower'],
+                        stem_cost_price=item['stem_cost_price'],
+                        profit_margin=item['margin'],
+                    )
 
-            return JsonResponse({
-                'message': 'Order created successfully',
-                'order_id': order.id,
-                'total_price': float(total_price),
-                'qb_total': qb_total,
-                'hb_total': hb_total
-            }, status=201)
+                # Actualizar totales de la orden
+                order.qb_total += order_data['box_model'] == 'QB'
+                order.hb_total += order_data['box_model'] == 'HB'
+                order.total_price += order_item.line_price * order_item.qty_stem_flower
+                order.save()
 
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+            return JsonResponse({'message': 'Order created successfully'}, status=201)
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
