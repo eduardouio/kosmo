@@ -39,4 +39,26 @@ class SerializerOrder():
             'box_items': [],
         }
 
-        box_items = OrderBoxItems.get_by_order_item(order_item)
+        box_items = OrderBoxItems.get_box_items(order_item)
+        for box in box_items:
+            cost_product = float(box.stem_cost_price)
+            url_image = box.product.image.url if box.product.image else ''
+            colors = box.product.colors.split(
+                ',') if box.product.colors else []
+            colors = [c.strip() for c in colors if c.strip()]
+            item_box = {
+                'id': box.id,
+                'stock_detail_id': box.stock_detail_id,
+                'product_id': box.product_id,
+                'product_name': box.product.name,
+                'product_variety': box.product.variety,
+                'product_image': url_image,
+                'product_colors': colors if colors else ['NO DEFINIDO'],
+                'product_notes': box.product.notes,
+                'length': box.length,
+                'qty_stem_flower': box.qty_stem_flower,
+                'stem_cost_price': cost_product,
+                'margin': box.profit_margin,
+                'is_active': box.is_active
+            }
+            item['box_items'].append(item_box)

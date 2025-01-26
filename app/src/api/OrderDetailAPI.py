@@ -34,7 +34,7 @@ class OrderDetailAPI(APIView):
                     'email': order.partner.email,
                 },
             },
-            'order_details': ''
+            'order_details': result_dict
         },
             status=200
         )

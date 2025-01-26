@@ -1,7 +1,6 @@
 import pytest
 from django.urls import reverse
 from django.test import Client
-import json
 
 from accounts.models import CustomUserModel
 
