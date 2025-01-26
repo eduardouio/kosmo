@@ -89,6 +89,19 @@ class Order(BaseModel):
         'Total QB',
         default=0
     )
+    total_stem_flower = models.PositiveSmallIntegerField(
+        'Total Tallos',
+        default=0,
+        blank=True,
+        null=True
+    )
+
+    @classmethod    
+    def get_order_by_id(cls, id_order):
+        try:
+            return cls.objects.get(pk=id_order)
+        except cls.DoesNotExist:
+            return None
 
     def __str__(self):
         return f"Pedido {self.id} - {self.partner.name}"
@@ -110,16 +123,30 @@ class OrderItems(BaseModel):
         Order,
         on_delete=models.CASCADE
     )
-    stock_detail = models.ForeignKey(
-        StockDetail,
-        on_delete=models.CASCADE
+    id_stock_detail = models.PositiveSmallIntegerField(
+        'Detalle de Stock',
+        blank=True,
+        null=True,
+        default=0,
     )
     line_price = models.DecimalField(
         'Precio Linea',
         max_digits=10,
+        decimal_places=2,
+        default=0.00
+    )
+    line_margin = models.DecimalField(
+        'Margen Linea',
+        max_digits=5,
+        decimal_places=2,
+        default=0.06
+    )
+    line_total = models.DecimalField(
+        'Precio Total',
+        max_digits=10,
         decimal_places=2
     )
-    qty_stem_flower = models.IntegerField(
+    tot_stem_flower = models.IntegerField(
         'Unds Tallos',
         default=0,
         help_text='Cantidad de tallos de flor'
@@ -129,22 +156,11 @@ class OrderItems(BaseModel):
         max_length=50,
         choices=BOX_CHOICES
     )
-    tot_stem_flower = models.IntegerField(
-        'Cant Tallos',
-        default=0,
-        help_text='Cantidad de tallos de flor'
-    )
-    tot_cost_price_box = models.DecimalField(
+    quantity = models.DecimalField(
         'Precio de costo Caja',
         max_digits=10,
         decimal_places=2,
         default=0.00
-    )
-    profit_margin = models.DecimalField(
-        'Margen de Ganancia',
-        max_digits=5,
-        decimal_places=2,
-        default=0.06
     )
 
     @classmethod
@@ -162,16 +178,12 @@ class OrderItems(BaseModel):
     def get_supplier_items_by_order(cls, supplier, order):
         line_items = cls.objects.filter(
             order=order,
-            stock_detail__partner=supplier
         )
         return line_items
 
     @classmethod
-    def get_order_items_by_order(cls, order):
-        return cls.objects.filter(order=order)
-
-    def __str__(self):
-        return f"Item {self.id} - {self.stock_detail.product.name}"
+    def get_by_order(cls, order):
+        return cls.objects.filter(order=order, active=True)
 
 
 class OrderBoxItems(BaseModel):
@@ -205,3 +217,10 @@ class OrderBoxItems(BaseModel):
         decimal_places=2,
         default=0.06
     )
+
+    @classmethod
+    def get_box_items(cls, order_item):
+        return cls.objects.filter(
+            order_item=order_item,
+            active=True
+        )

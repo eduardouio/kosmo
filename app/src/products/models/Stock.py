@@ -47,8 +47,6 @@ class StockDay(BaseModel):
         return str(self.date)
 
 
-# los stoks son por tipo de caja si son dos tipos de caja se crean dos
-# registros aunque sean del mismo producto
 class StockDetail(BaseModel):
     id = models.AutoField(
         primary_key=True

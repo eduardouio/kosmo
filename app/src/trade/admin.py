@@ -27,8 +27,8 @@ class OrderItemsAdmin(SimpleHistoryAdmin):
     list_display = (
         'id',
         'order',
-        'stock_detail',
-        'qty_stem_flower',
+        'id_stock_detail',
+        'tot_stem_flower',
         'line_price',
     )
 
