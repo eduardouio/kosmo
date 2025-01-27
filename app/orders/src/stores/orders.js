@@ -24,14 +24,16 @@ export const useOrdersStore = defineStore("ordersStore", {
             }   
           },
           async sendOrder() {
+            const orderData = JSON.stringify({
+              customer: this.selectedCustomer, 
+              order_detail : this.newOrder
+            })
+            
             try {
                 const response = await fetch(appConfig.urlCreateOrder, {
                     method: 'POST',
                     headers: appConfig.headers,
-                    body: JSON.stringify({
-                      customer: this.selectedCustomer, 
-                      order : this.newOrder
-                    })
+                    body: orderData
                 })
                 if (!response.ok) {
                     throw new Error('Error al enviar el pedido')
@@ -40,6 +42,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 alert('Pedido creado exitosamente')
                 this.newOrder = []
                 this.selectedCustomer = null
+                return data
             } catch (error) {
                 console.error('Error al enviar el pedido:', error)
                 alert(`Hubo un error al enviar el pedido: ${error.message}`)

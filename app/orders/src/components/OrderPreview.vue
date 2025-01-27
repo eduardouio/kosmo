@@ -60,11 +60,10 @@ const deleteOrderItem = (item) => {
   }
 }
 
-const createOrder = () => {
-  ordersStore.sendOrder();
-  ordersStore.newOrder = [];
-  ordersStore.selectedCustomer = null;
-  router.push('/customer-orders/');
+const createOrder = async() => {
+  new_order = await ordersStore.sendOrder();
+  console.log(new_order);
+  router.push('/');
 }
 
 const handleKeydown = (event, cssClass) => {

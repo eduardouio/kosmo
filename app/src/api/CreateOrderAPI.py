@@ -1,13 +1,11 @@
 import json
-from datetime import date
+from decimal import Decimal
 from django.http import JsonResponse
 from django.views import View
-from django.utils.dateparse import parse_datetime
 from trade.models import Order, OrderItems, OrderBoxItems
 from products.models import Product
 from partners.models import Partner
-from products.models import StockDetail, BoxItems
-from partners.models import Partner
+from common import SerializerOrder
 
 
 class CreateOrderAPI(View):
@@ -23,7 +21,7 @@ class CreateOrderAPI(View):
                 status=404
             )
 
-        order_total = self.getTotals(order_data['order'])
+        order_total = self.getOrderTotals(order_data['order_detail'])
         order = Order.objects.create(
             partner=customer,
             type_document='ORD_VENTA',
@@ -31,7 +29,7 @@ class CreateOrderAPI(View):
             **order_total,
         )
 
-        for new_order_item in order_data['order']:
+        for new_order_item in order_data['order_detail']:
             item_totals = self.getItemTotal(new_order_item)
             order_item = OrderItems.objects.create(
                 order=order,
@@ -43,11 +41,6 @@ class CreateOrderAPI(View):
 
             for box_item in new_order_item['box_items']:
                 product = Product.get_by_id(box_item['product_id'])
-                if not product:
-                    return JsonResponse(
-                        {'error': 'Product not found'},
-                        status=404
-                    )
 
                 OrderBoxItems.objects.create(
                     order_item=order_item,
@@ -58,12 +51,34 @@ class CreateOrderAPI(View):
                     profit_margin=float(box_item['margin'])
                 )
 
-            return JsonResponse(
-                {'message': 'Order created successfully'},
-                status=201
-            )
+        order_items = OrderItems.get_by_order(order)
+        order_items_list = []
+        for item in order_items:
+            order_items_list.append(SerializerOrder().get_line(item))
 
-    def getTotals(self, order):
+        result = {
+            'order': {
+                'id': order.id,
+                'status': order.status,
+                'type_document': order.type_document,
+                'qb_total': order.qb_total,
+                'hb_total': order.hb_total,
+                'discount': order.discount,
+                'total_stem_flower': order.total_stem_flower,
+                'total_price': order.total_price,
+            },
+            'order_detail': order_items_list,
+        }
+
+        return JsonResponse(
+            {
+                'message': 'Pedido Creado Exitosamente',
+                'data': json.dumps(result, default=self.custom_serializer),
+            },
+            status=201
+        )
+
+    def getOrderTotals(self, order):
         totals = {
             ''
             'qb_total': 0,
@@ -108,3 +123,8 @@ class CreateOrderAPI(View):
             )
 
         return totals
+
+    def custom_serializer(self, obj):
+        if isinstance(obj, Decimal):
+            return float(obj)
+        raise TypeError(f"Tipo no serializable: {type(obj)}")

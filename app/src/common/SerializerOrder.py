@@ -1,6 +1,6 @@
 import json
 from products.models import StockDetail
-from trade.models import Order, OrderItems, OrderBoxItems
+from trade.models import OrderBoxItems
 
 
 class SerializerOrder():
@@ -48,7 +48,6 @@ class SerializerOrder():
             colors = [c.strip() for c in colors if c.strip()]
             item_box = {
                 'id': box.id,
-                'stock_detail_id': box.stock_detail_id,
                 'product_id': box.product_id,
                 'product_name': box.product.name,
                 'product_variety': box.product.variety,
@@ -62,3 +61,5 @@ class SerializerOrder():
                 'is_active': box.is_active
             }
             item['box_items'].append(item_box)
+
+        return item

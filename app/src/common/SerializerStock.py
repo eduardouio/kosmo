@@ -1,4 +1,4 @@
-from products.models import StockDetail, StockDay, BoxItems
+from products.models import BoxItems
 
 
 class SerializerStock():
@@ -12,7 +12,7 @@ class SerializerStock():
             'is_in_order': False,
             'box_model': stock.box_model,
             'tot_stem_flower': stock.tot_stem_flower,
-            'tot_cost_price_box': float(stock.tot_cost_price_box),
+            'tot_cost_price_box': stock.tot_cost_price_box,
             'id_user_created': stock.id_user_created,
             'is_active': stock.is_active,
             'partner': {
@@ -35,7 +35,7 @@ class SerializerStock():
 
         box_items = BoxItems.get_box_items(stock)
         for box in box_items:
-            cost_product = float(box.stem_cost_price)
+            cost_product = box.stem_cost_price
             url_image = box.product.image.url if box.product.image else ''
             colors = box.product.colors.split(
                 ',') if box.product.colors else []
