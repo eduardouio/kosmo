@@ -32,6 +32,7 @@ class TestStockDetailAPI():
         assert response_data['order']['qb_total'] == 8
         assert response_data['order']['hb_total'] == 0
         assert response_data['order']['discount'] == 0
+        assert response_data['order']['stock_day'] == 1
         assert response_data['order']['total_stem_flower'] == 500
         assert len(response_data['order_detail']) == 3
 
@@ -247,5 +248,10 @@ class TestStockDetailAPI():
                     ],
                     "confirm_delete": False
                 }
-            ]
+            ],
+            "stock_day": {
+                "id": 1,
+                "date": "2025-01-26",
+                "is_active": True
+            }
         }

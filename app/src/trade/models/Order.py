@@ -1,5 +1,5 @@
 from django.db import models
-from products.models import StockDetail, Product
+from products.models import Product, StockDay
 from common import BaseModel
 from partners.models import Partner
 
@@ -22,15 +22,15 @@ BOX_CHOICES = (
 )
 
 
-# la orden del cliente se genera con el pedido y los items
-# luego usamos esta orden y generamos ordenes de compra para los proveedores
-# varias ordenes de compra pueden ser generadas a partir de una orden de
-# cliente la factura se genera a partir de las ordenes de compra
-# cuando una orden de cliente no puede ser completada se modifica en la orden
-# de compra luego se genera una factura por cada orden de compra
 class Order(BaseModel):
     id = models.AutoField(
         primary_key=True
+    )
+    stock_day = models.ForeignKey(
+        StockDay,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
     date = models.DateTimeField(
         'Fecha',
@@ -57,7 +57,6 @@ class Order(BaseModel):
         max_length=50,
         blank=True,
         null=True,
-        help_text='Numero de Orden C para el cliente S para el proveedor autonumerico manual'
     )
     delivery_date = models.DateField(
         'Fecha de entrega',
@@ -108,11 +107,7 @@ class Order(BaseModel):
 
     @classmethod
     def get_orders_by_stock_day(cls, stock_day):
-        # TODO Validar que retorna
-        orders = OrderItems.objects.filter(
-            stock_detail__stock_day=stock_day
-        ).values_list('order', flat=True).distinct()
-        return orders
+        return cls.objects.filter(stock_day=stock_day, is_active=True)
 
 
 class OrderItems(BaseModel):
