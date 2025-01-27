@@ -12,7 +12,7 @@ class SerializerStock():
             'is_in_order': False,
             'box_model': stock.box_model,
             'tot_stem_flower': stock.tot_stem_flower,
-            'tot_cost_price_box': stock.tot_cost_price_box,
+            'tot_cost_price_box': float(stock.tot_cost_price_box),
             'id_user_created': stock.id_user_created,
             'is_active': stock.is_active,
             'partner': {
@@ -22,7 +22,7 @@ class SerializerStock():
                 'business_tax_id': stock.partner.business_tax_id,
                 'address': stock.partner.address,
                 'city': stock.partner.city,
-                'default_profit_margin': stock.partner.default_profit_margin,
+                'default_profit_margin': float(stock.partner.default_profit_margin),
                 'website': stock.partner.website,
                 'credit_term': stock.partner.credit_term,
                 'skype': stock.partner.skype,
@@ -51,8 +51,8 @@ class SerializerStock():
                 'product_notes': box.product.notes,
                 'length': box.length,
                 'qty_stem_flower': box.qty_stem_flower,
-                'stem_cost_price': cost_product,
-                'margin': box.profit_margin,
+                'stem_cost_price': float(cost_product),
+                'margin': float(box.profit_margin),
                 'is_active': box.is_active
             }
             item['box_items'].append(item_box)

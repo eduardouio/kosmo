@@ -39,7 +39,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                     throw new Error('Error al enviar el pedido')
                 }
                 const data = await response.json()
-                alert('Pedido creado exitosamente')
+                this.orders.push(JSON.parse(data.data));
                 this.newOrder = []
                 this.selectedCustomer = null
                 return data

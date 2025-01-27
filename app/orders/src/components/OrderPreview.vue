@@ -20,7 +20,7 @@ const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
 const exceedLimitMessage = ref();
 const router = useRouter();
-// Methods
+
 const calcTotalByItem = (item)=>{ 
   let total = 0;
   let items = item.box_items.map(item => item)
@@ -187,7 +187,6 @@ const orderHaveCeroItem = computed(() => {
     return false;
   }
 
-  // Si no se encuentran items con cantidad 0 o costo 0, limpia el mensaje y retorna false
   exceedLimitMessage.value = '';
   exceedLimit.value = false;
   return false;
