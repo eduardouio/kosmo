@@ -183,7 +183,7 @@ class OrderItems(BaseModel):
 
     @classmethod
     def get_by_order(cls, order):
-        return cls.objects.filter(order=order, active=True)
+        return cls.objects.filter(order=order, is_active=True)
 
 
 class OrderBoxItems(BaseModel):
@@ -222,5 +222,5 @@ class OrderBoxItems(BaseModel):
     def get_box_items(cls, order_item):
         return cls.objects.filter(
             order_item=order_item,
-            active=True
+            is_active=True
         )
