@@ -9,6 +9,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         selectedCustomer: null,
         limitsNewOrder: [],
         newOrder:[],
+        stockDay:null,
     }),
     actions:{
         async loadCustomers(){
@@ -23,10 +24,11 @@ export const useOrdersStore = defineStore("ordersStore", {
               alert(`Hubo un error al cargar los clientes: ${error.message}`)
             }   
           },
-          async sendOrder() {
+          async sendOrder(stockDay) {
             const orderData = JSON.stringify({
               customer: this.selectedCustomer, 
-              order_detail : this.newOrder
+              order_detail : this.newOrder,
+              stock_day: stockDay
             })
             
             try {
@@ -39,7 +41,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                     throw new Error('Error al enviar el pedido')
                 }
                 const data = await response.json()
-                this.orders.push(JSON.parse(data.data));
+                this.loadOrders();
                 this.newOrder = []
                 this.selectedCustomer = null
                 return data
@@ -47,7 +49,10 @@ export const useOrdersStore = defineStore("ordersStore", {
                 console.error('Error al enviar el pedido:', error)
                 alert(`Hubo un error al enviar el pedido: ${error.message}`)
             }
-        },
+          },
+          async loadOrders(){
+            debugger;
+          },
           setLimits(orderDetail){
             this.limitsNewOrder = orderDetail
           },

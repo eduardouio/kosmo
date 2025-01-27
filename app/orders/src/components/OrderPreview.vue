@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
+import { useStockStore } from '@/stores/stock';
 import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
 import { 
   IconTrash,
@@ -15,6 +16,7 @@ import {
 } from '@tabler/icons-vue';
 
 const ordersStore = useOrdersStore();
+const stockStore = useStockStore();
 const confirmDelete = ref(false);
 const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
@@ -61,7 +63,9 @@ const deleteOrderItem = (item) => {
 }
 
 const createOrder = async() => {
-  new_order = await ordersStore.sendOrder();
+  new_order = await ordersStore.sendOrder(
+    stockStore.stockDay
+  );
   console.log(new_order);
   router.push('/');
 }

@@ -4,7 +4,7 @@ from trade.models import Order, OrderItems
 from common import SerializerOrder
 
 
-class OrderDetailAPI(APIView):
+class OrderDetailAPI(View):
     def get(self, request, id_order, *args, **kwargs):
         order = Order.get_by_id(id_order)
         if not order:
@@ -18,6 +18,7 @@ class OrderDetailAPI(APIView):
         return JsonResponse({
             'order': {
                 'id': order.id,
+                'stock_day': order.stock_day.id,
                 'date': order.date,
                 'status': order.status,
                 'type_document': order.type_document,

@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.http import JsonResponse
 from django.views import View
 from trade.models import Order, OrderItems, OrderBoxItems
-from products.models import Product
+from products.models import Product, StockDay
 from partners.models import Partner
 from common import SerializerOrder
 
@@ -22,8 +22,10 @@ class CreateOrderAPI(View):
             )
 
         order_total = self.getOrderTotals(order_data['order_detail'])
+        stock_day = StockDay.get_by_id(order_data['stock_day']['id'])
         order = Order.objects.create(
             partner=customer,
+            stock_day=stock_day,
             type_document='ORD_VENTA',
             status='PENDIENTE',
             **order_total,
@@ -59,6 +61,7 @@ class CreateOrderAPI(View):
         result = {
             'order': {
                 'id': order.id,
+                'stock_day': order.stock_day.id,
                 'status': order.status,
                 'type_document': order.type_document,
                 'qb_total': order.qb_total,
