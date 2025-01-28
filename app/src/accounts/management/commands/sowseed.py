@@ -64,6 +64,13 @@ class Command(BaseCommand):
         user.set_password('seguro')
         user.save()
 
+        user2 = CustomUserModel(
+            email='test@kosmoflowers.com'
+        )
+        user2.set_password('seguro')
+        user2.save()
+
+
         # segundo ususaroi
         user2 = CustomUserModel(
             email='test@kosmo.com'

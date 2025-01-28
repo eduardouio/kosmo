@@ -106,7 +106,7 @@ class Order(BaseModel):
         return f"Pedido {self.id} - {self.partner.name}"
 
     @classmethod
-    def get_orders_by_stock_day(cls, stock_day):
+    def get_by_stock_day(cls, stock_day):
         return cls.objects.filter(stock_day=stock_day, is_active=True)
 
 
