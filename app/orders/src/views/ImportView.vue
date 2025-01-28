@@ -1,9 +1,10 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBaseStore } from '@/stores/base';
 import { appConfig } from '@/AppConfig';
 import Loader from '@/components/Loader.vue';
+import axios from 'axios';
 import {
     IconCheckbox,
     IconAlertTriangle,
@@ -12,7 +13,7 @@ import {
 } from '@tabler/icons-vue';
 
 
-const storeBase = useBaseStore();
+const baseStore = useBaseStore();
 const selectedSupplier = ref(false);
 const stockText = ref('');
 const profitMargin = ref(0.06);
@@ -20,48 +21,55 @@ const appendStock = ref(true);
 const route = useRouter();
 
 const analyzeStock = async () => {
-    storeBase.isLoading = true;
     try {
         const payload = {
-            idStock: storeBase.idStock,
+            idStock: baseStore.idStock,
             stockText: stockText.value,
             profitMargin: profitMargin.value,
             appendStock: appendStock.value,
             supplier: selectedSupplier.value,
         };
 
-        const response = await fetch(appConfig.urlAnalyce, {
-            method: 'POST',
+        const response = await axios.post(appConfig.urlAnalyce, payload, {
             headers: appConfig.headers,
-            body: JSON.stringify(payload),
         });
-        if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
-        }
 
-        const data = await response.json();
+        const data = response.data;
         console.dir(data);
 
     } catch (error) {
         console.error("Error en analyzeStock:", error);
         alert(`Ocurrió un error: ${error.message}`);
     } finally {
-        storeBase.isLoading = false;
+        baseStore.isLoading = false;
         route.push('/');
     }
 };
 
+// COMPUTED
+const isAllLoaded = computed(() => {
+    return baseStore.stagesLoaded === 2;
+})
+
+
 onMounted(() => {
-    storeBase.loadSuppliers();
-    storeBase.loadProducts();
+    baseStore.loadSuppliers();
+    baseStore.loadProducts();
 });
+
 </script>
 <template>
     <div class="container-fluid p-0">
-        <div class="row">
-        <div class="container">
-            <Loader v-if="storeBase.isLoading" />
-            <div v-else>
+        <div class="row" v-if="!isAllLoaded">
+            <div class="col text-center">
+                <Loader />
+                <h6 class="text-center text-blue-600">
+                    {{ baseStore.stagesLoaded }} /  2
+                </h6>
+            </div>
+        </div>
+        <div class="row" v-else>
+            <div class="col">
                 <div class="row pt-1 pb-2 pe-2 ps-3">
                     <div class="col-3 ">
                         <div class="d-flex justify-content-end align-items-center gap-2 border-gray-600 rounded-1 bg-secondary">
@@ -76,7 +84,7 @@ onMounted(() => {
                     <div class="col-9">
                         <select class="form-select form-select-sm border-gray-500" v-model="selectedSupplier" @change="profitMargin = selectedSupplier.default_profit_margin">
                             <option>Seleccionar Proveedor</option>
-                            <option v-for="supplier in storeBase.suppliers" :key="supplier" :value="supplier">
+                            <option v-for="supplier in baseStore.suppliers" :key="supplier" :value="supplier">
                                 {{ supplier.name }}
                             </option>
                         </select>
@@ -225,7 +233,6 @@ onMounted(() => {
 
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </template>

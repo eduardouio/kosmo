@@ -14,11 +14,17 @@ export const useStockStore = defineStore('stockStore', {
         lengths: [],
     }),
     actions: {
-        async LoadOrders() {
-            return;
+        async LoadOrders(baseStore) {
+            try {
+                const response = await axios.get(appConfig.urlOrdersByStock);
+                this.orders = response.data;
+                baseStore.stagesLoaded++;
+            } catch (error) {
+                console.error('Error al cargar las órdenes:', error);
+                alert(`Hubo un error al cargar las órdenes: ${error.message}`);
+            }
         },
         async getStock(baseStore) {
-            baseStore.setLoading(true);
             try {
                 const response = await axios.get(appConfig.urlDispo);
                 const data = response.data;
@@ -29,14 +35,13 @@ export const useStockStore = defineStore('stockStore', {
                 this.stock = data.stock;
                 this.orders = data.orders;
                 this.stockDay = data.stockDay;
-                baseStore.setLoading(false);
                 this.extractSuppliers();
                 this.extractColors();
                 this.extractLengths();
+                baseStore.stagesLoaded++;
             } catch (error) {
                 console.error('Error al obtener el stock:', error);
                 alert(`Hubo un error al obtener el stock: ${error.message}`);
-                baseStore.setLoading(false);
             }
         },
         async addBoxItem(boxItem) {

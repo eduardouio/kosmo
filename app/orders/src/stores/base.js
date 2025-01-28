@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { appConfig } from "@/AppConfig";
-
+import axios from 'axios';
 
 export const useBaseStore = defineStore("baseStore", {
     state: () => ({
@@ -37,17 +37,20 @@ export const useBaseStore = defineStore("baseStore", {
         suppliers:[],
         products:[],
         isLoading: true,
+        stagesLoaded: 0,
         idStock: appConfig.idStock,
         selectedProduct: null,
     }),
     actions: {
       async loadSuppliers(){
-        if (this.suppliers.length > 0) return;
+        if (this.suppliers.length > 0) {
+          this.stagesLoaded++;
+          return;
+        }
         try {
-          const response = await fetch(appConfig.urlAllSuppliers);
-          const data = await response.json();
-          this.suppliers = data;
-          this.loadProducts();
+          const response = await axios.get(appConfig.urlAllSuppliers);
+          this.suppliers = response.data;
+          this.stagesLoaded++;
         }
         catch (error) {
           console.error('Error al cargar los proveedores:', error);
@@ -55,19 +58,19 @@ export const useBaseStore = defineStore("baseStore", {
         }
       },
       async loadProducts(){
-        if (this.products.length > 0) return;
+        if (this.products.length > 0) { 
+          this.stagesLoaded++;
+          return;
+        }
         try{
-          const response = await fetch(appConfig.urlAllProducts);
-          const data = await response.json();
-          this.products = data.products;
+          const response = await axios.get(appConfig.urlAllProducts);
+          this.products = response.data.products;
+          this.stagesLoaded++;
         }
         catch (error) {
           console.error('Error al cargar los productos:', error);
           alert(`Hubo un error al cargar los productos: ${error.message}`);
         }
       },
-      setLoading(value){
-        this.isLoading = value;
-      }
     },
 });

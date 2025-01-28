@@ -1,6 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'; 
+import { ref, computed, watch, onMounted } from 'vue';
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
@@ -12,22 +11,11 @@ import ModalEditBox from '@/components/ModalEditBox.vue';
 import ModalOrderPreview from '@/components/ModalOrderPreview.vue';
 import Loader from '@/components/Loader.vue';
 import {
-    IconCheckbox,
-    IconSquare,
-    IconEye,
-    IconShare,
-    IconLockOpen2,
-    IconLock,
-    IconCurrencyDollar,
-    IconShoppingCart,
-    IconSettings,
-    IconTrash,
-    IconPointFilled,
-    IconPoint,
-    IconEdit,
+    IconCheckbox, IconSquare, IconEye, IconShare, IconLockOpen2, IconLock,
+    IconCurrencyDollar, IconShoppingCart, IconSettings, IconTrash, IconEdit,
+    IconPointFilled, IconPoint,
 } from '@tabler/icons-vue';
 
-// VARIABLES
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
 const ordersStore = useOrdersStore();
@@ -46,7 +34,7 @@ const buttonsVisibility = ref({
     delete: false,
 });
 const confirmDelete = ref(false);
-const router = useRouter();
+const totalStages = 4;
 
 // METHODS
 const deleteSelected = () => {
@@ -132,15 +120,11 @@ const handleKeydown = (event, cssClass) => {
 }
 
 const loadData = () => {
-    baseStore.isLoading = true;
     stockStore.getStock(baseStore);
-    setTimeout(() => {
-        baseStore.loadProducts();
-        ordersStore.loadCustomers();
-        baseStore.loadSuppliers();
-        calcIndicators();
-        baseStore.isLoading = false;
-    }, 800);
+    baseStore.loadProducts(baseStore);
+    ordersStore.loadCustomers(baseStore);
+    baseStore.loadSuppliers();
+    calcIndicators();
 };
 
 const formatNumber = (event, box = null) => {
@@ -178,7 +162,11 @@ const uniqueColors = (boxItems) => {
     return [...new Set(allColors)];
 }
 
-// Computed
+// COMPUTED
+const isAllLoaded = computed(() => {
+    return baseStore.stagesLoaded === totalStages;
+})
+
 const filterData = computed(() => {
     return stockStore.stock.filter(item => item.is_visible);
 })
@@ -201,12 +189,19 @@ watch(() => querySearch.value, (newValue) => {
     { immediate: true }
 );
 
-loadData();
+onMounted(() => {
+    loadData();
+});
 </script>
 <template>
     <div class="container-fluid p-0">
-        <div class="row" v-if="baseStore.isLoading">
-            <Loader />
+        <div class="row" v-if="!isAllLoaded">
+            <div class="col text-center">
+                <Loader />
+                <h6 class="text-blue-600">
+                    {{ baseStore.stagesLoaded }} / {{ totalStages }}
+                </h6>
+            </div>
         </div>
         <div class="row ps-2" v-else="">
             <div class="cntainer">

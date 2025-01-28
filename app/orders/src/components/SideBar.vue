@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router';
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
@@ -13,7 +13,6 @@ import {
 
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
-const isLoading = ref(true);
 const route = useRoute();
 
 
@@ -21,6 +20,9 @@ const showAllSuppliers = ref(true);
 const showAllColors = ref(true);
 const showAllStock = ref(true);
 const showAllLengths = ref(true);
+
+
+// METHODS
 
 const showAllStockSwitch = () => {
     showAllStock.value = !showAllStock.value;
@@ -49,34 +51,27 @@ const getClass = (item) => {
     return 'bg-gray-200 text-gray-500';    
 };
 
+const resetStagesLoaded = () => {
+    baseStore.stagesLoaded = 0;
+};
 
-watch(
-    () => baseStore.isLoading,
-    (newValue) => {
-        if (!newValue) {
-            isLoading.value = false;
-        }
-    },
-    { immediate: true }
-);
 
 </script>
-
 <template>
     <div class="p-2 list-group rounded-0">
-        <router-link to="/import/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/import'}">
+        <router-link to="/import/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/import'}" @click="resetStagesLoaded()">
             <div class="b rounded-1 p-0 fw-semibold ">
                 Importar Disponibilidad
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
             </div>
         </router-link>
-        <router-link to="/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/'}">
+        <router-link to="/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/'}" @click="resetStagesLoaded()">
             <div class="b rounded-1 p-0 fw-semibold">
                 Disponibilidad Actual
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
             </div>
         </router-link>
-        <router-link to="/customer-orders/" class="list-group-item hover-opacity">
+        <router-link to="/customer-orders/" class="list-group-item hover-opacity" @click="resetStagesLoaded()">
             <div class="rounded-1 p-0 fw-semibold">
                 Pedidos de Clientes
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
@@ -91,13 +86,13 @@ watch(
         </router-link>
         -->
     </div>
-    <div v-if="route.path === '/'" class="mt-4">
-    <div v-if="!isLoading" class="text-center border-bottom">
+    <div v-if="route.path === '/' && baseStore.isLoading" class="mt-4">
+    <div class="text-center border-bottom">
         <small class="text-muted">
             Filtros de Stock
         </small>
     </div>
-    <div v-if="!isLoading">
+    <div>
         <div class="text-center mt-4 mb-4">
             <button @click="showAllStockSwitch" class="btn btn-sm bg-gray-200 btn-block w-100 border shadow">
                 <span v-if="showAllStock">
@@ -135,7 +130,7 @@ watch(
             </li>
         </ul>
     </div>
-    <div v-if="!isLoading" class="mt-4">
+    <div class="mt-4">
     <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-lime-200 mb-1 mt-2">
         <div class="d-flex justify-content-between  gap-3">
             <span>
@@ -162,7 +157,7 @@ watch(
             </span>
         </section>
     </div>
-    <div v-if="!isLoading" class="mt-4">
+    <div class="mt-4">
     <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-cyan-200 mb-1 mt-2">
         <div class="d-flex justify-content-between  gap-3">
             <span>

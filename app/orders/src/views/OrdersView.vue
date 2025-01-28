@@ -1,30 +1,44 @@
 <script setup>
+import { computed, onMounted } from 'vue';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
 import { useStockStore } from '@/stores/stock';
 import Loader from '@/components/Loader.vue';
 import OrderPreview from '@/components/OrderPreview.vue';
-import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
 import { IconAlertCircle } from '@tabler/icons-vue';
 
 const baseStore = useBaseStore();
 const stockStore = useStockStore();
 const ordersStore = useOrdersStore();
 
-const loadData = () => {
-    setTimeout(() => {
-        baseStore.loadProducts();
-        ordersStore.loadCustomers();
-        baseStore.loadSuppliers();
-    }, 100);
-};
-loadData();
+
+// COMPUTED
+const isAllLoaded = computed(() => {
+    return baseStore.stagesLoaded === 3;
+})
+
+
+onMounted(() => {
+    baseStore.loadProducts(baseStore);
+    ordersStore.loadCustomers(baseStore);
+    
+    if (stockStore.stockDay === null) {
+        stockStore.getStock(baseStore);
+    }else{
+        baseStore.stagesLoaded++;
+    }
+});
 </script>
 
 <template>
     <div class="container-fluid p-0">
-        <div class="row" v-if="baseStore.isLoading && !stockStore.stockDay">
-            <Loader />
+        <div class="row" v-if="!isAllLoaded">
+            <div class="col text-center">
+                <Loader />
+            <h6 class="text-blue-600">
+                {{ baseStore.stagesLoaded }} / 3 
+            </h6>
+            </div>
         </div>
         <div class="row ps-1" v-else>
             <div class="container">

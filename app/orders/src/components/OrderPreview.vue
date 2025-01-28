@@ -4,15 +4,8 @@ import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
 import { useStockStore } from '@/stores/stock';
 import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
-import { 
-  IconTrash,
-  IconCheckbox,
-  IconX,
-  IconSitemap,
-  IconBan,
-  IconLayersIntersect2,
+import { IconTrash, IconCheckbox, IconSitemap, IconBan, IconLayersIntersect2, 
   IconAlertTriangle
-
 } from '@tabler/icons-vue';
 
 const ordersStore = useOrdersStore();

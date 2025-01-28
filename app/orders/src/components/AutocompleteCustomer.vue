@@ -3,8 +3,6 @@ import { ref, watch } from 'vue'
 import { useOrdersStore } from '@/stores/orders';
 
 const ordersStore = useOrdersStore();
-ordersStore.loadCustomers();
-
 const searchTerm = ref("")
 const filteredCustomers = ref([])
 const selectedCustomerId = ref(null)

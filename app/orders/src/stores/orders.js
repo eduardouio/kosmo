@@ -12,12 +12,16 @@ export const useOrdersStore = defineStore("ordersStore", {
         stockDay: null,
     }),
     actions: {
-        async loadCustomers() {
-            if (this.customers.length > 0) return
+        async loadCustomers(baseStore) {
+            if (this.customers.length > 0) {
+                baseStore.stagesLoaded++;
+                return
+            }
             try {
                 const response = await axios.get(appConfig.urlAllCustomers)
                 this.customers = response.data
-            } catch (error) {
+                baseStore.stagesLoaded++;
+              } catch (error) {
                 console.error('Error al cargar los clientes:', error)
                 alert(`Hubo un error al cargar los clientes: ${error.message}`)
             }
