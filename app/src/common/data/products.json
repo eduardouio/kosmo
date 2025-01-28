@@ -1,211 +1,297 @@
 [
   {
-    "name": "ROSA",
-    "variety": "AKITO",
-    "colors": "BLANCO,CREMA"
+      "name": "ROSA",
+      "variety": "EXPLORER",
+      "colors": "ROJO"
   },
   {
-    "name": "ROSA",
-    "variety": "VENDELA",
-    "colors": "CREMA,AMARILLO"
+      "name": "ROSA",
+      "variety": "FREEDOM",
+      "colors": "ROJO"
   },
   {
-    "name": "ROSA",
-    "variety": "TIBET",
-    "colors": "BLANCO"
+      "name": "ROSA",
+      "variety": "AKITO",
+      "colors": "BLANCO, CREMA"
   },
   {
-    "name": "ROSA",
-    "variety": "PLAYA BLANCA",
-    "colors": "BLANCO,CREMA"
+      "name": "ROSA",
+      "variety": "MONDIAL",
+      "colors": "CREMA, BLANCO"
   },
   {
-    "name": "ROSA",
-    "variety": "ESKIMO",
-    "colors": "BLANCO"
+      "name": "ROSA",
+      "variety": "TIBET",
+      "colors": "CREMA, BLANCO"
   },
   {
-    "name": "ROSA",
-    "variety": "MONDIAL",
-    "colors": "BLANCO,CREMA"
+      "name": "ROSA",
+      "variety": "VENDELA",
+      "colors": "CREMA, BLANCO, AMARILLO"
   },
   {
-    "name": "ROSA",
-    "variety": "COUNTRY BLUES"
+      "name": "ROSA",
+      "variety": "CANDLELIGHT",
+      "colors": "CREMA, BLANCO"
   },
   {
-    "name": "ROSA",
-    "variety": "DEEP PURPLE",
-    "colors":"AZUL,MORADO,TINTURADO"
+      "name": "ROSA",
+      "variety": "PLAYA BLANCA",
+      "colors": "CREMA, BLANCO"
   },
   {
-    "name": "ROSA",
-    "variety": "MODDY BLUES",
-    "colors": "AZUL,MORADO"
+      "name": "ROSA",
+      "variety": "ESKIMO",
+      "colors": "CREMA, BLANCO"
   },
   {
-    "name": "ROSA",
-    "variety": "OCEAN SONG",
-    "colors": "AZUL,MORADO"
+      "name": "ROSA",
+      "variety": "SPRAY SNOWFLAKE",
+      "colors": "CREMA, BLANCO"
   },
   {
-    "name": "ROSA",
-    "variety": "BRIGHTON",
-    "colors": "AMARILLO,NARANJA"
+      "name": "ROSA",
+      "variety": "FAITH",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "HIGH EXOTIC",
-    "colors": "AMARILLO,NARANJA,TINTURADO"
+      "name": "ROSA",
+      "variety": "MANDALA",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "STARDUST",
-    "colors": "AMARILLO"
+      "name": "ROSA",
+      "variety": "NENA",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "TARA",
-    "colors": "AMARILLO,CREMA"
+      "name": "ROSA",
+      "variety": "HERMOSA",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "HIGH MAGIC",
-    "colors": "NARANJA,ROJO,TINTURADO"
+      "name": "ROSA",
+      "variety": "PRICELESS",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "FREE SPIRIT",
-    "colors": "ROSADO,NARANJA"
+      "name": "ROSA",
+      "variety": "SECRET GARDEN",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "ORANGE CRUSH",
-    "colors": "NARANJA"
+      "name": "ROSA",
+      "variety": "SWEET AKITO",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "NINA",
-    "colors": "ROJO"
+      "name": "ROSA",
+      "variety": "SWEET  ESKIMO",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "NENA",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "PINK XPRESSION",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "HARD&ROCK",
-    "colors": "ROJO,MORADO"
+      "name": "ROSA",
+      "variety": "SWEET UNIQUE",
+      "colors": "ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "FULL MONTY",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "LOLA",
+      "colors": "ROSADO, ROJO"
   },
   {
-    "name": "ROSA",
-    "variety": "ASSORTED",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "PINK FLOYD",
+      "colors": "ROSADO, ROJO"
   },
   {
-    "name": "ROSA",
-    "variety": "GOTCHA",
-    "colors": "ROJO"
+      "name": "ROSA",
+      "variety": "GOTCHA",
+      "colors": "ROSADO, ROJO"
   },
   {
-    "name": "ROSA",
-    "variety": "PINK FLOYD",
-    "colors": "ROSADO"
+      "name": "ROSA",
+      "variety": "COUNTRY BLUE",
+      "colors": "MORADO,AZUL"
   },
   {
-    "name": "ROSA",
-    "variety": "SWEET UNIQUE",
-    "colors": "ROSADO,CREMA"
+      "name": "ROSA",
+      "variety": "MODDY BLUES",
+      "colors": "MORADO,AZUL"
   },
   {
-    "name": "ROSA",
-    "variety": "SWEET AKITO",
-    "colors": "ROSADO,BLANCO"
+      "name": "ROSA",
+      "variety": "DEEP PURPLE",
+      "colors": "MORADO,AZUL"
   },
   {
-    "name": "ROSA",
-    "variety": "SWEET ESKIMO ",
-    "colors": "ROSADO,BLANCO"
+      "name": "ROSA",
+      "variety": "OCEAN SONG",
+      "colors": "MORADO,AZUL"
   },
   {
-    "name": "ROSA",
-    "variety": "PINK MONDIAL",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "BRIGHTON",
+      "colors": "AMARILLO"
   },
   {
-    "name": "ROSA",
-    "variety": "PRICELESS",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "TARA",
+      "colors": "AMARILLO"
   },
   {
-    "name": "ROSA",
-    "variety": "HERMOSA",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "HIGH EXOTIC",
+      "colors": "AMARILLO"
   },
   {
-    "name": "ROSA",
-    "variety": "SHIMMER",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "ORANGE CRUSH",
+      "colors": "NARANJA"
   },
   {
-    "name": "ROSA",
-    "variety": "FREEDOM",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "NINA",
+      "colors": "NARANJA"
   },
   {
-    "name": "ROSA",
-    "variety": "EXPLORER",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "KAHALA",
+      "colors": "NARANJA, AMARILLO, BLANCO, ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "KAHALA",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "SHIMMER",
+      "colors": "NARANJA, AMARILLO, BLANCO, ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "SAHARA",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "TYFANNY",
+      "colors": "NARANJA, AMARILLO, BLANCO, ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "QUICKSAND ",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "MANDARIN XPRESSION",
+      "colors": "NARANJA, AMARILLO, BLANCO, ROSADO"
   },
   {
-    "name": "ROSA",
-    "variety": "SECRET GARDEN",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "SAHARA",
+      "colors": "CREMA, CAFE"
   },
   {
-    "name": "ROSA",
-    "variety": "SECRET",
-    "colors": ""
+      "name": "ROSA",
+      "variety": "QUICKSAND",
+      "colors": "CREMA, CAFE"
   },
   {
-    "name": "ROSA",
-    "variety": "TYFANNY",
-    "colors": "CREMA, BLANCO"
+      "name": "ROSA",
+      "variety": "FREE SPIRIT",
+      "colors": "BICOLOR"
   },
   {
-    "name": "ROSA",
-    "variety": "TOFEE",
-    "colors": "CREMA, CAFE"
+      "name": "ROSA",
+      "variety": "HIGH MAGIC",
+      "colors": "BICOLOR"
   },
   {
-    "name":"ROSA",
-    "variety": "CANDLELIGHT",
-    "colors": "CREMA, BLANCO"
+      "name": "ROSA",
+      "variety": "TOFEE",
+      "colors": "CREMA, CAFE"
   },
   {
-    "name":"MIX",
-    "variety": "MIX",
-    "colors": "MIX"
+      "name": "ROSA",
+      "variety": "TINTED ROSES ANY COLOR",
+      "colors": "TINTURADO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "V-DAY PACK (WHITE, PINK,HOT PINK, LAVANDER)",
+      "colors": ""
+  },
+  {
+      "name": "ROSA",
+      "variety": "LOVE PACK (PINK, HOT PINK, LAVANDER, YELOW)",
+      "colors": ""
+  },
+  {
+      "name": "ROSA",
+      "variety": "SNOW",
+      "colors": "CREMA, BLANCO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "YELOW BABE",
+      "colors": "CREMA, AMARILLO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "ILSE",
+      "colors": "CREMA, NARAANJA, AMARILLO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "LOVELY",
+      "colors": "ROSADO, BLANCO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "PINK MAJOLIKA",
+      "colors": "ROSADO, BLANCO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "WHITE MAJOLIKA",
+      "colors": "CREMA, BLANCO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "MAMBO",
+      "colors": "CREMA, BLANCO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "BABE",
+      "colors": "CREMA, BLANCO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "SUPER NOVA",
+      "colors": "CREMA, BLANCO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "PURPLE IRISHKA",
+      "colors": "CREMA, BLANCO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "STAR BLUSH",
+      "colors": "NARANJA, ROJO, AMARILLO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "PINK FLASH",
+      "colors": "ROSADO, ROJO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "CHABLIS",
+      "colors": "CREMA, BLANCO, AMARILLO"
+  },
+  {
+      "name": "ROSA",
+      "variety": "SAHARA SENTAT",
+      "colors": "CREMA, CAFE"
+  },
+  {
+      "name": "ROSA",
+      "variety": "RUBICON",
+      "colors": "ROJO, MORADO"
   }
 ]

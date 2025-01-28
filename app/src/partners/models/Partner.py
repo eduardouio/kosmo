@@ -17,7 +17,6 @@ class Partner(BaseModel):
     business_tax_id = models.CharField(
         'RUC',
         max_length=15,
-        unique=True
     )
     partner = models.ManyToManyField(
         "self",
