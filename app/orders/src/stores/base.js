@@ -16,6 +16,7 @@ export const useBaseStore = defineStore("baseStore", {
           'ROSADO' : 'text-pink-500',
           'TINTURADO' : 'text-lime-500',
           'VERDE' : 'text-green-500',
+          'BICOLOR': 'text-indigo-500',
           'OTRO' : 'text-gray-500',
         },
         bgColor: {
@@ -29,6 +30,7 @@ export const useBaseStore = defineStore("baseStore", {
           'ROJO' : 'bg-red-500 text-white',
           'ROSADO' : 'bg-pink-400 text-white',
           'TINTURADO' : 'bg-lime-500 text-white',
+          'BICOLOR': 'bg-indigo-500 text-white',
           'VERDE' : 'bg-green-500 text-white',
           'OTRO' : 'bg-gray-500 text-white',
         },

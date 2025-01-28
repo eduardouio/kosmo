@@ -10,15 +10,16 @@ export const appConfig = {
     "idStock": idStockDay,
     "imgPlaceholder": apiBaseUrl + "/static/img/rosa_placeholder.jpg",
     "urlLogo": apiBaseUrl + "/static/img/logo-kosmo.png",
-    "urlDispo": apiBaseUrl + "/api/stock_detail/" + idStockDay + "/",
+    "urlDispo": apiBaseUrl + `/api/stock_detail/${idStockDay}/`,
     "urlAnalyce": apiBaseUrl + "/api/analize_stock_text/",
-    "urlAllSuppliers": apiBaseUrl + "/api/partners/all-supliers/?id_stock=" + idStockDay,
+    "urlAllSuppliers": apiBaseUrl + `/api/partners/all-supliers/?id_stock=${idStockDay}`,
     'urlAllCustomers': apiBaseUrl + "/api/partners/all-customers/",
     'urlDeleteStockDetail': apiBaseUrl + "/api/delete_stock_detail/",
     'urlUpdateStockDetail': apiBaseUrl + "/api/update_stock_detail/",
     'urlAllProducts': apiBaseUrl + "/api/products/all_products/",
     'urlAddBoxItem': apiBaseUrl + "/api/stock/add_box_item/",
     'urlCreateOrder': apiBaseUrl + "/api/order/create_order/",
+    'urlOrdersByStock': apiBaseUrl + `api/orders/by_stock_day/${idStockDay}/`,
 
     "headers": {
         'Accept': 'application/json',
