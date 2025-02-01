@@ -1,10 +1,11 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
 import { useStockStore } from '@/stores/stock';
 import Loader from '@/components/Loader.vue';
 import OrderPreview from '@/components/OrderPreview.vue';
+import SingleOrderView from '@/components/SingleOrderView.vue';
 import { 
     IconAlertCircle,
     IconClockHour9,
@@ -14,9 +15,16 @@ import {
     IconFolderOpen,
 } from '@tabler/icons-vue';
 
+
 const baseStore = useBaseStore();
 const stockStore = useStockStore();
 const ordersStore = useOrdersStore();
+
+
+const selectOrder = (id) => {
+    ordersStore.selectOrder(id);
+    ordersStore.changeView('singleOrder');
+}
 
 
 // COMPUTED
@@ -43,13 +51,13 @@ onMounted(() => {
         <div class="row" v-if="!isAllLoaded">
             <div class="col text-center">
                 <Loader />
-            <h6 class="text-blue-600">
-                {{ baseStore.stagesLoaded }} / 3 
-            </h6>
+                <h6 class="text-blue-600">
+                    {{ baseStore.stagesLoaded }} / 3
+                </h6>
             </div>
         </div>
         <div class="row ps-1" v-else>
-            <div class="container">
+            <div class="container" v-if="ordersStore.showViews.listOrders">
                 <div class="row">
                     <div class="col-4 text-center">
                         <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
@@ -105,13 +113,13 @@ onMounted(() => {
                         <span>
                             confirme detalles y proceda a guardar para generar las ordenes de compra a los proveedores
                         </span>
-                            </div>
+                    </div>
                     <div class="col-12">
                         <OrderPreview />
                     </div>
                 </div>
-                <div class="row pt-4" v-else="">
-                    <div class="col-12 fs-5 text-center text-teal-800 p-1">
+                <div class="row pt-4" v-if="ordersStore.showViews.listOrders && !ordersStore.newOrder.length">
+                    <div class="col-12 fs-6 text-center text-teal-800 p-1 fw-semibold">
                         Listado de Pedidos de Clientes segun este Stock
                     </div>
                     <div class="col-12">
@@ -134,46 +142,46 @@ onMounted(() => {
                                     <td class="p-1 text-center">
                                         {{ item.order.id }}
                                         <span class="text-gray-200 ps-1 pe-1"> | </span>
-                                        <IconFolderOpen size="20" stroke="1.5"  class="text-teal-600"/>
+                                        <IconFolderOpen size="20" stroke="1.5" class="text-teal-600"
+                                            @click="selectOrder(item.order.id)" />
                                     </td>
                                     <td class="p-1">
                                         {{ baseStore.formatDate(item.order.date) }}
                                     </td>
-                                    <td class="p-1">{{ item.order.partner.name }}</td>
-                                    <td class="p-1">{{ item.order.type_document }}</td>
                                     <td class="p-1">
-                                        <IconClockHour9 
-                                            v-if="item.order.status==='PENDIENTE'" 
-                                            size="20" 
-                                            stroke="1.5" class="text-cyan-600" 
-                                        />
-                                        <IconCheckbox 
-                                            v-if="item.order.status==='CONFIRMADO'" 
-                                            size="20" 
-                                            stroke="1.5" class="text-blue-600" 
-                                            />
-                                        <IconFileCheck 
-                                            v-if="item.order.status==='FACTURADO'" 
-                                            size="20" 
-                                            stroke="1.5" class="text-green-600" 
-                                        />
-                                        <IconHexagonMinus 
-                                            v-if="item.order.status==='CANCELADO'" 
-                                            size="20" 
-                                            stroke="1.5" class="text-red-600" 
-                                        />
-                                        {{ item.order.status }}
+                                        {{ item.order.partner.name }}
+                                    </td>
+                                    <td class="p-1">
+                                        {{ item.order.type_document.replace('_', ' ') }}
+                                    </td>
+                                    <td class="p-1">
+                                        <IconClockHour9 v-if="item.order.status === 'PENDIENTE'" size="20" stroke="1.5"
+                                            class="text-cyan-600" />
+                                        <IconCheckbox v-if="item.order.status === 'CONFIRMADO'" size="20" stroke="1.5"
+                                            class="text-blue-600" />
+                                        <IconFileCheck v-if="item.order.status === 'FACTURADO'" size="20" stroke="1.5"
+                                            class="text-green-600" />
+                                        <IconHexagonMinus v-if="item.order.status === 'CANCELADO'" size="20" stroke="1.5"
+                                            class="text-red-600" />
+                                        <span class="text-gray-200 ps-1 pe-1">|</span>
+                                        <span class="fw-semibold">
+                                            {{ item.order.status }}
+                                        </span>
                                     </td>
                                     <td class="p-1 text-end">{{ item.order.qb_total }}</td>
                                     <td class="p-1 text-end">{{ item.order.hb_total }}</td>
                                     <td class="p-1 text-end">{{ item.order.total_stem_flower }}</td>
-                                    <td class="p-1 text-end">{{ item.order.total_price }}</td>
+                                    <td class="p-1 text-end">{{
+                                        baseStore.formatCurrency(item.order.total_price)
+                                        }}</td>
                                 </tr>
                             </tbody>
-
                         </table>
                     </div>
                 </div>
+            </div>
+            <div class="row" v-if="ordersStore.showViews.singleOrder">
+                <SingleOrderView />
             </div>
         </div>
     </div>

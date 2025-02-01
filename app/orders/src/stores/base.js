@@ -83,6 +83,32 @@ export const useBaseStore = defineStore("baseStore", {
           hour12: false
         };
         return new Date(date).toLocaleDateString('es-ES', options).replace(',', '');
+      },
+      formatCurrency(value) {
+        if (!value) return '$ 0.00';
+        return new Intl.NumberFormat('es-EC', {
+          style: 'currency',
+          currency: 'COP',
+          minimumFractionDigits: 2
+        }).format(value).replace('COP', '').trim();
+      },
+      formatNumber(event){
+        let value = event.target.value;
+        value = value.replace(',', '.');
+        if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
+          event.target.value = '0.00';
+          return;
+        }
+        event.target.value = parseFloat(value).toFixed(2);
+      },
+      formatInteger(event, box = null){
+          let value = event.target.value;
+          value = value.replace(',', '.');
+          if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
+              event.target.value = '0';
+              return;
+          }
+          event.target.value = parseInt(value);
       }
     },
 });

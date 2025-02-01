@@ -2,15 +2,13 @@
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
-import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
 import { IconTrash, IconCheckbox, IconSitemap, IconBan, IconLayersIntersect2, 
   IconAlertTriangle
 } from '@tabler/icons-vue';
 
-const ordersStore = useOrdersStore();
-const stockStore = useStockStore();
+const orderStore = useOrdersStore();
 const baseStore = useBaseStore();
 const confirmDelete = ref(false);
 const exceedLimit = ref(false);
@@ -28,8 +26,8 @@ const calcTotalByItem = (item)=>{
 };
 
 const cancelOrder = () => {
-  ordersStore.newOrder = [];
-  ordersStore.selectedCustomer = null;
+  orderStore.newOrder = [];
+  orderStore.selectedCustomer = null;
   baseStore.stastagesLoaded = 0 ;
   router.push('/');
 };  
@@ -37,7 +35,7 @@ const cancelOrder = () => {
 const delimitedNumber = (event, item) => {
   exceedLimit.value = false;
   let value = parseInt(event.target.value);
-  let maxValue = ordersStore.limitsNewOrder.filter(i=>i.stock_detail_id === item.stock_detail_id).map(i=>i.quantity);
+  let maxValue = orderStore.limitsNewOrder.filter(i=>i.stock_detail_id === item.stock_detail_id).map(i=>i.quantity);
   if (value > maxValue || value == 0) {
     item.quantity = maxValue;
     exceedLimitMessage.value = `La cantidad máxima permitida para este item es de ${maxValue}`;
@@ -51,7 +49,7 @@ const selectText = (event) => {
 
 const deleteOrderItem = (item) => {
   if (item.confirm_delete) {
-    ordersStore.newOrder = ordersStore.newOrder.filter(i => i.stock_detail_id !== item.stock_detail_id);
+    orderStore.newOrder = orderStore.newOrder.filter(i => i.stock_detail_id !== item.stock_detail_id);
   } else {
     confirmDelete.value = true;
     item.confirm_delete = true;
@@ -59,7 +57,7 @@ const deleteOrderItem = (item) => {
 }
 
 const createOrder = async() => {
-  new_order = await ordersStore.sendOrder(
+  new_order = await orderStore.sendOrder(
     stockStore.stockDay
   );
   baseStore.stagesLoaded = 0;
@@ -99,13 +97,13 @@ const formatInteger = (event, box = null) => {
 
 // computed Properties
 const isTwoQBSelected = computed(() => {
-  let qb = ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
+  let qb = orderStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
   return qb.length === 2;
 });
 
 const totalOrder = computed(() => {
   let total = 0;
-  ordersStore.newOrder.forEach(item => {
+  orderStore.newOrder.forEach(item => {
     let items = item.box_items.map(item => item)
     total += items.reduce((acc, item) => {
       return acc + ((item.stem_cost_price + parseFloat(item.margin)) * parseFloat(item.qty_stem_flower));
@@ -116,8 +114,8 @@ const totalOrder = computed(() => {
 
 const totalMargin = computed(() => {
   let total = 0;
-  ordersStore.newOrder.forEach(item => {
-    let items = item.box_items.map(item => item)
+  orderStore.newOrder.forEach(item => {
+    let items = item.box_items.map(item)
     total += items.reduce((acc, item) => {
       return acc + parseFloat(item.margin * parseFloat(item.qty_stem_flower));
     }, 0);
@@ -127,8 +125,8 @@ const totalMargin = computed(() => {
 
 const totalCost = computed(() => {
   let total = 0;
-  ordersStore.newOrder.forEach(item => {
-    let items = item.box_items.map(item => item)
+  orderStore.newOrder.forEach(item => {
+    let items = item.box_items.map(item)
     total += items.reduce((acc, item) => {
       return acc + (item.stem_cost_price * parseFloat(item.qty_stem_flower));
     }, 0);
@@ -138,7 +136,7 @@ const totalCost = computed(() => {
 
 const totalBoxesQB = computed(() => {
   let total = 0;
-  ordersStore.newOrder.forEach(item => {
+  orderStore.newOrder.forEach(item => {
     total += item.box_model === 'QB' ? parseInt(item.quantity) : 0;
   });
   return total;
@@ -146,7 +144,7 @@ const totalBoxesQB = computed(() => {
 
 const totalBoxesHB = computed(() => {
   let total = 0;
-  ordersStore.newOrder.forEach(item => {
+  orderStore.newOrder.forEach(item => {
     total += item.box_model === 'HB' ? parseInt(item.quantity) : 0;
   });
   return total;
@@ -154,14 +152,14 @@ const totalBoxesHB = computed(() => {
 
 const totalStems = computed(() => {
   let total = 0;
-  ordersStore.newOrder.forEach(item => {
+  orderStore.newOrder.forEach(item => {
     total += item.tot_stem_flower;
   });
   return total;
 });
 
 const orderHaveCeroItem = computed(() => {
-  for (const order of ordersStore.newOrder) {
+  for (const order of orderStore.newOrder) {
     let ceroBoxesStem = order.box_items.filter(
       i => i.qty_stem_flower === 0
     );
@@ -176,7 +174,7 @@ const orderHaveCeroItem = computed(() => {
       return true;
     }
 
-    if (ordersStore.selectedCustomer === null) {
+    if (orderStore.selectedCustomer === null) {
       exceedLimitMessage.value = 'Debe seleccionar un cliente';
       exceedLimit.value = true;
       return true;
@@ -192,15 +190,66 @@ const orderHaveCeroItem = computed(() => {
   return false;
 });
 
+// Methods for splitting and merging boxes
+const splitHB = (item) => {
+  const newOrder = orderStore.newOrder.filter(o => o.stock_detail_id !== item.stock_detail_id);
+  const stem_flower = item.box_items.map(i => i.qty_stem_flower);
+  const id = item.stock_detail_id;
+
+  if ((item.tot_stem_flower % 2) === 0) {
+    newOrder.push({
+      ...item,
+      tot_stem_flower: item.tot_stem_flower / 2,
+      box_model: 'QB',
+    });
+    newOrder.push({
+      ...item,
+      tot_stem_flower: item.tot_stem_flower / 2,
+      box_model: 'QB',
+    });
+  }
+  newOrder.forEach((itm) => {
+    if (itm.stock_detail_id === id) {
+      itm.box_items.forEach((i, index) => {
+        i.qty_stem_flower = stem_flower[index] / 2;
+      });
+    }
+  });
+  orderStore.newOrder = newOrder.map(i => ({ ...i }));
+};
+
+const mergeQB = () => {
+  const selectedQBs = orderStore.newOrder.filter(i => i.is_selected);
+  const newOrderItem = { ...selectedQBs[0], box_model: 'HB', is_selected: false };
+  orderStore.newOrder = orderStore.newOrder.filter(i => !i.is_selected);
+  newOrderItem.tot_stem_flower = selectedQBs.reduce(
+    (acc, i) => acc + i.tot_stem_flower, 0
+  );
+  newOrderItem.box_items = selectedQBs.reduce((acc, i) => {
+    acc.push(...i.box_items);
+    return acc;
+  }, []);
+
+  const groupedBoxItems = Object.values(
+    newOrderItem.box_items.reduce((acc, item) => {
+      const key = `${item.product_name}-${item.product_variety}-${item.length}`;
+      if (!acc[key]) {
+        acc[key] = { ...item };
+      } else {
+        acc[key].qty_stem_flower += item.qty_stem_flower;
+      }
+      return acc;
+    }, {})
+  );
+
+  newOrderItem.box_items = groupedBoxItems;
+
+  orderStore.newOrder.push(newOrderItem);
+};
 </script>
 
 <template>
   <div class="container-fluid p-3">
-    <div class="row p-0 mb-0">
-      <div class="col-12">
-        <AutocompleteCustomer />
-      </div>
-    </div>
     <div class="row">
       <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
         <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
@@ -213,45 +262,45 @@ const orderHaveCeroItem = computed(() => {
       </div>
     </div>
       <div class="row">  
-      <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white" v-if="ordersStore.selectedCustomer">
+      <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white">
         <div class="row">
           <div class="col text-center">
             <h5>
-              {{ ordersStore.selectedCustomer.name }}
+              {{ orderStore.selectedOrder.order.partner.name }}
             </h5>
           </div>
         </div>
         <div class="row">
           <div class="col-1 text-end">ID:</div>
-          <div class="col-1">{{ ordersStore.selectedCustomer.business_tax_id }}</div>
+          <div class="col-1">{{ orderStore.selectedOrder.order.partner.business_tax_id }}</div>
           <div class="col-1 text-end">Dir:</div>
           <div class="col-6">
-            {{ ordersStore.selectedCustomer.address }}
-            {{ ordersStore.selectedCustomer.country }}/{{ ordersStore.selectedCustomer.city }}
+            {{ orderStore.selectedOrder.order.partner.address }}
+            {{ orderStore.selectedOrder.order.partner.city }}
           </div>
           <div class="col-1 text-end">Skype:</div>
-          <div class="col-2">{{ ordersStore.selectedCustomer.skype }}</div>
+          <div class="col-2">{{ orderStore.selectedOrder.order.partner.skype }}</div>
         </div>
         <div class="row pt-1">
           <div class="col-1 text-end">Contacto:</div>
-          <div class="col-8 d-flex gap-2">
-            <span>{{ ordersStore.selectedCustomer.contact.name }}</span>
-            <span>{{ ordersStore.selectedCustomer.contact.email }}</span>
-            <span>{{ ordersStore.selectedCustomer.contact.phone }}</span>
-            <span class="badge bg-green-600">{{ ordersStore.selectedCustomer.contact.contact_type }}</span>
+          <div class="col-8 d-flex gap-2" v-if="orderStore.selectedOrder.order.partner.contact">
+            <span>{{ orderStore.selectedOrder.order.partner.contact.name }}</span>
+            <span>{{ orderStore.selectedOrder.order.partner.contact.email }}</span>
+            <span>{{ orderStore.selectedOrder.order.partner.contact.phone }}</span>
+            <span class="badge bg-green-600">{{ orderStore.selectedOrder.order.partner.contact.contact_type }}</span>
           </div>
           <div class="col-1 text-end fw-semibold">
             Consolida:
           </div>
           <div class="col-2">
-            {{ ordersStore.selectedCustomer.consolidate ? 'Si' : 'No' }}
+            {{ orderStore.selectedOrder.order.partner.consolidate ? 'Si' : 'No' }}
           </div>
         </div>
       </div>
     </div>
     <div class="row pb-2 pt-2 text-end">
       <div class="col">
-        <button class="btn btn-sm btn-default" v-if="isTwoQBSelected" @click="ordersStore.mergeQB">
+        <button class="btn btn-sm btn-default" v-if="isTwoQBSelected" @click="mergeQB">
           <IconLayersIntersect2 size="20" stroke="1.5" />
           Unificar a HB
         </button>
@@ -280,7 +329,7 @@ const orderHaveCeroItem = computed(() => {
       </div>
       <div class="col-1 fw-bold fs-6 bg-kosmo-green">C/USD</div>
     </div>
-    <div v-for="item, idx in ordersStore.newOrder" :key="item.id" class="row mb-1 border my-hover-2"
+    <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item.order_item_id" class="row mb-1 border my-hover-2"
       :class="{ 'bg-gray': idx % 2 === 0 }">
       <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
         <IconTrash size="30" stroke="1.5" :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
@@ -292,13 +341,13 @@ const orderHaveCeroItem = computed(() => {
       <div class="col-1 text-end border-end d-flex align-items-end gap-2 ">
         {{ item.box_model }}
         <span>/</span>
-        <IconSitemap size="20" stroke="1.5" @click="ordersStore.splitHB(item)" v-if="item.box_model === 'HB'" />
+        <IconSitemap size="20" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB'" />
         <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'" />
       </div>
       <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">{{ item.tot_stem_flower }}</div>
       <div class="col-2 d-flex align-items-end">
         <small>
-          {{ item.partner.name }}
+          {{ item.partner.partner.name }}
         </small>
       </div>
       <div class="col-6">
@@ -359,6 +408,11 @@ const orderHaveCeroItem = computed(() => {
         <button type="button" class="btn btn-sm btn-default text-danger" @click="cancelOrder">
           <IconBan size="20" stroke="1.5" />
           Cancelar Pedido
+        </button>
+        <span class="ps-4 pe-4"></span>
+        <button type="button" class="btn btn-sm btn-default text-danger" @click="orderStore.showViews('listOrders')">
+          <IconBan size="20" stroke="1.5" />
+          Volver
         </button>
         <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem">
           <IconCheckbox size="20" stroke="1.5" />

@@ -7,9 +7,15 @@ export const useOrdersStore = defineStore("ordersStore", {
         customers: [],
         orders: [],
         selectedCustomer: null,
+        selectedOrder: null,
         limitsNewOrder: [],
         newOrder: [],
         stockDay: null,
+        showViews: {
+            listOrders: true,
+            newOrder: false,
+            singleOrder: false,
+        },
     }),
     actions: {
         async loadCustomers(baseStore) {
@@ -116,6 +122,24 @@ export const useOrdersStore = defineStore("ordersStore", {
             newOrderItem.box_items = groupedBoxItems;
 
             this.newOrder.push(newOrderItem);
+        },
+        changeView(viewName){
+            this.showViews = {
+                listOrders: false,
+                newOrder: false,
+                singleOrder: false,
+                [viewName]: true
+            }
+        },
+        selectOrder(idOrder){
+            this.orders.forEach(order => {
+                if (order.order.id === idOrder) {
+                    order.is_selected = true;
+                    this.selectedOrder = order;
+                }else{
+                    order.is_selected = false;
+                }
+            });
         },
     }
 })
