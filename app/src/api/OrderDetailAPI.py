@@ -12,36 +12,39 @@ class OrderDetailAPI(View):
 
         all_orders = []
         for order in orders:
-            result_dict = []
+            item_order = {
+                'order': {
+                    'id': order.id,
+                    'stock_day': order.stock_day.id,
+                    'date': order.date.isoformat(),
+                    'status': order.status,
+                    'type_document': order.type_document,
+                    'parent_order': order.parent_order,
+                    'total_price': order.total_price,
+                    'qb_total': order.qb_total,
+                    'hb_total': order.hb_total,
+                    'total_stem_flower': order.total_stem_flower,
+                    'partner': {
+                        'id': order.partner.id,
+                        'name': order.partner.name,
+                        'address': order.partner.address,
+                        'phone': order.partner.phone,
+                        'email': order.partner.email,
+                    },
+                },
+                'order_details': []
+            }
+
             order_details = OrderItems.get_by_order(order.id)
             for order_detail in order_details:
-                result_dict.append(SerializerOrder().get_line(order_detail))
-                all_orders.append({
-                    'order': {
-                        'id': order.id,
-                        'stock_day': order.stock_day.id,
-                        'date': order.date.isoformat(),
-                        'status': order.status,
-                        'type_document': order.type_document,
-                        'parent_order': order.parent_order,
-                        'total_price': order.total_price,
-                        'qb_total': order.qb_total,
-                        'hb_total': order.hb_total,
-                        'total_stem_flower': order.total_stem_flower,
-                        'partner': {
-                            'id': order.partner.id,
-                            'name': order.partner.name,
-                            'address': order.partner.address,
-                            'phone': order.partner.phone,
-                            'email': order.partner.email,
-                        },
-                    },
-                    'order_details': result_dict
-                })
+                item_order['order_details'].append(
+                    SerializerOrder().get_line(order_detail)
+                )
+
+            all_orders.append(item_order)
 
         return JsonResponse(
-            {
-                'data': all_orders
-            },
-            status=200
+            all_orders,
+            status=200,
+            safe=False
         )
