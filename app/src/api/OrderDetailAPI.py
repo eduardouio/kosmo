@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.views import View
 from trade.models import Order, OrderItems
 from common import SerializerOrder
+from partners.models import Contact
 
 
 class OrderDetailAPI(View):
@@ -12,6 +13,17 @@ class OrderDetailAPI(View):
 
         all_orders = []
         for order in orders:
+            contact = Contact.get_principal_by_partner(order.partner)
+            contact_dict = {}
+            if contact:
+                contact_dict = {
+                    'name': contact.name,
+                    'position': contact.position,
+                    'contact_type': contact.contact_type,
+                    'phone': contact.phone,
+                    'email': contact.email,
+                    'is_principal': contact.is_principal
+                }
             item_order = {
                 'order': {
                     'id': order.id,
@@ -30,8 +42,10 @@ class OrderDetailAPI(View):
                         'address': order.partner.address,
                         'phone': order.partner.phone,
                         'email': order.partner.email,
+                        'contact': contact_dict
                     },
                 },
+                'is_selected': False,
                 'order_details': []
             }
 
