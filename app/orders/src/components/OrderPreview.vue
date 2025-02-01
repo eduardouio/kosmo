@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
 import { useStockStore } from '@/stores/stock';
+import { useBaseStore } from '@/stores/base';
 import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
 import { IconTrash, IconCheckbox, IconSitemap, IconBan, IconLayersIntersect2, 
   IconAlertTriangle
@@ -10,6 +11,7 @@ import { IconTrash, IconCheckbox, IconSitemap, IconBan, IconLayersIntersect2,
 
 const ordersStore = useOrdersStore();
 const stockStore = useStockStore();
+const baseStore = useBaseStore();
 const confirmDelete = ref(false);
 const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
@@ -28,6 +30,7 @@ const calcTotalByItem = (item)=>{
 const cancelOrder = () => {
   ordersStore.newOrder = [];
   ordersStore.selectedCustomer = null;
+  baseStore.stastagesLoaded = 0 ;
   router.push('/');
 };  
 
@@ -59,7 +62,7 @@ const createOrder = async() => {
   new_order = await ordersStore.sendOrder(
     stockStore.stockDay
   );
-  console.log(new_order);
+  baseStore.stagesLoaded = 0;
   router.push('/');
 }
 
