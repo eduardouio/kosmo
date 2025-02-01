@@ -37,17 +37,28 @@ export const useOrdersStore = defineStore("ordersStore", {
                 const response = await axios.post(appConfig.urlCreateOrder, orderData, {
                     headers: appConfig.headers
                 })
-                this.loadOrders();
+                this.orders.push(response.data)
                 this.newOrder = []
                 this.selectedCustomer = null
-                return response.data
             } catch (error) {
                 console.error('Error al enviar el pedido:', error)
                 alert(`Hubo un error al enviar el pedido: ${error.message}`)
             }
         },
-        async loadOrders() {
-            // Implementar la lógica para cargar órdenes si es necesario
+        async loadOrders(baseStore) {
+            if (this.orders.length > 0) {
+                baseStore.stagesLoaded++;
+                return
+            }
+            
+            try {
+                const response = await axios.get(appConfig.urlOrdersByStock)
+                this.orders = response.data
+                baseStore.stagesLoaded++;
+            } catch (error) {
+                console.error('Error al cargar los pedidos:', error)
+                alert(`Hubo un error al cargar los pedidos: ${error.message}`)
+            }
         },
         setLimits(orderDetail) {
             this.limitsNewOrder = orderDetail
