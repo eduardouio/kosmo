@@ -180,6 +180,26 @@ class OrderItems(BaseModel):
     def get_by_order(cls, order):
         return cls.objects.filter(order=order, is_active=True)
 
+    @classmethod
+    def rebuild_stock_detail(cls, stock_detail):
+        box_items = OrderBoxItems.get_box_items(stock_detail)
+        total_stem_flower = 0
+        total_price = 0
+        line_margin = 0
+        line_total = 0
+        for box_item in box_items:
+            total_stem_flower += box_item.qty_stem_flower
+            total_price += box_item.qty_stem_flower * box_item.stem_cost_price
+            line_margin += box_item.profit_margin
+            line_total += box_item.qty_stem_flower * box_item.stem_cost_price * box_item.profit_margin
+
+        stock_detail.tot_stem_flower = total_stem_flower
+        stock_detail.tot_cost_price_box = total_price
+        stock_detail.profit_margin = line_margin
+        stock_detail.line_total = line_total
+        stock_detail.save()
+
+
 
 class OrderBoxItems(BaseModel):
     id = models.AutoField(
