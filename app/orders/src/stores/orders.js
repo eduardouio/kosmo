@@ -141,5 +141,8 @@ export const useOrdersStore = defineStore("ordersStore", {
                 }
             });
         },
+        async updateOrderItem(){
+            console.log(this.selectedOrder);
+        }
     }
 })

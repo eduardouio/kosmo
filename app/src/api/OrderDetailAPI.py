@@ -32,7 +32,7 @@ class OrderDetailAPI(View):
                     'status': order.status,
                     'type_document': order.type_document,
                     'parent_order': order.parent_order,
-                    'total_price': order.total_price,
+                    'total_price': float(order.total_price),
                     'qb_total': order.qb_total,
                     'hb_total': order.hb_total,
                     'total_stem_flower': order.total_stem_flower,

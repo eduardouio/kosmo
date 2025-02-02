@@ -3,9 +3,14 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
 import { useBaseStore } from '@/stores/base';
-import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
-import { IconTrash, IconCheckbox, IconSitemap, IconBan, IconLayersIntersect2, 
-  IconAlertTriangle
+import { 
+    IconTrash,
+    IconCheckbox,
+    IconSitemap,
+    IconBan,
+    IconLayersIntersect2, 
+    IconAlertTriangle,
+    IconArrowLeft,
 } from '@tabler/icons-vue';
 
 const orderStore = useOrdersStore();
@@ -95,28 +100,88 @@ const formatInteger = (event, box = null) => {
     event.target.value = parseInt(value);
 }
 
+
+// Methods for splitting and merging boxes
+const splitHB = (item) => {
+  const newOrder = orderStore.selectedOrder.order_details.filter(o => o.order_item_id !== item.order_item_id);
+  const stem_flower = item.box_items.map(i => i.qty_stem_flower);
+  const id = item.order_item_id;
+
+  if ((item.tot_stem_flower % 2) === 0) {
+    newOrder.push({
+      ...item,
+      tot_stem_flower: item.tot_stem_flower / 2,
+      box_model: 'QB',
+    });
+    newOrder.push({
+      ...item,
+      tot_stem_flower: item.tot_stem_flower / 2,
+      box_model: 'QB',
+    });
+  }
+  newOrder.forEach((itm) => {
+    if (itm.order_item_id === id) {
+      itm.box_items.forEach((i, index) => {
+        i.qty_stem_flower = stem_flower[index] / 2;
+      });
+    }
+  });
+  orderStore.selectedOrder.order_details = newOrder.map(i => ({ ...i }));
+
+  // Actualizo el objeto
+  orderStore.updateOrderItem();
+};
+
+const mergeQB = () => {
+  const selectedQBs = orderStore.selectedOrder.order_details.filter(i => i.is_selected);
+  const newOrderItem = { ...selectedQBs[0], box_model: 'HB', is_selected: false };
+
+  let totalStems = 0
+  selectedQBs.forEach(oitm => {
+    totalStems += oitm.tot_stem_flower;
+  });  
+  newOrderItem.tot_stem_flower = totalStems;
+  newOrderItem.box_items = selectedQBs.reduce((acc, item) => {
+    return acc.concat(item.box_items);
+  }, []);
+
+  const groupedBoxItems = Object.values(
+    newOrderItem.box_items.reduce((acc, item) => {
+      const key = `${item.product_name}-${item.product_variety}-${item.length}`;
+      if (!acc[key]) {
+        acc[key] = { ...item };
+      } else {
+        acc[key].qty_stem_flower += item.qty_stem_flower;
+      }
+      return acc;
+    }, {})
+  );
+
+  orderStore.selectedOrder.order_details = orderStore.selectedOrder.order_details.filter(
+    i => !i.is_selected
+  ).map(i => ({ ...i }));
+  
+  orderStore.selectedOrder.order_details.push({
+    ...newOrderItem,
+    box_items: groupedBoxItems,
+  });
+
+  // Actualizamos en el server la accion
+  orderStore.updateOrderItem();
+
+  };
+
 // computed Properties
 const isTwoQBSelected = computed(() => {
-  let qb = orderStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
+  let qb = orderStore.selectedOrder.order_details.filter(i => i.box_model === 'QB' && i.is_selected);
   return qb.length === 2;
 });
 
-const totalOrder = computed(() => {
-  let total = 0;
-  orderStore.newOrder.forEach(item => {
-    let items = item.box_items.map(item => item)
-    total += items.reduce((acc, item) => {
-      return acc + ((item.stem_cost_price + parseFloat(item.margin)) * parseFloat(item.qty_stem_flower));
-    }, 0);
-  });
-  return total.toFixed(2);
-});
-
 const totalMargin = computed(() => {
+  if (orderStore.selectedOrder === null) return 0;
   let total = 0;
-  orderStore.newOrder.forEach(item => {
-    let items = item.box_items.map(item)
-    total += items.reduce((acc, item) => {
+  orderStore.selectedOrder.order_details.forEach(order_detail => {
+    total += order_detail.box_items.reduce((acc, item) => {
       return acc + parseFloat(item.margin * parseFloat(item.qty_stem_flower));
     }, 0);
   });
@@ -124,10 +189,10 @@ const totalMargin = computed(() => {
 });
 
 const totalCost = computed(() => {
+  if (orderStore.selectedOrder === null) return 0;
   let total = 0;
-  orderStore.newOrder.forEach(item => {
-    let items = item.box_items.map(item)
-    total += items.reduce((acc, item) => {
+  orderStore.selectedOrder.order_details.forEach(order_detail => {
+    total += order_detail.box_items.reduce((acc, item) => {
       return acc + (item.stem_cost_price * parseFloat(item.qty_stem_flower));
     }, 0);
   });
@@ -190,62 +255,6 @@ const orderHaveCeroItem = computed(() => {
   return false;
 });
 
-// Methods for splitting and merging boxes
-const splitHB = (item) => {
-  const newOrder = orderStore.newOrder.filter(o => o.stock_detail_id !== item.stock_detail_id);
-  const stem_flower = item.box_items.map(i => i.qty_stem_flower);
-  const id = item.stock_detail_id;
-
-  if ((item.tot_stem_flower % 2) === 0) {
-    newOrder.push({
-      ...item,
-      tot_stem_flower: item.tot_stem_flower / 2,
-      box_model: 'QB',
-    });
-    newOrder.push({
-      ...item,
-      tot_stem_flower: item.tot_stem_flower / 2,
-      box_model: 'QB',
-    });
-  }
-  newOrder.forEach((itm) => {
-    if (itm.stock_detail_id === id) {
-      itm.box_items.forEach((i, index) => {
-        i.qty_stem_flower = stem_flower[index] / 2;
-      });
-    }
-  });
-  orderStore.newOrder = newOrder.map(i => ({ ...i }));
-};
-
-const mergeQB = () => {
-  const selectedQBs = orderStore.newOrder.filter(i => i.is_selected);
-  const newOrderItem = { ...selectedQBs[0], box_model: 'HB', is_selected: false };
-  orderStore.newOrder = orderStore.newOrder.filter(i => !i.is_selected);
-  newOrderItem.tot_stem_flower = selectedQBs.reduce(
-    (acc, i) => acc + i.tot_stem_flower, 0
-  );
-  newOrderItem.box_items = selectedQBs.reduce((acc, i) => {
-    acc.push(...i.box_items);
-    return acc;
-  }, []);
-
-  const groupedBoxItems = Object.values(
-    newOrderItem.box_items.reduce((acc, item) => {
-      const key = `${item.product_name}-${item.product_variety}-${item.length}`;
-      if (!acc[key]) {
-        acc[key] = { ...item };
-      } else {
-        acc[key].qty_stem_flower += item.qty_stem_flower;
-      }
-      return acc;
-    }, {})
-  );
-
-  newOrderItem.box_items = groupedBoxItems;
-
-  orderStore.newOrder.push(newOrderItem);
-};
 </script>
 
 <template>
@@ -399,24 +408,27 @@ const mergeQB = () => {
           <div class="col-7 text-end border-end fs-5 text-lime-600">Margen:</div>
           <div class="col-5 fs-5 text-lime-600 text-end">{{ totalMargin }}</div>
           <div class="col-7 text-end border-end fs-5 text-lime-600">Total Pedido:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">{{ totalOrder }}</div>
+          <div class="col-5 fs-5 text-lime-600 text-end">
+            {{  (parseFloat(totalMargin) + parseFloat(totalCost)).toFixed(2) }}
+          </div>
         </div>
       </div>
     </div>
     <div class="row mt-3 border-top pt-3">
-      <div class="col text-end d-flex gap-3 justify-content-end">
+      <div class="col text-end d-flex gap-3 justify-content-between">
+        .
         <button type="button" class="btn btn-sm btn-default text-danger" @click="cancelOrder">
           <IconBan size="20" stroke="1.5" />
           Cancelar Pedido
         </button>
         <span class="ps-4 pe-4"></span>
-        <button type="button" class="btn btn-sm btn-default text-danger" @click="orderStore.showViews('listOrders')">
-          <IconBan size="20" stroke="1.5" />
-          Volver
+        <button type="button" class="btn btn-sm btn-default" @click="orderStore.showViews('listOrders')">
+          <IconArrowLeft size="20" stroke="1.5" />
+          Volver al Listado
         </button>
         <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem">
           <IconCheckbox size="20" stroke="1.5" />
-          Confirmar Pedido
+          Generar Factura
         </button>
       </div>
     </div>
