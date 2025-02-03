@@ -132,11 +132,12 @@ export const useOrdersStore = defineStore("ordersStore", {
             }
         },
         selectOrder(idOrder){
-            this.selectOrder = null;
+            this.selectedOrder = null;
             this.orders.forEach(order => {
                 if (order.order.id === idOrder) {
                     order.is_selected = true;
                     this.selectedOrder = JSON.parse(JSON.stringify(order));
+                    this.limitsNewOrder = order.order_details;
                 }else{
                     order.is_selected = false;
                 }

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
 import { useBaseStore } from '@/stores/base';
@@ -32,16 +32,13 @@ const calcTotalByItem = (item)=>{
 };
 
 const cancelOrder = () => {
-  orderStore.newOrder = [];
-  orderStore.selectedCustomer = null;
-  baseStore.stastagesLoaded = 0 ;
-  router.push('/');
+  console.log('Cancel order, implementar');
 };  
 
 const delimitedNumber = (event, item) => {
   exceedLimit.value = false;
   let value = parseInt(event.target.value);
-  let maxValue = orderStore.limitsNewOrder.filter(i=>i.stock_detail_id === item.stock_detail_id).map(i=>i.quantity);
+  let maxValue = orderStore.limitsNewOrder.filter(i=>i.order_item_id === item.order_item_id).map(i=>i.quantity);
   if (value > maxValue || value == 0) {
     item.quantity = maxValue;
     exceedLimitMessage.value = `La cantidad máxima permitida para este item es de ${maxValue}`;
@@ -55,7 +52,9 @@ const selectText = (event) => {
 
 const deleteOrderItem = (item) => {
   if (item.confirm_delete) {
-    orderStore.newOrder = orderStore.newOrder.filter(i => i.stock_detail_id !== item.stock_detail_id);
+    orderStore.selectedOrder.order_details = orderStore.selectedOrder.order_details.filter(
+      i => i.order_item_id !== item.order_item_id
+  );
   } else {
     confirmDelete.value = true;
     item.confirm_delete = true;
@@ -127,8 +126,6 @@ const splitHB = (item) => {
       });
     }
   });
-
-  console.log(newDetails);
 
   orderStore.selectedOrder.order_details = newDetails.map(i => ({ ...i }));
 
@@ -265,6 +262,15 @@ const orderHaveCeroItem = computed(() => {
   return false;
 });
 
+//watchers
+watch(() => orderStore.selectedOrder, 
+  (newValue) => {
+    newValue.is_modified = true;
+  },
+  { deep: true }
+);
+
+
 </script>
 
 <template>
@@ -318,8 +324,13 @@ const orderHaveCeroItem = computed(() => {
         </div>
       </div>
     </div>
-    <div class="row pb-2 pt-2 text-end">
-      <div class="col">
+    <div class="row pb-2 pt-2">
+      <div class="col-8">
+        <span class="text-danger" v-if="orderStore.selectedOrder.is_modified">
+          Orden de Compra Modificada, si actualiza el pedido se actualizarán la o las ordenes de compra
+        </span>
+      </div>
+      <div class="col-4 text-end">
         <button class="btn btn-sm btn-default" v-if="isTwoQBSelected" @click="mergeQB">
           <IconLayersIntersect2 size="20" stroke="1.5" />
           Unificar a HB
@@ -429,20 +440,21 @@ const orderHaveCeroItem = computed(() => {
       <div class="col-4">
         <button type="button" class="btn btn-sm btn-default text-danger" @click="cancelOrder">
           <IconBan size="20" stroke="1.5" />
-          Cancelar Pedido
+          <span v-if="orderStore.selectedOrder.order.is_cancelled">Confirmar Cancelación</span>
+          <span v-else=""> Cancelar Pedido </span>
         </button>
       </div>
       <div class="col-8 text-end d-flex gap-3 justify-content-end">
         <span class="ps-4 pe-4"></span>
-        <button type="button" class="btn btn-sm btn-default" @click="orderStore.showViews('listOrders')">
+        <button type="button" class="btn btn-sm btn-default" @click="orderStore.changeView('listOrders')">
           <IconArrowLeft size="20" stroke="1.5" />
           Salir
         </button>
-        <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem">
+        <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem" v-if="orderStore.selectedOrder.is_modified">
           <IconRefresh size="20" stroke="1.5" />
           Actualizar
         </button>
-        <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem">
+        <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem" v-if="orderStore.selectedOrder.order.status === 'PENDIENTE'">
           <IconCheckbox size="20" stroke="1.5" />
           Confirmar Pedido
         </button>
