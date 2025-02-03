@@ -289,11 +289,13 @@ watch(() => orderStore.selectedOrder,
       <div class="row">  
       <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white">
         <div class="row">
-          <div class="col text-center">
-            <h5 class="d-flex gap-2 justify-content-between ps-5 pe-5">
-              <span>{{ orderStore.selectedOrder.order.partner.name }}</span>
-              <span class="badge bg-white text-dark">Pedido {{ orderStore.selectedOrder.order.id }}</span>
-            </h5>
+          <div class="col-4 fs-4">
+            {{ orderStore.selectedOrder.order.partner.name }}
+          </div>
+          <div class="col-8 text-end fs-6">
+              <span class="bordered rounded-1 bg-white text-dark ps-2 pe-2">Pedido {{ orderStore.selectedOrder.order.id }} </span>
+              <span class="pe-1 ps-1"></span>
+              <span class="bordered rounded-1 bg-white text-dark ps-2 pe-2">{{ orderStore.selectedOrder.order.status }} </span>
           </div>
         </div>
         <div class="row">
