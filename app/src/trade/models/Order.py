@@ -181,7 +181,7 @@ class OrderItems(BaseModel):
         return cls.objects.filter(order=order, is_active=True)
 
     @classmethod
-    def rebuild_stock_detail(cls, stock_detail):
+    def rebuild_order_item(cls, stock_detail):
         box_items = OrderBoxItems.get_box_items(stock_detail)
         total_stem_flower = 0
         total_price = 0
@@ -198,7 +198,6 @@ class OrderItems(BaseModel):
         stock_detail.profit_margin = line_margin
         stock_detail.line_total = line_total
         stock_detail.save()
-
 
 
 class OrderBoxItems(BaseModel):

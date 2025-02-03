@@ -1,10 +1,10 @@
-from .PartnerCreateUpdate import (
+from partners.views.PartnerCreateUpdate import (
     PartnerCreateView,
     PartnerUpdateView,
     PartnerUpdateParent,
 )
 
-from .Bank import (
+from partners.views.Bank import (
     BankDetailView,
     BankListView,
     BankCreateView,
@@ -12,7 +12,7 @@ from .Bank import (
     BankDeleteView,
 )
 
-from .Contact import (
+from partners.views.Contact import (
     ContactDetailView,
     ContactListView,
     ContactCreateView,
@@ -20,7 +20,7 @@ from .Contact import (
     ContactDeleteView,
 )
 
-from .DAE import (
+from partners.views.DAE import (
     DAECreateView,
     DAEUpdateView,
     DAEDeleteView,
@@ -28,7 +28,7 @@ from .DAE import (
     DAEDetailView,
 )
 
-from .PartnerDelete import PartnerDeleteView
-from .PartnerDetail import PartnerDetailView
-from .PartnerList import PartnerListView
-from .PartnerAutoRegister import PartnerAutoRegister
+from partners.views.PartnerDelete import PartnerDeleteView
+from partners.views.PartnerDetail import PartnerDetailView
+from partners.views.PartnerList import PartnerListView
+from partners.views.PartnerAutoRegister import PartnerAutoRegister
