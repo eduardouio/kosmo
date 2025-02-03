@@ -143,9 +143,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 }
             });
         },
-        async updateOrderItem(newDetaiils){
-            console.log(newDetaiils)
-            return;
+        async updateOrder(){
             try {
                 const response = await axios.post(appConfig.urlUpdateOrder, this.selectedOrder, {
                     headers: appConfig.headers

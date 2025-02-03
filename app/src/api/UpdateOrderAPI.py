@@ -6,7 +6,7 @@ from common import SerializerOrder
 from partners.models import Contact
 
 
-class UpdateOrderDetailAPI(View):
+class UpdateOrderAPI(View):
     def post(self, request):
         order_data = json.loads(request.body)
         order_items = order_data['order_details']

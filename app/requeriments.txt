@@ -16,7 +16,6 @@ django-cors-headers
 requests
 django_extensions
 openai
-psycopg2
 pillow
 setuptools
 django-user-sessions

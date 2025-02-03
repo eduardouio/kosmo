@@ -1,6 +1,5 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
 import { useBaseStore } from '@/stores/base';
 import { 
@@ -20,7 +19,9 @@ const confirmDelete = ref(false);
 const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
 const exceedLimitMessage = ref();
-const router = useRouter();
+const isModified = ref(false);
+
+// Methods
 
 const calcTotalByItem = (item)=>{ 
   let total = 0;
@@ -30,10 +31,6 @@ const calcTotalByItem = (item)=>{
   }, 0);
   return total.toFixed(2);
 };
-
-const cancelOrder = () => {
-  console.log('Cancel order, implementar');
-};  
 
 const delimitedNumber = (event, item) => {
   exceedLimit.value = false;
@@ -61,13 +58,6 @@ const deleteOrderItem = (item) => {
   }
 }
 
-const createOrder = async() => {
-  new_order = await orderStore.sendOrder(
-    stockStore.stockDay
-  );
-  baseStore.stagesLoaded = 0;
-  router.push('/');
-}
 
 const handleKeydown = (event, cssClass) => {
     const inputs = document.querySelectorAll(cssClass);
@@ -129,11 +119,6 @@ const splitHB = (item) => {
 
   orderStore.selectedOrder.order_details = newDetails.map(i => ({ ...i }));
 
-  // Actualizo el objeto
-  orderStore.updateOrderItem({
-    order_item: item,
-    box_items: newDetails.slice(-2),
-  });
 };
 
 const mergeQB = () => {
@@ -170,13 +155,36 @@ const mergeQB = () => {
     box_items: groupedBoxItems,
   });
 
-  // Actualizamos en el server la accion
-  orderStore.updateOrderItem({
-    order_item: newOrderItem,
-    box_items: groupedBoxItems,
-  });
-
   };
+
+const updateOrder = (action) => {
+  switch (action) {
+    case 'confirm':
+      if (orderStore.selectedOrder.is_confirmed){
+        orderStore.selectedOrder.order.status = 'CONFIRMADO';
+        orderStore.updateOrder()
+      }else{
+        orderStore.selectedOrder.is_confirmed = true;
+      }
+      break;
+    case 'update':
+      if(orderStore.selectedOrder.is_modified){
+        orderStore.updateOrder();
+      }else{
+       orderStore.selectedOrder.is_modified = true;
+      }
+      break;
+    case 'cancell':
+      if(orderStore.selectedOrder.is_cancelled){
+        orderStore.selectedOrder.order.status = 'CANCELADO';
+        orderStore.updateOrder();
+      }else{
+        orderStore.selectedOrder.is_cancelled = true;
+      }
+      break;
+  }
+}
+
 
 // computed Properties
 const isTwoQBSelected = computed(() => {
@@ -265,7 +273,7 @@ const orderHaveCeroItem = computed(() => {
 //watchers
 watch(() => orderStore.selectedOrder, 
   (newValue) => {
-    newValue.is_modified = true;
+    isModified.value = true;
   },
   { deep: true }
 );
@@ -440,9 +448,9 @@ watch(() => orderStore.selectedOrder,
     </div>
     <div class="row mt-3 border-top pt-3">
       <div class="col-4">
-        <button type="button" class="btn btn-sm btn-default text-danger" @click="cancelOrder">
+        <button type="button" class="btn btn-sm btn-default text-danger" @click="updateOrder('cancell')">
           <IconBan size="20" stroke="1.5" />
-          <span v-if="orderStore.selectedOrder.order.is_cancelled">Confirmar Cancelación</span>
+          <span v-if="orderStore.selectedOrder.is_cancelled">Confirmar Cancelación</span>
           <span v-else=""> Cancelar Pedido </span>
         </button>
       </div>
@@ -452,13 +460,15 @@ watch(() => orderStore.selectedOrder,
           <IconArrowLeft size="20" stroke="1.5" />
           Salir
         </button>
-        <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem" v-if="orderStore.selectedOrder.is_modified">
+        <button type="button" class="btn btn-sm btn-default" @click="updateOrder('update')" :disabled="orderHaveCeroItem" v-if="isModified">
           <IconRefresh size="20" stroke="1.5" />
-          Actualizar
+          <span v-if="orderStore.selectedOrder.is_modified">Confirmar Actualización</span>
+          <span v-else>Actualizar</span>
         </button>
-        <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem" v-if="orderStore.selectedOrder.order.status === 'PENDIENTE'">
+        <button type="button" class="btn btn-sm btn-default" @click="updateOrder('confirm')" :disabled="orderHaveCeroItem" v-if="orderStore.selectedOrder.order.status === 'PENDIENTE'">
           <IconCheckbox size="20" stroke="1.5" />
-          Confirmar Pedido
+          <span v-if="orderStore.selectedOrder.is_confirmed">Generar Facturas</span>
+          <span v-else>Confirmar Pedido</span>
         </button>
       </div>
     </div>

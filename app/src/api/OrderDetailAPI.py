@@ -51,6 +51,7 @@ class OrderDetailAPI(View):
                 'is_selected': False,
                 'is_cancelled': False,
                 'is_modified': False,
+                'is_confirmed': False,
             }
 
             order_details = OrderItems.get_by_order(order.id)
