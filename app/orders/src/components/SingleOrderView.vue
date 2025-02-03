@@ -11,6 +11,7 @@ import {
     IconLayersIntersect2, 
     IconAlertTriangle,
     IconArrowLeft,
+    IconRefresh,
 } from '@tabler/icons-vue';
 
 const orderStore = useOrdersStore();
@@ -103,33 +104,39 @@ const formatInteger = (event, box = null) => {
 
 // Methods for splitting and merging boxes
 const splitHB = (item) => {
-  const newOrder = orderStore.selectedOrder.order_details.filter(o => o.order_item_id !== item.order_item_id);
+  const newDetails = orderStore.selectedOrder.order_details.filter(i => i.order_item_id !== item.order_item_id);
   const stem_flower = item.box_items.map(i => i.qty_stem_flower);
   const id = item.order_item_id;
 
   if ((item.tot_stem_flower % 2) === 0) {
-    newOrder.push({
+    newDetails.push({
       ...item,
       tot_stem_flower: item.tot_stem_flower / 2,
       box_model: 'QB',
     });
-    newOrder.push({
+    newDetails.push({
       ...item,
       tot_stem_flower: item.tot_stem_flower / 2,
       box_model: 'QB',
     });
   }
-  newOrder.forEach((itm) => {
+  newDetails.forEach((itm) => {
     if (itm.order_item_id === id) {
       itm.box_items.forEach((i, index) => {
         i.qty_stem_flower = stem_flower[index] / 2;
       });
     }
   });
-  orderStore.selectedOrder.order_details = newOrder.map(i => ({ ...i }));
+
+  console.log(newDetails);
+
+  orderStore.selectedOrder.order_details = newDetails.map(i => ({ ...i }));
 
   // Actualizo el objeto
-  orderStore.updateOrderItem();
+  orderStore.updateOrderItem({
+    order_item: item,
+    box_items: newDetails.slice(-2),
+  });
 };
 
 const mergeQB = () => {
@@ -167,7 +174,10 @@ const mergeQB = () => {
   });
 
   // Actualizamos en el server la accion
-  orderStore.updateOrderItem();
+  orderStore.updateOrderItem({
+    order_item: newOrderItem,
+    box_items: groupedBoxItems,
+  });
 
   };
 
@@ -274,8 +284,9 @@ const orderHaveCeroItem = computed(() => {
       <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white">
         <div class="row">
           <div class="col text-center">
-            <h5>
-              {{ orderStore.selectedOrder.order.partner.name }}
+            <h5 class="d-flex gap-2 justify-content-between ps-5 pe-5">
+              <span>{{ orderStore.selectedOrder.order.partner.name }}</span>
+              <span class="badge bg-white text-dark">Pedido {{ orderStore.selectedOrder.order.id }}</span>
             </h5>
           </div>
         </div>
@@ -338,7 +349,7 @@ const orderHaveCeroItem = computed(() => {
       </div>
       <div class="col-1 fw-bold fs-6 bg-kosmo-green">C/USD</div>
     </div>
-    <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item.order_item_id" class="row mb-1 border my-hover-2"
+    <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2"
       :class="{ 'bg-gray': idx % 2 === 0 }">
       <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
         <IconTrash size="30" stroke="1.5" :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
@@ -415,20 +426,25 @@ const orderHaveCeroItem = computed(() => {
       </div>
     </div>
     <div class="row mt-3 border-top pt-3">
-      <div class="col text-end d-flex gap-3 justify-content-between">
-        .
+      <div class="col-4">
         <button type="button" class="btn btn-sm btn-default text-danger" @click="cancelOrder">
           <IconBan size="20" stroke="1.5" />
           Cancelar Pedido
         </button>
+      </div>
+      <div class="col-8 text-end d-flex gap-3 justify-content-end">
         <span class="ps-4 pe-4"></span>
         <button type="button" class="btn btn-sm btn-default" @click="orderStore.showViews('listOrders')">
           <IconArrowLeft size="20" stroke="1.5" />
-          Volver al Listado
+          Salir
+        </button>
+        <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem">
+          <IconRefresh size="20" stroke="1.5" />
+          Actualizar
         </button>
         <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem">
           <IconCheckbox size="20" stroke="1.5" />
-          Generar Factura
+          Confirmar Pedido
         </button>
       </div>
     </div>

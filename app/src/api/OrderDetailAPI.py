@@ -42,11 +42,15 @@ class OrderDetailAPI(View):
                         'address': order.partner.address,
                         'phone': order.partner.phone,
                         'email': order.partner.email,
+                        'skype': order.partner.skype,
+                        'business_tax_id': order.partner.business_tax_id,
                         'contact': contact_dict
                     },
                 },
+                'order_details': [],
                 'is_selected': False,
-                'order_details': []
+                'is_cancelled': False,
+                'is_modified': False,
             }
 
             order_details = OrderItems.get_by_order(order.id)

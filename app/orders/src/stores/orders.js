@@ -132,17 +132,34 @@ export const useOrdersStore = defineStore("ordersStore", {
             }
         },
         selectOrder(idOrder){
+            this.selectOrder = null;
             this.orders.forEach(order => {
                 if (order.order.id === idOrder) {
                     order.is_selected = true;
-                    this.selectedOrder = order;
+                    this.selectedOrder = JSON.parse(JSON.stringify(order));
                 }else{
                     order.is_selected = false;
                 }
             });
         },
-        async updateOrderItem(){
-            console.log(this.selectedOrder);
+        async updateOrderItem(newDetaiils){
+            console.log(newDetaiils)
+            return;
+            try {
+                const response = await axios.post(appConfig.urlUpdateOrder, this.selectedOrder, {
+                    headers: appConfig.headers
+                })
+                this.selectedOrder = response.data
+                this.orders.forEach(order => {
+                    if (order.order.id === this.selectedOrder.order.id) {
+                        order = this.selectedOrder;
+                    }
+                });
+                this.selectedOrder = null;
+            } catch (error) {
+                console.error('Error al actualizar el pedido:', error)
+                alert(`Hubo un error al actualizar el pedido: ${error.message}`)
+            }
         }
     }
 })
