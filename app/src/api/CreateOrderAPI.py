@@ -1,10 +1,9 @@
 import json
-from decimal import Decimal
 from django.http import JsonResponse
 from django.views import View
 from trade.models import Order, OrderItems, OrderBoxItems
 from products.models import Product, StockDay
-from partners.models import Partner
+from partners.models import Partner, Contact
 from common import SerializerOrder
 
 
@@ -43,7 +42,6 @@ class CreateOrderAPI(View):
 
             for box_item in new_order_item['box_items']:
                 product = Product.get_by_id(box_item['product_id'])
-
                 OrderBoxItems.objects.create(
                     order_item=order_item,
                     product=product,
@@ -53,37 +51,55 @@ class CreateOrderAPI(View):
                     profit_margin=float(box_item['margin'])
                 )
 
+        contact = Contact.get_principal_by_partner(order.partner)
+        contact_dict = {}
+        if contact:
+            contact_dict = {
+                'name': contact.name,
+                'position': contact.position,
+                'contact_type': contact.contact_type,
+                'phone': contact.phone,
+                'email': contact.email,
+                'is_principal': contact.is_principal
+            }
+
         order_items = OrderItems.get_by_order(order)
-        order_items_list = []
-        for item in order_items:
-            order_items_list.append(SerializerOrder().get_line(item))
+        order_details = [SerializerOrder().get_line(item) for item in order_items]
 
         result = {
             'order': {
                 'id': order.id,
                 'stock_day': order.stock_day.id,
+                'date': order.date.isoformat(),
                 'status': order.status,
                 'type_document': order.type_document,
+                'parent_order': order.parent_order,
+                'total_price': float(order.total_price),
                 'qb_total': order.qb_total,
                 'hb_total': order.hb_total,
-                'discount': order.discount,
                 'total_stem_flower': order.total_stem_flower,
-                'total_price': order.total_price,
+                'partner': {
+                    'id': order.partner.id,
+                    'name': order.partner.name,
+                    'address': order.partner.address,
+                    'phone': order.partner.phone,
+                    'email': order.partner.email,
+                    'skype': order.partner.skype,
+                    'business_tax_id': order.partner.business_tax_id,
+                    'contact': contact_dict
+                },
             },
-            'order_detail': order_items_list,
+            'order_details': order_details,
+            'is_selected': False,
+            'is_cancelled': False,
+            'is_modified': False,
+            'is_confirmed': False,
         }
 
-        return JsonResponse(
-            {
-                'message': 'Pedido Creado Exitosamente',
-                'data': json.dumps(result, default=self.custom_serializer),
-            },
-            status=201
-        )
+        return JsonResponse(result, status=201, safe=False)
 
     def getOrderTotals(self, order):
         totals = {
-            ''
             'qb_total': 0,
             'hb_total': 0,
             'discount': 0,
@@ -126,8 +142,3 @@ class CreateOrderAPI(View):
             )
 
         return totals
-
-    def custom_serializer(self, obj):
-        if isinstance(obj, Decimal):
-            return float(obj)
-        raise TypeError(f"Tipo no serializable: {type(obj)}")

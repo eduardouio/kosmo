@@ -43,6 +43,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 const response = await axios.post(appConfig.urlCreateOrder, orderData, {
                     headers: appConfig.headers
                 })
+                console.log('Pedido enviado:', response.data)
                 this.orders.push(response.data)
                 this.newOrder = []
                 this.selectedCustomer = null
