@@ -95,7 +95,7 @@ class Order(BaseModel):
         null=True
     )
 
-    @classmethod    
+    @classmethod
     def get_order_by_id(cls, id_order):
         try:
             return cls.objects.get(pk=id_order)
@@ -106,13 +106,26 @@ class Order(BaseModel):
         return f"Pedido {self.id} - {self.partner.name}"
 
     @classmethod
-    def get_by_stock_day(cls, stock_day):
-        return cls.objects.filter(stock_day=stock_day, is_active=True)
+    def get_sales_by_stock_day(cls, stock_day):
+        return cls.objects.filter(
+            stock_day=stock_day,
+            type_document='ORD_VENTA',
+            is_active=True,
+        )
+
+    @classmethod
+    def get_purchases_by_stock_day(cls, stock_day):
+        return cls.objects.filter(
+            stock_day=stock_day,
+            type_document='ORD_COMPRA',
+            is_active=True,
+        )
     
     @classmethod
     def get_by_sale_order(cls, sale_order):
         return cls.objects.filter(
-            parent_order=sale_order, is_active=True
+            parent_order=sale_order,
+            is_active=True
         )
 
 
@@ -145,7 +158,8 @@ class OrderItems(BaseModel):
     line_total = models.DecimalField(
         'Precio Total',
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=0.00
     )
     tot_stem_flower = models.IntegerField(
         'Unds Tallos',
@@ -197,7 +211,8 @@ class OrderItems(BaseModel):
             total_stem_flower += box_item.qty_stem_flower
             total_price += box_item.qty_stem_flower * box_item.stem_cost_price
             line_margin += box_item.profit_margin
-            line_total += box_item.qty_stem_flower * box_item.stem_cost_price * box_item.profit_margin
+            line_total += box_item.qty_stem_flower * \
+                box_item.stem_cost_price * box_item.profit_margin
 
         stock_detail.tot_stem_flower = total_stem_flower
         stock_detail.tot_cost_price_box = total_price
@@ -244,3 +259,19 @@ class OrderBoxItems(BaseModel):
             order_item=order_item,
             is_active=True
         )
+
+    @classmethod
+    def rebuild_order_item(cls, order_item):
+        total_stem_flower = 0
+        total_cost_price = 0
+        total_margin = 0
+        for box in cls.get_box_items(order_item):
+            total_stem_flower += box.qty_stem_flower
+            total_cost_price += box.stem_cost_price
+            total_margin += box.profit_margin
+
+        order_item.tot_stem_flower = total_stem_flower
+        order_item.line_price = total_cost_price
+        order_item.line_margin = total_margin
+        order_item.line_total = total_cost_price * total_margin
+        order_item.save()
