@@ -53,6 +53,7 @@ const isAllLoaded = computed(() => {
 
 
 onMounted(() => {
+    baseStore.stagesLoaded = 0;
     baseStore.loadSuppliers();
     baseStore.loadProducts();
 });

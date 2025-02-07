@@ -47,6 +47,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 this.orders.unshift(response.data)
                 this.newOrder = []
                 this.selectedCustomer = null
+                return true;
             } catch (error) {
                 console.error('Error al enviar el pedido:', error)
                 alert(`Hubo un error al enviar el pedido: ${error.message}`)
@@ -59,7 +60,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             }
             
             try {
-                const response = await axios.get(appConfig.urlOrdersByStock)
+                const response = await axios.get(appConfig.urlOrdersByStock + '?type=purchase')
                 this.orders = response.data
                 baseStore.stagesLoaded++;
             } catch (error) {

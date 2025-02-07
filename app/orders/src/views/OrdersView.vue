@@ -35,6 +35,7 @@ const isAllLoaded = computed(() => {
 
 // ON MOUNTED
 onMounted(() => {
+    baseStore.stagesLoaded = 0;
     baseStore.loadProducts(baseStore);
     ordersStore.loadCustomers(baseStore);
     ordersStore.loadOrders(baseStore);

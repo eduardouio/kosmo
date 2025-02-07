@@ -16,7 +16,7 @@ export const useStockStore = defineStore('stockStore', {
     actions: {
         async LoadOrders(baseStore) {
             try {
-                const response = await axios.get(appConfig.urlOrdersByStock);
+                const response = await axios.get(appConfig.urlOrdersByStock + '?type=purchase');
                 this.orders = response.data;
                 baseStore.stagesLoaded++;
             } catch (error) {

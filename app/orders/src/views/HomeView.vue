@@ -119,13 +119,6 @@ const handleKeydown = (event, cssClass) => {
     }
 }
 
-const loadData = () => {
-    stockStore.getStock(baseStore);
-    baseStore.loadProducts(baseStore);
-    ordersStore.loadCustomers(baseStore);
-    baseStore.loadSuppliers();
-    calcIndicators();
-};
 
 const formatNumber = (event, box = null) => {
     let value = event.target.value;
@@ -190,7 +183,12 @@ watch(() => querySearch.value, (newValue) => {
 );
 
 onMounted(() => {
-    loadData();
+    baseStore.stagesLoaded = 0;
+    stockStore.getStock(baseStore);
+    baseStore.loadProducts(baseStore);
+    ordersStore.loadCustomers(baseStore);
+    baseStore.loadSuppliers();
+    calcIndicators();
 });
 </script>
 <template>
@@ -372,6 +370,9 @@ onMounted(() => {
                                     </td>
                                     <td class="p-1 text-start">
                                         <span @click="suplierSelected = item.partner">
+                                            <small>
+                                                #{{ item.partner.id }}
+                                            </small>
                                             <i class="text-primary" data-bs-toggle="modal"
                                                 data-bs-target="#suplierModal">
                                                 <IconEye size="15" stroke="1.5" />
