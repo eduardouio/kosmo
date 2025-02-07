@@ -4,7 +4,7 @@ from django.views import View
 from trade.models import Order, OrderItems, OrderBoxItems
 from products.models import Product, StockDay
 from partners.models import Partner, Contact
-from common import SerializerOrder
+from common import SerializerOrder, CreateOrUpdateOrderSupplier
 
 
 class CreateOrderAPI(View):
@@ -32,6 +32,7 @@ class CreateOrderAPI(View):
 
         for new_order_item in order_data['order_detail']:
             item_totals = self.getItemTotal(new_order_item)
+            print(item_totals)
             order_item = OrderItems.objects.create(
                 order=order,
                 id_stock_detail=new_order_item['stock_detail_id'],
@@ -95,7 +96,7 @@ class CreateOrderAPI(View):
             'is_modified': False,
             'is_confirmed': False,
         }
-
+        CreateOrUpdateOrderSupplier().create_or_update(order, order_details)
         return JsonResponse(result, status=201, safe=False)
 
     def getOrderTotals(self, order):
@@ -122,10 +123,10 @@ class CreateOrderAPI(View):
 
     def getItemTotal(self, order_item):
         totals = {
-            'line_price': 0,
-            'line_margin': 0,
-            'line_total': 0,
-            'tot_stem_flower': 0,
+            'line_price': 0.0,
+            'line_margin': 0.0,
+            'line_total': 0.0,
+            'tot_stem_flower': 0.0,
         }
 
         for item in order_item['box_items']:

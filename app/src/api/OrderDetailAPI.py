@@ -7,7 +7,11 @@ from partners.models import Contact
 
 class OrderDetailAPI(View):
     def get(self, request, id_stock_day, *args, **kwargs):
-        orders = Order.get_by_stock_day(id_stock_day)
+        if request.GET.get('type') == 'purchase':
+            orders = Order.get_sales_by_stock_day(id_stock_day)
+        else:
+            orders = Order.get_purchases_by_stock_day(id_stock_day)
+
         if len(orders) == 0:
             return JsonResponse({"data": []}, status=200)
 
@@ -24,6 +28,17 @@ class OrderDetailAPI(View):
                     'email': contact.email,
                     'is_principal': contact.is_principal
                 }
+            parent_order = {}
+            if order.parent_order:
+                parent_order = {
+                    'id': order.parent_order.id,
+                    'id_customer': order.parent_order.partner.id,
+                    'customer': order.parent_order.partner.name,
+                    'total_price': float(order.parent_order.total_price),
+                    'qb_total': order.parent_order.qb_total,
+                    'hb_total': order.parent_order.hb_total,
+                    'total_stem_flower': order.parent_order.total_stem_flower,
+                }
             item_order = {
                 'order': {
                     'id': order.id,
@@ -31,7 +46,7 @@ class OrderDetailAPI(View):
                     'date': order.date.isoformat(),
                     'status': order.status,
                     'type_document': order.type_document,
-                    'parent_order': order.parent_order,
+                    'parent_order': parent_order,
                     'total_price': float(order.total_price),
                     'qb_total': order.qb_total,
                     'hb_total': order.hb_total,
