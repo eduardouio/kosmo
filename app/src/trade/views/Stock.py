@@ -1,6 +1,6 @@
 from datetime import date
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, ListView, DetailView, RedirectView
+from django.views.generic import CreateView, ListView, DetailView, RedirectView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from products.models import StockDay
@@ -34,7 +34,7 @@ class StockDayCreateView(LoginRequiredMixin, CreateView):
         all_stock_days = StockDay.objects.all().exclude(pk=self.object.id)
         [StockDay.disable(i) for i in all_stock_days]
         url = reverse_lazy('stock_detail_detail', kwargs={'pk': self.object.id})
-        return url
+        return url + '#/import/'
 
 
 class StockDayDeleteView(LoginRequiredMixin, RedirectView):
