@@ -108,6 +108,12 @@ class Order(BaseModel):
     @classmethod
     def get_by_stock_day(cls, stock_day):
         return cls.objects.filter(stock_day=stock_day, is_active=True)
+    
+    @classmethod
+    def get_by_sale_order(cls, sale_order):
+        return cls.objects.filter(
+            parent_order=sale_order, is_active=True
+        )
 
 
 class OrderItems(BaseModel):
