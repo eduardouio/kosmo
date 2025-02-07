@@ -59,11 +59,13 @@ const deleteOrderItem = (item) => {
 }
 
 const createOrder = async() => {
-  await ordersStore.sendOrder(
+  const response = await ordersStore.sendOrder(
     stockStore.stockDay
   );
-  baseStore.stagesLoaded = 0;
-  router.push('/');
+  if (response){
+    baseStore.stagesLoaded = 0;
+    router.push('/');
+  }
 }
 
 const handleKeydown = (event, cssClass) => {

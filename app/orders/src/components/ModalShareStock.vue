@@ -24,7 +24,7 @@ watch(() => orderStore.selectedCustomer, (newValue) => {
 });
 </script>
 <template>
-    <div class="modal fade modal-lg" id="shareModal" tabindex="-1" aria-labelledby="shareModal" aria-hidden="true" v-if="!baseStore.isLoading">
+    <div class="modal fade modal-lg" id="shareModal" tabindex="-1" aria-labelledby="shareModal" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-kosmo-primary p-1 text-white">

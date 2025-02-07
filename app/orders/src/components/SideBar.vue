@@ -8,7 +8,11 @@ import {
     IconSquare,
     IconChevronCompactRight,
     IconFilterOff,
-    IconFilter
+    IconFilter,
+    IconTransferIn,
+    IconBuildingWarehouse,
+    IconShoppingCartUp,
+    IconShoppingCartDown
 } from '@tabler/icons-vue';
 
 const stockStore = useStockStore();
@@ -59,34 +63,36 @@ const resetStagesLoaded = () => {
 </script>
 <template>
     <div class="p-2 list-group rounded-0">
-        <router-link to="/import/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/import'}" @click="resetStagesLoaded()">
-            <div class="b rounded-1 p-0 fw-semibold ">
-                Importar Disponibilidad
-                <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
+        <router-link to="/import/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/import/'}" @click="resetStagesLoaded()">
+            <div class="b rounded-1 p-0 fw-semibold d-flex justify-content-between">
+                <IconTransferIn size="20" stroke="1.5"/>
+                <span>Importar Disponibilidad</span>
+                <IconChevronCompactRight size="20" stroke="1.5" />
             </div>
         </router-link>
         <router-link to="/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/'}" @click="resetStagesLoaded()">
-            <div class="b rounded-1 p-0 fw-semibold">
-                Disponibilidad Actual
+            <div class="b rounded-1 p-0 fw-semibold d-flex justify-content-between">
+                <IconBuildingWarehouse size="20" stroke="1.5"/>
+                <span>Disponibilidad Actual</span>
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
             </div>
         </router-link>
-        <router-link to="/customer-orders/" class="list-group-item hover-opacity" @click="resetStagesLoaded()">
-            <div class="rounded-1 p-0 fw-semibold">
-                Pedidos de Clientes
+        <router-link to="/customer-orders/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/customer-orders/'}" @click="resetStagesLoaded()">
+            <div class="rounded-1 p-0 fw-semibold d-flex justify-content-between">
+                <IconShoppingCartUp size="20" stroke="1.5"/>
+                <span>Pedidos de Clientes</span>
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
             </div>
         </router-link>
-        <!--
-        <router-link to="/" class="list-group-item hover-opacity">
-            <div class="rounded-1 p-0 fw-semibold">
-                Compras a Proveedor
+        <router-link to="/suppliers-orders/" class="list-group-item hover-opacity" :class="{'bg-gray-500 text-gray-100': route.path === '/suppliers-orders/'}" @click="resetStagesLoaded()">
+            <div class="rounded-1 p-0 fw-semibold d-flex justify-content-between">
+                <IconShoppingCartDown size="20" stroke="1.5"/>
+                <span>Pedidos a Proveedor</span>
                 <IconChevronCompactRight size="20" stroke="1.5" class="float-end" />
             </div>
         </router-link>
-        -->
     </div>
-    <div v-if="route.path === '/' && baseStore.isLoading" class="mt-4">
+    <div v-if="route.path === '/'" class="mt-4">
     <div class="text-center border-bottom">
         <small class="text-muted">
             Filtros de Stock
