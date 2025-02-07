@@ -59,7 +59,7 @@ const deleteOrderItem = (item) => {
 }
 
 const createOrder = async() => {
-  new_order = await ordersStore.sendOrder(
+  await ordersStore.sendOrder(
     stockStore.stockDay
   );
   baseStore.stagesLoaded = 0;
