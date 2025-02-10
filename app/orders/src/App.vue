@@ -11,13 +11,15 @@ import SideBar from './components/SideBar.vue';
         <SideBar />
       </div>
       <div class="col bg-light border p-1 m-1 rounded-1 shadow bg-opacity-50 content">
-        <RouterView />
+        <div class="container-fluid">
+          <RouterView />
+        </div>
       </div>
     </div>
 </div>
 </template>
 <style scoped>
   .content {
-    min-height:90vh;
+    min-height:50vh;
   }
 </style>
