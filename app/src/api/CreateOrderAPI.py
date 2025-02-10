@@ -4,7 +4,7 @@ from django.views import View
 from trade.models import Order, OrderItems, OrderBoxItems
 from products.models import Product, StockDay
 from partners.models import Partner, Contact
-from common import SerializerOrder, CreateOrUpdateOrderSupplier
+from common import SerializerCustomerOrder, CreateOrUpdateOrderSupplier
 
 
 class CreateOrderAPI(View):
@@ -65,7 +65,7 @@ class CreateOrderAPI(View):
             }
 
         order_items = OrderItems.get_by_order(order)
-        order_details = [SerializerOrder().get_line(item) for item in order_items]
+        order_details = [SerializerCustomerOrder().get_line(item) for item in order_items]
 
         result = {
             'order': {

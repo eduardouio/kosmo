@@ -1,22 +1,35 @@
 from django.http import JsonResponse
 from django.views import View
 from trade.models import Order, OrderItems
-from common import SerializerCustomerOrder
+from common import SerializerSupplierOrder
 from partners.models import Contact
 
 
-class OrderDetailAPI(View):
-    def get(self, request, id_stock_day, *args, **kwargs):
-        if request.GET.get('type') == 'purchase':
-            orders = Order.get_sales_by_stock_day(id_stock_day)
-        else:
-            orders = Order.get_purchases_by_stock_day(id_stock_day)
+class OrderPurchaseByOrderSale(View):
+    def get(self, request, order_customer_id):
+        order_customer = Order.get_order_by_id(order_customer_id)
+        if not order_customer:
+            return JsonResponse(
+                {'error': 'No existe la orden de venta'},
+                status=404
+            )
 
-        if len(orders) == 0:
-            return JsonResponse({"data": []}, status=200)
+        if order_customer.type_document != 'ORD_VENTA':
+            return JsonResponse({
+                'error': 'El documento no es una orden de venta'
+            }, status=404)
+
+        orders_supplier = Order.get_by_sale_order(order_customer)
+        if not orders_supplier:
+            return JsonResponse(
+                {},
+                status=200
+            )
+
+        supplier_orders = Order.get_by_sale_order(order_customer)
 
         all_orders = []
-        for order in orders:
+        for order in supplier_orders:
             contact = Contact.get_principal_by_partner(order.partner)
             contact_dict = {}
             if contact:
@@ -28,17 +41,7 @@ class OrderDetailAPI(View):
                     'email': contact.email,
                     'is_principal': contact.is_principal
                 }
-            parent_order = {}
-            if order.parent_order:
-                parent_order = {
-                    'id': order.parent_order.id,
-                    'id_customer': order.parent_order.partner.id,
-                    'customer': order.parent_order.partner.name,
-                    'total_price': float(order.parent_order.total_price),
-                    'qb_total': order.parent_order.qb_total,
-                    'hb_total': order.parent_order.hb_total,
-                    'total_stem_flower': order.parent_order.total_stem_flower,
-                }
+
             item_order = {
                 'order': {
                     'id': order.id,
@@ -46,7 +49,6 @@ class OrderDetailAPI(View):
                     'date': order.date.isoformat(),
                     'status': order.status,
                     'type_document': order.type_document,
-                    'parent_order': parent_order,
                     'total_price': float(order.total_price),
                     'qb_total': order.qb_total,
                     'hb_total': order.hb_total,
@@ -72,7 +74,7 @@ class OrderDetailAPI(View):
             order_details = OrderItems.get_by_order(order.id)
             for order_detail in order_details:
                 item_order['order_details'].append(
-                    SerializerCustomerOrder().get_line(order_detail)
+                    SerializerSupplierOrder().get_line(order_detail)
                 )
 
             all_orders.append(item_order)

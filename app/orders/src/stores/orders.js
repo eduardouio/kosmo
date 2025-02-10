@@ -24,7 +24,9 @@ export const useOrdersStore = defineStore("ordersStore", {
                 return
             }
             try {
-                const response = await axios.get(appConfig.urlAllCustomers)
+                const response = await axios.get(
+                    appConfig.urlAllCustomers, {headers: appConfig.headers}
+                )
                 this.customers = response.data
                 baseStore.stagesLoaded++;
               } catch (error) {

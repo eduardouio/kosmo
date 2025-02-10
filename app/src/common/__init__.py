@@ -4,5 +4,5 @@ from .StockAnalyzer import StockAnalyzer
 from .GPTProcessor import GPTProcessor
 from .TextPrepare import TextPrepare
 from .SerializerStock import SerializerStock
-from .SerializerOrder import SerializerOrder
-from .CreateOrUpdateOrderSupplier import CreateOrUpdateOrderSupplier
+from .SerializerCustomerOrder import SerializerCustomerOrder
+from .SerializerSupplierOrder import SerializerSupplierOrder

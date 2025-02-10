@@ -1,6 +1,6 @@
 const idStockDay = window.djangoConfig?.stockId ?? 1;
-const apiBaseUrl = window.djangoConfig?.baseUrl ?? 'http://localhost:8000';
-const csrfToken = window.djangoConfig?.csrfToken ?? '';
+const apiBaseUrl = window.djangoConfig?.baseUrl ?? "http://localhost:8000";
+const csrfToken = window.djangoConfig?.csrfToken ?? "";
 
 
 
@@ -13,17 +13,18 @@ export const appConfig = {
     "urlDispo": apiBaseUrl + `/api/stock_detail/${idStockDay}/`,
     "urlAnalyce": apiBaseUrl + "/api/analize_stock_text/",
     "urlAllSuppliers": apiBaseUrl + `/api/partners/all-supliers/?id_stock=${idStockDay}`,
-    'urlAllCustomers': apiBaseUrl + "/api/partners/all-customers/",
-    'urlDeleteStockDetail': apiBaseUrl + "/api/delete_stock_detail/",
-    'urlUpdateStockDetail': apiBaseUrl + "/api/update_stock_detail/",
-    'urlAllProducts': apiBaseUrl + "/api/products/all_products/",
-    'urlAddBoxItem': apiBaseUrl + "/api/stock/add_box_item/",
-    'urlCreateOrder': apiBaseUrl + "/api/order/create_order/",
-    'urlOrdersByStock': apiBaseUrl + `/api/orders/by_stock_day/${idStockDay}/`,
-    'urlUpdateOrder': apiBaseUrl + "/api/order/update_order/",
+    "urlAllCustomers": apiBaseUrl + "/api/partners/all-customers/",
+    "urlDeleteStockDetail": apiBaseUrl + "/api/delete_stock_detail/",
+    "urlUpdateStockDetail": apiBaseUrl + "/api/update_stock_detail/",
+    "urlAllProducts": apiBaseUrl + "/api/products/all_products/",
+    "urlAddBoxItem": apiBaseUrl + "/api/stock/add_box_item/",
+    "urlCreateOrder": apiBaseUrl + "/api/orders/create_order/",
+    "urlOrdersByStock": apiBaseUrl + `/api/orders/by_stock_day/${idStockDay}/`,
+    "urlUpdateOrder": apiBaseUrl + "/api/orders/update_order/",
+    "urlPurchaseOrdersByCustomerOrder": apiBaseUrl + "/api/orders/purchase_orders/{id_customer_order}/",
     "headers": {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrfToken
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
     }
 }

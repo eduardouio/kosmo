@@ -2,7 +2,7 @@ import json
 from django.http import JsonResponse
 from django.views import View
 from trade.models import Order, OrderItems, OrderBoxItems
-from common import SerializerOrder
+from common import SerializerCustomerOrder
 from partners.models import Contact
 
 

@@ -120,7 +120,7 @@ class Order(BaseModel):
             type_document='ORD_COMPRA',
             is_active=True,
         )
-    
+
     @classmethod
     def get_by_sale_order(cls, sale_order):
         return cls.objects.filter(
