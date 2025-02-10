@@ -5,7 +5,7 @@ import { useOrdersStore } from '@/stores/orders';
 import { useStockStore } from '@/stores/stock';
 import Loader from '@/components/Loader.vue';
 import OrderPreview from '@/components/OrderPreview.vue';
-import SingleOrderView from '@/components/SingleOrderView.vue';
+import ContainerOrderGroup from '@/components/ContainerOrderGroup.vue';
 import { 
     IconAlertCircle,
     IconClockHour9,
@@ -58,7 +58,7 @@ onMounted(() => {
             </div>
         </div>
         <div class="row ps-1" v-else>
-            <div class="container" v-if="ordersStore.showViews.listOrders">
+            <div class="container-fluid" v-if="ordersStore.showViews.listOrders">
                 <div class="row">
                     <div class="col-4 text-center">
                         <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
@@ -182,7 +182,7 @@ onMounted(() => {
                 </div>
             </div>
             <div class="row" v-if="ordersStore.showViews.singleOrder">
-                <SingleOrderView />
+                <ContainerOrderGroup />     
             </div>
         </div>
     </div>

@@ -468,8 +468,9 @@ watch(() => orderStore.selectedOrder,
         <button type="button" class="btn btn-sm btn-default" @click="updateOrder('confirm')" :disabled="orderHaveCeroItem" v-if="orderStore.selectedOrder.order.status === 'PENDIENTE'">
           <IconCheckbox size="20" stroke="1.5" />
           <span v-if="orderStore.selectedOrder.is_confirmed">Generar Facturas</span>
-          <span v-else>Confirmar Pedido</span>
+          <span v-else>Generar Factura</span>
         </button>
+        <button class="btn btn-default btn-sm">Ver Factura</button>
       </div>
     </div>
   </div>

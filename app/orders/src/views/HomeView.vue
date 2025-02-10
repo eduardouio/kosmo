@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
+import DataTable from 'datatables.net-vue3';
 import ModalProduct from '@/components/ModalProduct.vue';
 import ModalSuplier from '@/components/ModalSuplier.vue';
 import ModalShareStock from '@/components/ModalShareStock.vue';
@@ -201,7 +202,7 @@ onMounted(() => {
                 </h6>
             </div>
         </div>
-        <div class="row ps-2" v-else="">
+        <div class="row" v-else="">
             <div class="cntainer">
             <div class="row pt-1 pb-3">
                 <div class="col d-flex gap-1 justify-content-start align-items-center">

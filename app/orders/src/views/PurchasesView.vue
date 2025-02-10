@@ -1,6 +1,6 @@
 <script setup>
 import {computed, onMounted} from 'vue';
-import { useSalesStore } from '@/stores/sales';
+import { useSalesStore } from '@/stores/purcharse';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
 import Loader from '@/components/Loader.vue';
@@ -33,7 +33,7 @@ onMounted(() => {
             </div>
         </div>
         <div class="row ps-1" v-else>
-            <div class="container" v-if="salesStore.showViews.listOrders">
+            <div class="container-fluid" v-if="salesStore.showViews.listOrders">
                 <div class="row pt-4" v-if="salesStore.showViews.listOrders">
                     <div class="col-12 fs-6 text-center text-orange-800 p-1 fw-semibold">
                         Listado de Pedidos de Clientes segun este Stock

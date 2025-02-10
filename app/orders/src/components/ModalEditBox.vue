@@ -122,7 +122,7 @@ onMounted(() => {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                   <div class="container" v-if="!baseStore.isLoading && stockItem">
+                   <div class="container-fluid" v-if="!baseStore.isLoading && stockItem">
                     <div class="row border p-1">
                         <div class="col-2">
                             <span class="text-secondary">ID:</span>
