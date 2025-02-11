@@ -1,15 +1,31 @@
 <script setup>
-import {ref, watch ,onMounted } from 'vue';
-import SingleOrderCustomer from './SingleOrderCustomer.vue';
-import SingleOrderSuplier from './SingleOrderSuplier.vue';
-import { 
-    IconShoppingCartUp,
-    IconShoppingCartDown,
-} from '@tabler/icons-vue';
+import { ref, onMounted, onUnmounted } from 'vue';
+import SingleOrderCustomer from '@/components/SingleOrderCustomer.vue';
+import SingleOrderSuplier from '@/components/SingleOrderSuplier.vue';
+import { usePurchaseStore } from  '@/stores/purcharses';
+import { useOrdersStore } from '@/stores/orders';
+import PurchaseOrdersList from './PurchaseOrdersList.vue';
+import {  IconShoppingCartUp, IconShoppingCartDown } from '@tabler/icons-vue';
 
+// Variables
 const tabSelected = ref({
     orders: true,
     purchases: false,
+});
+
+const orderStore = useOrdersStore();
+const purchaseStore = usePurchaseStore();
+
+
+// Mounted
+onMounted(()=>{
+  purchaseStore.getOrdersByCustomerOrder(
+    orderStore.selectedOrder.order.id
+  )
+});
+
+onUnmounted(()=>{
+  purchaseStore.purcharses_by_order = [];
 });
 
 
@@ -37,6 +53,7 @@ const tabSelected = ref({
     <SingleOrderCustomer/>
   </div>
   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+    <PurchaseOrdersList/>
     <SingleOrderSuplier/>
   </div>
 </div>
