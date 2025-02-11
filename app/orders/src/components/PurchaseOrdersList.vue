@@ -9,10 +9,11 @@ const baseStore = useBaseStore();
 
 // Methods
 const selectPurchase = (id) => {
-    console.log(id);
+    purchasesStore.selectedPurchase = {};
     purchasesStore.purcharses_by_order.forEach((purchase) => {
         if (purchase.order.id === id) {
-            purchase.is_selected = !purchase.is_selected;
+            purchase.is_selected = true;
+            purchasesStore.selectedPurchase =  purchase;
         }else{
             purchase.is_selected = false;
         }
@@ -22,9 +23,7 @@ const selectPurchase = (id) => {
 
 <template>
 <div class="row">
-    <div class="col-12 pt-2">
-        <div class="card">
-            <div class="card-body">
+    <div class="col-12 pt-3">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>
@@ -45,15 +44,13 @@ const selectPurchase = (id) => {
                                 <td class="p-1 text-center">{{ purchase.order.hb_total }}/{{ purchase.order.qb_total }}</td>
                                 <td class="p-1">{{ purchase.order.status }}</td>
                                 <td class="p-1 d-flex justify-content-end gap-3">
-                                    <IconFolderOpen size="20"  stroke="1.5" v-if="purchase.is_selected"/>
+                                    <IconFolderOpen size="20" class="text-sky-600"  stroke="1.5" v-if="purchase.is_selected"/>
                                     <IconFolder size="20"  stroke="1.5" v-else/>
                                     <IconTrash size="20"  stroke="1.5"/>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
         </div>
     </div>
 </div>

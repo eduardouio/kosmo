@@ -12,7 +12,7 @@ const purchaseStore = usePurchaseStore();
 
 // computed
 const isPurchOrderSelected = computed(() => {
-    return purchaseStore.purcharses_by_order.some(i => i.selected);
+    return Boolean(Object.keys(purchaseStore.purcharses_by_order).length);
 });
 
 // Mounted
@@ -51,7 +51,7 @@ onUnmounted(()=>{
   </div>
   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
     <PurchaseOrdersList/>
-    <SingleOrderSuplier/>
+    <SingleOrderSuplier v-if="isPurchOrderSelected" :key="purchaseStore.selectedPurchase"/>
   </div>
 </div>
     </div>

@@ -4,8 +4,8 @@ import axios from "axios";
 
 export const usePurchaseStore = defineStore("purchaseStore", {
   state: () => ({
-    
     purcharses_by_order: [],
+    selectedPurchase: {},
     sales: [],
     showViews: {
       listOrders: true,
