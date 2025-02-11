@@ -1,12 +1,11 @@
 <script setup>
 import {computed, onMounted} from 'vue';
-import { useSalesStore } from '@/stores/purcharse';
+import { usePurchaseStore } from '@/stores/purcharses';
 import { useBaseStore } from '@/stores/base';
-import { useOrdersStore } from '@/stores/orders';
 import Loader from '@/components/Loader.vue';
 
 const baseStore = useBaseStore();
-const salesStore = useSalesStore();
+const purchaceStore = usePurchaseStore();
 
 // COMPUTED
 const isAllLoaded = computed(() => {
@@ -17,7 +16,7 @@ const isAllLoaded = computed(() => {
 onMounted(() => {
     baseStore.stagesLoaded = 0;
     baseStore.loadProducts(baseStore);
-    salesStore.loadSales(baseStore)
+    purchaceStore.loadSales(baseStore)
 });
 
 
@@ -33,8 +32,8 @@ onMounted(() => {
             </div>
         </div>
         <div class="row ps-1" v-else>
-            <div class="container-fluid" v-if="salesStore.showViews.listOrders">
-                <div class="row pt-4" v-if="salesStore.showViews.listOrders">
+            <div class="container-fluid" v-if="purchaceStore.showViews.listOrders">
+                <div class="row pt-4" v-if="purchaceStore.showViews.listOrders">
                     <div class="col-12 fs-6 text-center text-orange-800 p-1 fw-semibold">
                         Listado de Pedidos de Clientes segun este Stock
                     </div>
@@ -54,7 +53,7 @@ onMounted(() => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in salesStore.sales" :key="item">
+                                <tr v-for="item in purchaceStore.sales" :key="item">
                                     <td class="p-1 text-center">
                                         {{ item.order.id }}
                                         <span class="text-gray-200 ps-1 pe-1"> | </span>
