@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import SingleOrderCustomer from '@/components/SingleOrderCustomer.vue';
 import SingleOrderSuplier from '@/components/SingleOrderSuplier.vue';
 import { usePurchaseStore } from  '@/stores/purcharses';
@@ -7,15 +7,13 @@ import { useOrdersStore } from '@/stores/orders';
 import PurchaseOrdersList from './PurchaseOrdersList.vue';
 import {  IconShoppingCartUp, IconShoppingCartDown } from '@tabler/icons-vue';
 
-// Variables
-const tabSelected = ref({
-    orders: true,
-    purchases: false,
-});
-
 const orderStore = useOrdersStore();
 const purchaseStore = usePurchaseStore();
 
+// computed
+const isPurchOrderSelected = computed(() => {
+    return purchaseStore.purcharses_by_order.some(i => i.selected);
+});
 
 // Mounted
 onMounted(()=>{
@@ -27,7 +25,6 @@ onMounted(()=>{
 onUnmounted(()=>{
   purchaseStore.purcharses_by_order = [];
 });
-
 
 </script>
 <template>

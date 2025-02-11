@@ -1,100 +1,60 @@
 <script setup>
-import { defineEmits, ref, computed, onMounted } from 'vue';
-import DataTable from 'datatables.net-vue3';
-import DataTablesCore from 'datatables.net';
 import { usePurchaseStore } from '@/stores/purcharses';
+import { useBaseStore } from '@/stores/base';   
+import { IconTrash, IconFolderOpen, IconFolder  } from '@tabler/icons-vue';
 
 // Variables
 const purchasesStore = usePurchaseStore();
-DataTable.use(DataTablesCore);
+const baseStore = useBaseStore();
 
-// Datos computados para extraer solo las órdenes
-const data = computed(() => {
-  return purchasesStore.purcharses_by_order.map(orderData => ({
-    id: orderData.order.id,
-    date: orderData.order.date,
-    status: orderData.order.status,
-    type_document: orderData.order.type_document,
-    total_price: orderData.order.total_price,
-    partner_name: orderData.order.partner.name,
-    qb_total: orderData.order.qb_total,
-    hb_total: orderData.order.hb_total,
-  }));
-});
-
-// Configuración de columnas
-const columns = ref([
-  { title: "ID", data: "id" },
-  { title: "Fecha", data: "date" },
-  { title: "Estado", data: "status" },
-  { title: "Tipo Documento", data: "type_document" },
-  { title: "Proveedor", data: "partner_name" },
-  { title: "QBs", data:"qb_total" },
-  { title: "HBs", data:"hb_total" },
-  { title: "Total", data: "total_price" },
-  {
-    title: "Acciones",
-    data: "id",
-    render: function (data) {
-      return `<button class="btn btn-sm btn-default view-order" data-id="${data}">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-folder-open">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-          <path d="M5 19l2.757 -7.351a1 1 0 0 1 .936 -.649h12.307a1 1 0 0 1 .986 1.164l-.996 5.211a2 2 0 0 1 -1.964 1.625h-14.026a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v2"/>
-        </svg>
-        Ver Pedido
-        </button>`;
-    }
-  }
-]);
-
-// Evento para capturar clics en la tabla
-const handleClick = (event) => {
-  const button = event.target.closest(".view-order");
-  if (button) {
-    const id = button.getAttribute("data-id");
-    handleViewOrder(id);
-  }
-};
-
-// Función para manejar el evento de ver pedido
-const handleViewOrder = (id) => {
-  console.log(`Pedido seleccionado: ${id}`);
-};
-
-// Opciones de DataTable
-const options = {
-  paging: false,
-  createdRow: function (row, data, dataIndex) {
-    row.classList.add("p-1", "bg-light");
-    row.cells[0].classList.add("text-center");
-    row.cells[1].classList.add("text-start");
-    row.cells[2].classList.add("text-center");
-    row.cells[3].classList.add("text-start");
-    row.cells[4].classList.add("text-start");
-    row.cells[5].classList.add("text-end");
-    row.cells[6].classList.add("text-end");
-    row.cells[7].classList.add("text-end");
-    row.cells[8].classList.add("text-center");
-  },
+// Methods
+const selectPurchase = (id) => {
+    console.log(id);
+    purchasesStore.purcharses_by_order.forEach((purchase) => {
+        if (purchase.order.id === id) {
+            purchase.is_selected = !purchase.is_selected;
+        }else{
+            purchase.is_selected = false;
+        }
+        });
 };
 </script>
 
 <template>
-  <div class="table-container">
-    <DataTable
-      :columns="columns"
-      :data="data"
-      :options="options"
-      class="table table-bordered table-striped table-hover"
-      @click="handleClick"
-    />
-  </div>
+<div class="row">
+    <div class="col-12 pt-2">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th class="p-1 text-center"># OC</th>
+                                <th class="p-1 text-center">Fecha</th>
+                                <th class="p-1 text-center">Proveedor</th>
+                                <th class="p-1 text-center">HB/QB</th>
+                                <th class="p-1 text-center">Estado</th>
+                                <th class="p-1 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="purchase in purchasesStore.purcharses_by_order" :key="purchase" @click="selectPurchase(purchase.order.id)">
+                                <td class="p-1 text-center">{{ purchase.order.id }}</td>
+                                <td class="p-1">{{ baseStore.formatDate(purchase.order.date) }}</td>
+                                <td class="p-1">{{ purchase.order.partner.name }}</td>
+                                <td class="p-1 text-center">{{ purchase.order.hb_total }}/{{ purchase.order.qb_total }}</td>
+                                <td class="p-1">{{ purchase.order.status }}</td>
+                                <td class="p-1 d-flex justify-content-end gap-3">
+                                    <IconFolderOpen size="20"  stroke="1.5" v-if="purchase.is_selected"/>
+                                    <IconFolder size="20"  stroke="1.5" v-else/>
+                                    <IconTrash size="20"  stroke="1.5"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </template>
-
-<style>
-.dt-search {
-  float: right;
-  padding-top: 1rem;
-  padding-bottom: 0.5rem;
-}
-</style>
