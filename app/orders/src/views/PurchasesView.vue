@@ -3,6 +3,7 @@ import {computed, onMounted} from 'vue';
 import { usePurchaseStore } from '@/stores/purcharses';
 import { useBaseStore } from '@/stores/base';
 import Loader from '@/components/Loader.vue';
+import { IconHexagonMinus, IconClockHour9, IconCheckbox, IconFileCheck, IconFolderOpen } from '@tabler/icons-vue';
 
 const baseStore = useBaseStore();
 const purchaceStore = usePurchaseStore();
@@ -53,7 +54,7 @@ onMounted(() => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in purchaceStore.sales" :key="item">
+                                <tr v-for="item in purchaceStore.sales" :key="item" v-if="purchaceStore.sales.length">
                                     <td class="p-1 text-center">
                                         {{ item.order.id }}
                                         <span class="text-gray-200 ps-1 pe-1"> | </span>
@@ -86,9 +87,7 @@ onMounted(() => {
                                     <td class="p-1 text-end">{{ item.order.qb_total }}</td>
                                     <td class="p-1 text-end">{{ item.order.hb_total }}</td>
                                     <td class="p-1 text-end">{{ item.order.total_stem_flower }}</td>
-                                    <td class="p-1 text-end">{{
-                                        baseStore.formatCurrency(item.order.total_price)
-                                        }}</td>
+                                    <td class="p-1 text-end">{{baseStore.formatCurrency(item.order.total_price)}}</td>
                                 </tr>
                             </tbody>
                         </table>

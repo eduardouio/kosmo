@@ -6,6 +6,7 @@ from partners.models import Partner
 STATUS_CHOICES = (
     ('PENDIENTE', 'PENDIENTE'),
     ('CONFIRMADO', 'CONFIRMADO'),
+    ('MODIFICADO', 'MODIFICADO'),
     ('FACTURADO', 'FACTURADO'),
     ('CANCELADO', 'CANCELADO'),
 )

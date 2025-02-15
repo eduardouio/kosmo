@@ -40,8 +40,8 @@ class GPTProcessor:
             data = data[next(iter(data.keys()))]
             return data
         except Exception as e:
+            import ipdb; ipdb.set_trace()
             print('------------------')
-            print(data)
             print(messages['data'][0]['content'][0]['text']['value'])
             print('------------------')
             raise Exception('Error al procesar texto: {}'.format(str(e)))

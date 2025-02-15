@@ -139,7 +139,7 @@ onMounted(() => {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="item in ordersStore.orders" :key="item">
+                                <tr v-for="item in ordersStore.orders" :key="item" v-if="ordersStore.orders.length">
                                     <td class="p-1 text-center">
                                         {{ item.order.id }}
                                         <span class="text-gray-200 ps-1 pe-1"> | </span>

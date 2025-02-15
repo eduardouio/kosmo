@@ -21,6 +21,7 @@ const appendStock = ref(true);
 const route = useRouter();
 
 const analyzeStock = async () => {
+    baseStore.stagesLoaded = 0;
     try {
         const payload = {
             idStock: baseStore.idStock,
@@ -38,6 +39,7 @@ const analyzeStock = async () => {
         console.dir(data);
 
     } catch (error) {
+        baseStore.stagesLoaded = 2;
         console.error("Error en analyzeStock:", error);
         alert(`Ocurrió un error: ${error.message}`);
     } finally {
@@ -231,7 +233,6 @@ onMounted(() => {
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
