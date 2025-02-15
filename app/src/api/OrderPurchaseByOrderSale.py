@@ -19,14 +19,14 @@ class OrderPurchaseByOrderSale(View):
                 'error': 'El documento no es una orden de venta'
             }, status=404)
 
-        orders_supplier = Order.get_by_sale_order(order_customer)
+        orders_supplier = Order.get_by_parent_order(order_customer)
         if not orders_supplier:
             return JsonResponse(
                 {},
                 status=200
             )
 
-        supplier_orders = Order.get_by_sale_order(order_customer)
+        supplier_orders = Order.get_by_parent_order(order_customer)
 
         all_orders = []
         for order in supplier_orders:

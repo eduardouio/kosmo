@@ -123,7 +123,7 @@ class Order(BaseModel):
         )
 
     @classmethod
-    def get_by_sale_order(cls, sale_order):
+    def get_by_parent_order(cls, sale_order):
         return cls.objects.filter(
             parent_order=sale_order,
             is_active=True
@@ -200,6 +200,17 @@ class OrderItems(BaseModel):
     @classmethod
     def get_by_order(cls, order):
         return cls.objects.filter(order=order, is_active=True)
+
+    @classmethod
+    def delete_by_order(cls, order):
+        for order_item in cls.get_by_order(order):
+            order_item.is_active = False
+            order_item.save()
+
+            order_box_items = OrderBoxItems.get_box_items(order_item)
+            for box_item in order_box_items:
+                box_item.is_active = False
+                box_item.save()
 
     @classmethod
     def rebuild_order_item(cls, stock_detail):

@@ -6,4 +6,4 @@ from .TextPrepare import TextPrepare
 from .SerializerStock import SerializerStock
 from .SerializerCustomerOrder import SerializerCustomerOrder
 from .SerializerSupplierOrder import SerializerSupplierOrder
-from .SyncOrdersSupplier import SyncOrdersSupplier
+from .SyncOrdersCustomer import SyncOrdersCustomer

@@ -5,7 +5,6 @@ from trade.models import Order, OrderItems, OrderBoxItems
 from products.models import Product, StockDay
 from partners.models import Partner, Contact
 from common import SerializerCustomerOrder
-from common import SyncOrdersSupplier
 
 
 class CreateOrderAPI(View):
@@ -68,9 +67,6 @@ class CreateOrderAPI(View):
         order_details = [
             SerializerCustomerOrder().get_line(item) for item in order_items
         ]
-
-        # sincronizar con proveedores
-        SyncOrdersSupplier().sync(order, order_items)
 
         result = {
             'order': {
