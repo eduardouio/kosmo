@@ -1,5 +1,5 @@
 from django.db import models
-from products.models import Product, StockDay
+from products.models import Product, StockDay, StockDetail
 from common import BaseModel
 from partners.models import Partner
 
@@ -191,26 +191,36 @@ class OrderItems(BaseModel):
         return []
 
     @classmethod
-    def get_supplier_items_by_order(cls, supplier, order):
-        line_items = cls.objects.filter(
-            order=order,
-        )
-        return line_items
+    def get_by_supplier(cls, order, supplier):
+        orders_items = cls.get_by_order(order)
+        order_items_related = []
+        for order_item in orders_items:
+            stock_detail = StockDetail.get_by_id(order_item.id_stock_detail)
+            if stock_detail.partner == supplier:
+                order_items_related.append(order_item)
+        return order_items_related
 
     @classmethod
     def get_by_order(cls, order):
         return cls.objects.filter(order=order, is_active=True)
 
     @classmethod
-    def delete_by_order(cls, order):
-        for order_item in cls.get_by_order(order):
-            order_item.is_active = False
-            order_item.save()
+    def get_by_stock_detail(cls, id_stock_detail, order):
+        return cls.objects.filter(
+            order=order,
+            id_stock_detail=id_stock_detail,
+            is_active=True
+        )
 
-            order_box_items = OrderBoxItems.get_box_items(order_item)
-            for box_item in order_box_items:
-                box_item.is_active = False
-                box_item.save()
+    @classmethod
+    def disable_order_item(cls, order_item):
+        order_item.is_active = False
+        order_item.save()
+
+        order_box_items = OrderBoxItems.get_box_items(order_item)
+        for box_item in order_box_items:
+            box_item.is_active = False
+            box_item.save()
 
     @classmethod
     def rebuild_order_item(cls, stock_detail):
