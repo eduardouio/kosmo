@@ -23,6 +23,10 @@ BOX_CHOICES = (
 )
 
 
+# -----------------------------------------------------------------------------
+# MODELO DE ORDENES
+# -----------------------------------------------------------------------------
+
 class Order(BaseModel):
     id = models.AutoField(
         primary_key=True
@@ -129,6 +133,31 @@ class Order(BaseModel):
             is_active=True
         )
 
+    @classmethod
+    def rebuild_totals(self, order):
+        total_price = 0
+        qb_total = 0
+        hb_total = 0
+        total_stem_flower = 0
+        for order_item in OrderItems.get_by_order(order):
+            total_price += order_item.line_total
+            total_stem_flower += order_item.tot_stem_flower
+            if order_item.box_model == 'QB':
+                qb_total += 1
+            elif order_item.box_model == 'HB':
+                hb_total += 1
+
+        order.total_price = total_price
+        order.qb_total = qb_total
+        order.hb_total = hb_total
+        order.total_stem_flower = total_stem_flower
+        order.save()
+
+
+# -----------------------------------------------------------------------------
+# MODELO DE ITEMS DE ORDEN
+# -----------------------------------------------------------------------------
+
 
 class OrderItems(BaseModel):
     id = models.AutoField(
@@ -226,21 +255,26 @@ class OrderItems(BaseModel):
     def rebuild_order_item(cls, stock_detail):
         box_items = OrderBoxItems.get_box_items(stock_detail)
         total_stem_flower = 0
-        total_price = 0
         line_margin = 0
         line_total = 0
         for box_item in box_items:
             total_stem_flower += box_item.qty_stem_flower
-            total_price += box_item.qty_stem_flower * box_item.stem_cost_price
-            line_margin += box_item.profit_margin
-            line_total += box_item.qty_stem_flower * \
-                box_item.stem_cost_price * box_item.profit_margin
+            line_margin += (box_item.profit_margin * box_item.qty_stem_flower)
+            line_total += (
+                box_item.qty_stem_flower * 
+                (box_item.stem_cost_price + box_item.profit_margin)
+            )
 
         stock_detail.tot_stem_flower = total_stem_flower
-        stock_detail.tot_cost_price_box = total_price
-        stock_detail.profit_margin = line_margin
+        stock_detail.line_margin = line_margin
         stock_detail.line_total = line_total
+        stock_detail.line_price = line_total - line_margin
         stock_detail.save()
+
+
+# -----------------------------------------------------------------------------
+# MODELO DE CAJAS DE ORDEN ITEM
+# -----------------------------------------------------------------------------
 
 
 class OrderBoxItems(BaseModel):

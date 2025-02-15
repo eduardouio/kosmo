@@ -11,6 +11,9 @@ BOX_CHOICES = (
     ('FB', 'FB')
 )
 
+# -----------------------------------------------------------------------------
+# STOCK DE DIA
+# -----------------------------------------------------------------------------
 
 class StockDay(BaseModel):
     id = models.AutoField(
@@ -46,6 +49,10 @@ class StockDay(BaseModel):
     def __str__(self):
         return str(self.date)
 
+
+# -----------------------------------------------------------------------------
+# MODELO DETALLE DE STOCK
+# -----------------------------------------------------------------------------
 
 class StockDetail(BaseModel):
     id = models.AutoField(
@@ -164,6 +171,11 @@ class StockDetail(BaseModel):
         stock_detail.tot_cost_price_box = total_cost_price
         stock_detail.profit_margin = total_margin
         stock_detail.save()
+
+
+# -----------------------------------------------------------------------------
+# MODELO DE CAJAS
+# -----------------------------------------------------------------------------
 
 
 class BoxItems(BaseModel):
