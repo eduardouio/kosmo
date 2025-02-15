@@ -10,7 +10,6 @@ class UpdateOrderAPI(View):
     def post(self, request):
         order_data = json.loads(request.body)
         order_items = order_data['order_details']
-        import ipdb; ipdb.set_trace()
 
         for item in order_items:
             order_detail = OrderItems.get_by_id(item['id'])
