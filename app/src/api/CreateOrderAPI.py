@@ -4,8 +4,7 @@ from django.views import View
 from trade.models import Order, OrderItems, OrderBoxItems
 from products.models import Product, StockDay
 from partners.models import Partner, Contact
-from common import SerializerCustomerOrder
-from common import SyncOrdersSupplier
+from common import SerializerCustomerOrder, SyncOrdersSupplier
 
 
 class CreateOrderAPI(View):

@@ -18,9 +18,9 @@ export const appConfig = {
     "urlUpdateStockDetail": apiBaseUrl + "/api/update_stock_detail/",
     "urlAllProducts": apiBaseUrl + "/api/products/all_products/",
     "urlAddBoxItem": apiBaseUrl + "/api/stock/add_box_item/",
-    "urlCreateOrder": apiBaseUrl + "/api/orders/create_order/",
+    "urlCreateOrder": apiBaseUrl + "/api/orders/create-customer-order/",
     "urlOrdersByStock": apiBaseUrl + `/api/orders/by_stock_day/${idStockDay}/`,
-    "urlUpdateOrder": apiBaseUrl + "/api/orders/update_order/",
+    "urlUpdateOrder": apiBaseUrl + "/api/orders/update-customer-order/",
     "urlPurchaseOrdersByCustomerOrder": apiBaseUrl + "/api/orders/purchase_orders/{id_customer_order}/",
     "headers": {
         "Accept": "application/json",

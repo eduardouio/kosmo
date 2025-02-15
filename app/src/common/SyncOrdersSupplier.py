@@ -68,7 +68,7 @@ class SyncOrdersSupplier:
         return True
 
     def update_supplier_orders(self, order_customer):
-        cus_order_items = OrderItems.get_by_ordecr(order_customer)
+        cus_order_items = OrderItems.get_by_order(order_customer)
         all_suppliers = []
         for c_ord_itm in cus_order_items:
             stock_detail = StockDetail.get_by_id(order_customer.stock_day.id)
@@ -85,8 +85,8 @@ class SyncOrdersSupplier:
                 OrderItems.disable_order_item(sup_order_item)
 
             for supplier in all_suppliers:
-                if supplier['id_supplier'].id == sup_order.partner.id:
-                    sup_order_item = OrderItems.objects.create(
+                if supplier['id_supplier'] == sup_order.partner.id:
+                    new_sup_order_item = OrderItems.objects.create(
                         order=sup_order,
                         box_model=supplier['order_item'].box_model,
                         quantity=supplier['order_item'].quantity,
@@ -104,7 +104,7 @@ class SyncOrdersSupplier:
                         supplier['order_item'])
                     for cus_box_item in cus_box_items:
                         OrderBoxItems.objects.create(
-                            order_item=sup_order_item,
+                            order_item=new_sup_order_item,
                             product=cus_box_item.product,
                             qty_stem_flower=cus_box_item.qty_stem_flower,
                             stem_cost_price=cus_box_item.stem_cost_price,
@@ -112,7 +112,7 @@ class SyncOrdersSupplier:
                             line_margin=cus_box_item.line_margin,
                             line_total=cus_box_item.line_total
                         )
-                OrderItems.rebuild_order_item(sup_order)
+                    OrderItems.rebuild_order_item(new_sup_order_item)
             Order.rebuild_totals(sup_order)
 
         Order.rebuild_totals(order_customer)
