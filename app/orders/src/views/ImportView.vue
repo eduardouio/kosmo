@@ -20,6 +20,9 @@ const profitMargin = ref(0.06);
 const appendStock = ref(true);
 const route = useRouter();
 
+// Seteamos el valor del contador a cero
+baseStore.stagesLoaded = 0;
+
 const analyzeStock = async () => {
     baseStore.stagesLoaded = 0;
     try {

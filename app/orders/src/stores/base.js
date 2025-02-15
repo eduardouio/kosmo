@@ -36,7 +36,7 @@ export const useBaseStore = defineStore("baseStore", {
         },
         suppliers:[],
         products:[],
-        isLoading: true,
+        isLoading: false,
         stagesLoaded: 0,
         idStock: appConfig.idStock,
         selectedProduct: null,

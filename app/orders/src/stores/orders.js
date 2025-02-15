@@ -46,7 +46,12 @@ export const useOrdersStore = defineStore("ordersStore", {
                     headers: appConfig.headers
                 })
                 console.log('Pedido enviado:', response.data)
-                this.orders.unshift(response.data)
+                
+                if (this.orders.length > 0) {
+                    this.orders.unshift(response.data)
+                }else{
+                    this.orders.push(response.data)
+                }
                 this.newOrder = []
                 this.selectedCustomer = null
                 return true;
