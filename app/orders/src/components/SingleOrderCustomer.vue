@@ -214,7 +214,8 @@ const totalCost = computed(() => {
 
 const totalBoxesQB = computed(() => {
   let total = 0;
-  orderStore.newOrder.forEach(item => {
+  if (!orderStore.selectedOrder || !orderStore.selectedOrder.order_details) return total;
+  orderStore.selectedOrder.order_details.forEach(item => {
     total += item.box_model === 'QB' ? parseInt(item.quantity) : 0;
   });
   return total;
@@ -222,7 +223,8 @@ const totalBoxesQB = computed(() => {
 
 const totalBoxesHB = computed(() => {
   let total = 0;
-  orderStore.newOrder.forEach(item => {
+  if (!orderStore.selectedOrder || !orderStore.selectedOrder.order_details) return total;
+  orderStore.selectedOrder.order_details.forEach(item => {
     total += item.box_model === 'HB' ? parseInt(item.quantity) : 0;
   });
   return total;
@@ -230,7 +232,8 @@ const totalBoxesHB = computed(() => {
 
 const totalStems = computed(() => {
   let total = 0;
-  orderStore.newOrder.forEach(item => {
+  if (!orderStore.selectedOrder || !orderStore.selectedOrder.order_details) return total;
+  orderStore.selectedOrder.order_details.forEach(item => {
     total += item.tot_stem_flower;
   });
   return total;
@@ -468,7 +471,7 @@ watch(() => orderStore.selectedOrder,
           <span v-if="orderStore.selectedOrder.is_confirmed">Generar Facturas</span>
           <span v-else>Generar Factura</span>
         </button>
-        <button class="btn btn-default btn-sm">Ver Factura</button>
+        <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.order.status === 'CONFIRMADO'">Ver Factura</button>
       </div>
     </div>
   </div>

@@ -120,6 +120,17 @@ const splitHB = (item) => {
       tot_stem_flower: item.tot_stem_flower / 2,
       box_model: 'QB',
     });
+  }else{
+    newDetails.push({
+      ...item,
+      tot_stem_flower: Math.floor(item.tot_stem_flower / 2),
+      box_model: 'QB',
+    });
+    newDetails.push({
+      ...item,
+      tot_stem_flower: Math.ceil(item.tot_stem_flower / 2),
+      box_model: 'QB',
+    });
   }
   newDetails.forEach((itm) => {
     if (itm.order_item_id === id) {

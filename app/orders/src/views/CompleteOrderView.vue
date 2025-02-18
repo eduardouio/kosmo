@@ -31,6 +31,7 @@ const isPurchOrderSelected = computed(() => {
 onMounted(()=>{
   baseStore.stagesLoaded = 0;
   orderStore.loadOrders(baseStore);
+  purchaseStore.getOrdersByCustomerOrder(route.params.id, baseStore);
 });
 
 onUnmounted(()=>{
@@ -39,17 +40,14 @@ onUnmounted(()=>{
 
 // Watch
 watch(()=> baseStore.stagesLoaded, (newValue) => {
-  if (newValue === 1) {
+  console.log('Caragado informacion');
+  if (newValue === 2) {
     orderStore.selectOrder(route.params.id);
-    purchaseStore.getOrdersByCustomerOrder(
-      route.params.id, baseStore
-    )
   }
 });
 
 </script>
 <template>
-  {{ baseStore.stagesLoaded }}
   <div class="row" v-if="!isAllLoaded">
     <div class="col text-center">
       <Loader />

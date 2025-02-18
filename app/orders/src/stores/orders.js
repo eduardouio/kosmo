@@ -98,6 +98,17 @@ export const useOrdersStore = defineStore("ordersStore", {
                     tot_stem_flower: item.tot_stem_flower / 2,
                     box_model: 'QB',
                 });
+            }else{
+                newOrder.push({
+                    ...item,
+                    tot_stem_flower: (item.tot_stem_flower - 1) / 2,
+                    box_model: 'QB',
+                });
+                newOrder.push({
+                    ...item,
+                    tot_stem_flower: (item.tot_stem_flower + 1) / 2,
+                    box_model: 'QB',
+                });
             }
             newOrder.forEach((itm) => {
                 if (itm.stock_detail_id === id) {
@@ -148,7 +159,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             console.log('Seleccionando pedido:', idOrder)
             this.selectedOrder = null;
             this.orders.forEach(order => {
-                if (order.order.id === idOrder) {
+                if (order.order.id === parseInt(idOrder)) {
                     order.is_selected = true;
                     this.selectedOrder = JSON.parse(JSON.stringify(order));
                     this.limitsNewOrder = order.order_details;
