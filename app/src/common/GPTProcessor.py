@@ -1,6 +1,7 @@
 import openai
 import json
 from common.secrets import GPT_API_KEY
+from common import Logger
 
 
 class GPTProcessor:

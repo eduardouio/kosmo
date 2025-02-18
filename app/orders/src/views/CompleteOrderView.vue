@@ -1,34 +1,64 @@
 <script setup>
-import { computed, onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { useBaseStore } from '@/stores/base';
 import SingleOrderCustomer from '@/components/SingleOrderCustomer.vue';
 import SingleOrderSuplier from '@/components/SingleOrderSuplier.vue';
 import { usePurchaseStore } from  '@/stores/purcharses';
 import { useOrdersStore } from '@/stores/orders';
-import PurchaseOrdersList from './PurchaseOrdersList.vue';
+import PurchaseOrdersList from '@/components/PurchaseOrdersList.vue';
 import {  IconShoppingCartUp, IconShoppingCartDown } from '@tabler/icons-vue';
+import Loader from '@/components/Loader.vue';
 
+const baseStore = useBaseStore();
 const orderStore = useOrdersStore();
 const purchaseStore = usePurchaseStore();
+const route = useRoute();
 
-// computed
+orderStore.selectOrder(route.params.id);
+
+// Computed
+const isAllLoaded = computed(() => {
+    return baseStore.stagesLoaded === 2;
+})
+
+
 const isPurchOrderSelected = computed(() => {
     return Boolean(Object.keys(purchaseStore.purcharses_by_order).length);
 });
 
 // Mounted
 onMounted(()=>{
-  purchaseStore.getOrdersByCustomerOrder(
-    orderStore.selectedOrder.order.id
-  )
+  baseStore.stagesLoaded = 0;
+  orderStore.loadOrders(baseStore);
 });
 
 onUnmounted(()=>{
   purchaseStore.purcharses_by_order = [];
 });
 
+// Watch
+watch(()=> baseStore.stagesLoaded, (newValue) => {
+  if (newValue === 1) {
+    orderStore.selectOrder(route.params.id);
+    purchaseStore.getOrdersByCustomerOrder(
+      route.params.id, baseStore
+    )
+  }
+});
+
 </script>
 <template>
-    <div class="row m-3 bg-gray-100">
+  {{ baseStore.stagesLoaded }}
+  <div class="row" v-if="!isAllLoaded">
+    <div class="col text-center">
+      <Loader />
+      <h6 class="text-blue-600">
+        {{ baseStore.stagesLoaded }} / 2
+      </h6>
+    </div>
+  </div>
+    <div class="row m-3 bg-gray-100" v-else>
 <nav>
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
     <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
@@ -47,7 +77,7 @@ onUnmounted(()=>{
 </nav>
 <div class="tab-content" id="nav-tabContent">
   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-    <SingleOrderCustomer/>
+  <SingleOrderCustomer v-if="isAllLoaded" :key="route.params.id"/>
   </div>
   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
     <PurchaseOrdersList/>

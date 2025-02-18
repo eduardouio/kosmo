@@ -7,11 +7,6 @@ export const usePurchaseStore = defineStore("purchaseStore", {
     purcharses_by_order: [],
     selectedPurchase: {},
     sales: [],
-    showViews: {
-      listOrders: true,
-      newOrder: false,
-      singleOrder: false,
-    },
   }),
   actions: {
     async loadSales(baseStore) {
@@ -31,7 +26,8 @@ export const usePurchaseStore = defineStore("purchaseStore", {
         alert(`Hubo un error al cargar las ventas: ${error.message}`);
       }
     },
-    async getOrdersByCustomerOrder(idCusomtrerOrder) {
+    async getOrdersByCustomerOrder(idCusomtrerOrder, baseStore) {
+      console.log("Cargando detalle de orden de compra...");
       this.purcharses_by_order = [];
       try {
         const response = await axios.get(
@@ -43,6 +39,7 @@ export const usePurchaseStore = defineStore("purchaseStore", {
         );
         this.purcharses_by_order = response.data;
         console.log("Detalle de orde de compra" + response.data);
+        baseStore.stagesLoaded++;
       } catch(error) {
         console.error("Error al cargar las ventas:", error);
         alert(

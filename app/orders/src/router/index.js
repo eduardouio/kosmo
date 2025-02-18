@@ -3,6 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import ImportView from '@/views/ImportView.vue'
 import OrdersView from '@/views/OrdersView.vue'
 import PurchasesView from '@/views/PurchasesView.vue'
+import CompleteOrderView from '@/views/CompleteOrderView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -19,13 +20,18 @@ const router = createRouter({
     },
     {
       path: '/customer-orders/',
-      name: 'customer_orders',
+      name: 'customerOrders',
       component: OrdersView,
     },
     {
       path: '/suppliers-orders/',
-      name: 'suppliers_orders',
+      name: 'suppliersOrders',
       component: PurchasesView,
+    },
+    {
+      path: '/order-detail/:id/',
+      name: 'customerOrderDetail',
+      component: CompleteOrderView,
     },
   ],
 })

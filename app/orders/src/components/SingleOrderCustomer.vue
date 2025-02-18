@@ -1,7 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useOrdersStore } from '@/stores/orders';
-import { useBaseStore } from '@/stores/base';
 import { 
     IconTrash,
     IconCheckbox,
@@ -14,7 +13,6 @@ import {
 } from '@tabler/icons-vue';
 
 const orderStore = useOrdersStore();
-const baseStore = useBaseStore();
 const confirmDelete = ref(false);
 const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');

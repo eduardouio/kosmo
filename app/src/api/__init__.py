@@ -7,6 +7,6 @@ from .AllProductsAPI import AllProductsAPI
 from .AddBoxItemAPI import AddBoxItemAPI
 from .AllCustomerAPI import AllCustomerAPI
 from .CreateOrderAPI import CreateOrderAPI
-from .OrderDetailAPI import OrderDetailAPI
 from .UpdateCustmerOrderAPI import UpdateCustmerOrderAPI
 from .OrderPurchaseByOrderSale import OrderPurchaseByOrderSale
+from .AllOrderDetailAPI import AllOrderDetailAPI

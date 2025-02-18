@@ -1,11 +1,11 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
 import { useStockStore } from '@/stores/stock';
 import Loader from '@/components/Loader.vue';
 import OrderPreview from '@/components/OrderPreview.vue';
-import ContainerOrderGroup from '@/components/ContainerOrderGroup.vue';
 import { 
     IconAlertCircle,
     IconClockHour9,
@@ -19,13 +19,11 @@ import {
 const baseStore = useBaseStore();
 const stockStore = useStockStore();
 const ordersStore = useOrdersStore();
-
+const router = useRouter();
 
 const selectOrder = (id) => {
-    ordersStore.selectOrder(id);
-    ordersStore.changeView('singleOrder');
+    router.push({ name: 'customerOrderDetail', params: { id: id } });
 }
-
 
 // COMPUTED
 const isAllLoaded = computed(() => {
@@ -180,9 +178,6 @@ onMounted(() => {
                         </table>
                     </div>
                 </div>
-            </div>
-            <div class="row" v-if="ordersStore.showViews.singleOrder">
-                <ContainerOrderGroup />     
             </div>
         </div>
     </div>

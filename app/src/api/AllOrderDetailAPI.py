@@ -5,7 +5,7 @@ from common import SerializerCustomerOrder
 from partners.models import Contact
 
 
-class OrderDetailAPI(View):
+class AllOrderDetailAPI(View):
     def get(self, request, id_stock_day, *args, **kwargs):
         if request.GET.get('type') == 'purchase':
             orders = Order.get_sales_by_stock_day(id_stock_day)

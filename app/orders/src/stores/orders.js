@@ -46,11 +46,12 @@ export const useOrdersStore = defineStore("ordersStore", {
                     headers: appConfig.headers
                 })
                 console.log('Pedido enviado:', response.data)
-                
-                if (this.orders.length > 0) {
-                    this.orders.unshift(response.data)
-                }else{
-                    this.orders.push(response.data)
+                if (Array.isArray(this.orders)) {
+                    if (this.orders.length > 0) {
+                        this.orders.unshift(response.data)
+                    }else{
+                        this.orders.push(response.data)
+                    }   
                 }
                 this.newOrder = []
                 this.selectedCustomer = null
@@ -61,6 +62,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             }
         },
         async loadOrders(baseStore) {
+            console.log('Cargando pedidos de clientes...');
             if (this.orders.length > 0) {
                 baseStore.stagesLoaded++;
                 return
@@ -70,9 +72,11 @@ export const useOrdersStore = defineStore("ordersStore", {
                 const response = await axios.get(appConfig.urlOrdersByStock + '?type=purchase')
                 this.orders = response.data
                 baseStore.stagesLoaded++;
+                return true;
             } catch (error) {
                 console.error('Error al cargar los pedidos:', error)
                 alert(`Hubo un error al cargar los pedidos: ${error.message}`)
+                return false;
             }
         },
         setLimits(orderDetail) {
@@ -141,6 +145,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             }
         },
         selectOrder(idOrder){
+            console.log('Seleccionando pedido:', idOrder)
             this.selectedOrder = null;
             this.orders.forEach(order => {
                 if (order.order.id === idOrder) {
@@ -151,6 +156,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                     order.is_selected = false;
                 }
             });
+            console.log('Pedido seleccionado:', this.selectedOrder);
         },
         async updateOrder(){
             try {
