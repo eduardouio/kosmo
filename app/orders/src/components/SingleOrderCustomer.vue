@@ -226,8 +226,7 @@ const totalCost = computed(() => {
 
 const totalBoxesQB = computed(() => {
   let total = 0;
-  if (!orderStore.selectedOrder || !orderStore.selectedOrder.order_details) return total;
-  orderStore.selectedOrder.order_details.forEach(item => {
+  orderStore.newOrder.forEach(item => {
     total += item.box_model === 'QB' ? parseInt(item.quantity) : 0;
   });
   return total;
@@ -235,8 +234,7 @@ const totalBoxesQB = computed(() => {
 
 const totalBoxesHB = computed(() => {
   let total = 0;
-  if (!orderStore.selectedOrder || !orderStore.selectedOrder.order_details) return total;
-  orderStore.selectedOrder.order_details.forEach(item => {
+  orderStore.newOrder.forEach(item => {
     total += item.box_model === 'HB' ? parseInt(item.quantity) : 0;
   });
   return total;
@@ -244,8 +242,7 @@ const totalBoxesHB = computed(() => {
 
 const totalStems = computed(() => {
   let total = 0;
-  if (!orderStore.selectedOrder || !orderStore.selectedOrder.order_details) return total;
-  orderStore.selectedOrder.order_details.forEach(item => {
+  orderStore.newOrder.forEach(item => {
     total += item.tot_stem_flower;
   });
   return total;
@@ -461,7 +458,7 @@ watch(() => orderStore.selectedOrder,
     </div>
     <div class="row mt-3 border-top pt-3">
       <div class="col-4">
-        <button type="button" class="btn btn-sm btn-default text-danger" @click="updateOrder('cancell')">
+        <button type="button" class="btn btn-sm btn-default text-danger d-flex align-items-center gap-1" @click="updateOrder('cancell')">
           <IconBan size="20" stroke="1.5" />
           <span v-if="orderStore.selectedOrder.is_cancelled">Confirmar Cancelación</span>
           <span v-else=""> Cancelar Pedido </span>
@@ -469,19 +466,13 @@ watch(() => orderStore.selectedOrder,
       </div>
       <div class="col-8 text-end d-flex gap-3 justify-content-end">
         <span class="ps-4 pe-4"></span>
-        <button type="button" class="btn btn-sm btn-default" @click="orderStore.changeView('listOrders')">
-          <IconArrowLeft size="20" stroke="1.5" />
-          Salir
-        </button>
         <button type="button" class="btn btn-sm btn-default" @click="updateOrder('update')" :disabled="orderHaveCeroItem" v-if="isModified">
           <IconRefresh size="20" stroke="1.5" />
           <span v-if="orderStore.selectedOrder.is_modified">Confirmar Actualización</span>
           <span v-else>Actualizar</span>
         </button>
-        <button type="button" class="btn btn-sm btn-default" @click="updateOrder('confirm')" :disabled="orderHaveCeroItem" v-if="orderStore.selectedOrder.order.status === 'PENDIENTE'">
-          <IconCheckbox size="20" stroke="1.5" />
-          <span v-if="orderStore.selectedOrder.is_confirmed">Generar Facturas</span>
-          <span v-else>Generar Factura</span>
+        <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.order.status === 'CONFIRMADO'">
+          Ver Factura
         </button>
         <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.order.status === 'CONFIRMADO'">Ver Factura</button>
       </div>
@@ -489,10 +480,6 @@ watch(() => orderStore.selectedOrder,
   </div>
 </template>
 <style scoped>
-input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-}
 
 .my-input,
 .my-input-2,

@@ -7,7 +7,7 @@ import SingleOrderSuplier from '@/components/SingleOrderSuplier.vue';
 import { usePurchaseStore } from  '@/stores/purcharses';
 import { useOrdersStore } from '@/stores/orders';
 import PurchaseOrdersList from '@/components/PurchaseOrdersList.vue';
-import {  IconShoppingCartUp, IconShoppingCartDown } from '@tabler/icons-vue';
+import {  IconShoppingCartUp, IconShoppingCartDown, IconArrowLeft } from '@tabler/icons-vue';
 import Loader from '@/components/Loader.vue';
 
 const baseStore = useBaseStore();
@@ -48,6 +48,7 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
 
 </script>
 <template>
+  <div>
   <div class="row" v-if="!isAllLoaded">
     <div class="col text-center">
       <Loader />
@@ -56,7 +57,7 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
       </h6>
     </div>
   </div>
-    <div class="row m-3 bg-gray-100" v-else>
+<div class="row m-3 bg-gray-100" v-else>
 <nav>
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
     <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
@@ -83,4 +84,13 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
   </div>
 </div>
     </div>
+    <div class="row">
+      <div class="col d-flex justify-content-end">
+        <button @click="$router.go(-1)" class="btn btn-default btn-sm">
+          <IconArrowLeft stroke ="1.5" size="20" />
+      Volver a Listado
+    </button>
+      </div>
+    </div>
+  </div>
 </template>

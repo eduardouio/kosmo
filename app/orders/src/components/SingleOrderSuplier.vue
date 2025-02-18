@@ -14,15 +14,12 @@ import {
 } from '@tabler/icons-vue';
 
 const purchaseStore = usePurchaseStore();
-const baseStore = useBaseStore();
 
 const confirmDelete = ref(false);
 const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será eliminado del pedido, haga clic nuevamente para confirmar');
 const exceedLimitMessage = ref('');
 const isModified = ref(false);
-
-const selectedPurchase = purchaseStore.selectedPurchase;
 
 // Métodos
 const calcTotalByItem = (item) => {
@@ -60,7 +57,7 @@ const selectText = (event) => {
 const deleteOrderItem = (item) => {
   if (item.confirm_delete) {
     // Eliminamos el item del array order_details de la orden seleccionada
-    selectedPurchase.order_details = selectedPurchase.order_details.filter(
+    purchaseStore.selectedPurchase.order_details = purchaseStore.selectedPurchase.order_details.filter(
       (i) => i.order_item_id !== item.order_item_id
     );
   } else {
@@ -103,7 +100,7 @@ const formatInteger = (event) => {
 
 // Métodos para dividir y unificar
 const splitHB = (item) => {
-  const newDetails = selectedPurchase.order_details.filter(
+  const newDetails = purchaseStore.selectedPurchase.order_details.filter(
     (i) => i.order_item_id !== item.order_item_id
   );
   const stem_flower = item.box_items.map((i) => i.qty_stem_flower);
@@ -140,11 +137,11 @@ const splitHB = (item) => {
     }
   });
 
-  selectedPurchase.order_details = newDetails.map((i) => ({ ...i }));
+  purchaseStore.selectedPurchase.order_details = newDetails.map((i) => ({ ...i }));
 };
 
 const mergeQB = () => {
-  const selectedQBs = selectedPurchase.order_details.filter(
+  const selectedQBs = purchaseStore.selectedPurchase.order_details.filter(
     (i) => i.box_model === 'QB' && i.is_selected
   );
   if (selectedQBs.length < 2) return;
@@ -176,11 +173,11 @@ const mergeQB = () => {
     }, {})
   );
 
-  selectedPurchase.order_details = selectedPurchase.order_details
+  purchaseStore.selectedPurchase.order_details = purchaseStore.selectedPurchase.order_details
     .filter((i) => !i.is_selected)
     .map((i) => ({ ...i }));
 
-  selectedPurchase.order_details.push({
+  purchaseStore.selectedPurchase.order_details.push({
     ...newOrderItem,
     box_items: groupedBoxItems,
   });
@@ -189,26 +186,26 @@ const mergeQB = () => {
 const updateOrder = (action) => {
   switch (action) {
     case 'confirm':
-      if (selectedPurchase.is_confirmed) {
-        selectedPurchase.order.status = 'CONFIRMADO';
+      if (purchaseStore.selectedPurchase.is_confirmed) {
+        purchaseStore.selectedPurchase.order.status = 'CONFIRMADO';
         // Aquí podrías llamar a tu método para actualizar en backend
       } else {
-        selectedPurchase.is_confirmed = true;
+        purchaseStore.selectedPurchase.is_confirmed = true;
       }
       break;
     case 'update':
-      if (selectedPurchase.is_modified) {
+      if (purchaseStore.selectedPurchase.is_modified) {
         // Aquí podrías llamar a tu método para actualizar en backend
       } else {
-        selectedPurchase.is_modified = true;
+        purchaseStore.selectedPurchase.is_modified = true;
       }
       break;
     case 'cancell':
-      if (selectedPurchase.is_cancelled) {
-        selectedPurchase.order.status = 'CANCELADO';
+      if (purchaseStore.selectedPurchase.is_cancelled) {
+        purchaseStore.selectedPurchase.order.status = 'CANCELADO';
         // Aquí podrías llamar a tu método para actualizar en backend
       } else {
-        selectedPurchase.is_cancelled = true;
+        purchaseStore.selectedPurchase.is_cancelled = true;
       }
       break;
   }
@@ -216,16 +213,16 @@ const updateOrder = (action) => {
 
 // Propiedades computadas
 const isTwoQBSelected = computed(() => {
-  let qb = selectedPurchase.order_details.filter(
+  let qb = purchaseStore.selectedPurchase.order_details.filter(
     (i) => i.box_model === 'QB' && i.is_selected
   );
   return qb.length === 2;
 });
 
 const totalMargin = computed(() => {
-  if (!selectedPurchase.order_details) return 0;
+  if (!purchaseStore.selectedPurchase.order_details) return 0;
   let total = 0;
-  selectedPurchase.order_details.forEach((detail) => {
+  purchaseStore.selectedPurchase.order_details.forEach((detail) => {
     total += detail.box_items.reduce((acc, bItem) => {
       return acc + parseFloat(bItem.margin) * parseFloat(bItem.qty_stem_flower);
     }, 0);
@@ -234,9 +231,9 @@ const totalMargin = computed(() => {
 });
 
 const totalCost = computed(() => {
-  if (!selectedPurchase.order_details) return 0;
+  if (!purchaseStore.selectedPurchase.order_details) return 0;
   let total = 0;
-  selectedPurchase.order_details.forEach((detail) => {
+  purchaseStore.selectedPurchase.order_details.forEach((detail) => {
     total += detail.box_items.reduce((acc, bItem) => {
       return acc + parseFloat(bItem.stem_cost_price) * parseFloat(bItem.qty_stem_flower);
     }, 0);
@@ -245,50 +242,43 @@ const totalCost = computed(() => {
 });
 
 const totalBoxesQB = computed(() => {
-  if (!selectedPurchase.order_details) return 0;
+  if (!purchaseStore.selectedPurchase.order_details) return 0;
   let total = 0;
-  selectedPurchase.order_details.forEach((item) => {
+  purchaseStore.selectedPurchase.order_details.forEach((item) => {
     total += item.box_model === 'QB' ? parseInt(item.quantity) : 0;
   });
   return total;
 });
 
 const totalBoxesHB = computed(() => {
-  if (!selectedPurchase.order_details) return 0;
+  if (!purchaseStore.selectedPurchase.order_details) return 0;
   let total = 0;
-  selectedPurchase.order_details.forEach((item) => {
+  purchaseStore.selectedPurchase.order_details.forEach((item) => {
     total += item.box_model === 'HB' ? parseInt(item.quantity) : 0;
   });
   return total;
 });
 
 const totalStems = computed(() => {
-  if (!selectedPurchase.order_details) return 0;
+  if (!purchaseStore.selectedPurchase.order_details) return 0;
   let total = 0;
-  selectedPurchase.order_details.forEach((item) => {
+  purchaseStore.selectedPurchase.order_details.forEach((item) => {
     total += item.tot_stem_flower || 0;
   });
   return total;
 });
 
 const orderHaveCeroItem = computed(() => {
-  if (!selectedPurchase.order_details) {
+  if (!purchaseStore.selectedPurchase.order_details) {
     return false;
   }
 
-  for (const item of selectedPurchase.order_details) {
+  for (const item of purchaseStore.selectedPurchase.order_details) {
     let ceroBoxesStem = item.box_items.filter((bItem) => bItem.qty_stem_flower === 0);
     let ceroBoxesCost = item.box_items.filter((bItem) => bItem.stem_cost_price === 0);
 
     if (ceroBoxesStem.length > 0 || ceroBoxesCost.length > 0) {
       exceedLimitMessage.value = 'No se permiten items con cantidad 0 o costo 0';
-      exceedLimit.value = true;
-      return true;
-    }
-
-    // Ajustar si tu store tiene selectedCustomer
-    if (!purchaseStore.selectedCustomer) {
-      exceedLimitMessage.value = 'Debe seleccionar un cliente';
       exceedLimit.value = true;
       return true;
     }
@@ -299,11 +289,19 @@ const orderHaveCeroItem = computed(() => {
   return false;
 });
 
+// watchers
+
+watch(()=> purchaseStore.selectedPurchase, (newValue) => {
+  isModified.value = true,
+  { deep: true }
+});
+
 </script>
 
 <template>
-  <div class="container-fluid p-3" v-if="selectedPurchase.order">
+  <div class="container-fluid p-3" v-if="purchaseStore.selectedPurchase.order">
     <div class="row">
+      {{ purchaseStore.selectedPurchase.is_modified }}
       <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
         <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
         <span v-if="confirmDelete">
@@ -318,51 +316,51 @@ const orderHaveCeroItem = computed(() => {
       <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white">
         <div class="row">
           <div class="col-4 fs-4">
-            {{ selectedPurchase.order.partner.name }}
+            {{ purchaseStore.selectedPurchase.order.partner.name }}
           </div>
           <div class="col-8 text-end fs-6">
             <span class="bordered rounded-1 bg-white text-dark ps-2 pe-2">
-              Pedido {{ selectedPurchase.order.id }}
+              Pedido {{ purchaseStore.selectedPurchase.order.id }}
             </span>
             <span class="pe-1 ps-1"></span>
             <span class="bordered rounded-1 bg-white text-dark ps-2 pe-2">
-              {{ selectedPurchase.order.status }}
+              {{ purchaseStore.selectedPurchase.order.status }}
             </span>
           </div>
         </div>
         <div class="row">
           <div class="col-1 text-end">ID:</div>
-          <div class="col-1">{{ selectedPurchase.order.partner.business_tax_id }}</div>
+          <div class="col-1">{{ purchaseStore.selectedPurchase.order.partner.business_tax_id }}</div>
           <div class="col-1 text-end">Dir:</div>
           <div class="col-6">
-            {{ selectedPurchase.order.partner.address }}
-            {{ selectedPurchase.order.partner.city }}
+            {{ purchaseStore.selectedPurchase.order.partner.address }}
+            {{ purchaseStore.selectedPurchase.order.partner.city }}
           </div>
           <div class="col-1 text-end">Skype:</div>
-          <div class="col-2">{{ selectedPurchase.order.partner.skype }}</div>
+          <div class="col-2">{{ purchaseStore.selectedPurchase.order.partner.skype }}</div>
         </div>
         <div class="row pt-1">
           <div class="col-1 text-end">Contacto:</div>
-          <div class="col-8 d-flex gap-2" v-if="selectedPurchase.order.partner.contact">
-            <span>{{ selectedPurchase.order.partner.contact.name }}</span>
-            <span>{{ selectedPurchase.order.partner.contact.email }}</span>
-            <span>{{ selectedPurchase.order.partner.contact.phone }}</span>
+          <div class="col-8 d-flex gap-2" v-if="purchaseStore.selectedPurchase.order.partner.contact">
+            <span>{{ purchaseStore.selectedPurchase.order.partner.contact.name }}</span>
+            <span>{{ purchaseStore.selectedPurchase.order.partner.contact.email }}</span>
+            <span>{{ purchaseStore.selectedPurchase.order.partner.contact.phone }}</span>
             <span class="badge bg-green-600">
-              {{ selectedPurchase.order.partner.contact.contact_type }}
+              {{ purchaseStore.selectedPurchase.order.partner.contact.contact_type }}
             </span>
           </div>
           <div class="col-1 text-end fw-semibold">
             Consolida:
           </div>
           <div class="col-2">
-            {{ selectedPurchase.order.partner.consolidate ? 'Si' : 'No' }}
+            {{ purchaseStore.selectedPurchase.order.partner.consolidate ? 'Si' : 'No' }}
           </div>
         </div>
       </div>
     </div>
     <div class="row pb-2 pt-2">
       <div class="col-8">
-        <span class="text-danger" v-if="selectedPurchase.is_modified">
+        <span class="text-danger" v-if="purchaseStore.selectedPurchase.is_modified">
           Orden de Compra Modificada, si actualiza el pedido se actualizarán la o las ordenes de compra
         </span>
       </div>
@@ -397,7 +395,7 @@ const orderHaveCeroItem = computed(() => {
       <div class="col-1 fw-bold fs-6 bg-kosmo-green">C/USD</div>
     </div>
     <div
-      v-for="(item, idx) in selectedPurchase.order_details"
+      v-for="(item, idx) in purchaseStore.selectedPurchase.order_details"
       :key="item.order_item_id"
       class="row mb-1 border my-hover-2"
       :class="{ 'bg-gray': idx % 2 === 0 }"
@@ -515,7 +513,7 @@ const orderHaveCeroItem = computed(() => {
           @click="updateOrder('cancell')"
         >
           <IconBan size="20" stroke="1.5" />
-          <span v-if="selectedPurchase.is_cancelled">
+          <span v-if="purchaseStore.selectedPurchase.is_cancelled">
             Confirmar Cancelación
           </span>
           <span v-else> Cancelar Pedido </span>
@@ -523,17 +521,7 @@ const orderHaveCeroItem = computed(() => {
       </div>
       <div class="col-8 text-end d-flex gap-3 justify-content-end">
         <span class="ps-4 pe-4"></span>
-        <button
-          type="button"
-          class="btn btn-sm btn-default"
-          @click="() => {
-            purchaseStore.showViews.listOrders = true;
-            purchaseStore.showViews.singleOrder = false;
-          }"
-        >
-          <IconArrowLeft size="20" stroke="1.5" />
-          Salir
-        </button>
+
         <button
           type="button"
           class="btn btn-sm btn-default"
@@ -542,7 +530,7 @@ const orderHaveCeroItem = computed(() => {
           v-if="isModified"
         >
           <IconRefresh size="20" stroke="1.5" />
-          <span v-if="selectedPurchase.is_modified">
+          <span v-if="purchaseStore.selectedPurchase.is_modified">
             Confirmar Actualización
           </span>
           <span v-else>Actualizar</span>
@@ -552,23 +540,21 @@ const orderHaveCeroItem = computed(() => {
           class="btn btn-sm btn-default"
           @click="updateOrder('confirm')"
           :disabled="orderHaveCeroItem"
-          v-if="selectedPurchase.order.status === 'PENDIENTE'"
+          v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
         >
           <IconCheckbox size="20" stroke="1.5" />
-          <span v-if="selectedPurchase.is_confirmed">Generar Facturas</span>
-          <span v-else>Generar Factura</span>
+          <span>Generar Factura</span>
         </button>
-        <button class="btn btn-default btn-sm">Ver Factura</button>
+        <button class="btn btn-default btn-sm">
+          <IconCheckbox size="20" stroke="1.5" />
+          Confirmar Pedido
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
-}
 
 .my-input,
 .my-input-2,
