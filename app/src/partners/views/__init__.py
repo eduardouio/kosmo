@@ -20,7 +20,7 @@ from partners.views.Contact import (
     ContactDeleteView,
 )
 
-from partners.views.DAE import (
+from app.src.partners.views.DAEPartners import (
     DAECreateView,
     DAEUpdateView,
     DAEDeleteView,
