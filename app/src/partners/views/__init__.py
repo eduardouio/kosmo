@@ -1,4 +1,4 @@
-from PartnerCreateUpdate import (
+from .PartnerCreateUpdate import (
     PartnerCreateView,
     PartnerUpdateView,
     PartnerUpdateParent,
@@ -28,7 +28,7 @@ from .DAEPartners import (
     DAEDetailView,
 )
 
-from PartnerDelete import PartnerDeleteView
-from PartnerDetail import PartnerDetailView
-from PartnerList import PartnerListView
-from PartnerAutoRegister import PartnerAutoRegister
+from .PartnerDelete import PartnerDeleteView
+from .PartnerDetail import PartnerDetailView
+from .PartnerList import PartnerListView
+from .PartnerAutoRegister import PartnerAutoRegister
