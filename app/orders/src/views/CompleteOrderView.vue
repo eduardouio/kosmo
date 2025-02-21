@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onUnmounted, watch } from 'vue';
+import { computed, onMounted, onUnmounted, watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBaseStore } from '@/stores/base';
 import SingleOrderCustomer from '@/components/SingleOrderCustomer.vue';
@@ -16,6 +16,7 @@ const purchaseStore = usePurchaseStore();
 const route = useRoute();
 
 orderStore.selectOrder(route.params.id);
+const selectedTab = ref('customer');
 
 // Computed
 const isAllLoaded = computed(() => {
@@ -40,8 +41,8 @@ onUnmounted(()=>{
 
 // Watch
 watch(()=> baseStore.stagesLoaded, (newValue) => {
-  console.log('Caragado informacion');
   if (newValue === 2) {
+    console.log('Seleccionado Pedido Activo')
     orderStore.selectOrder(route.params.id);
   }
 });
@@ -60,12 +61,12 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
 <div class="row m-3 bg-gray-100" v-else>
 <nav>
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
-    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
+    <button class="nav-link border p-3 active bg-blue-100" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
         <IconShoppingCartUp  stroke ="1.5" size="20" />
         Orden de Venta
         <span class="badge bg-secondary">Pendiente</span>
     </button>
-    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+    <button class="nav-link border p-3 bg-orange-100" id="nav-profile-tab"  data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
         <IconShoppingCartDown  stroke ="1.5" size="20" />
         Ordenes de Compra
         <span class="badge bg-secondary">

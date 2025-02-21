@@ -3,13 +3,22 @@ from django.views import View
 from trade.models import Order, OrderItems
 from common import SerializerCustomerOrder
 from partners.models import Contact
+from common.AppLoger import logging_message
 
 
 class AllOrderDetailAPI(View):
     def get(self, request, id_stock_day, *args, **kwargs):
         if request.GET.get('type') == 'purchase':
+            logging_message(
+                'Obteniendo todas las compras de stock #{}'.format(
+                    id_stock_day
+                )
+            )
             orders = Order.get_sales_by_stock_day(id_stock_day)
         else:
+            logging_message(
+                'Obteniendo todas las ventas de stock #{}'.format(id_stock_day)
+            )
             orders = Order.get_purchases_by_stock_day(id_stock_day)
 
         if len(orders) == 0:
@@ -76,6 +85,8 @@ class AllOrderDetailAPI(View):
                 )
 
             all_orders.append(item_order)
+
+        logging_message('Ordenes obtenidas de stock #{}'.format(id_stock_day))
 
         return JsonResponse(
             all_orders,

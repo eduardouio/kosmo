@@ -1,22 +1,14 @@
 import openai
 import json
 from common.secrets import GPT_API_KEY
-from common import Logger
+from common.AppLoger import logging_message, logging_error
 
 
 class GPTProcessor:
-    _instance = None
     _api_key = GPT_API_KEY
 
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(GPTProcessor, cls).__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-
     def __init__(self):
-        if self._initialized:
-            return
+        logging_message('Inicializando GPTProcessor')
         self.client = openai.OpenAI(api_key=self._api_key)
         self.dispo = ''
         self.assistant = self.client.beta.assistants.retrieve(
@@ -26,6 +18,8 @@ class GPTProcessor:
         self._initialized = True
 
     def process_text(self, dispo):
+        logging_message('Procesando texto')
+        logging_message(dispo)
         self.dispo = dispo
         try:
             run = self.client.beta.threads.runs.create_and_poll(
@@ -41,8 +35,6 @@ class GPTProcessor:
             data = data[next(iter(data.keys()))]
             return data
         except Exception as e:
-            import ipdb; ipdb.set_trace()
-            print('------------------')
-            print(messages['data'][0]['content'][0]['text']['value'])
-            print('------------------')
+            logging_error('Error al procesar texto: {}'.format(str(e)))
+            logging_error(messages['data'][0]['content'][0]['text']['value'])
             raise Exception('Error al procesar texto: {}'.format(str(e)))

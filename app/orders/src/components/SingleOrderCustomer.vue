@@ -3,12 +3,10 @@ import { computed, ref, watch } from 'vue';
 import { useOrdersStore } from '@/stores/orders';
 import { 
     IconTrash,
-    IconCheckbox,
     IconSitemap,
     IconBan,
     IconLayersIntersect2, 
     IconAlertTriangle,
-    IconArrowLeft,
     IconRefresh,
 } from '@tabler/icons-vue';
 

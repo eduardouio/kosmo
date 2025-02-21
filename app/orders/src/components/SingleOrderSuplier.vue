@@ -1,7 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { usePurchaseStore } from '@/stores/purcharses';
-import { useBaseStore } from '@/stores/base';
 import {
   IconTrash,
   IconCheckbox,
@@ -9,7 +8,6 @@ import {
   IconBan,
   IconLayersIntersect2,
   IconAlertTriangle,
-  IconArrowLeft,
   IconRefresh,
 } from '@tabler/icons-vue';
 
@@ -291,17 +289,17 @@ const orderHaveCeroItem = computed(() => {
 
 // watchers
 
-watch(()=> purchaseStore.selectedPurchase, (newValue) => {
-  isModified.value = true,
-  { deep: true }
-});
-
+watch(()=> purchaseStore.selectedPurchase, 
+(newValue) => {
+  isModified.value = true;
+}, { deep: true }
+);
 </script>
 
 <template>
   <div class="container-fluid p-3" v-if="purchaseStore.selectedPurchase.order">
     <div class="row">
-      {{ purchaseStore.selectedPurchase.is_modified }}
+      {{ isModified }}
       <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
         <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
         <span v-if="confirmDelete">

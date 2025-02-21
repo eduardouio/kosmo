@@ -6,6 +6,7 @@ export const usePurchaseStore = defineStore("purchaseStore", {
   state: () => ({
     purcharses_by_order: [],
     selectedPurchase: {},
+    limitsSelectedPurchase: [],
     sales: [],
   }),
   actions: {

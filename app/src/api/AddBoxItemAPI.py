@@ -2,10 +2,12 @@ import json
 from django.http import JsonResponse
 from django.views.generic import View
 from products.models import StockDetail, BoxItems, Product
+from common.AppLoger import logging_message
 
 
 class AddBoxItemAPI(View):
     def post(self, request, *args, **kwargs):
+        logging_message('Agregando cajas al item')
         request_data = json.loads(request.body)
         product = Product.get_by_id(request_data['product_id'])
         stock_detail = StockDetail.get_by_id(request_data['stock_detail_id'])
@@ -22,6 +24,7 @@ class AddBoxItemAPI(View):
         )
         StockDetail.rebuild_stock_detail(stock_detail)
 
+        logging_message('Caja Agregada al item')
         return JsonResponse(
             {
                 'message': 'Item added to box',

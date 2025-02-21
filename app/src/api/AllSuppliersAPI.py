@@ -2,11 +2,13 @@ from django.http import JsonResponse
 from django.views import View
 from partners.models import Partner, Contact
 from products.models import StockDetail, StockDay
+from common.AppLoger import logging_message
 
 
 class AllSuppliersAPI(View):
 
     def get(self, request, *args, **kwargs):
+        logging_message('Obteniendo todos los proveedores')
         id_stock = request.GET.get('id_stock', None)
         stock_day = StockDay.get_by_id(id_stock)
         suppliers = Partner.get_suppliers()
@@ -73,5 +75,6 @@ class AllSuppliersAPI(View):
                 'related_partners': related_customers
             }
             result_dict.append(item)
-
+        
+        logging_message('Proveedores obtenidos')
         return JsonResponse(result_dict, safe=False)
