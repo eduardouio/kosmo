@@ -40,6 +40,7 @@ class GPTProcessor:
             data = data[next(iter(data.keys()))]
             return data
         except Exception as e:
+            if 'thread_messages' in locals():
+                logging_error(f"Contenido del mensaje: {thread_messages}")
             logging_error('Error al procesar texto: {}'.format(str(e)))
-            logging_error(messages['data'][0]['content'][0]['text']['value'])
             raise Exception('Error al procesar texto: {}'.format(str(e)))
