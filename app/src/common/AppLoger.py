@@ -10,7 +10,7 @@ def check_file():
         os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
         if not os.path.exists(LOG_FILE_PATH):
             with open(LOG_FILE_PATH, "w") as file:
-                pass  # Crear el archivo si no existe
+                pass  
         return True
     except IOError as e:
         print(f"Error al crear el archivo: {e}")
