@@ -159,6 +159,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN = '/accounts/login/'
+
 CSRF_TRUSTED_ORIGINS = [
     'http://54.91.246.31',
     'https://54.91.246.31',
@@ -171,3 +172,21 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
 ]
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': '/home/ubuntu/kosmo/app/logs/django_error.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}

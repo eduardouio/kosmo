@@ -19,3 +19,4 @@ openai
 pillow
 setuptools
 django-user-sessions
+gunicorn
