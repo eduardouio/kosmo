@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from django.conf import settings
 
-LOG_FILE_PATH = os.path.join(settings.BASE_DIR, 'static', 'logs', 'log.txt')
+LOG_FILE_PATH = os.path.join(settings.PATH_LOGS, "app.log")
 
 
 def check_file():

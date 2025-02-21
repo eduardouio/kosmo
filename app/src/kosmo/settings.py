@@ -172,6 +172,9 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:5173',
 ]
 
+
+PATH_LOGS = os.path.join(os.path.dirname(BASE_DIR), 'logs')
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -179,7 +182,7 @@ LOGGING = {
         'file': {
             'level': 'ERROR',
             'class': 'logging.FileHandler',
-            'filename': '/home/ubuntu/kosmo/app/logs/django_error.log',
+            'filename': PATH_LOGS + 'django_error.log',
         },
     },
     'loggers': {
