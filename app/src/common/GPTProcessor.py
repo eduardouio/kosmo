@@ -22,12 +22,17 @@ class GPTProcessor:
         logging_message(dispo)
         self.dispo = dispo
         try:
+            logging_message('Creando y ejecutando hilo')
             run = self.client.beta.threads.runs.create_and_poll(
                 thread_id=self.thread.id,
                 assistant_id=self.assistant.id,
                 additional_messages=[{"role": "user", "content": self.dispo}],
                 temperature=0.01
             )
+            logging_message('Hilo creado y ejecutado')
+            logging_message(run)
+            logging_message('Obteniendo mensajes del hilo')
+            logging_message(self.client)
             thread_messages = self.client.beta.threads.messages.list(
                 thread_id=self.thread.id)
             messages = thread_messages.model_dump()
