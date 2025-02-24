@@ -224,7 +224,7 @@ const totalCost = computed(() => {
 
 const totalBoxesQB = computed(() => {
   let total = 0;
-  orderStore.newOrder.forEach(item => {
+  orderStore.selectedOrder.order_details.forEach(item => {
     total += item.box_model === 'QB' ? parseInt(item.quantity) : 0;
   });
   return total;
@@ -232,7 +232,7 @@ const totalBoxesQB = computed(() => {
 
 const totalBoxesHB = computed(() => {
   let total = 0;
-  orderStore.newOrder.forEach(item => {
+  orderStore.selectedOrder.order_details.forEach(item => {
     total += item.box_model === 'HB' ? parseInt(item.quantity) : 0;
   });
   return total;
@@ -240,14 +240,14 @@ const totalBoxesHB = computed(() => {
 
 const totalStems = computed(() => {
   let total = 0;
-  orderStore.newOrder.forEach(item => {
+  orderStore.selectedOrder.order_details.forEach(item => {
     total += item.tot_stem_flower;
   });
   return total;
 });
 
 const orderHaveCeroItem = computed(() => {
-  for (const order of orderStore.newOrder) {
+  for (const order of orderStore.selectedOrder.order_details) {
     let ceroBoxesStem = order.box_items.filter(
       i => i.qty_stem_flower === 0
     );
@@ -261,13 +261,7 @@ const orderHaveCeroItem = computed(() => {
       exceedLimit.value = true;
       return true;
     }
-
-    if (orderStore.selectedCustomer === null) {
-      exceedLimitMessage.value = 'Debe seleccionar un cliente';
-      exceedLimit.value = true;
-      return true;
-    }
-
+    
     exceedLimitMessage.value = '';
     exceedLimit.value = false;
     return false;

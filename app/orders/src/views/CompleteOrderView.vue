@@ -28,6 +28,16 @@ const isPurchOrderSelected = computed(() => {
     return Boolean(Object.keys(purchaseStore.purcharses_by_order).length);
 });
 
+const precentConfirmed = computed(() => {
+    let total = purchaseStore.purcharses_by_order.length;
+    if (total) {
+        let confirmed = purchaseStore.purcharses_by_order.filter((item) => item.status === 'CONFIRMADO').length;
+        return `${(confirmed * 100) / total}%`;
+    }
+
+    return '0%';
+});
+
 // Mounted
 onMounted(()=>{
   baseStore.stagesLoaded = 0;
@@ -50,6 +60,7 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
 </script>
 <template>
   <div>
+    {{ isAllLoaded }}
   <div class="row" v-if="!isAllLoaded">
     <div class="col text-center">
       <Loader />
@@ -61,16 +72,17 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
 <div class="row m-3 bg-gray-100" v-else>
 <nav>
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
-    <button class="nav-link border p-3 active bg-blue-100" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
+    <button class="nav-link border p-3 active bg-blue-100 d-flex gap-3" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
         <IconShoppingCartUp  stroke ="1.5" size="20" />
         Orden de Venta
-        <span class="badge bg-secondary">Pendiente</span>
+        <span class="badge bg-cyan-500" :class="{ 'bg-success' : orderStore.selectedOrder.order.status === 'CONFIRMADO' }" >[ {{ orderStore.selectedOrder.order.status }} ]</span>
     </button>
-    <button class="nav-link border p-3 bg-orange-100" id="nav-profile-tab"  data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+    <button class="nav-link border p-3 bg-orange-100 d-flex gap-3" id="nav-profile-tab"  data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
         <IconShoppingCartDown  stroke ="1.5" size="20" />
         Ordenes de Compra
-        <span class="badge bg-secondary">
-            0/2
+        <span class="badge bg-cyan-500 d-flex gap-2">
+          <span>[ 0/{{purchaseStore.purcharses_by_order.length}} ]</span>
+          <span>[ {{precentConfirmed}} ]</span>
         </span>
     </button>
   </div>
