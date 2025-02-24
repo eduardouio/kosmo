@@ -101,7 +101,9 @@ const calcIndicators = () => {
     stockStore.stock.forEach(item => {
         generalIndicators.value.total_HB += item.box_model === 'HB' ? item.quantity : 0;
         generalIndicators.value.total_QB += item.box_model === 'QB' ? item.quantity : 0;
-        generalIndicators.value.total_stems += item.box_items.reduce((acc, box) => acc + box.qty_stem_flower, 0);
+        generalIndicators.value.total_stems += item.box_items.reduce(
+            (acc, box) => acc + (parseInt(box.qty_stem_flower) || 0), 0
+        );
         if (!generalIndicators.value.total_suppliers.includes(item.partner.name)) {
             generalIndicators.value.total_suppliers.push(item.partner.name);
         }

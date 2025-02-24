@@ -59,12 +59,12 @@ const deleteOrderItem = (item) => {
 }
 
 const createOrder = async() => {
-  const response = await ordersStore.sendOrder(
+  const newOrderId = await ordersStore.sendOrder(
     stockStore.stockDay
   );
-  if (response){
+  if (newOrderId) {
     baseStore.stagesLoaded = 0;
-    router.push('/');
+    router.push(`/order-detail/${newOrderId}/`);
   }
 }
 

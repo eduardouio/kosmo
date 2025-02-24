@@ -55,7 +55,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 }
                 this.newOrder = []
                 this.selectedCustomer = null
-                return true;
+                return response.data.order.id
             } catch (error) {
                 console.error('Error al enviar el pedido:', error)
                 alert(`Hubo un error al enviar el pedido: ${error.message}`)
