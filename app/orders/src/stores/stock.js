@@ -12,6 +12,7 @@ export const useStockStore = defineStore('stockStore', {
         selectedCustomer: null,
         colors: [],
         lengths: [],
+        boxModels: [],
     }),
     actions: {
         async LoadOrders(baseStore) {
@@ -38,6 +39,7 @@ export const useStockStore = defineStore('stockStore', {
                 this.extractSuppliers();
                 this.extractColors();
                 this.extractLengths();
+                this.extractBoxModels();
                 baseStore.stagesLoaded++;
             } catch (error) {
                 console.error('Error al obtener el stock:', error);
@@ -105,6 +107,12 @@ export const useStockStore = defineStore('stockStore', {
             this.lengths = lengths.map(item => ({ name: item, is_selected: true }));
             this.lengths.sort((a, b) => a.name - b.name);
         },
+        extractBoxModels() {
+            let models = this.stock
+                .map(item => item.box_model)
+                .filter((value, index, self) => self.indexOf(value) === index);
+            this.boxModels = models.map(m => ({ name: m, is_selected: true }));
+        },
         filterStock(querySearch) {
             if (!querySearch) {
                 this.stock.forEach(item => {
@@ -132,6 +140,7 @@ export const useStockStore = defineStore('stockStore', {
             const selectedSuppliers = this.suppliers.filter(item => item.is_selected).map(item => item.id);
             const selectedColors = this.colors.filter(item => item.is_selected).map(item => item.name);
             const selectedLengths = this.lengths.filter(item => item.is_selected).map(item => item.name);
+            const selectedBoxModels = this.boxModels.filter(bm => bm.is_selected).map(bm => bm.name);
 
             if (selectedColors.length === 0 || selectedSuppliers.length === 0 || selectedLengths.length === 0) {
                 this.stock.forEach(item => item.is_visible = false);
@@ -144,6 +153,9 @@ export const useStockStore = defineStore('stockStore', {
                         selectedLengths.includes(subItem.length)
                     );
                 } else {
+                    item.is_visible = false;
+                }
+                if (!selectedBoxModels.includes(item.box_model)) {
                     item.is_visible = false;
                 }
             });
@@ -172,6 +184,10 @@ export const useStockStore = defineStore('stockStore', {
         },
         selectAllLengths(select = false) {
             this.lengths = this.lengths.map(item => ({ ...item, is_selected: select }));
+            this.filterCategories();
+        },
+        selectAllBoxModels(select = false) {
+            this.boxModels = this.boxModels.map(bm => ({ ...bm, is_selected: select }));
             this.filterCategories();
         },
         getSelection() {

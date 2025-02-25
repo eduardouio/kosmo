@@ -24,6 +24,7 @@ const showAllSuppliers = ref(true);
 const showAllColors = ref(true);
 const showAllStock = ref(true);
 const showAllLengths = ref(true);
+const showAllBoxModels = ref(true);
 
 
 // METHODS
@@ -37,6 +38,11 @@ const showAllStockSwitch = () => {
     showAllSuppliers.value = showAllStock.value;
     showAllColors.value = showAllStock.value;
     showAllLengths.value = showAllStock.value;
+};
+
+const showAllBoxModelsSwitch = () => {
+    showAllBoxModels.value = !showAllBoxModels.value;
+    stockStore.selectAllBoxModels(showAllBoxModels.value);
 };
 
 const getClass = (item) => {
@@ -185,6 +191,38 @@ const getClass = (item) => {
                 {{ item.name }}
             </span>
         </section>
+    </div>
+    <div class="mt-4">
+    <div class="text-center ms-1 me-1 fw-semibold text-slate-600 p-1 bg-cyan-200 mb-1 mt-2">
+        <div class="d-flex justify-content-between gap-3">
+            <span>
+                <IconFilter size="20" stroke="1.5" /> MODELO DE CAJA
+            </span>
+            <section class="d-flex justify-content-between gap-3">
+                <span class="text-danger"
+                      @click="showAllBoxModelsSwitch"
+                      v-if="showAllBoxModels">
+                    <small>Desmarcar</small>
+                    <IconSquare size="20" stroke="1.5" />
+                </span>
+                <span class="text-success"
+                      @click="showAllBoxModelsSwitch"
+                      v-else>
+                    <small>Marcar</small>
+                    <IconCheckbox size="20" stroke="1.5" />
+                </span>
+            </section>
+        </div>
+    </div>
+    <section class="d-flex flex-wrap gap-2">
+        <span v-for="model in stockStore.boxModels" :key="model.name"
+              class="rounded-1 p-1"
+              @click="model.is_selected = !model.is_selected; stockStore.filterCategories()">
+            <IconCheckbox size="15" stroke="1.5" v-if="model.is_selected" />
+            <IconSquare size="15" stroke="1.5" v-else class="text-danger" />
+            {{ model.name }}
+        </span>
+    </section>
     </div>
 </div>
 </template>
