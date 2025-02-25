@@ -85,12 +85,12 @@ export const useBaseStore = defineStore("baseStore", {
         return new Date(date).toLocaleDateString('es-ES', options).replace(',', '');
       },
       formatCurrency(value) {
-        if (!value) return '$ 0.00';
+        if (!value) return '0.00';
         return new Intl.NumberFormat('es-EC', {
           style: 'currency',
           currency: 'COP',
           minimumFractionDigits: 2
-        }).format(value).replace('COP', '').trim();
+        }).format(value).replace('COP', '').replace(',','.').trim()
       },
       formatNumber(event){
         let value = event.target.value;

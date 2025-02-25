@@ -34,7 +34,6 @@ const precentConfirmed = computed(() => {
         let confirmed = purchaseStore.purcharses_by_order.filter((item) => item.status === 'CONFIRMADO').length;
         return `${(confirmed * 100) / total}%`;
     }
-
     return '0%';
 });
 

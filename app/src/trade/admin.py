@@ -1,6 +1,6 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
-from trade.models import Order, OrderItems, Invoice, InvoiceItems, CreditNote, Payment
+from trade.models import Order, OrderItems, Invoice, InvoiceItems, CreditNote, Payment, OrderBoxItems
 
 
 class OrderAdmin(SimpleHistoryAdmin):
@@ -23,6 +23,18 @@ class OrderAdmin(SimpleHistoryAdmin):
     )
 
 
+class OrderBoxItemsAdmin(admin.TabularInline):
+    model = OrderBoxItems
+    list_display = (
+        'order_item',
+        'product',
+        'qty_stem_flower',
+        'stem_cost_price',
+        'profit_margin',
+        'length'
+    )
+
+
 class OrderItemsAdmin(SimpleHistoryAdmin):
     list_display = (
         'id',
@@ -30,7 +42,13 @@ class OrderItemsAdmin(SimpleHistoryAdmin):
         'id_stock_detail',
         'tot_stem_flower',
         'line_price',
+        'is_active',
     )
+
+    search_fields = (
+        'order__id',
+    )
+    inlines = [OrderBoxItemsAdmin]
 
 
 class InvoiceAdmin(SimpleHistoryAdmin):

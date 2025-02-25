@@ -6,6 +6,8 @@ import { useOrdersStore } from '@/stores/orders';
 import { useStockStore } from '@/stores/stock';
 import Loader from '@/components/Loader.vue';
 import OrderPreview from '@/components/OrderPreview.vue';
+import DataTable from 'datatables.net-dt'
+import { ref, watchEffect, onUnmounted } from 'vue'
 import { 
     IconAlertCircle,
     IconClockHour9,
@@ -30,6 +32,41 @@ const isAllLoaded = computed(() => {
     return baseStore.stagesLoaded === 4;
 })
 
+const tableRef = ref(null)
+let dataTableInstance = null
+
+const initDataTable = async () => {
+    if (tableRef.value) {
+        dataTableInstance = new DataTable(tableRef.value, {
+            paging: true,
+            searching: true,
+            ordering: true,
+            pageLength: 20,
+            dom: '<"d-flex justify-content-between"lf>t<"d-flex justify-content-between"ip>',
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json'
+            }
+        })
+    }
+}
+
+const destroyDataTable = () => {
+    if (dataTableInstance) {
+        dataTableInstance.destroy()
+        dataTableInstance = null
+    }
+}
+
+watchEffect(() => {
+    if (ordersStore.orders.length) {
+        destroyDataTable()
+        initDataTable()
+    }
+})
+
+onUnmounted(() => {
+    destroyDataTable()
+})
 
 // ON MOUNTED
 onMounted(() => {
@@ -122,7 +159,7 @@ onMounted(() => {
                         Listado de Pedidos de Clientes segun este Stock
                     </div>
                     <div class="col-12">
-                        <table class="table table-bordered table-striped table-hover">
+                        <table ref="tableRef" class="table table-bordered table-striped table-hover">
                             <thead>
                                 <tr class="text-center">
                                     <th class="p-1 bg-teal-500">Nro</th>

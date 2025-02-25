@@ -33,6 +33,7 @@ const selectPurchase = (id) => {
                                 <th class="p-1 text-center">Proveedor</th>
                                 <th class="p-1 text-center">HB/QB</th>
                                 <th class="p-1 text-center">Estado</th>
+                                <th class="p-1 text-end">Total</th>
                                 <th class="p-1 text-center">Acciones</th>
                             </tr>
                         </thead>
@@ -43,6 +44,7 @@ const selectPurchase = (id) => {
                                 <td class="p-1">{{ purchase.order.partner.name }}</td>
                                 <td class="p-1 text-center">{{ purchase.order.hb_total }}/{{ purchase.order.qb_total }}</td>
                                 <td class="p-1">{{ purchase.order.status }}</td>
+                                <td class="p-1 text-end">{{ baseStore.formatCurrency(purchase.order.total_price) }}</td>
                                 <td class="p-1 d-flex justify-content-end gap-3">
                                     <IconFolderOpen size="20" class="text-sky-600"  stroke="1.5" v-if="purchase.is_selected"/>
                                     <IconFolder size="20"  stroke="1.5" v-else/>
