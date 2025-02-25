@@ -48,5 +48,11 @@ export const usePurchaseStore = defineStore("purchaseStore", {
         );
       }
     },
+    selectedPurchaseId(id) {
+      console.log("Seleccionando orden de compra con id: " + id);
+      this.selectedPurchase = this.sales.find(
+        (purchase) => purchase.order.id == id
+      );
+    },
   },
 });

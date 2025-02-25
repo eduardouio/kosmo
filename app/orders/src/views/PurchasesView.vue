@@ -3,10 +3,12 @@ import { ref, onMounted, onUnmounted, watchEffect, computed, nextTick } from 'vu
 import { usePurchaseStore } from '@/stores/purcharses';
 import { useBaseStore } from '@/stores/base';
 import Loader from '@/components/Loader.vue';
+import { useRoute } from 'vue-router';
 import { IconHexagonMinus, IconClockHour9, IconCheckbox, IconFileCheck, IconFolderOpen } from '@tabler/icons-vue';
 
 // Importación de DataTables.net y su CSS
 import DataTable from 'datatables.net-dt';
+import router from '@/router';
 
 const baseStore = useBaseStore();
 const purchaseStore = usePurchaseStore();
@@ -42,6 +44,13 @@ const destroyDataTable = () => {
         dataTableInstance.destroy();
         dataTableInstance = null;
     }
+};
+
+
+// Método para seleccionar un pedido
+const selectOrder = (id) => {
+    purchaseStore.selectedPurchaseId(id);
+    router.push({ name: 'supplierOrderDetail', params: { id: id } });
 };
 
 // Cargar datos en `onMounted`

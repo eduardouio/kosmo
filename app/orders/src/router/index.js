@@ -4,6 +4,7 @@ import ImportView from '@/views/ImportView.vue'
 import OrdersView from '@/views/OrdersView.vue'
 import PurchasesView from '@/views/PurchasesView.vue'
 import CompleteOrderView from '@/views/CompleteOrderView.vue'
+import SingleSupplierOrderView from '@/views/SingleSupplierOrderView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -32,6 +33,11 @@ const router = createRouter({
       path: '/order-detail/:id/',
       name: 'customerOrderDetail',
       component: CompleteOrderView,
+    },
+    {
+      path: '/supplier-order-detail/:id/',
+      name: 'supplierOrderDetail',
+      component: SingleSupplierOrderView,
     },
   ],
 })
