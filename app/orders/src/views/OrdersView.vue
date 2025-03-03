@@ -50,23 +50,6 @@ const initDataTable = async () => {
     }
 }
 
-const destroyDataTable = () => {
-    if (dataTableInstance) {
-        dataTableInstance.destroy()
-        dataTableInstance = null
-    }
-}
-
-watchEffect(() => {
-    if (ordersStore.orders.length) {
-        destroyDataTable()
-        initDataTable()
-    }
-})
-
-onUnmounted(() => {
-    destroyDataTable()
-})
 
 // ON MOUNTED
 onMounted(() => {

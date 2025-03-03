@@ -187,11 +187,12 @@ const updateOrder = (action) => {
       if (purchaseStore.selectedPurchase.is_confirmed) {
         purchaseStore.selectedPurchase.order.status = 'CONFIRMADO';
         // Aquí podrías llamar a tu método para actualizar en backend
-      } else {
+      } else {isModified
         purchaseStore.selectedPurchase.is_confirmed = true;
       }
       break;
     case 'update':
+      console.log('update Order');
       if (purchaseStore.selectedPurchase.is_modified) {
         // Aquí podrías llamar a tu método para actualizar en backend
       } else {
@@ -542,7 +543,7 @@ watch(()=> purchaseStore.selectedPurchase,
           <IconCheckbox size="20" stroke="1.5" />
           <span>Generar Factura</span>
         </button>
-        <button class="btn btn-default btn-sm">
+        <button class="btn btn-default btn-sm" v-if="!isModified">
           <IconCheckbox size="20" stroke="1.5" />
           Confirmar Pedido
         </button>

@@ -339,6 +339,9 @@ onMounted(() => {
                                     <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
                                         Proveedor
                                     </th>
+                                    <th class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50">
+                                        Total
+                                    </th>
                                     <th
                                         class="p-0 bg-blue-600 bg-gradient fw-medium text-cyan-50 d-flex justify-content-between gap-3">
                                         <section class="pl-5">
@@ -382,9 +385,15 @@ onMounted(() => {
                                             {{ item.partner.short_name }}
                                         </span>
                                     </td>
+                                    <td>
+                                            <section v-for="box in item.box_items" :key="box.id" class="text-end d-flex justify-content-end gap-2">
+                                            <span class="text-gray-600 fw-semibold text-end">
+                                                {{ (parseFloat(box.margin) + parseFloat(box.stem_cost_price)).toFixed(2)}}
+                                            </span>
+                                        </section>
+                                    </td>
                                     <td class="p-1">
-                                        <section v-for="box in item.box_items" :key="box.id"
-                                            class="text-end d-flex justify-content-end gap-2">
+                                        <section v-for="box in item.box_items" :key="box.id" class="text-end d-flex justify-content-end gap-2">
                                             <span @click="productSelected = box">
                                                 <small data-bs-toggle="modal" data-bs-target="#productModal">
                                                     <i class="text-primary">

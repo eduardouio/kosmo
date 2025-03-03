@@ -134,6 +134,12 @@ class Order(BaseModel):
         )
 
     @classmethod
+    def disable_order_items(cls, order):
+        order_items = OrderItems.get_by_order(order.pk)
+        for order_item in order_items:
+            OrderItems.disable_order_item(order_item)
+
+    @classmethod
     def rebuild_totals(self, order):
         total_price = 0
         qb_total = 0

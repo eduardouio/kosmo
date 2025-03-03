@@ -166,6 +166,7 @@ const mergeQB = () => {
   };
 
 const updateOrder = (action) => {
+  debugger;
   switch (action) {
     case 'confirm':
       if (orderStore.selectedOrder.is_confirmed){
@@ -374,6 +375,7 @@ watch(() => orderStore.selectedOrder,
     </div>
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2"
       :class="{ 'bg-gray': idx % 2 === 0 }">
+      <small># {{ item.order_item_id }}</small>
       <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
         <IconTrash size="30" stroke="1.5" :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
           @click="deleteOrderItem(item)" />
