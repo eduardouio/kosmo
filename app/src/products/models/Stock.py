@@ -15,6 +15,7 @@ BOX_CHOICES = (
 # STOCK DE DIA
 # -----------------------------------------------------------------------------
 
+
 class StockDay(BaseModel):
     id = models.AutoField(
         primary_key=True

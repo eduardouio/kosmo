@@ -2,6 +2,7 @@ from django.db import models
 from products.models import Product, StockDay, StockDetail
 from common import BaseModel
 from partners.models import Partner
+from common import logging_message, logging_error, loggin
 
 STATUS_CHOICES = (
     ('PENDIENTE', 'PENDIENTE'),
@@ -105,6 +106,7 @@ class Order(BaseModel):
         try:
             return cls.objects.get(pk=id_order)
         except cls.DoesNotExist:
+            logging_error(f"Pedido {id_order} nop existe")
             return None
 
     def __str__(self):
@@ -128,16 +130,24 @@ class Order(BaseModel):
 
     @classmethod
     def get_by_parent_order(cls, sale_order):
-        return cls.objects.filter(
+        sup_orders = cls.objects.filter(
             parent_order=sale_order,
             is_active=True
         )
+        if len(sup_orders):
+            return sup_orders
+
+        loggin(f"La orden {sale_order.id} no tiene ordenes de proveedor", True)
+        return None
 
     @classmethod
     def disable_order_items(cls, order):
+        logging_message(f"Desactivando items de orden {order.id}")
         order_items = OrderItems.get_by_order(order.pk)
         for order_item in order_items:
-            OrderItems.disable_order_item(order_item)
+            order_item.is_active = False
+            order_item.save()
+            OrderBoxItems.disable_by_order_items(order_item)
 
     @classmethod
     def rebuild_totals(self, order):
@@ -213,6 +223,32 @@ class OrderItems(BaseModel):
         decimal_places=2,
         default=0.00
     )
+    is_deleted = models.BooleanField(
+        'Eliminado',
+        default=False
+    )
+    is_modified = models.BooleanField(
+        'Modificado',
+        default=False
+    )
+    parent_order_item = models.PositiveIntegerField(
+        'Item de orden padre',
+        blank=True,
+        null=True,
+        default=0
+    )
+
+    @classmethod
+    def get_by_id(cls, id_order_item):
+        try:
+            order_item = cls.objects.get(pk=id_order_item)
+            if order_item.is_active:
+                return order_item
+            return None
+
+        except cls.DoesNotExist:
+            logging_error(f"Item de orden {id_order_item} no existe")
+            return None
 
     @classmethod
     def get_suppliers_by_order(cls, order):
@@ -248,16 +284,6 @@ class OrderItems(BaseModel):
         )
 
     @classmethod
-    def disable_order_item(cls, order_item):
-        order_item.is_active = False
-        order_item.save()
-
-        order_box_items = OrderBoxItems.get_box_items(order_item)
-        for box_item in order_box_items:
-            box_item.is_active = False
-            box_item.save()
-
-    @classmethod
     def rebuild_order_item(cls, stock_detail):
         box_items = OrderBoxItems.get_box_items(stock_detail)
         total_stem_flower = 0
@@ -267,7 +293,7 @@ class OrderItems(BaseModel):
             total_stem_flower += box_item.qty_stem_flower
             line_margin += (box_item.profit_margin * box_item.qty_stem_flower)
             line_total += (
-                box_item.qty_stem_flower * 
+                box_item.qty_stem_flower *
                 (box_item.stem_cost_price + box_item.profit_margin)
             )
 
@@ -314,6 +340,17 @@ class OrderBoxItems(BaseModel):
         decimal_places=2,
         default=0.06
     )
+
+    @classmethod
+    def get_by_order_item(cls, order_item):
+        return cls.objects.filter(order_item=order_item, is_active=True)
+
+    @classmethod
+    def disable_by_order_items(cls, order_item):
+        box_items = cls.get_box_items(order_item)
+        for box_item in box_items:
+            box_item.is_active = False
+            box_item.save()
 
     @classmethod
     def get_box_items(cls, order_item):
