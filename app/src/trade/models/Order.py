@@ -1,8 +1,9 @@
 from django.db import models
 from products.models import Product, StockDay, StockDetail
 from common import BaseModel
+from common.AppLoger import loggin_event
 from partners.models import Partner
-from common import logging_message, logging_error, loggin
+
 
 STATUS_CHOICES = (
     ('PENDIENTE', 'PENDIENTE'),
@@ -137,12 +138,12 @@ class Order(BaseModel):
         if len(sup_orders):
             return sup_orders
 
-        loggin(f"La orden {sale_order.id} no tiene ordenes de proveedor", True)
+        loggin_event(f"La orden {sale_order.id} no tiene ordenes de proveedor", True)
         return None
 
     @classmethod
     def disable_order_items(cls, order):
-        logging_message(f"Desactivando items de orden {order.id}")
+        loggin_event(f"Desactivando items de orden {order.id}")
         order_items = OrderItems.get_by_order(order.pk)
         for order_item in order_items:
             order_item.is_active = False
@@ -282,27 +283,6 @@ class OrderItems(BaseModel):
             id_stock_detail=id_stock_detail,
             is_active=True
         )
-
-    @classmethod
-    def rebuild_order_item(cls, stock_detail):
-        box_items = OrderBoxItems.get_box_items(stock_detail)
-        total_stem_flower = 0
-        line_margin = 0
-        line_total = 0
-        for box_item in box_items:
-            total_stem_flower += box_item.qty_stem_flower
-            line_margin += (box_item.profit_margin * box_item.qty_stem_flower)
-            line_total += (
-                box_item.qty_stem_flower *
-                (box_item.stem_cost_price + box_item.profit_margin)
-            )
-
-        stock_detail.tot_stem_flower = total_stem_flower
-        stock_detail.line_margin = line_margin
-        stock_detail.line_total = line_total
-        stock_detail.line_price = line_total - line_margin
-        stock_detail.save()
-
 
 # -----------------------------------------------------------------------------
 # MODELO DE CAJAS DE ORDEN ITEM

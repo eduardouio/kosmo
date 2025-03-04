@@ -17,22 +17,22 @@ def check_file():
         return False
 
 
-def logging_message(message):
+def _logging_message(message):
     check_file()
     with open(LOG_FILE_PATH, "a") as file:
         file.write(f"[{datetime.now()}] -> MESSAGE {message}\n")
 
 
-def logging_error(message):
+def _logging_error(message):
     check_file()
     with open(LOG_FILE_PATH, "a") as file:
         file.write(f"[{datetime.now()}] -> ERROR: {message}\n")
 
 
-def loggin(message, error=False):
+def loggin_event(message, error=False):
     if error:
-        logging_error(message)
+        _logging_error(message)
     else:
-        logging_message(message)
+        _logging_message(message)
 
     return True

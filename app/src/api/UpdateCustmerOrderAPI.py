@@ -2,14 +2,14 @@ import json
 from django.http import JsonResponse
 from django.views import View
 from common import SyncOrders
-from common import loggin
+from common.AppLoger import loggin_event
 from trade.models import Order, OrderBoxItems, OrderItems
 from products.models import Product
 
 
 class UpdateCustmerOrderAPI(View):
     def post(self, request):
-        loggin('Actualizando orden de cliente')
+        loggin_event('Actualizando orden de cliente')
         order_data = json.loads(request.body)
         my_order = Order.objects.get(id=order_data['order']['id'])
 
@@ -22,7 +22,7 @@ class UpdateCustmerOrderAPI(View):
         old_order_items = OrderItems.get_by_order(my_order.pk)
 
         for old_order_item in old_order_items:
-            for new_order_item in order_data['order_items']:
+            for new_order_item in order_data['order_details']:
                 if new_order_item['order_item_id'] not in [i.pk for i in old_order_items]:
                     ord_itm = OrderItems.get_by_id(
                         new_order_item['order_item_id'])
@@ -32,17 +32,14 @@ class UpdateCustmerOrderAPI(View):
                 if old_order_item.id == new_order_item['order_item_id']:
                     self.update_order_item(new_order_item, old_order_item)
 
-            OrderItems.rebuild_order_item(new_order_item)
-        Order.rebuild_totals(my_order)
-
-        SyncOrders.sync(my_order)
+        # SyncOrders().sync(my_order)
 
         return JsonResponse(
             {'message': 'actualizado con exito'}, status=201
         )
 
     def update_order_item(self, new_order_item, old_order_item):
-        loggin(f'Actualizando item de orden {old_order_items.id}')
+        loggin_event(f'Actualizando item de orden {old_order_item.id}')
         current_data = {
             'order_item_id': old_order_item.pk,
             'id_stock_detail': old_order_item.id_stock_detail,
@@ -73,7 +70,7 @@ class UpdateCustmerOrderAPI(View):
             return True
 
     def update_box_items(self, old_order_item, new_order_item):
-        loggin(f'Actualizando cajas de la orden {old_order_item.id}')
+        loggin_event(f'Actualizando cajas de la orden {old_order_item.id}')
         OrderBoxItems.disable_by_order_items(old_order_item)
 
         for new_box_item in new_order_item['box_items']:

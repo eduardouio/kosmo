@@ -4,7 +4,7 @@ from django.views import View
 from trade.models import Order, OrderItems, OrderBoxItems
 from products.models import Product, StockDay
 from partners.models import Partner, Contact
-from common import SerializerCustomerOrder, SyncOrdersSupplier
+from common import SerializerCustomerOrder, SyncOrders
 
 
 class CreateOrderAPI(View):
@@ -46,7 +46,6 @@ class CreateOrderAPI(View):
                     stem_cost_price=box_item['stem_cost_price'],
                     profit_margin=float(box_item['margin'])
                 )
-            OrderItems.rebuild_order_item(order_item)
 
         Order.rebuild_totals(order)
         contact = Contact.get_principal_by_partner(order.partner)
@@ -66,7 +65,7 @@ class CreateOrderAPI(View):
             SerializerCustomerOrder().get_line(item) for item in order_items
         ]
 
-        SyncOrdersSupplier().create_supplier_orders(order)
+        SyncOrders().sync(order)
 
         result = {
             'order': {

@@ -1,13 +1,13 @@
 from django.http import JsonResponse
 from django.views import View
 from partners.models import Partner, Contact
-from common.AppLoger import logging_message
+from common.AppLoger import loggin_event
 
 
 class AllCustomerAPI(View):
 
     def get(self, request, *args, **kwargs):
-        logging_message('Obteniendo todos los clientes')
+        loggin_event('Obteniendo todos los clientes')
         all_cutomers = Partner.get_customers()
         suppliers_dict = []
 
@@ -60,5 +60,5 @@ class AllCustomerAPI(View):
             }
             suppliers_dict.append(item)
 
-        logging_message('Clientes obtenidos')
+        loggin_event('Clientes obtenidos')
         return JsonResponse(suppliers_dict, safe=False)
