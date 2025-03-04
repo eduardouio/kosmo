@@ -59,7 +59,6 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
 </script>
 <template>
   <div>
-    {{ isAllLoaded }}
   <div class="row" v-if="!isAllLoaded">
     <div class="col text-center">
       <Loader />

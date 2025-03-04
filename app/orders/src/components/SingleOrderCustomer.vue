@@ -166,7 +166,6 @@ const mergeQB = () => {
   };
 
 const updateOrder = (action) => {
-  debugger;
   switch (action) {
     case 'confirm':
       if (orderStore.selectedOrder.is_confirmed){
@@ -200,6 +199,15 @@ const isTwoQBSelected = computed(() => {
   let qb = orderStore.selectedOrder.order_details.filter(i => i.box_model === 'QB' && i.is_selected);
   return qb.length === 2;
 });
+
+
+const totalStemFlowerOrderItem = (order_item)=>{
+  console.log(order_item);
+  let total_stems = order_item.box_items.reduce((acc, item) => {
+    return acc + parseInt(item.qty_stem_flower);
+  }, 0);
+  return total_stems;
+}
 
 const totalMargin = computed(() => {
   if (orderStore.selectedOrder === null) return 0;
@@ -389,7 +397,9 @@ watch(() => orderStore.selectedOrder,
         <IconSitemap size="20" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB'" />
         <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'" />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">{{ item.tot_stem_flower }}</div>
+      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
+        {{ totalStemFlowerOrderItem(item) }}
+      </div>
       <div class="col-2 d-flex align-items-end">
         <small>
           {{ item.partner.partner.name }}
