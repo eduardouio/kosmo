@@ -169,3 +169,23 @@ UPDATE products_product SET image = 'products/ROSA-TYFANNY.jpg' WHERE id = 39;
 UPDATE products_product SET image = 'products/ROSA-TOFEE.jpg' WHERE id = 40;
 UPDATE products_product SET image = 'products/ROSA-CANDLELIGHT.jpg' WHERE id = 41;
 ```
+
+``` sql
+select * from trade_order to2  
+
+select * from trade_orderitems to2 where to2.order_id = 10
+
+
+select 
+to4.id 'OrdId', to4.type_document, pp2.name,
+to3.id 'OrdItm', to2.id 'IdBox', pp.variety , 
+to2.qty_stem_flower, to2.stem_cost_price, to2.profit_margin, 
+to3.id_stock_detail, to3.parent_order_item 'Parent' 
+from trade_orderboxitems to2
+left join products_product pp on (pp.id = to2.product_id)
+left join trade_orderitems to3 on (to3.id = to2.order_item_id)
+left join trade_order to4 on (to4.id = to3.order_id )
+left join partners_partner pp2 on (pp2.id = to4.partner_id)
+
+ 
+```
