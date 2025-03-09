@@ -16,6 +16,7 @@ const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
 const exceedLimitMessage = ref();
 const isModified = ref(false);
+const show_buttons = ref(true);
 
 // Methods
 
@@ -24,6 +25,11 @@ const calcTotalByItem = (item)=>{
   let items = item.box_items.map(item => item)
   total = items.reduce((acc, item) => {
     return acc + ((item.stem_cost_price + parseFloat(item.margin)) * parseFloat(item.qty_stem_flower));
+  }, 0) * item.quantity;
+  item.line_total = total.toFixed(2);
+
+  item.line_price = items.reduce((acc, item) => {
+    return acc + (item.stem_cost_price * parseFloat(item.qty_stem_flower));
   }, 0);
   return total.toFixed(2);
 };
@@ -165,7 +171,8 @@ const mergeQB = () => {
 
   };
 
-const updateOrder = (action) => {
+const updateOrder = async (action) => {
+  console.log('Actualizando pedido ' + action);
   switch (action) {
     case 'confirm':
       if (orderStore.selectedOrder.is_confirmed){
@@ -177,7 +184,10 @@ const updateOrder = (action) => {
       break;
     case 'update':
       if(orderStore.selectedOrder.is_modified){
-        orderStore.updateOrder();
+        const response = await orderStore.updateOrder()
+        if (response){
+          location.reload();
+        }
       }else{
        orderStore.selectedOrder.is_modified = true;
       }
@@ -202,10 +212,10 @@ const isTwoQBSelected = computed(() => {
 
 
 const totalStemFlowerOrderItem = (order_item)=>{
-  console.log(order_item);
   let total_stems = order_item.box_items.reduce((acc, item) => {
     return acc + parseInt(item.qty_stem_flower);
   }, 0);
+  order_item.tot_stem_flower = total_stems;
   return total_stems;
 }
 
@@ -215,7 +225,7 @@ const totalMargin = computed(() => {
   orderStore.selectedOrder.order_details.forEach(order_detail => {
     total += order_detail.box_items.reduce((acc, item) => {
       return acc + parseFloat(item.margin * parseFloat(item.qty_stem_flower));
-    }, 0);
+    }, 0) * order_detail.quantity;
   });
   return total.toFixed(2);
 });
@@ -226,7 +236,7 @@ const totalCost = computed(() => {
   orderStore.selectedOrder.order_details.forEach(order_detail => {
     total += order_detail.box_items.reduce((acc, item) => {
       return acc + (item.stem_cost_price * parseFloat(item.qty_stem_flower));
-    }, 0);
+    }, 0) * order_detail.quantity;
   });
   return total.toFixed(2);
 });
@@ -365,21 +375,24 @@ watch(() => orderStore.selectedOrder,
       <div class="col-2 fw-bold fs-6 border-end bg-kosmo-green text-center">Proveedor</div>
       <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
         <div class="d-flex">
-          <div class="flex-grow-1" style="flex: 0 0 50%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 35%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.666%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 16.25%; text-align: right;">
             Tallos
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.666%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 16.25%; text-align: right;">
             Costo
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.666%; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 16.25%; text-align: right;">
             Margen
+          </div>
+          <div class="flex-grow-1" style="flex: 0 0 16.25%; text-align: right;">
+            Tot/Tallo
           </div>
         </div>
       </div>
-      <div class="col-1 fw-bold fs-6 bg-kosmo-green">C/USD</div>
+      <div class="col-1 fw-bold fs-6 bg-kosmo-green text-center">Total</div>
     </div>
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2"
       :class="{ 'bg-gray': idx % 2 === 0 }">
@@ -430,31 +443,34 @@ watch(() => orderStore.selectedOrder,
               v-model="product.margin" @focus="selectText" @keydown="event => handleKeydown(event, '.my-input-3')"
               @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }" />
           </span>
+          <span class="border-end text-end w-20 pe-2">
+            <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3" :value="(product.stem_cost_price + parseFloat(product.margin)).toFixed(2)"/>
+          </span>
         </div>
       </div>
-      <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
+      <div class="col-1 fw-semibold d-flex align-items-center justify-content-end fs-6">
         {{ calcTotalByItem(item) }}
       </div>
     </div>
     <div class="row">
       <div class="col-3">
         <div class="row shadow-sm p-2">
-          <div class="col-9 fs-5 text-start text-end">{{ totalBoxesHB }}</div>
-          <div class="col-3 fs-5 text-end">HB's:</div>
-          <div class="col-9 fs-5 text-start text-end">{{ totalBoxesQB }}</div>
-          <div class="col-3 fs-5 text-end">QB's:</div>
-          <div class="col-9 fs-5 text-start text-end">{{ totalStems }}</div>
-          <div class="col-3 fs-5 text-end">Tallos:</div>
+          <div class="col-9 fs-6 text-start text-end">{{ totalBoxesHB }}</div>
+          <div class="col-3 fs-6 text-end">HB's:</div>
+          <div class="col-9 fs-6 text-start text-end">{{ totalBoxesQB }}</div>
+          <div class="col-3 fs-6 text-end">QB's:</div>
+          <div class="col-9 fs-6 text-start text-end">{{ totalStems }}</div>
+          <div class="col-3 fs-6 text-end">Tallos:</div>
         </div>
       </div>
       <div class="col-4 offset-5">
         <div class="row bg-gray-200 bg-gradient rounded-1 shadow-sm p-2">
-          <div class="col-7 text-end border-end fs-5 text-lime-600">Costo:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">{{ totalCost }}</div>
-          <div class="col-7 text-end border-end fs-5 text-lime-600">Margen:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">{{ totalMargin }}</div>
-          <div class="col-7 text-end border-end fs-5 text-lime-600">Total Pedido:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">
+          <div class="col-7 text-end border-end fs-6 text-lime-600">Costo:</div>
+          <div class="col-5 fs-6 text-lime-600 text-end">{{ totalCost }}</div>
+          <div class="col-7 text-end border-end fs-6 text-lime-600">Margen:</div>
+          <div class="col-5 fs-6 text-lime-600 text-end">{{ totalMargin }}</div>
+          <div class="col-7 text-end border-end fs-6 text-lime-600">Total Pedido:</div>
+          <div class="col-5 fs-6 text-lime-600 text-end">
             {{  (parseFloat(totalMargin) + parseFloat(totalCost)).toFixed(2) }}
           </div>
         </div>
