@@ -27,7 +27,8 @@ const calcTotalByItem = (item) => {
     return (
       acc + (boxItem.stem_cost_price + parseFloat(boxItem.margin)) * parseFloat(boxItem.qty_stem_flower)
     );
-  }, 0);
+  }, 0) * item.quantity;
+  item.line_total = total;
   return total.toFixed(2);
 };
 
@@ -224,7 +225,7 @@ const totalMargin = computed(() => {
   purchaseStore.selectedPurchase.order_details.forEach((detail) => {
     total += detail.box_items.reduce((acc, bItem) => {
       return acc + parseFloat(bItem.margin) * parseFloat(bItem.qty_stem_flower);
-    }, 0);
+    }, 0) * detail.quantity;
   });
   return total.toFixed(2);
 });
@@ -235,7 +236,7 @@ const totalCost = computed(() => {
   purchaseStore.selectedPurchase.order_details.forEach((detail) => {
     total += detail.box_items.reduce((acc, bItem) => {
       return acc + parseFloat(bItem.stem_cost_price) * parseFloat(bItem.qty_stem_flower);
-    }, 0);
+    }, 0) * parseFloat(detail.quantity);
   });
   return total.toFixed(2);
 });
