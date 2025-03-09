@@ -5,10 +5,12 @@ from trade.models import Order, OrderItems, OrderBoxItems
 from products.models import Product, StockDay
 from partners.models import Partner, Contact
 from common import SerializerCustomerOrder, SyncOrders
+from common.AppLoger import loggin_event
 
 
 class CreateOrderAPI(View):
     def post(self, request):
+        loggin_event('Creando orden de cliente')
         order_data = json.loads(request.body)
         if not order_data:
             return JsonResponse({'error': 'No data provided'}, status=400)
@@ -48,6 +50,7 @@ class CreateOrderAPI(View):
                 )
 
         Order.rebuild_totals(order)
+        loggin_event(f'Orden de cliente {order.id} creada con exito')
         contact = Contact.get_principal_by_partner(order.partner)
         contact_dict = {}
         if contact:
@@ -65,7 +68,8 @@ class CreateOrderAPI(View):
             SerializerCustomerOrder().get_line(item) for item in order_items
         ]
 
-        SyncOrders().sync(order)
+        loggin_event(f'Orden de cliente {order.id} enviada a sincronizar')
+        SyncOrders().sync(order,  create=True)
 
         result = {
             'order': {
