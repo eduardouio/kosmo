@@ -7,15 +7,15 @@ from trade.models import Order, OrderBoxItems, OrderItems
 from products.models import Product
 
 
-class UpdateCustmerOrderAPI(View):
+class UpdateSupplierOrderAPI(View):
     def post(self, request):
-        loggin_event('Actualizando orden de cliente')
+        loggin_event('Actualizando orden de proveedor')
         order_data = json.loads(request.body)
         my_order = Order.objects.get(id=order_data['order']['id'])
 
-        if my_order.type_document != 'ORD_VENTA':
+        if my_order.type_document != 'ORD_COMPRA':
             return JsonResponse(
-                {'error': 'No se puede modificar una orden de compra'},
+                {'error': 'No se puede modificar una orden de venta por este medio'},
                 status=400
             )
 
@@ -45,7 +45,7 @@ class UpdateCustmerOrderAPI(View):
                 if old_order_item.id == new_order_item['order_item_id']:
                     self.update_order_item(new_order_item, old_order_item)
 
-        SyncOrders().sync_suppliers(my_order)
+        SyncOrders().sync_customer(my_order)
 
         return JsonResponse(
             {'message': 'actualizado con exito'}, status=201

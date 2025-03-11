@@ -12,6 +12,7 @@ from api import (
     UpdateCustmerOrderAPI,
     OrderPurchaseByOrderSale,
     AllOrderDetailAPI,
+    UpdateSupplierOrderAPI,
 )
 
 urlpatterns = [
@@ -28,4 +29,5 @@ urlpatterns = [
     path('api/orders/create-customer-order/', CreateOrderAPI.as_view(), name='create_order'),
     path('api/orders/update-customer-order/', UpdateCustmerOrderAPI.as_view(), name='update_order'),
     path('api/orders/order-detail/<int:id_stock_day>/', AllOrderDetailAPI.as_view(), name='order_detail'),
+    path('api/orders/update-supplier-order/', UpdateSupplierOrderAPI.as_view(), name='update_supplier_order'),
 ]

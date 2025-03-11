@@ -182,7 +182,7 @@ const mergeQB = () => {
   });
 };
 
-const updateOrder = (action) => {
+const updateOrder = async (action) => {
   switch (action) {
     case 'confirm':
       if (purchaseStore.selectedPurchase.is_confirmed) {
@@ -195,7 +195,10 @@ const updateOrder = (action) => {
     case 'update':
       console.log('update Order');
       if (purchaseStore.selectedPurchase.is_modified) {
-        // Aquí podrías llamar a tu método para actualizar en backend
+        const response = await purchaseStore.updateSupplierOrder();
+        if (response) {
+         location.reload();
+        }
       } else {
         purchaseStore.selectedPurchase.is_modified = true;
       }
@@ -300,7 +303,6 @@ watch(()=> purchaseStore.selectedPurchase,
 <template>
   <div class="container-fluid p-3" v-if="purchaseStore.selectedPurchase.order">
     <div class="row">
-      {{ isModified }}
       <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
         <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
         <span v-if="confirmDelete">

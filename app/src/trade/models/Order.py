@@ -107,7 +107,7 @@ class Order(BaseModel):
         try:
             return cls.objects.get(pk=id_order)
         except cls.DoesNotExist:
-            logging_error(f"Pedido {id_order} nop existe")
+            loggin_event(f"Pedido {id_order} nop existe", error=True)
             return None
 
     def __str__(self):
@@ -138,7 +138,7 @@ class Order(BaseModel):
         if len(sup_orders):
             return sup_orders
 
-        loggin_event(f"La orden {sale_order.id} no tiene ordenes de proveedor", True)
+        loggin_event(f"La orden {sale_order.pk} no tiene ordenes de proveedor", True)
         return None
 
     @classmethod
@@ -169,6 +169,11 @@ class Order(BaseModel):
         order.hb_total = hb_total
         order.total_stem_flower = total_stem_flower
         order.save()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        print("Metodo personalizado de guardado")
+        loggin_event(f"Orden {self.id} guardada con exito")
 
 
 # -----------------------------------------------------------------------------
@@ -219,7 +224,7 @@ class OrderItems(BaseModel):
         choices=BOX_CHOICES
     )
     quantity = models.DecimalField(
-        'Precio de costo Caja',
+        'Cant Cajas',
         max_digits=10,
         decimal_places=2,
         default=0.00
@@ -248,7 +253,9 @@ class OrderItems(BaseModel):
             return None
 
         except cls.DoesNotExist:
-            logging_error(f"Item de orden {id_order_item} no existe")
+            loggin_event(
+                f"Item de orden {id_order_item} no existe", error=True
+            )
             return None
 
     @classmethod
@@ -264,6 +271,7 @@ class OrderItems(BaseModel):
 
     @classmethod
     def get_by_supplier(cls, order, supplier):
+        """Obtiene los orders items de un pedido para un proveedor"""
         orders_items = cls.get_by_order(order)
         order_items_related = []
         for order_item in orders_items:
@@ -284,6 +292,29 @@ class OrderItems(BaseModel):
             is_active=True
         )
 
+    @classmethod
+    def disable_by_order(cls, order):
+        order_items = cls.get_by_order(order)
+        for order_item in order_items:
+            order_item.is_active = False
+            order_item.save()
+            OrderBoxItems.disable_by_order_items(order_item)
+
+    @classmethod
+    def rebuil_order_item(cls, order_item):
+        total_stem_flower = 0
+        total_cost_price = 0
+        total_margin = 0
+        for box in OrderBoxItems.get_box_items(order_item):
+            total_stem_flower += box.qty_stem_flower
+            total_cost_price += box.stem_cost_price
+            total_margin += box.profit_margin
+
+        order_item.tot_stem_flower = total_stem_flower
+        order_item.line_price = total_cost_price
+        order_item.line_margin = total_margin
+        order_item.line_total = total_cost_price * total_margin
+        order_item.save()
 # -----------------------------------------------------------------------------
 # MODELO DE CAJAS DE ORDEN ITEM
 # -----------------------------------------------------------------------------

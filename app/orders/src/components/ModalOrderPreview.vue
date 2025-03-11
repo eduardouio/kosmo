@@ -26,7 +26,7 @@ const calcTotalByItem = (item)=>{
   let items = item.box_items.map(item => item)
   total = items.reduce((acc, item) => {
     return acc + ((item.stem_cost_price + parseFloat(item.margin)) * parseFloat(item.qty_stem_flower));
-  }, 0);
+  }, 0) * parseFloat(item.quantity);
   return total.toFixed(2);
 };
 
@@ -73,7 +73,7 @@ const totalOrder = computed(() => {
     let items = item.box_items.map(item => item)
     total += items.reduce((acc, item) => {
       return acc + ((item.stem_cost_price + parseFloat(item.margin)) * parseFloat(item.qty_stem_flower));
-    }, 0);
+    }, 0) * parseFloat(item.quantity);
   });
   return total.toFixed(2);
 });
@@ -84,7 +84,7 @@ const totalMargin = computed(() => {
     let items = item.box_items.map(item => item)
     total += items.reduce((acc, item) => {
       return acc + parseFloat(item.margin * parseFloat(item.qty_stem_flower));
-    }, 0);
+    }, 0) * parseFloat(item.quantity);
   });
   return total.toFixed(2);
 });
@@ -96,7 +96,7 @@ const totalCost = computed(() => {
     let items = item.box_items.map(item => item)
     total += items.reduce((acc, item) => {
       return acc + (item.stem_cost_price * parseFloat(item.qty_stem_flower));
-    }, 0);
+    }, 0) * parseFloat(item.quantity);
   });
   return total.toFixed(2);
 });

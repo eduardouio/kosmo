@@ -10,3 +10,4 @@ from .CreateOrderAPI import CreateOrderAPI
 from .UpdateCustmerOrderAPI import UpdateCustmerOrderAPI
 from .OrderPurchaseByOrderSale import OrderPurchaseByOrderSale
 from .AllOrderDetailAPI import AllOrderDetailAPI
+from .UpdateSupplierOrderAPI import UpdateSupplierOrderAPI

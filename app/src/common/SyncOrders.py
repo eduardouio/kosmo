@@ -5,7 +5,7 @@ from common.AppLoger import loggin_event
 
 class SyncOrders:
 
-    def sync(self, order, create=False):
+    def sync_suppliers(self, order, create=False):
         if order.status in ['PENDIENTE', 'MODIFICADO']:
             # ORDER DE VENTA Actualiza ordenes de proveedor
             if order.type_document == 'ORD_VENTA':
@@ -17,22 +17,57 @@ class SyncOrders:
                         f"Actualizando ordenes de proveedor para {order.id}")
                     self._sync_supplier_orders(cus_order=order)
 
-            # ORDER DE COMPRA Actualiza orden de cliente
-            self._sync_customer_order(sup_order=order)
-
-    def _sync_customer_order(self, sup_order):
+    def sync_customer(self, sup_order):
         loggin_event(f"Actualizando ordern del cliente {sup_order.id}")
+        cus_order = Order.get_order_by_id(sup_order.parent_order.id)
+        cust_order_items = OrderItems.get_by_supplier(cus_order, sup_order.partner)
+        sup_order_items = OrderItems.get_by_order(sup_order)
+        if cus_order.status not in ['PENDIENTE', 'MODIFICADO']:
+            loggin_event(
+                f"La orden de venta {cus_order.id} no se puede modificar"
+            )
+            raise Exception(
+                f"La orden de venta {cus_order.id} no se puede modificar"
+            )
+
+        # recorro las ordenes de compra del proveedor modificadas
+        for cus_item in cust_order_items:
+            for sup_item in sup_order_items:
+                if cus_item.id_stock_detail == sup_item.id_stock_detail:
+                    cus_item.quantity = sup_item.quantity
+                    cus_item.box_model = sup_item.box_model
+                    cus_item.line_margin = sup_item.line_margin
+                    cus_item.line_price = sup_item.line_price
+                    cus_item.line_total = sup_item.line_total
+                    cus_item.save()
+                    # cajas
+                    sup_boxes = OrderBoxItems.get_by_order_item(sup_item)
+                    OrderBoxItems.disable_by_order_items(cus_item)
+                    for box in sup_boxes:
+                        OrderBoxItems.objects.create(
+                            order_item=cus_item,
+                            product=box.product,
+                            length=box.length,
+                            qty_stem_flower=box.qty_stem_flower,
+                            stem_cost_price=box.stem_cost_price,
+                            profit_margin=box.profit_margin
+                        )
+
+            OrderBoxItems.rebuild_order_item(cus_item)
+        cus_order.status = 'MODIFICADO' 
+        cus_order.save()
+        Order.rebuild_totals(cus_order)
 
     def _sync_supplier_orders(self, cus_order):
         loggin_event(f"Actualizando ordenes de proveedor {cus_order.id}")
-        supplier_orders = Order.get_by_parent_order(cus_order.pk)
+        old_supplier_orders = Order.get_by_parent_order(cus_order.pk)
         customer_order_items = OrderItems.get_by_order(cus_order.pk)
         complete_customer_ord_items = []
-        complete_supplier_orders = []
+        old_complete_supplier_orders = []
         order_customer_by_supplier = []
         all_suppliers = []
 
-        # recuperamos el detalle de la venta asociado con proveedores y stock
+        # agrupamos el detalle de la orden de venta
         for order_item in customer_order_items:
             stock_detail = StockDetail.get_by_id(
                 order_item.id_stock_detail
@@ -44,14 +79,13 @@ class SyncOrders:
                 'box_items': OrderBoxItems.get_by_order_item(order_item)
             })
 
-            # lista unica de proveedores para las compras
+            # obtenemos el listado unico de proveeedores
             if stock_detail.partner not in all_suppliers:
                 all_suppliers.append(stock_detail.partner)
 
         # agrupamos el detalle ordern de venta por proveedor
         for supplier in all_suppliers:
             new_item = {
-                'review': False,  # para verificar si se reviso la orden
                 'supplier': supplier,
                 'order_items': []
             }
@@ -60,28 +94,29 @@ class SyncOrders:
                     new_item['order_items'].append(item['order_item'])
             order_customer_by_supplier.append(new_item)
 
-        for sup_order in supplier_orders:
-            complete_supplier_orders.append({
+        # agrupamos ordenes de compra anteriores
+        for sup_order in old_supplier_orders:
+            old_complete_supplier_orders.append({
                 'order': sup_order,
                 'supplier': sup_order.partner,
                 'order_items': OrderItems.get_by_order(sup_order.pk)
             })
-        self.compare_orders(
-            complete_supplier_orders,
-            order_customer_by_supplier,
-            all_suppliers
-        )
+
+        self.compare_orders(old_complete_supplier_orders,
+                            order_customer_by_supplier,
+                            all_suppliers
+                            )
 
     def compare_orders(
             self,
-            complete_supplier_orders,
+            old_complete_supplier_orders,
             order_customer_by_supplier,
             all_suppliers):
         loggin_event("Comparando ordenes de compra existentes con nuevas")
 
         # verificamos si todas las ordenes de compra estan completas
         orders_to_remove = []
-        for sup_order in complete_supplier_orders:
+        for sup_order in old_complete_supplier_orders:
             if sup_order['supplier'] not in all_suppliers:
                 loggin_event(
                     f"La order de compra {sup_order.id} no esta en la venta"
@@ -91,29 +126,96 @@ class SyncOrders:
                 sup_order.save()
                 orders_to_remove.append(sup_order)
 
-        # eliminamos las ordenes de compra que no estan en la venta
-        for order in orders_to_remove:
-            complete_supplier_orders.remove(order)
-
-        # verificamos si actualizamos cada orden de compra
         for new_sup_order in order_customer_by_supplier:
-            for old_sup_order in complete_supplier_orders:
-                if new_sup_order['supplier'] == old_sup_order['supplier']:
-                    new_sup_order['review'] = True
-                    self._update_supplier_order(
-                        new_sup_order,
-                        old_sup_order
-                    )
+            old_order = self._get_order_by_su(
+                old_complete_supplier_orders, new_sup_order['supplier']
+            )
+            self._compare_orders(new_sup_order, old_order)
 
-        # creamos las ordenes de compra que no existen
-        for new_sup_order in order_customer_by_supplier:
-            if not new_sup_order['review']:
-                new_sup_order['review'] = True
-                self._create_supplier_order(new_sup_order)
+    def _get_order_by_su(self, old_complete_supplier_orders, suplier):
+        for sup_order in old_complete_supplier_orders:
+            if sup_order['supplier'] == suplier:
+                return sup_order
+        raise Exception(f"La orden de compra {suplier} no existe")
+
+    def _compare_orders(self, new_order, old_order):
+        my_order = old_order['order']
+        new_order_items = new_order['order_items']
+        old_order_items = old_order['order_items']
+
+        if len(new_order_items) != len(old_order_items):
+            my_order.status = 'MODIFICADO'
+            my_order.save()
+            self._create_order_items(new_order_items, my_order)
+            return True
+
+        for new_itm, old_itm in zip(new_order_items, old_order_items):
+            if self._comparte_items(new_itm, old_itm):
+                my_order.status = 'MODIFICADO'
+                my_order.save()
+                self._create_order_items(new_order_items, my_order)
+                return True
+
+    def _comparte_items(self, new_itm, old_itm):
+        if new_itm.id_stock_detail != old_itm.id_stock_detail:
+            return True
+        if new_itm.box_model != old_itm.box_model:
+            return True
+        if new_itm.quantity != old_itm.quantity:
+            return True
+        if new_itm.tot_stem_flower != old_itm.tot_stem_flower:
+            return True
+        if new_itm.line_margin != old_itm.line_margin:
+            return True
+        if new_itm.line_price != old_itm.line_price:
+            return True
+        if new_itm.line_total != old_itm.line_total:
+            return True
+        return False
+
+    def _create_order_items(self, new_order_items, my_order):
+        Order.disable_order_items(my_order)
+        for new_item in new_order_items:
+            my_order_item = OrderItems.objects.create(
+                order=my_order,
+                id_stock_detail=new_item.id_stock_detail,
+                box_model=new_item.box_model,
+                quantity=new_item.quantity,
+                tot_stem_flower=new_item.tot_stem_flower,
+                line_margin=new_item.line_margin,
+                line_price=new_item.line_price,
+                line_total=new_item.line_total
+            )
+            self._create_order_box_items(new_item, my_order_item)
+
+    def _create_order_box_items(self, new_item, my_order_item):
+        for box_item in OrderBoxItems.get_by_order_item(new_item):
+            OrderBoxItems.objects.create(
+                order_item=my_order_item,
+                product=box_item.product,
+                length=box_item.length,
+                qty_stem_flower=box_item.qty_stem_flower,
+                stem_cost_price=box_item.stem_cost_price,
+                profit_margin=box_item.profit_margin
+            )
 
     def _update_supplier_order(self, new_sup_order, old_sup_order):
-        import ipdb
-        ipdb.set_trace()
+        loggin_event(
+            f"Actualizando orden de compra {old_sup_order['order'].id}")
+        current_order = old_sup_order['order']
+        current_order.status = 'MODIFICADO'
+        current_order.save()
+        OrderItems.disable_by_order(current_order)
+        new_orders_items = new_sup_order['order_items']
+        for new_order_item in new_orders_items:
+            my_order_item = OrderItems.objects.create(
+                order=current_order,
+                id_stock_detail=new_order_item.id_stock_detail,
+                box_model=new_order_item.box_model,
+                quantity=new_order_item.quantity
+            )
+            self._create_order_box_items(new_order_item, my_order_item)
+        Order.rebuild_totals(current_order)
 
     def _create_supplier_order(self, customer_order):
         loggin_event(f"Creando orden de compra para {customer_order}")
@@ -122,7 +224,8 @@ class SyncOrders:
 
         for ord in cus_order_items:
             stock_detail = StockDetail.get_by_id(ord.id_stock_detail)
-            if stock_detail.partner not in [i['supplier'] for i in details_by_supplier]:
+            _ = [i['supplier'] for i in details_by_supplier]
+            if stock_detail.partner not in _:
                 details_by_supplier.append({
                     "supplier": stock_detail.partner,
                     "order_items": []
@@ -151,16 +254,6 @@ class SyncOrders:
                     box_model=ord.box_model,
                     quantity=ord.quantity
                 )
-
-                cus_ord_box_items = OrderBoxItems.get_by_order_item(ord)
-                for box_item in cus_ord_box_items:
-                    OrderBoxItems.objects.create(
-                        order_item=ord_item,
-                        product=box_item.product,
-                        length=box_item.length,
-                        qty_stem_flower=box_item.qty_stem_flower,
-                        stem_cost_price=box_item.stem_cost_price,
-                        profit_margin=box_item.profit_margin
-                    )
+                self._create_order_box_items(ord, ord_item)
             Order.rebuild_totals(sup_order)
             loggin_event(f"Orden de compra {sup_order.id} creada con exito")

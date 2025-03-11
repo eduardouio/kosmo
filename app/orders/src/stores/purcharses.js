@@ -54,5 +54,22 @@ export const usePurchaseStore = defineStore("purchaseStore", {
         (purchase) => purchase.order.id == id
       );
     },
+    async updateSupplierOrder() {
+      console.log("Actualizando orden de compra...");
+      try {
+        const response = await axios.post(
+          appConfig.urlUpdateSupplierOrder,
+          this.selectedPurchase,
+          { headers: appConfig.headers }
+        );
+        console.log("Orden de compra actualizada: " + response.data);
+        return response.data;
+      } catch (error) {
+        console.error("Error al actualizar la orden de compra:", error);
+        alert(
+          `Hubo un error al actualizar la orden de compra: ${error.message}`
+        );
+      }
+    },
   },
 });

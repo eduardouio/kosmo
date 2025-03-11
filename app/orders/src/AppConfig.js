@@ -22,6 +22,7 @@ export const appConfig = {
     "urlOrdersByStock": apiBaseUrl + `/api/orders/by_stock_day/${idStockDay}/`,
     "urlUpdateOrder": apiBaseUrl + "/api/orders/update-customer-order/",
     "urlPurchaseOrdersByCustomerOrder": apiBaseUrl + "/api/orders/purchase_orders/{id_customer_order}/",
+    "urlUpdateSupplierOrder": apiBaseUrl + "/api/orders/update-supplier-order/",
     "headers": {
         "Accept": "application/json",
         "Content-Type": "application/json",

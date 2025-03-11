@@ -171,17 +171,13 @@ export const useOrdersStore = defineStore("ordersStore", {
             console.log('Pedido seleccionado:', this.selectedOrder);
         },
         async updateOrder(){
+            console.log('Actualizando pedido:', this.selectedOrder)
             try {
                 const response = await axios.post(appConfig.urlUpdateOrder, this.selectedOrder, {
                     headers: appConfig.headers
                 })
-                this.selectedOrder = response.data
-                this.orders.forEach(order => {
-                    if (order.order.id === this.selectedOrder.order.id) {
-                        order = this.selectedOrder;
-                    }
-                });
-                this.selectedOrder = null;
+                console.log('Pedido actualizado:', response.data)
+                return true
             } catch (error) {
                 console.error('Error al actualizar el pedido:', error)
                 alert(`Hubo un error al actualizar el pedido: ${error.message}`)
