@@ -10,7 +10,7 @@ from accounts.models import CustomUserModel, License
 from partners.models import Partner, Contact, Bank, DAE
 from products.models import Product, StockDay, StockDetail, BoxItems
 from trade.models import (
-    Order, OrderItems, Invoice, InvoiceItems, Payment
+    Order, OrderItems, Invoice, InvoiceItems, Payment, OrderBoxItems
 )
 
 
@@ -30,26 +30,27 @@ class Command(BaseCommand):
         print('creamos los productos')
         self.load_products()
         self.load_images()
-        #print('creamos los contactos')
-        #self.load_contacts(faker)
-        #print('creamos los bancos')
-        #self.load_banks(faker)
-        #print('creamos los daes')
-        #self.load_daes(faker)
-        #print('creamos los stock_day')
-        #self.load_stock_day(faker)
-        #print('creamos los stock_detail')
-        #self.load_stocks_items()
-        #print('creamos las ordenes de compra')
-        #self.load_customer_orders()
-        #print('creamos las ordenes de compra')
-        #self.load_purcharse_order()
-        #print('creamos las facturas de compra')
-        #self.generarte_purchases_invoices(faker)
-        #print('Generando facturas de venta')
-        #self.generate_sales_invoices(faker)
-        #print('Generando pagos')
-        #self.generate_payments(faker)
+        # print('creamos los contactos')
+        # self.load_contacts(faker)
+        # print('creamos los bancos')
+        # self.load_banks(faker)
+        # print('creamos los daes')
+        # self.load_daes(faker)
+        # print('creamos los stock_day')
+        # self.load_stock_day(faker)
+        # print('creamos los stock_detail')
+        # self.load_stocks_items()
+        # print('creamos las ordenes de compra')
+        # self.load_customer_orders()
+        # print('creamos las ordenes de compra')
+        # self.load_purcharse_order()
+        # print('creamos las facturas de compra')
+        # self.generarte_purchases_invoices(faker)
+        # print('Generando facturas de venta')
+        # self.generate_sales_invoices(faker)
+        # print('Generando pagos')
+        # self.generate_payments(faker)
+        self.load_test_data()
 
     def createSuperUser(self):
         user = CustomUserModel.get('eduardouio7@gmail.com')
@@ -69,7 +70,6 @@ class Command(BaseCommand):
         )
         user2.set_password('seguro')
         user2.save()
-
 
         # segundo ususaroi
         user2 = CustomUserModel(
@@ -196,7 +196,7 @@ class Command(BaseCommand):
         if Product.objects.all().count() > 0:
             print('Ya existen productos')
             return True
-        with open('common/data/products.json', 'r') as file:
+        with open('tests/testdata/products_product_exportados.json', 'r') as file:
             file_content = json.load(file)
 
         for product in file_content:
@@ -497,3 +497,47 @@ class Command(BaseCommand):
         with connection.cursor() as cursor:
             for line_sql in sql.split('\n'):
                 cursor.execute(line_sql)
+
+    def load_test_data(self):
+        print('Creando datos de prueba')
+        print('Creando StockDay')
+        StockDay.objects.create(date=datetime.now())
+
+        with open('tests/testdata/products_stockdetail_exportados.json', 'r') as file:
+            stock_detail = json.load(file)
+
+        for stk_dt in stock_detail:
+            print('Creando StockDetail {}'.format(stk_dt['id']))
+            StockDetail.objects.create(**stk_dt)
+
+        print("Creando contendo de stocks")
+        with open('tests/testdata/products_boxitems_exportados.json', 'r') as file:
+            box_items = json.load(file)
+
+        for box_item in box_items:
+            print('Creando BoxItem {}'.format(box_item['id']))
+            BoxItems.objects.create(**box_item)
+
+        print('Creando ordenes de compra')
+        with open('tests/testdata/trade_order_exportados.json', 'r') as file:
+            orders = json.load(file)
+
+        for order in orders:
+            print('Creando orden {}'.format(order['id']))
+            Order.objects.create(**order)
+
+        print('Creando ordenes de compra items')
+        with open('tests/testdata/trade_orderitems_exportados.json', 'r') as file:
+            order_items = json.load(file)
+
+        for order_item in order_items:
+            print('Creando orden item {}'.format(order_item['id']))
+            OrderItems.objects.create(**order_item)
+
+        print('Creando ordenes de compra items')
+        with open('tests/testdata/trade_orderboxitems_exportados.json', 'r') as file:
+            order_bx_itms = json.load(file)
+
+        for order_bx_itm in order_bx_itms:
+            print('Creando orden item {}'.format(order_bx_itm['id']))
+            OrderBoxItems.objects.create(**order_bx_itm)
