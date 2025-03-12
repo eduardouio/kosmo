@@ -69,7 +69,7 @@ class CreateOrderAPI(View):
         ]
 
         loggin_event(f'Orden de cliente {order.id} enviada a sincronizar')
-        SyncOrders().sync(order,  create=True)
+        SyncOrders().sync_suppliers(order,  create=True)
 
         result = {
             'order': {
