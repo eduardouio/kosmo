@@ -6,6 +6,7 @@ import { useStockStore } from '@/stores/stock';
 const confirmUpdate = ref(false);
 const profitMargin = ref(0.00);
 const cost = ref(0.00);
+const stems = ref(0);
 const stockStore = useStockStore();
 
 const updateValues = () => {
@@ -21,9 +22,15 @@ const updateValues = () => {
     if (profitMargin.value != 0) {
         stockStore.updateValues(profitMargin.value, 'margin');
     }
+
+    if (stems.value != 0) {
+        stockStore.updateValues(stems.value, 'stems');
+    }
+
     confirmUpdate.value = false;
     cost.value = 0.00;
     profitMargin.value = 0.00;
+    stems.value = 0;
 
     document.querySelector('#updateValuesModal .btn-close').click();
 }
@@ -74,6 +81,12 @@ const formatNumber = (event) => {
                                         aria-label="Dollar amount (with dot and two decimal places)"
                                         v-model="profitMargin" @change="formatNumber">
                                     <span class="input-group-text">Margen</span>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Tallos</span>
+                                    <input type="number" step="1" class="form-control text-end"
+                                        aria-label="Cantidad de tallos"
+                                        v-model="stems">
                                 </div>
                             </div>
                         </div>
