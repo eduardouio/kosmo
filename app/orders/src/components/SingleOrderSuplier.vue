@@ -323,19 +323,26 @@ watch(()=> purchaseStore.selectedPurchase,
       </div>
     </div>
     <div class="row">
-      <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white">
+      <div class="col-12 rounded-1 shadow-sm p-2 bg-amber-200 border-gray-300">
         <div class="row">
           <div class="col-4 fs-4">
             {{ purchaseStore.selectedPurchase.order.partner.name }}
           </div>
           <div class="col-8 text-end fs-6">
-            <span class="bordered rounded-1 bg-white text-dark ps-2 pe-2">
+            <strong class="bordered rounded-1 bg-white text-dark ps-2 pe-2">
               Pedido {{ purchaseStore.selectedPurchase.order.id }}
-            </span>
+            </strong>
             <span class="pe-1 ps-1"></span>
-            <span class="bordered rounded-1 bg-white text-dark ps-2 pe-2">
+            <strong class="bordered rounded-1 bg-white text-dark ps-2 pe-2"
+            :class="{
+                'bg-green-600 text-white': purchaseStore.selectedPurchase.order.status === 'CONFIRMADO',
+                'bg-yellow-300': purchaseStore.selectedPurchase.order.status === 'PENDIENTE',
+                'bg-red-600 text-white': purchaseStore.selectedPurchase.order.status === 'CANCELADO',
+                'bg-orange-600 text-white': purchaseStore.selectedPurchase.order.status === 'MODIFICADO'
+              }"
+            >
               {{ purchaseStore.selectedPurchase.order.status }}
-            </span>
+            </strong>
           </div>
         </div>
         <div class="row">
@@ -382,11 +389,11 @@ watch(()=> purchaseStore.selectedPurchase,
       </div>
     </div>
     <div class="row p-1 text-white ">
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Cant</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Tl/Cj</div>
-      <div class="col-2 fw-bold fs-6 border-end bg-kosmo-green text-center">Proveedor</div>
-      <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
+      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Cant</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Mdl</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Tl/Cj</div>
+      <div class="col-2 fw-bold fs-6 border-end bg-cyan-600 text-center">Proveedor</div>
+      <div class="col-6 fw-bold fs-6 border-end bg-cyan-600">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 50%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -402,7 +409,7 @@ watch(()=> purchaseStore.selectedPurchase,
           </div>
         </div>
       </div>
-      <div class="col-1 fw-bold fs-6 bg-kosmo-green">C/USD</div>
+      <div class="col-1 fw-bold fs-6 bg-cyan-600 text-center">C/USD</div>
     </div>
     <div
       v-for="(item, idx) in purchaseStore.selectedPurchase.order_details"

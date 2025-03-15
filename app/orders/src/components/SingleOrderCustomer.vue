@@ -320,15 +320,22 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
       <div class="row">  
-      <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white">
+      <div class="col-12 rounded-1 shadow-sm p-2 bordered bg-gray-200">
         <div class="row">
           <div class="col-4 fs-4">
             {{ orderStore.selectedOrder.order.partner.name }}
           </div>
           <div class="col-8 text-end fs-6">
-              <span class="bordered rounded-1 bg-white text-dark ps-2 pe-2">Pedido {{ orderStore.selectedOrder.order.id }} </span>
+              <strong class="bordered rounded-1 bg-white text-dark ps-2 pe-2">Pedido {{ orderStore.selectedOrder.order.id }} </strong>
               <span class="pe-1 ps-1"></span>
-              <span class="bordered rounded-1 bg-white text-dark ps-2 pe-2">{{ orderStore.selectedOrder.order.status }} </span>
+              <strong class="bordered rounded-1 bg-white text-dark ps-2 pe-2" 
+              :class="{
+                'bg-green-600 text-white': orderStore.selectedOrder.order.status === 'CONFIRMADO',
+                'bg-yellow-300': orderStore.selectedOrder.order.status === 'PENDIENTE',
+                'bg-red-600 text-white': orderStore.selectedOrder.order.status === 'CANCELADO',
+                'bg-orange-600 text-white': orderStore.selectedOrder.order.status === 'MODIFICADO'
+              }"
+              >{{ orderStore.selectedOrder.order.status }} </strong>
           </div>
         </div>
         <div class="row">
@@ -373,12 +380,12 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
     <div class="row p-1 text-white ">
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">#</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Cant</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Tl/Cj</div>
-      <div class="col-2 fw-bold fs-6 border-end bg-kosmo-green text-center">Proveedor</div>
-      <div class="col-5 fw-bold fs-6 border-end bg-sky-500">
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">#</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Cant</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Mdl</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Tl/Cj</div>
+      <div class="col-2 fw-bold fs-6 border-end bg-gray-500 text-center">Proveedor</div>
+      <div class="col-5 fw-bold fs-6 border-end bg-gray-500">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 35%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -397,7 +404,7 @@ watch(() => orderStore.selectedOrder,
           </div>
         </div>
       </div>
-      <div class="col-1 fw-bold fs-6 bg-kosmo-green text-center">Total</div>
+      <div class="col-1 fw-bold fs-6 bg-gray-500 text-center">Total</div>
     </div>
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2 d-flex align-items-center"
       :class="{ 'bg-gray': idx % 2 === 0 }">
