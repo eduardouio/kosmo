@@ -173,7 +173,8 @@ export const useOrdersStore = defineStore("ordersStore", {
         async updateOrder(){
             console.log('Actualizando pedido:', this.selectedOrder)
             try {
-                const response = await axios.post(appConfig.urlUpdateOrder, this.selectedOrder, {
+                const response = await axios.post(appConfig.urlUpdateOrder,
+                     this.selectedOrder, {
                     headers: appConfig.headers
                 })
                 console.log('Pedido actualizado:', response.data)

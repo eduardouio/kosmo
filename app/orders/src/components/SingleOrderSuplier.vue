@@ -187,7 +187,7 @@ const updateOrder = async (action) => {
   switch (action) {
     case 'confirm':
       if (purchaseStore.selectedPurchase.is_confirmed) {
-        const response = await purchaseStore.confirmSupplierOrder();
+        const response = await purchaseStore.confirmOrder();
         if (response){
           purchaseStore.selectedPurchase.order.status = 'CONFIRMADO';
         }
@@ -210,8 +210,11 @@ const updateOrder = async (action) => {
     case 'cancell':
       if (purchaseStore.selectedPurchase.is_cancelled) {
         purchaseStore.selectedPurchase.order.status = 'CANCELADO';
+        const response = await purchaseStore.cancelOrder();
+        if (response) {
+          console.log('Cancelar los items de la orden Venta');
+        }
         purchaseStore.selectedPurchase.is_confirmed = false;
-        // Aquí podrías llamar a tu método para actualizar en backend
       } else {
         purchaseStore.selectedPurchase.is_cancelled = true;
       }

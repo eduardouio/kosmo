@@ -25,7 +25,6 @@ export const appConfig = {
     "urlUpdateSupplierOrder": apiBaseUrl + "/api/orders/update-supplier-order/",
     "urlCancelOrder": apiBaseUrl + "api/orders/cancel-order/",
     "urlConfirmOrder": apiBaseUrl + "/api/orders/confirm-order/",
-    "urlDeleteOrder": apiBaseUrl + "/api/orders/delete-order/",
     "headers": {
         "Accept": "application/json",
         "Content-Type": "application/json",

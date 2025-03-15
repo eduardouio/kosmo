@@ -71,12 +71,12 @@ export const usePurchaseStore = defineStore("purchaseStore", {
         );
       }
     },
-    async confirmSupplierOrder() {
+    async confirmOrder() {
       console.log("Confirmando orden de compra...");
       try {
-        const response = await axios.post(
-          appConfig.urlConfirmSupplierOrder,
-          this.selectedPurchase,
+        const response = await axios.post(          
+          appConfig.urlConfirmOrder,
+          this.selectedPurchase.order.id,
           { headers: appConfig.headers }
         );
         console.log("Orden de compra confirmada: " + response.data);
@@ -87,6 +87,23 @@ export const usePurchaseStore = defineStore("purchaseStore", {
           `Hubo un error al confirmar la orden de compra: ${error.message}`
         );
       }
-    }
+    },
+    async cancellOrder() {
+      console.log("Cancelando orden de compra...");
+      try {
+        const response = await axios.post(
+          appConfig.urlCancelOrder,
+          this.selectedPurchase.order.id,
+          { headers: appConfig.headers }
+        );
+        console.log("Orden de compra cancelada: " + response.data);
+        return response.data;
+      } catch (error) {
+        console.error("Error al cancelar la orden de compra:", error);
+        alert(
+          `Hubo un error al cancelar la orden de compra: ${error.message}`
+        );
+      }
+    },
   },
 });
