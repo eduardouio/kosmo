@@ -15,7 +15,6 @@ from api import (
     UpdateSupplierOrderAPI,
     CancelOrderAPI,
     AproveOrderAPI,
-    DeleteOrderAPI,
 )
 
 urlpatterns = [
