@@ -13,6 +13,9 @@ from api import (
     OrderPurchaseByOrderSale,
     AllOrderDetailAPI,
     UpdateSupplierOrderAPI,
+    CancelOrderAPI,
+    AproveOrderAPI,
+    DeleteOrderAPI,
 )
 
 urlpatterns = [
@@ -30,4 +33,6 @@ urlpatterns = [
     path('api/orders/update-customer-order/', UpdateCustmerOrderAPI.as_view(), name='update_order'),
     path('api/orders/order-detail/<int:id_stock_day>/', AllOrderDetailAPI.as_view(), name='order_detail'),
     path('api/orders/update-supplier-order/', UpdateSupplierOrderAPI.as_view(), name='update_supplier_order'),
+    path('api/orders/cancel-order/', CancelOrderAPI.as_view(), name='cancel_order'),
+    path('api/orders/confirm-order/', AproveOrderAPI.as_view(), name='confirm_order'),
 ]

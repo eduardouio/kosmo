@@ -4,6 +4,7 @@ import { usePurchaseStore } from '@/stores/purcharses';
 import {
   IconTrash,
   IconCheckbox,
+  IconCheck,
   IconSitemap,
   IconBan,
   IconLayersIntersect2,
@@ -186,9 +187,11 @@ const updateOrder = async (action) => {
   switch (action) {
     case 'confirm':
       if (purchaseStore.selectedPurchase.is_confirmed) {
-        purchaseStore.selectedPurchase.order.status = 'CONFIRMADO';
-        // Aquí podrías llamar a tu método para actualizar en backend
-      } else {isModified
+        const response = await purchaseStore.confirmSupplierOrder();
+        if (response){
+          purchaseStore.selectedPurchase.order.status = 'CONFIRMADO';
+        }
+      } else {
         purchaseStore.selectedPurchase.is_confirmed = true;
       }
       break;
@@ -197,6 +200,7 @@ const updateOrder = async (action) => {
       if (purchaseStore.selectedPurchase.is_modified) {
         const response = await purchaseStore.updateSupplierOrder();
         if (response) {
+          purchaseStore.selectedPurchase.is_confirmed = false;
          location.reload();
         }
       } else {
@@ -206,6 +210,7 @@ const updateOrder = async (action) => {
     case 'cancell':
       if (purchaseStore.selectedPurchase.is_cancelled) {
         purchaseStore.selectedPurchase.order.status = 'CANCELADO';
+        purchaseStore.selectedPurchase.is_confirmed = false;
         // Aquí podrías llamar a tu método para actualizar en backend
       } else {
         purchaseStore.selectedPurchase.is_cancelled = true;
@@ -295,7 +300,8 @@ const orderHaveCeroItem = computed(() => {
 // watchers
 watch(()=> purchaseStore.selectedPurchase, 
 (newValue) => {
-  isModified.value = true;
+  console.log('selectedPurchase', newValue);
+    isModified.value = true;
 }, { deep: true }
 );
 </script>
@@ -544,11 +550,13 @@ watch(()=> purchaseStore.selectedPurchase,
           v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
         >
           <IconCheckbox size="20" stroke="1.5" />
-          <span>Generar Factura</span>
+          <span>Ver Factura</span>
         </button>
-        <button class="btn btn-default btn-sm" v-if="!isModified">
-          <IconCheckbox size="20" stroke="1.5" />
-          Confirmar Pedido
+        <button class="btn btn-default btn-sm" @click="updateOrder('confirm')">
+          <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed"/>
+          <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar Compra</span>
+          <IconCheckbox size="20" stroke="1.5" v-if="purchaseStore.selectedPurchase.is_confirmed"/>
+          <span v-if="purchaseStore.selectedPurchase.is_confirmed">Estoy Seguro</span>
         </button>
       </div>
     </div>

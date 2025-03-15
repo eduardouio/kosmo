@@ -71,5 +71,22 @@ export const usePurchaseStore = defineStore("purchaseStore", {
         );
       }
     },
+    async confirmSupplierOrder() {
+      console.log("Confirmando orden de compra...");
+      try {
+        const response = await axios.post(
+          appConfig.urlConfirmSupplierOrder,
+          this.selectedPurchase,
+          { headers: appConfig.headers }
+        );
+        console.log("Orden de compra confirmada: " + response.data);
+        return response.data;
+      } catch (error) {
+        console.error("Error al confirmar la orden de compra:", error);
+        alert(
+          `Hubo un error al confirmar la orden de compra: ${error.message}`
+        );
+      }
+    }
   },
 });

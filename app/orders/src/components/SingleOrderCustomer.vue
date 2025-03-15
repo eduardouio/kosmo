@@ -176,6 +176,7 @@ const updateOrder = async (action) => {
   switch (action) {
     case 'confirm':
       if (orderStore.selectedOrder.is_confirmed){
+        orderStore.selectedOrder.is_modified = false;
         orderStore.selectedOrder.order.status = 'CONFIRMADO';
         orderStore.updateOrder()
       }else{
@@ -184,8 +185,9 @@ const updateOrder = async (action) => {
       break;
     case 'update':
       if(orderStore.selectedOrder.is_modified){
-        const response = await orderStore.updateOrder()
+        const response = await orderStore.updateOrder()        
         if (response){
+          orderStore.selectedOrder.is_modified = false;
           location.reload();
         }
       }else{
@@ -194,8 +196,10 @@ const updateOrder = async (action) => {
       break;
     case 'cancell':
       if(orderStore.selectedOrder.is_cancelled){
+        orderStore.selectedOrder.is_modified = false;
         orderStore.selectedOrder.order.status = 'CANCELADO';
-        orderStore.updateOrder();
+        orderStore.cancellOrder();
+        location.reload();
       }else{
         orderStore.selectedOrder.is_cancelled = true;
       }

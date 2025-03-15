@@ -152,28 +152,27 @@ class Order(BaseModel):
 
     @classmethod
     def rebuild_totals(self, order):
+        loggin_event(f"Reconstruyendo totales de orden {order.id}")
         total_price = 0
         qb_total = 0
         hb_total = 0
         total_stem_flower = 0
         for order_item in OrderItems.get_by_order(order):
+            OrderItems.rebuild_order_item(order_item)
+
+        for order_item in OrderItems.get_by_order(order):
             total_price += order_item.line_total
             total_stem_flower += order_item.tot_stem_flower
             if order_item.box_model == 'QB':
-                qb_total += 1
+                qb_total += (order_item.quantity)
             elif order_item.box_model == 'HB':
-                hb_total += 1
+                hb_total += (order_item.quantity)
 
         order.total_price = total_price
         order.qb_total = qb_total
         order.hb_total = hb_total
         order.total_stem_flower = total_stem_flower
         order.save()
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        print("Metodo personalizado de guardado")
-        loggin_event(f"Orden {self.id} guardada con exito")
 
 
 # -----------------------------------------------------------------------------
@@ -301,7 +300,8 @@ class OrderItems(BaseModel):
             OrderBoxItems.disable_by_order_items(order_item)
 
     @classmethod
-    def rebuil_order_item(cls, order_item):
+    def rebuild_order_item(cls, order_item):
+        loggin_event(f"Reconstruyendo item de orden {order_item.id}")
         total_stem_flower = 0
         total_cost_price = 0
         total_margin = 0
@@ -310,11 +310,15 @@ class OrderItems(BaseModel):
             total_cost_price += box.stem_cost_price
             total_margin += box.profit_margin
 
-        order_item.tot_stem_flower = total_stem_flower
-        order_item.line_price = total_cost_price
-        order_item.line_margin = total_margin
-        order_item.line_total = total_cost_price * total_margin
+        order_item.tot_stem_flower = total_stem_flower * order_item.quantity
+        order_item.line_price = total_cost_price * total_stem_flower
+        order_item.line_margin = total_margin * total_stem_flower
+        order_item.line_total = (
+            (total_cost_price + total_margin)
+            * total_stem_flower * order_item.quantity
+        )
         order_item.save()
+
 # -----------------------------------------------------------------------------
 # MODELO DE CAJAS DE ORDEN ITEM
 # -----------------------------------------------------------------------------
@@ -372,6 +376,7 @@ class OrderBoxItems(BaseModel):
 
     @classmethod
     def rebuild_order_item(cls, order_item):
+        loggin_event(f"Reconstruyendo item de orden {order_item.id}")
         total_stem_flower = 0
         total_cost_price = 0
         total_margin = 0

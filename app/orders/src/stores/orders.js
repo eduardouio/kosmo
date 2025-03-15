@@ -182,6 +182,19 @@ export const useOrdersStore = defineStore("ordersStore", {
                 console.error('Error al actualizar el pedido:', error)
                 alert(`Hubo un error al actualizar el pedido: ${error.message}`)
             }
-        }
+        },
+        async cancellOrder(){
+            console.log('Cancelando pedido:', this.selectedOrder)
+            try {
+                const response = await axios.post(appConfig.urlCancelOrder, {'id_order' : this.selectOrder.order.id}, {
+                    headers: appConfig.headers
+                })
+                console.log('Pedido cancelado:', response.data)
+                return true
+            } catch (error) {
+                console.error('Error al cancelar el pedido:', error)
+                alert(`Hubo un error al cancelar el pedido: ${error.message}`)
+            }
+        },
     }
 })
