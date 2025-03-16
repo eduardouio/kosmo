@@ -20,4 +20,4 @@ pillow
 setuptools
 django-user-sessions
 gunicorn
-xhtml2pdf
+WeasyPrint

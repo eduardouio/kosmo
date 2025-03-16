@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura Kosmo Flowers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 100% !important;
+            margin: auto;
+            border: 1.5px solid #D68048;
+            padding: 20px;
+            border-radius: 5px;
+            background: #fff;
+            color: black;
+            font-size: 100%;
+        }
+        .header {
+            text-align: center;
+            font-size: 14px;
+            color: #D68048;
+            font-weight: bold;
+        }
+        .info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #D68048;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #E89E6B;
+        }
+        .total {
+            text-align: right;
+            font-weight: bold;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="http://localhost:8000/static/img/logo-kosmo.png" alt="" style="width: auto; height: 30px;">
+            <span style="color: #D68048;">KOSMO</span> <span style="color: #4A9D54;">flowers</span>
+        </div>
+        
+        <div class="info">
+            <div>
+                <p><strong>Grower:</strong> KOSMO FLOWERS</p>
+                <p><strong>INV#:</strong> FLOR EN MAL ESTADO</p>
+                <p><strong>Ship date:</strong> Martes, 30 de julio de 2024</p>
+            </div>
+            <div>
+                <p><strong>Email:</strong> invoices@kosmoflowers.com</p>
+                <p><strong>Phone:</strong> (+593) 9 99475741</p>
+            </div>
+            <div style="border: 2px solid #D68048; padding: 10px; text-align: center;">
+                <p><strong>CREDIT #</strong> 001-23-026</p>
+                <p><strong>DATE:</strong> 2024-08-09</p>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>QFT</th>
+                        <th>GRADE</th>
+                        <th>DESCRIPTION</th>
+                        <th>UNIT PRICE $</th>
+                        <th>TOTAL PRICE $</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>20</td>
+                        <td>ALHELI PINK 60CM</td>
+                        <td>FLOR EN MAL ESTADO</td>
+                        <td>$ 0.22</td>
+                        <td>$ 4.40</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>ALHELI PURPLE 60CM</td>
+                        <td>FLOR EN MAL ESTADO</td>
+                        <td>$ 0.22</td>
+                        <td>$ 2.20</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4">Freight FBX</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="total">
+            <p><strong>TOTAL FACTURA:</strong> $ 6.60</p>
+        </div>
+    </div>
+</body>
+</html>

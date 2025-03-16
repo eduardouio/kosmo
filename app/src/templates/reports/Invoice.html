@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura Kosmo Flowers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f8f8f8;
+        }
+        .container {
+            max-width: 100%;
+            min-width: 100%;
+            margin: auto;
+            border: 4px solid #e0a96d;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+        .column {
+            flex: 1;
+            padding: 10px;
+        }
+        .header {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: #e07730;
+        }
+        .info-box {
+            border: 2px solid #e07730;
+            padding: 10px;
+        }
+        .info-box div {
+            margin-bottom: 5px;
+        }
+        .table-container {
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #e07730;
+            color: white;
+        }
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Kosmo Flowers</div>
+        
+        <div class="row">
+            <div class="column info-box">
+                <div><strong>Roses Grown by:</strong> KOSMO FLOWERS</div>
+                <div><strong>Address:</strong> Tupigachi - Tabacundo</div>
+                <div><strong>Country:</strong> ECUADOR</div>
+            </div>
+            <div class="column info-box">
+                <div><strong>Email:</strong> invoices@kosmoflowers.com</div>
+                <div><strong>Phone:</strong> (+593) (9) 97753832</div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="column info-box">
+                <div><strong>To:</strong> PREMIER FLORAL CORP</div>
+                <div><strong>Address:</strong> 3555 NW 82nd Ave, Doral, FL 33122, United States</div>
+                <div><strong>Email:</strong> receiving@premierfloralcorp.com</div>
+                <div><strong>Credit:</strong> 45</div>
+            </div>
+            <div class="column info-box">
+                <div><strong>Date:</strong> 2024-03-21</div>
+                <div><strong>Cargo Agency:</strong> LOGIZTIK ALLIANCE</div>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>HB</th>
+                        <th>QB</th>
+                        <th>Variety</th>
+                        <th>Stem Length</th>
+                        <th>Bunches</th>
+                        <th>Stems/Bunch</th>
+                        <th>Total Stems</th>
+                        <th>Unit Price $</th>
+                        <th>Total Price $</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2</td>
+                        <td> </td>
+                        <td>TIBET</td>
+                        <td>40</td>
+                        <td>25</td>
+                        <td>5</td>
+                        <td>250</td>
+                        <td>$0.28</td>
+                        <td>$70.00</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td> </td>
+                        <td>NENA</td>
+                        <td>40</td>
+                        <td>25</td>
+                        <td>5</td>
+                        <td>250</td>
+                        <td>$0.32</td>
+                        <td>$80.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="row footer">
+            <div><strong>Total Factura: $150.00</strong></div>
+            <div>Todos los precios son F.O.B. Quito. Recuerde que tiene 10 días después de la fecha de la factura para realizar una reclamación. No aceptamos créditos por flete o costos de manejo en ningún caso.</div>
+        </div>
+    </div>
+</body>
+</html>
