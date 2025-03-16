@@ -222,11 +222,9 @@ class OrderItems(BaseModel):
         max_length=50,
         choices=BOX_CHOICES
     )
-    quantity = models.DecimalField(
+    quantity = models.PositiveSmallIntegerField(
         'Cant Cajas',
-        max_digits=10,
-        decimal_places=2,
-        default=0.00
+        default=0
     )
     is_deleted = models.BooleanField(
         'Eliminado',

@@ -1,2 +1,2 @@
-from .PDFOrderCustomer import PDFOrderCustomer
-from .PDFTest import PDFTest
+from .PDFReportSupOrder import PDFReportSupOrder
+from .TemplateReportOrderView import TemplateReportOrderView
