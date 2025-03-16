@@ -1,7 +1,10 @@
 <script setup>
 import { usePurchaseStore } from '@/stores/purcharses';
 import { useBaseStore } from '@/stores/base';   
-import { IconTrash, IconFolderOpen, IconFolder  } from '@tabler/icons-vue';
+import { appConfig } from '@/AppConfig';
+import { 
+    IconTrash, IconFolderOpen, IconFolder, IconFileTypePdf
+} from '@tabler/icons-vue';
 
 // Variables
 const purchasesStore = usePurchaseStore();
@@ -19,6 +22,12 @@ const selectPurchase = (id) => {
         }
         });
 };
+
+const getUrlReportSupOrder = (id) => {
+    let urlReportSupOrder = appConfig.urlReportSupOrder.replace('{id_order}', id);
+    return urlReportSupOrder;
+};
+
 </script>
 
 <template>
@@ -37,7 +46,7 @@ const selectPurchase = (id) => {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="purchase in purchasesStore.purcharses_by_order" :key="purchase" @click="selectPurchase(purchase.order.id)">
+                            <tr v-for="purchase in purchasesStore.purcharses_by_order" :key="purchase">
                                 <td class="p-1 text-center">{{ purchase.order.id }}</td>
                                 <td class="p-1">{{ baseStore.formatDate(purchase.order.date) }}</td>
                                 <td class="p-1">{{ purchase.order.partner.name }}</td>
@@ -55,8 +64,10 @@ const selectPurchase = (id) => {
                                 <td class="p-1 text-end">{{ baseStore.formatCurrency(purchase.order.total_price) }}</td>
                                 <td class="p-1 d-flex justify-content-end gap-3">
                                     <IconFolderOpen size="20" class="text-sky-600"  stroke="1.5" v-if="purchase.is_selected"/>
-                                    <IconFolder size="20"  stroke="1.5" v-else/>
-                                    <IconTrash size="20"  stroke="1.5"/>
+                                    <IconFolder size="20"  stroke="1.5" v-else @click="selectPurchase(purchase.order.id)"/>
+                                    <a :href="getUrlReportSupOrder(purchase.order.id)" target="_blank">
+                                        <IconFileTypePdf size="20"  stroke="1.5"/>
+                                    </a>
                                 </td>
                             </tr>
                         </tbody>

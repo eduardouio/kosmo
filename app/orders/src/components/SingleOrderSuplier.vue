@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { usePurchaseStore } from '@/stores/purcharses';
+import { appConfig } from '@/AppConfig';
 import {
   IconTrash,
   IconCheckbox,
@@ -10,6 +11,7 @@ import {
   IconLayersIntersect2,
   IconAlertTriangle,
   IconRefresh,
+  IconFileTypePdf,
 } from '@tabler/icons-vue';
 
 const purchaseStore = usePurchaseStore();
@@ -220,6 +222,11 @@ const updateOrder = async (action) => {
       }
       break;
   }
+};
+
+const getUrlReportSupOrder = (id) => {
+    let urlReportSupOrder = appConfig.urlReportSupOrder.replace('{id_order}', id);
+    return urlReportSupOrder;
 };
 
 // Propiedades computadas
@@ -567,6 +574,12 @@ watch(()=> purchaseStore.selectedPurchase,
           <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar Compra</span>
           <IconCheckbox size="20" stroke="1.5" v-if="purchaseStore.selectedPurchase.is_confirmed"/>
           <span v-if="purchaseStore.selectedPurchase.is_confirmed">Estoy Seguro</span>
+        </button>
+        <button class="btn btn-sm btn-default">
+          <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)" target="_blank">
+            <IconFileTypePdf size="20" stroke="1.5" />
+            Imprimir
+          </a>
         </button>
       </div>
     </div>

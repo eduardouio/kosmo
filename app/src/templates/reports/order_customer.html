@@ -58,7 +58,7 @@
                     <!-- Información adicional -->
                     <div class="border-2 border-orange-400 p-4 rounded">
                         <h2 class="text-sm font-semibold mb-2 text-gray-500">Información de Compra</h2>
-                        <p><strong class="text-xl {% if order.status == 'CONFIRMADO'%} text-green-700 {% else %} text-orange-700{%endif%}">{{ order.status }}</strong></p>
+                        <p><strong class="text-lg {% if order.status == 'CONFIRMADO'%} text-green-700 {% else %} text-orange-700{%endif%}">{{ order.status }}</strong></p>
                         <p><strong>Responsable:</strong> LOGIZTIK ALLIANCE</p>
                         <p><strong>Orden de Venta:</strong> {{ order.parent_order }}</p>
                         <p><strong>Fecha Impresión:</strong> {{ now|date:"d/m/Y H:i:s" }}</p>
@@ -132,9 +132,9 @@
                     </div>
                     <div>
                         <p><strong>TOTAL FB:</strong> {{ totals.total_fb }}</p>
-                        <p><strong>VARIEDADES:</strong> 
+                        <p class="flex gap-2"><strong>VARIEDADES:</strong> 
                             {% for variety in  totals.varieties %}
-                                <span class="text-sm text-blue-600">{{  variety }}</span>
+                                <span class="text-xs text-blue-600 border border-gray-100">{{  variety }} </span>
                             {% endfor %}
                         </p>
                     </div>
