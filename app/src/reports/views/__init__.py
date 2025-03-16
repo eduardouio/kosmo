@@ -1,2 +1,4 @@
 from .PDFReportSupOrder import PDFReportSupOrder
 from .TemplateReportOrderView import TemplateReportOrderView
+from .TemplateReportCusOrderView import TemplateReportCusOrderView
+from .PDFReportCusOrder import PDFReportCusOrder

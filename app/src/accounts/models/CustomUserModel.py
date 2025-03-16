@@ -54,5 +54,12 @@ class CustomUserModel(AbstractUser):
         except ObjectDoesNotExist:
             return None
 
+    @classmethod
+    def get_by_id(cls, id_user):
+        try:
+            return cls.objects.get(pk=id_user)
+        except ObjectDoesNotExist:
+            return None
+
     def __str__(self):
         return self.email

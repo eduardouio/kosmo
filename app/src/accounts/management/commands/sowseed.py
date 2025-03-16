@@ -59,6 +59,8 @@ class Command(BaseCommand):
             return True
         user = CustomUserModel(
             email='eduardouio7@gmail.com',
+            first_name='Eduardo',
+            last_name='Villota',
             is_staff=True,
             is_superuser=True
         )
@@ -66,7 +68,9 @@ class Command(BaseCommand):
         user.save()
 
         user2 = CustomUserModel(
-            email='test@kosmoflowers.com'
+            email='test@kosmoflowers.com',
+            first_name='Test',
+            last_name='Kosmo',
         )
         user2.set_password('seguro')
         user2.save()

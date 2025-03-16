@@ -20,7 +20,7 @@
                     <div class="text-right">
                         <div class="border-2 border-orange-400 p-2 rounded">
                             <div class="flex justify-end items-center mb-1">
-                                <p class="text-xs font-bold text-right">Orden Compra:</p>
+                                <p class="text-xs font-bold text-right">Orden Venta:</p>
                                 <p class="text-xs w-30 text-red-700 text-xl">000-{{ order.id }}</p>
                             </div>
                             <div class="flex justify-end items-center mb-1 border-t-2 border-green-500 pt-1">
@@ -46,7 +46,7 @@
                 <div class="grid grid-cols-[60%_auto] gap-4 mb-6 text-xs">
                     <!-- Información del cliente -->
                     <div class="border-2 border-orange-400 p-4 rounded">
-                        <h2 class="text-sm font-semibold mb-2">Información de Proveedor</h2>
+                        <h2 class="text-sm font-semibold mb-2">Información de Cliente</h2>
                         <p><strong class="text-gray-700">To:</strong> {{ order.partner.name }}</p>
                         <p><strong class="text-gray-700">Address:</strong> {{ order.partner.address }} </p>
                         <p><strong class="text-gray-700">City - Count:</strong> {{ order.partner.city }} - {{ order.partner.country }}</p>
@@ -59,8 +59,8 @@
                     <div class="border-2 border-orange-400 p-4 rounded">
                         <h2 class="text-sm font-semibold mb-2 text-gray-500">Información de Compra</h2>
                         <p><strong class="text-lg {% if order.status == 'CONFIRMADO'%} text-green-700 {% else %} text-orange-700{%endif%}">{{ order.status }}</strong></p>
-                        <p><strong>Responsable:</strong> LOGIZTIK ALLIANCE</p>
-                        <p><strong>Orden de Venta:</strong> {{ order.parent_order }}</p>
+                        <p><strong>Responsable:</strong> {{ user_owner.first_name }} {{ user_owner.last_name }}</p>
+                        <p><strong>Email:</strong> {{ user_owner }} </p>
                         <p><strong>Fecha Impresión:</strong> {{ now|date:"d/m/Y H:i:s" }}</p>
                     </div>
                 </div>
@@ -131,6 +131,7 @@
                         <p><strong>TOTAL PIECES:</strong> {{ totals.pieces }}</p>
                     </div>
                     <div>
+                        <p><strong>TOTAL TALLOS:</strong> {{ totals.total_stems }}</p>
                         <p><strong>TOTAL FB:</strong> {{ totals.total_fb }}</p>
                         <p class="flex gap-2"><strong>VARIEDADES:</strong> 
                             {% for variety in  totals.varieties %}
