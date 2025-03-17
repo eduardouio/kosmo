@@ -11,7 +11,7 @@ class PDFReportCusOrder(View):
     def render_and_capture_pdf(self, url, output_path):
         """Renderiza la página con Playwright y la guarda como PDF."""
         with sync_playwright() as p:
-            browser = p.chromium.launch()
+            browser = p.chromium.launch(headless=True)
             page = browser.new_page()
             page.goto(url)
 
