@@ -31,12 +31,13 @@ class PDFReportSupOrder(View):
 
     def get(self, request, id_order, *args, **kwargs):
         """Genera un PDF de la página y lo devuelve como respuesta."""
-        target_url = request.build_absolute_uri(
+        target_url = str(request.build_absolute_uri(
             reverse("order_supplier_template", kwargs={"id_order": id_order})
-        )
+        ))
+        loggin_event(f'Generando PDF de la orden {id_order} {target_url}')
         if not target_url.contains('localhost'):
             target_url = target_url.replace('http', 'https')
-            
+
         loggin_event(f'Generando PDF de la orden {id_order} {target_url}')
         order = Order.objects.get(id=id_order)
         output_pdf = f"PO-{id_order}-{order.partner.short_name}.pdf"

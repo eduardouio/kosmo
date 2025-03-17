@@ -32,9 +32,9 @@ class PDFReportCusOrder(View):
 
     def get(self, request, id_order, *args, **kwargs):
         """Genera un PDF de la página y lo devuelve como respuesta."""
-        target_url = request.build_absolute_uri(
+        target_url = str(request.build_absolute_uri(
             reverse("order_customer_template", kwargs={"id_order": id_order})
-        )
+        ))
 
         if not target_url.contains('localhost'):
             target_url = target_url.replace('http', 'https')
