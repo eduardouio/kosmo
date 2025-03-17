@@ -11,7 +11,7 @@ class PDFReportSupOrder(View):
         """Renderiza la página con Playwright y la guarda como PDF."""
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
+            page = browser.new_page(ignore_https_errors=True)
             page.goto(url)
 
             page.wait_for_load_state("networkidle")
