@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useOrdersStore } from '@/stores/orders';
+import { appConfig } from '@/AppConfig';
 import { 
     IconTrash,
     IconSitemap,
@@ -297,6 +298,11 @@ const orderHaveCeroItem = computed(() => {
   return false;
 });
 
+const getUrlReportCusOrder = (id) => {
+    let urlReportSupOrder = appConfig.urlReportSupOrder.replace('{id_order}', id);
+    return urlReportSupOrder;
+};
+
 //watchers
 watch(() => orderStore.selectedOrder, 
   (newValue) => {
@@ -507,10 +513,11 @@ watch(() => orderStore.selectedOrder,
           <span v-if="orderStore.selectedOrder.is_modified">Confirmar Actualización</span>
           <span v-else>Actualizar</span>
         </button>
-        <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.order.status === 'CONFIRMADO'">
-          <IconFileTypePdf size="20" stroke="1.5" />
-          <IconPrinter size="20" stroke="1.5" />
-          Ver Factura
+        <button class="btn btn-default btn-sm">
+          <a :href="getUrlReportCusOrder(orderStore.selectedOrder.order.id)" target="_blank">
+            <IconPrinter size="20" stroke="1.5" />
+            Imprimir
+          </a>
         </button>
         <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.order.status === 'CONFIRMADO'">Ver Factura</button>
       </div>
@@ -518,7 +525,6 @@ watch(() => orderStore.selectedOrder,
   </div>
 </template>
 <style scoped>
-
 .my-input,
 .my-input-2,
 .my-input-3 {
