@@ -59,6 +59,7 @@
                     <div class="border-2 border-orange-400 p-4 rounded">
                         <h2 class="text-sm font-semibold mb-2 text-gray-500">Información de Compra</h2>
                         <p><strong class="text-lg {% if order.status == 'CONFIRMADO'%} text-green-700 {% else %} text-orange-700{%endif%}">{{ order.status }}</strong></p>
+                        <p><strong>Factura #:</strong> {{ order.id_invoice }}</p>
                         <p><strong>Responsable:</strong> {{ user_owner.first_name }} {{ user_owner.last_name }}</p>
                         <p><strong>Email:</strong> {{ user_owner }} </p>
                         <p><strong>Fecha Impresión:</strong> {{ now|date:"d/m/Y H:i:s" }}</p>

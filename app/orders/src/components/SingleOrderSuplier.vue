@@ -11,7 +11,7 @@ import {
   IconLayersIntersect2,
   IconAlertTriangle,
   IconRefresh,
-  IconFileTypePdf,
+  IconPrinter,
 } from '@tabler/icons-vue';
 
 const purchaseStore = usePurchaseStore();
@@ -336,11 +336,11 @@ watch(()=> purchaseStore.selectedPurchase,
             {{ purchaseStore.selectedPurchase.order.partner.name }}
           </div>
           <div class="col-8 text-end fs-6">
-            <strong class="bordered rounded-1 bg-white text-dark ps-2 pe-2">
+            <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
               Pedido {{ purchaseStore.selectedPurchase.order.id }}
             </strong>
             <span class="pe-1 ps-1"></span>
-            <strong class="bordered rounded-1 bg-white text-dark ps-2 pe-2"
+            <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2"
             :class="{
                 'bg-green-600 text-white': purchaseStore.selectedPurchase.order.status === 'CONFIRMADO',
                 'bg-yellow-300': purchaseStore.selectedPurchase.order.status === 'PENDIENTE',
@@ -577,7 +577,7 @@ watch(()=> purchaseStore.selectedPurchase,
         </button>
         <button class="btn btn-sm btn-default">
           <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)" target="_blank">
-            <IconFileTypePdf size="20" stroke="1.5" />
+            <IconPrinter size="20" stroke="1.5" />
             Imprimir
           </a>
         </button>

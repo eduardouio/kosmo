@@ -3,7 +3,7 @@ import { usePurchaseStore } from '@/stores/purcharses';
 import { useBaseStore } from '@/stores/base';   
 import { appConfig } from '@/AppConfig';
 import { 
-    IconTrash, IconFolderOpen, IconFolder, IconFileTypePdf
+    IconFolderOpen, IconFolder, IconPrinter
 } from '@tabler/icons-vue';
 
 // Variables
@@ -66,7 +66,7 @@ const getUrlReportSupOrder = (id) => {
                                     <IconFolderOpen size="20" class="text-sky-600"  stroke="1.5" v-if="purchase.is_selected"/>
                                     <IconFolder size="20"  stroke="1.5" v-else @click="selectPurchase(purchase.order.id)"/>
                                     <a :href="getUrlReportSupOrder(purchase.order.id)" target="_blank">
-                                        <IconFileTypePdf size="20"  stroke="1.5"/>
+                                        <IconPrinter size="20"  stroke="1.5"/>
                                     </a>
                                 </td>
                             </tr>

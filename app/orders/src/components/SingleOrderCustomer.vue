@@ -322,15 +322,15 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
       <div class="row">  
-      <div class="col-12 rounded-1 shadow-sm p-2 bordered bg-gray-200">
+      <div class="col-12 rounded-1 shadow-sm p-2 bordered bg-gray-200 border-gray-300">
         <div class="row">
           <div class="col-4 fs-4">
             {{ orderStore.selectedOrder.order.partner.name }}
           </div>
           <div class="col-8 text-end fs-6">
-              <strong class="bordered rounded-1 bg-white text-dark ps-2 pe-2">Pedido {{ orderStore.selectedOrder.order.id }} </strong>
+              <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">Pedido {{ orderStore.selectedOrder.order.id }} </strong>
               <span class="pe-1 ps-1"></span>
-              <strong class="bordered rounded-1 bg-white text-dark ps-2 pe-2" 
+              <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2" 
               :class="{
                 'bg-green-600 text-white': orderStore.selectedOrder.order.status === 'CONFIRMADO',
                 'bg-yellow-300': orderStore.selectedOrder.order.status === 'PENDIENTE',
