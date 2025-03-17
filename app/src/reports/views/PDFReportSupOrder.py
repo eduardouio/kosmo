@@ -35,6 +35,10 @@ class PDFReportSupOrder(View):
             reverse("order_supplier_template", kwargs={"id_order": id_order})
         ))
 
+        loggin_event('--------------------')
+        loggin_event('localhost' not in target_url)
+        loggin_event('--------------------')
+
         if 'localhost' not in target_url:
             target_url = target_url.replace('http', 'https')
 
