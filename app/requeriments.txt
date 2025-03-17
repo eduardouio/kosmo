@@ -21,3 +21,4 @@ setuptools
 django-user-sessions
 gunicorn
 WeasyPrint
+playwright
