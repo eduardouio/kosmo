@@ -35,7 +35,7 @@ class PDFReportCusOrder(View):
         target_url = str(request.build_absolute_uri(
             reverse("order_customer_template", kwargs={"id_order": id_order})
         ))
-
+        loggin_event(type(target_url))
         if not target_url.contains('localhost'):
             target_url = target_url.replace('http', 'https')
 
