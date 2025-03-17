@@ -65,7 +65,7 @@ const getUrlReportSupOrder = (id) => {
                                 <td class="p-1 d-flex justify-content-end gap-3">
                                     <IconFolderOpen size="20" class="text-sky-600"  stroke="1.5" v-if="purchase.is_selected"/>
                                     <IconFolder size="20"  stroke="1.5" v-else @click="selectPurchase(purchase.order.id)"/>
-                                    <a :href="getUrlReportSupOrder(purchase.order.id)" target="_blank">
+                                    <a :href="getUrlReportSupOrder(purchase.order.id)">
                                         <IconPrinter size="20"  stroke="1.5"/>
                                     </a>
                                 </td>

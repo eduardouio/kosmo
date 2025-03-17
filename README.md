@@ -189,3 +189,8 @@ left join partners_partner pp2 on (pp2.id = to4.partner_id)
 
  
 ```
+
+Observaciones de Reunion
+
+[] Opcion para modificar la cantidad de tallos en un QB o HB
+ 

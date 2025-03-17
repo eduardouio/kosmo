@@ -4,7 +4,7 @@ from datetime import datetime
 from accounts.models.CustomUserModel import CustomUserModel
 
 
-class TemplateReportOrderView(TemplateView):
+class TemplateReportOrderSupView(TemplateView):
     template_name = 'reports/order_supplier.html'
 
     def get_context_data(self, **kwargs):

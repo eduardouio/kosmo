@@ -24,7 +24,7 @@ const updateValues = () => {
     }
 
     if (stems.value != 0) {
-        stockStore.updateValues(stems.value, 'stems');
+        stockStore.updateValues(stems.value, 'qty_stem_flower');
     }
 
     confirmUpdate.value = false;

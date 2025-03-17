@@ -12,6 +12,7 @@ import {
   IconAlertTriangle,
   IconRefresh,
   IconPrinter,
+  IconFileDollar,
 } from '@tabler/icons-vue';
 
 const purchaseStore = usePurchaseStore();
@@ -551,7 +552,7 @@ watch(()=> purchaseStore.selectedPurchase,
           class="btn btn-sm btn-default"
           @click="updateOrder('update')"
           :disabled="orderHaveCeroItem"
-          v-if="isModified"
+          v-if="isModified && purchaseStore.selectedPurchase.order.status != 'CONFIRMADO'" 
         >
           <IconRefresh size="20" stroke="1.5" />
           <span v-if="purchaseStore.selectedPurchase.is_modified">
@@ -566,17 +567,17 @@ watch(()=> purchaseStore.selectedPurchase,
           :disabled="orderHaveCeroItem"
           v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
         >
-          <IconCheckbox size="20" stroke="1.5" />
+          <IconFileDollar size="20" stroke="1.5" />
           <span>Ver Factura</span>
         </button>
-        <button class="btn btn-default btn-sm" @click="updateOrder('confirm')">
+        <button class="btn btn-default btn-sm" @click="updateOrder('confirm')" v-if="purchaseStore.selectedPurchase.order.status != 'CONFIRMADO'">
           <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed"/>
           <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar Compra</span>
           <IconCheckbox size="20" stroke="1.5" v-if="purchaseStore.selectedPurchase.is_confirmed"/>
           <span v-if="purchaseStore.selectedPurchase.is_confirmed">Estoy Seguro</span>
         </button>
         <button class="btn btn-sm btn-default">
-          <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)" target="_blank">
+          <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)">
             <IconPrinter size="20" stroke="1.5" />
             Imprimir
           </a>

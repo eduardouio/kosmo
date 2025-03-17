@@ -7,7 +7,8 @@ import { useStockStore } from '@/stores/stock';
 import Loader from '@/components/Loader.vue';
 import OrderPreview from '@/components/OrderPreview.vue';
 import DataTable from 'datatables.net-dt'
-import { ref, watchEffect, onUnmounted } from 'vue'
+import { ref } from 'vue'
+import { appConfig } from '@/AppConfig';
 import { 
     IconAlertCircle,
     IconClockHour9,
@@ -15,6 +16,7 @@ import {
     IconFileCheck,
     IconHexagonMinus,
     IconFolderOpen,
+    IconPrinter,
 } from '@tabler/icons-vue';
 
 
@@ -50,6 +52,10 @@ const initDataTable = async () => {
     }
 }
 
+const getUrlReportCusOrder = (id) => {
+    let urlReportOrder = appConfig.urlReportCustOrder.replace('{id_order}', id);
+    return urlReportOrder;
+};
 
 // ON MOUNTED
 onMounted(() => {
@@ -153,7 +159,7 @@ onMounted(() => {
                                     <th class="p-1 bg-teal-500">QB</th>
                                     <th class="p-1 bg-teal-500">HB</th>
                                     <th class="p-1 bg-teal-500">Tallos</th>
-                                    <th class="p-1 bg-teal-500">Total</th>
+                                    <th class="p-1 bg-teal-500">Reporte</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -190,9 +196,11 @@ onMounted(() => {
                                     <td class="p-1 text-end">{{ item.order.qb_total }}</td>
                                     <td class="p-1 text-end">{{ item.order.hb_total }}</td>
                                     <td class="p-1 text-end">{{ item.order.total_stem_flower }}</td>
-                                    <td class="p-1 text-end">{{
-                                        baseStore.formatCurrency(item.order.total_price)
-                                        }}</td>
+                                    <td class="p-1 text-center">
+                                        <a :href="getUrlReportCusOrder(item.order.id)">
+                                            <IconPrinter size="20" stroke="1.5" class="text-blue-600" />
+                                        </a>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

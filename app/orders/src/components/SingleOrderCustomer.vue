@@ -299,8 +299,8 @@ const orderHaveCeroItem = computed(() => {
 });
 
 const getUrlReportCusOrder = (id) => {
-    let urlReportSupOrder = appConfig.urlReportSupOrder.replace('{id_order}', id);
-    return urlReportSupOrder;
+    let urlReportOrder = appConfig.urlReportCustOrder.replace('{id_order}', id);
+    return urlReportOrder;
 };
 
 //watchers
@@ -514,7 +514,7 @@ watch(() => orderStore.selectedOrder,
           <span v-else>Actualizar</span>
         </button>
         <button class="btn btn-default btn-sm">
-          <a :href="getUrlReportCusOrder(orderStore.selectedOrder.order.id)" target="_blank">
+          <a :href="getUrlReportCusOrder(orderStore.selectedOrder.order.id)">
             <IconPrinter size="20" stroke="1.5" />
             Imprimir
           </a>
