@@ -101,6 +101,16 @@ class Order(BaseModel):
         blank=True,
         null=True
     )
+    is_invoiced = models.BooleanField(
+        'Facturado',
+        default=False
+    )
+    id_invoice = models.PositiveIntegerField(
+        'Factura',
+        blank=True,
+        null=True,
+        default=0
+    )
 
     @classmethod
     def get_order_by_id(cls, id_order):
