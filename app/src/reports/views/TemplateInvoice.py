@@ -4,8 +4,9 @@ from datetime import datetime
 from accounts.models.CustomUserModel import CustomUserModel
 
 
-class TemplateReportOrderView(TemplateView):
-    template_name = 'reports/order_supplier.html'
+# http://localhost:8000/reports/order-customer-template/12/
+class TemplateReportCusOrderView(TemplateView):
+    template_name = 'reports/order_customer.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -14,7 +15,7 @@ class TemplateReportOrderView(TemplateView):
         order_items = OrderItems.get_by_order(order)
         order_items_det = []
         for item in order_items:
-            order_items_det.append({
+            order_items_det.append({ 
                 'item': item,
                 'box_items': OrderBoxItems.get_by_order_item(item)
             })
@@ -33,6 +34,7 @@ class TemplateReportOrderView(TemplateView):
             'total_qb': 0,
             'total_fb': 0,
             'total_stems': 0,
+            'total_boxes': 0,
             'pieces': len(order_items_det),
             'varieties': [],
         }
@@ -45,6 +47,7 @@ class TemplateReportOrderView(TemplateView):
                 if box_item.product.variety not in totals['varieties']:
                     totals['varieties'].append(box_item.product.variety)
 
-        totals['total_fb'] = totals['total_qb'] // 4 + totals['total_hb'] // 2
+        total_hb = totals['total_qb'] // 2 + totals['total_hb']
+        totals['total_fb'] = total_hb // 2
 
         return totals

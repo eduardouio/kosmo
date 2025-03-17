@@ -8,6 +8,8 @@ import {
     IconLayersIntersect2, 
     IconAlertTriangle,
     IconRefresh,
+    IconFileTypePdf,
+    IconPrinter,
 } from '@tabler/icons-vue';
 
 const orderStore = useOrdersStore();
@@ -506,6 +508,8 @@ watch(() => orderStore.selectedOrder,
           <span v-else>Actualizar</span>
         </button>
         <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.order.status === 'CONFIRMADO'">
+          <IconFileTypePdf size="20" stroke="1.5" />
+          <IconPrinter size="20" stroke="1.5" />
           Ver Factura
         </button>
         <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.order.status === 'CONFIRMADO'">Ver Factura</button>
