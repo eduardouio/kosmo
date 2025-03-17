@@ -34,17 +34,18 @@ class PDFReportSupOrder(View):
         target_url = str(request.build_absolute_uri(
             reverse("order_supplier_template", kwargs={"id_order": id_order})
         ))
-        loggin_event(f'Generando PDF de la orden {id_order} {target_url}')
-        loggin_event(type(target_url))
-        if not target_url.contains('localhost'):
+
+        if 'localhost' not in target_url:
             target_url = target_url.replace('http', 'https')
 
         loggin_event(f'Generando PDF de la orden {id_order} {target_url}')
         order = Order.objects.get(id=id_order)
         output_pdf = f"PO-{id_order}-{order.partner.short_name}.pdf"
         self.render_and_capture_pdf(target_url, output_pdf)
+
         return FileResponse(
             open(output_pdf, "rb"),
             content_type="application/pdf",
             as_attachment=True
         )
+
