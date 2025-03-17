@@ -36,11 +36,7 @@ class PDFReportCusOrder(View):
             reverse("order_customer_template", kwargs={"id_order": id_order})
         ))
 
-        loggin_event('--------------------')
-        loggin_event('localhost' not in target_url)
-        loggin_event('--------------------')
-        if 'localhost' not in target_url:
-            target_url = target_url.replace('http', 'https')
+        target_url = target_url.replace('http', 'https')
 
         loggin_event(f'Generando PDF de la orden {id_order} {target_url}')
         order = Order.objects.get(id=id_order)
