@@ -65,7 +65,7 @@
                 </div>
                 <!-- Tabla de productos -->
                 <div class="w-95 mb-6 min-w-full">
-                    <table class="text-xs">
+                    <table class="text-xs min-w-full">
                         <thead>
                             <tr class="">
                                 <th class="border border-gray-700 bg-orange-300 px-2 py-2 text-center text-wrap">BOXES</th>
@@ -132,11 +132,6 @@
                     <div>
                         <p><strong>TOTAL TALLOS:</strong> {{ totals.total_stems }}</p>
                         <p><strong>TOTAL FB:</strong> {{ totals.total_fb }}</p>
-                        <p class="flex gap-2"><strong>VARIEDADES:</strong> 
-                            {% for variety in  totals.varieties %}
-                                <span class="text-xs text-blue-600 border border-gray-100">{{  variety }} </span>
-                            {% endfor %}
-                        </p>
                     </div>
                 </div>
         
