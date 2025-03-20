@@ -87,6 +87,24 @@ class Order(BaseModel):
         decimal_places=2,
         default=0
     )
+    total_sale_price = models.DecimalField(
+        'Precio total de venta',
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    total_margin = models.DecimalField(
+        'Margen total',
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    comision_seler = models.DecimalField(
+        'Comisión Vendedor',
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
     qb_total = models.PositiveSmallIntegerField(
         'Total QB',
         default=0
