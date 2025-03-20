@@ -4,6 +4,7 @@ from playwright.sync_api import sync_playwright
 from django.urls import reverse
 from trade.models import Order
 from common.AppLoger import loggin_event
+from django.conf import settings
 
 
 class PDFReportSupOrder(View):
@@ -35,7 +36,8 @@ class PDFReportSupOrder(View):
             reverse("order_supplier_template", kwargs={"id_order": id_order})
         ))
 
-        target_url = target_url.replace('http', 'https')
+        if settings.IS_IN_PRODUCTION:
+            target_url = target_url.replace('http', 'https')
 
         loggin_event(f'Generando PDF de la orden {id_order} {target_url}')
         order = Order.objects.get(id=id_order)
