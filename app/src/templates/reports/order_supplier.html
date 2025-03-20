@@ -72,7 +72,6 @@
                                 <th class="border border-gray-700 bg-orange-300 px-2 py-2 text-center text-wrap">SZ</th>
                                 <th class="border border-gray-700 bg-orange-300 px-2 py-2 text-center text-wrap">VARIETY</th>
                                 <th class="border border-gray-700 bg-orange-300 px-2 py-2 text-center text-wrap">STEM LENGTH</th>
-                                <th class="border border-gray-700 bg-orange-300 px-2 py-2 text-center text-wrap">STEMS / BUNCH</th>
                                 <th class="border border-gray-700 bg-orange-300 px-2 py-2 text-center text-wrap">TOTAL STEMS</th>
                                 <th class="border border-gray-700 bg-orange-300 px-2 py-2 text-center text-wrap">UNIT PRICE $</th>
                                 <th class="border border-gray-700 bg-orange-300 px-2 py-2 text-center text-wrap">TOTAL PRICE $</th>
@@ -91,11 +90,6 @@
                                 <td class="border border-gray-700 px-4 py-2">
                                     {% for bxs in item.box_items %}
                                     <p>{{ bxs.length}}</p>
-                                    {% endfor %}
-                                </td>
-                                <td class="border border-gray-700 px-4 py-2">
-                                    {% for bxs in item.box_items %}
-                                    <p>{{ bxs.qty_stem_flower }}</p>
                                     {% endfor %}
                                 </td>
                                 <td class="border border-gray-700 px-4 py-2">

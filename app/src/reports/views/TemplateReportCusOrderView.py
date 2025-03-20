@@ -36,16 +36,12 @@ class TemplateReportCusOrderView(TemplateView):
             'total_stems': 0,
             'total_boxes': 0,
             'pieces': len(order_items_det),
-            'varieties': [],
         }
 
         for item in order_items_det:
             totals['total_hb'] += item['item'].quantity if item['item'].box_model == 'HB' else 0
             totals['total_qb'] += item['item'].quantity if item['item'].box_model == 'QB' else 0
             totals['total_stems'] += item['item'].tot_stem_flower
-            for box_item in item['box_items']:
-                if box_item.product.variety not in totals['varieties']:
-                    totals['varieties'].append(box_item.product.variety)
 
         total_hb = totals['total_qb'] // 2 + totals['total_hb']
         totals['total_fb'] = total_hb // 2

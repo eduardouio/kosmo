@@ -87,12 +87,6 @@ class Order(BaseModel):
         decimal_places=2,
         default=0
     )
-    total_sale_price = models.DecimalField(
-        'Precio total de venta',
-        max_digits=10,
-        decimal_places=2,
-        default=0
-    )
     total_margin = models.DecimalField(
         'Margen total',
         max_digits=10,
@@ -182,6 +176,7 @@ class Order(BaseModel):
     def rebuild_totals(self, order):
         loggin_event(f"Reconstruyendo totales de orden {order.id}")
         total_price = 0
+        total_margin = 0
         qb_total = 0
         hb_total = 0
         total_stem_flower = 0
@@ -189,17 +184,24 @@ class Order(BaseModel):
             OrderItems.rebuild_order_item(order_item)
 
         for order_item in OrderItems.get_by_order(order):
-            total_price += order_item.line_total
+            total_price += order_item.line_price
+            total_margin += order_item.line_margin
+
             total_stem_flower += order_item.tot_stem_flower
             if order_item.box_model == 'QB':
                 qb_total += (order_item.quantity)
             elif order_item.box_model == 'HB':
                 hb_total += (order_item.quantity)
 
-        order.total_price = total_price
         order.qb_total = qb_total
         order.hb_total = hb_total
         order.total_stem_flower = total_stem_flower
+        order.total_margin = total_margin
+
+        if order.type_document == 'ORD_VENTA':
+            order.total_price = total_price + total_margin
+        else:
+            order.total_price = total_price
         order.save()
 
 
@@ -331,6 +333,7 @@ class OrderItems(BaseModel):
         total_stem_flower = 0
         total_cost_price = 0
         total_margin = 0
+
         for box in OrderBoxItems.get_box_items(order_item):
             total_stem_flower += box.qty_stem_flower
             total_cost_price += box.stem_cost_price
@@ -381,6 +384,10 @@ class OrderBoxItems(BaseModel):
         decimal_places=2,
         default=0.06
     )
+
+    @property
+    def stem_cost_total(self):
+        return self.stem_cost_price + self.profit_margin
 
     @classmethod
     def get_by_order_item(cls, order_item):
