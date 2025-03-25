@@ -160,7 +160,8 @@ class Order(BaseModel):
         if len(sup_orders):
             return sup_orders
 
-        loggin_event(f"La orden {sale_order.pk} no tiene ordenes de proveedor", True)
+        loggin_event(
+            f"La orden {sale_order.pk} no tiene ordenes de proveedor", True)
         return None
 
     @classmethod
@@ -332,7 +333,6 @@ class OrderItems(BaseModel):
         order_item.is_active = False
         order_item.save()
         OrderBoxItems.disable_by_order_items(order_item)
-        
 
     @classmethod
     def rebuild_order_item(cls, order_item):

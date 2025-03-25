@@ -1,18 +1,19 @@
 from django.db import models
 from common import BaseModel
 from .Order import Order, OrderItems
+from products.models import Product
+
+
+STATUS_CHOICES = (
+    ('PENDIENTE', 'PENDIENTE'),
+    ('PAGADO', 'PAGADO'),
+    ('ANULADO', 'ANULADO'),
+)
+
 TYPE_DOCUMENT_CHOICES = (
     ('FAC_VENTA', 'FACTURA VENTA'),
     ('FAC_COMPRA', 'FACTURA COMPRA'),
 )
-
-# las compras siempre son locales, las ventas son exportación o local
-TYPE_INVOICE_CHOICES = (
-    ('EXPORT', 'EXPORTACIÓN'),
-    ('INTERN', 'NACIONAL'),
-    ('NA', 'NO APLICA')
-)
-
 
 BOX_CHOICES = (
     ('HB', 'HB'),
@@ -41,11 +42,6 @@ class Invoice(BaseModel):
         max_length=50,
         choices=TYPE_DOCUMENT_CHOICES,
     )
-    type_invoice = models.CharField(
-        'Tipo de Factura',
-        max_length=50,
-        choices=TYPE_INVOICE_CHOICES,
-    )
     date = models.DateTimeField(
         'Fecha',
         auto_now=True
@@ -57,6 +53,18 @@ class Invoice(BaseModel):
     )
     total_price = models.DecimalField(
         'Precio total',
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    total_margin = models.DecimalField(
+        'Margen total',
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+    comision_seler = models.DecimalField(
+        'Comisión Vendedor',
         max_digits=10,
         decimal_places=2,
         default=0
@@ -148,19 +156,36 @@ class InvoiceItems(BaseModel):
         OrderItems,
         on_delete=models.CASCADE
     )
-    qty_stem_flower = models.IntegerField(
+    box_model = models.CharField(
+        'Tipo de caja',
+        max_length=50,
+        choices=BOX_CHOICES
+    )
+    quantity = models.PositiveSmallIntegerField(
+        'Cant Cajas',
+        default=0
+    )
+    tot_stem_flower = models.IntegerField(
         'Cantidad Tallos',
         default=0
     )
     line_price = models.DecimalField(
-        'Precio',
+        'Precio Linea',
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=0.00
     )
-    line_discount = models.DecimalField(
-        'Descuento',
+    line_margin = models.DecimalField(
+        'Margen Linea',
+        max_digits=5,
+        decimal_places=2,
+        default=0.06
+    )
+    line_total = models.DecimalField(
+        'Precio Total',
         max_digits=10,
-        decimal_places=2
+        decimal_places=2,
+        default=0.00
     )
 
     @classmethod
@@ -169,3 +194,36 @@ class InvoiceItems(BaseModel):
 
     def __str__(self):
         return f"Item {self.id} - {self.invoice.order.customer.name}"
+
+
+class InvoiceBoxItems(BaseModel):
+    id = models.AutoField(
+        primary_key=True
+    )
+    order_item = models.ForeignKey(
+        OrderItems,
+        on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE
+    )
+    length = models.PositiveSmallIntegerField(
+        'Largo CM',
+    )
+    qty_stem_flower = models.IntegerField(
+        'Cant Tallos',
+        default=0,
+        help_text='Cantidad de tallos de flor'
+    )
+    stem_cost_price = models.DecimalField(
+        'Precio de costo Tallo',
+        max_digits=10,
+        decimal_places=2
+    )
+    profit_margin = models.DecimalField(
+        'Margen de Ganancia',
+        max_digits=5,
+        decimal_places=2,
+        default=0.06
+    )
