@@ -20,7 +20,9 @@ class SyncOrders:
     def sync_customer(self, sup_order):
         loggin_event(f"Actualizando ordern del cliente {sup_order.id}")
         cus_order = Order.get_order_by_id(sup_order.parent_order.id)
-        cust_order_items = OrderItems.get_by_supplier(cus_order, sup_order.partner)
+        cust_order_items = OrderItems.get_by_supplier(
+            cus_order, sup_order.partner
+        )
         sup_order_items = OrderItems.get_by_order(sup_order)
         if cus_order.status not in ['PENDIENTE', 'MODIFICADO']:
             loggin_event(
@@ -96,11 +98,12 @@ class SyncOrders:
 
         # agrupamos ordenes de compra anteriores
         for sup_order in old_supplier_orders:
-            old_complete_supplier_orders.append({
-                'order': sup_order,
-                'supplier': sup_order.partner,
-                'order_items': OrderItems.get_by_order(sup_order.pk)
-            })
+            if sup_order.status not in ['CANCELADO']:
+                old_complete_supplier_orders.append({
+                    'order': sup_order,
+                    'supplier': sup_order.partner,
+                    'order_items': OrderItems.get_by_order(sup_order.pk)
+                })
 
         self.compare_orders(old_complete_supplier_orders,
                             order_customer_by_supplier,
@@ -257,3 +260,20 @@ class SyncOrders:
                 self._create_order_box_items(ord, ord_item)
             Order.rebuild_totals(sup_order)
             loggin_event(f"Orden de compra {sup_order.id} creada con exito")
+
+    def cancell_supplier_orders(self, order):
+        loggin_event(f"Cancelando orden de compra {order.id}")
+        if order.status in ['FACTURADO', 'CANCELADO']:
+            return False
+        order_suplier = Order.get_by_parent_order(order.pk)
+        for order_sup in order_suplier:
+            order_sup.status = 'CANCELADO'
+            order_sup.save()
+        order.status = 'CANCELADO'
+        order.save()
+        return True
+
+
+    def update_customer_order(self, cus_order):
+        loggin_event(f"Actualizando orden de venta {cus_order.id}")
+        

@@ -212,12 +212,11 @@ const updateOrder = async (action) => {
       break;
     case 'cancell':
       if (purchaseStore.selectedPurchase.is_cancelled) {
-        purchaseStore.selectedPurchase.order.status = 'CANCELADO';
         const response = await purchaseStore.cancelOrder();
         if (response) {
           console.log('Cancelar los items de la orden Venta');
+          purchaseStore.selectedPurchase.order.status = 'CANCELADO';
         }
-        purchaseStore.selectedPurchase.is_confirmed = false;
       } else {
         purchaseStore.selectedPurchase.is_cancelled = true;
       }

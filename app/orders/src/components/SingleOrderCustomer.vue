@@ -199,10 +199,13 @@ const updateOrder = async (action) => {
       break;
     case 'cancell':
       if(orderStore.selectedOrder.is_cancelled){
-        orderStore.selectedOrder.is_modified = false;
         orderStore.selectedOrder.order.status = 'CANCELADO';
-        orderStore.cancellOrder();
-        location.reload();
+        const response = await orderStore.cancellOrder();
+        if (response){
+          orderStore.selectedOrder.is_cancelled = true;
+          orderStore.selectedOrder.is_modified = false;
+          location.reload();
+        }
       }else{
         orderStore.selectedOrder.is_cancelled = true;
       }

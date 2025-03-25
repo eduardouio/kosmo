@@ -23,7 +23,7 @@ export const appConfig = {
     "urlUpdateOrder": apiBaseUrl + "/api/orders/update-customer-order/",
     "urlPurchaseOrdersByCustomerOrder": apiBaseUrl + "/api/orders/purchase_orders/{id_customer_order}/",
     "urlUpdateSupplierOrder": apiBaseUrl + "/api/orders/update-supplier-order/",
-    "urlCancelOrder": apiBaseUrl + "api/orders/cancel-order/",
+    "urlCancelOrder": apiBaseUrl + "/api/orders/cancel-order/",
     "urlConfirmOrder": apiBaseUrl + "/api/orders/confirm-order/",
     "urlReportSupOrder": apiBaseUrl + "/reports/order-supplier/{id_order}/",
     "urlReportCustOrder": apiBaseUrl + "/reports/order-customer/{id_order}/",
