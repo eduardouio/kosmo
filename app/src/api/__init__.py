@@ -12,4 +12,5 @@ from .OrderPurchaseByOrderSale import OrderPurchaseByOrderSale
 from .AllOrderDetailAPI import AllOrderDetailAPI
 from .UpdateSupplierOrderAPI import UpdateSupplierOrderAPI
 from .CancelCustomerOrderAPI import CancelCustomerOrderAPI
+from .CancelSupplierOrderAPI import CancelSupplierOrderAPI
 from .AproveOrderAPI import AproveOrderAPI

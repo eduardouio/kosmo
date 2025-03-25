@@ -14,6 +14,7 @@ from api import (
     AllOrderDetailAPI,
     UpdateSupplierOrderAPI,
     CancelCustomerOrderAPI,
+    CancelSupplierOrderAPI,
     AproveOrderAPI,
 )
 
@@ -33,5 +34,6 @@ urlpatterns = [
     path('api/orders/order-detail/<int:id_stock_day>/', AllOrderDetailAPI.as_view(), name='order_detail'),
     path('api/orders/update-supplier-order/', UpdateSupplierOrderAPI.as_view(), name='update_supplier_order'),
     path('api/orders/cancel-order/', CancelCustomerOrderAPI.as_view(), name='cancel_order'),
+    path('api/orders/cancel-supplier-order/', CancelSupplierOrderAPI.as_view(), name='cancel_supplier_order'),
     path('api/orders/confirm-order/', AproveOrderAPI.as_view(), name='confirm_order'),
 ]

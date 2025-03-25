@@ -19,7 +19,9 @@ const purchaseStore = usePurchaseStore();
 
 const confirmDelete = ref(false);
 const exceedLimit = ref(false);
-const deleteMessage = ref('El item marcado será eliminado del pedido, haga clic nuevamente para confirmar');
+const deleteMessage = ref(
+  'El item marcado será eliminado del pedido, haga clic nuevamente para confirmar'
+);
 const exceedLimitMessage = ref('');
 const isModified = ref(false);
 
@@ -29,7 +31,10 @@ const calcTotalByItem = (item) => {
   let items = item.box_items.map((i) => i);
   total = items.reduce((acc, boxItem) => {
     return (
-      acc + (boxItem.stem_cost_price + parseFloat(boxItem.margin)) * parseFloat(boxItem.qty_stem_flower)
+      acc + (
+        boxItem.stem_cost_price + parseFloat(boxItem.margin)) 
+        * parseFloat(boxItem.qty_stem_flower
+        )
     );
   }, 0) * item.quantity;
   item.line_total = total;
@@ -211,11 +216,13 @@ const updateOrder = async (action) => {
       }
       break;
     case 'cancell':
+      console.log('Cancelar la orden de compra');
       if (purchaseStore.selectedPurchase.is_cancelled) {
-        const response = await purchaseStore.cancelOrder();
+        const response = await purchaseStore.cancellOrder();
         if (response) {
           console.log('Cancelar los items de la orden Venta');
           purchaseStore.selectedPurchase.order.status = 'CANCELADO';
+          location.reload();
         }
       } else {
         purchaseStore.selectedPurchase.is_cancelled = true;

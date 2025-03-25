@@ -24,7 +24,7 @@ class AproveOrderAPI(View):
         all_confirmed = True
         all_sup_orders = Order.get_by_parent_order(cus_order)
         for sup_order in all_sup_orders:
-            if sup_order.status != 'CONFIRMADO':
+            if sup_order.status in ['PENDIENTE', 'MODIFICADO']:
                 all_confirmed = False
                 break
 

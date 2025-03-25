@@ -328,6 +328,13 @@ class OrderItems(BaseModel):
             OrderBoxItems.disable_by_order_items(order_item)
 
     @classmethod
+    def disable_by_order_item(cls, order_item):
+        order_item.is_active = False
+        order_item.save()
+        OrderBoxItems.disable_by_order_items(order_item)
+        
+
+    @classmethod
     def rebuild_order_item(cls, order_item):
         loggin_event(f"Reconstruyendo item de orden {order_item.id}")
         total_stem_flower = 0

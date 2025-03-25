@@ -91,9 +91,8 @@ export const usePurchaseStore = defineStore("purchaseStore", {
     async cancellOrder() {
       console.log("Cancelando orden de compra...");
       try {
-        const response = await axios.post(
-          appConfig.urlCancelOrder,
-          this.selectedPurchase.order.id,
+        const response = await axios.post(appConfig.urlCancelSupplierOrder,
+          {id_order: this.selectedPurchase.order.id},
           { headers: appConfig.headers }
         );
         console.log("Orden de compra cancelada: " + response.data);
