@@ -81,6 +81,12 @@ sudo systemctl restart nginx.service
 ```
 
 
+## Exportar Datos
+```bash
+./mananage.py makemigrations export_model orders
+```
+
+
 # Lista de Fincas a Verificar
 
 | **Nombre de la Finca**              | **Verificado** |

@@ -58,7 +58,6 @@ class InvoiceAdmin(SimpleHistoryAdmin):
         'partner',
         'num_invoice',
         'type_document',
-        'type_invoice',
         'date',
         'due_date',
         'status'
@@ -66,7 +65,6 @@ class InvoiceAdmin(SimpleHistoryAdmin):
     search_fields = (
         'num_invoice',
         'type_document',
-        'type_invoice',
         'partner__name'
     )
 
@@ -74,10 +72,10 @@ class InvoiceAdmin(SimpleHistoryAdmin):
 class InvoiceItemsAdmin(SimpleHistoryAdmin):
     list_display = (
         'invoice',
-        'order_item',
-        'qty_stem_flower',
+        'tot_stem_flower',
         'line_price',
-        'line_discount'
+        'line_margin',
+        'line_total'
     )
 
 

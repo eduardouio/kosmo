@@ -20,13 +20,13 @@ def check_file():
 def _logging_message(message):
     check_file()
     with open(LOG_FILE_PATH, "a") as file:
-        file.write(f"[{datetime.now()}] -> MESSAGE {message}\n")
+        file.write(f"[{datetime.now()}] [MESSAGE] {message}\n")
 
 
 def _logging_error(message):
     check_file()
     with open(LOG_FILE_PATH, "a") as file:
-        file.write(f"[{datetime.now()}] -> ERROR: {message}\n")
+        file.write(f"[{datetime.now()}] [ERROR]: {message}\n")
 
 
 def loggin_event(message, error=False):

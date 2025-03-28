@@ -16,6 +16,24 @@ class DAE(BaseModel):
         max_length=50,
         unique=True
     )
+    awb = models.CharField(
+        'MAWB',
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    hawb = models.CharField(
+        'HAWB',
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    cargo_agency = models.CharField(
+        'Agencia de Carga',
+        max_length=50,
+        blank=True,
+        null=True
+    )
     date_begin = models.DateField(
         'Fecha de Inicio',
     )

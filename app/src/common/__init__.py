@@ -7,3 +7,4 @@ from .SerializerStock import SerializerStock
 from .SerializerCustomerOrder import SerializerCustomerOrder
 from .SerializerSupplierOrder import SerializerSupplierOrder
 from .SyncOrders import SyncOrders
+from .InvoiceOrder import InvoiceOrder
