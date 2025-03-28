@@ -26,9 +26,16 @@ class InvoiceOrder:
             return False
 
         if order.type_document == "ORD_VENTA":
-            return self.gnerate_invoice_customer(order)
+            invoice = self.gnerate_invoice_customer(order)
+        else:
+            invoice = self.generate_invoice_supplier(order)
 
-        return self.generate_invoice_supplier(order)
+        order.is_invoiced = True
+        order.id_invoice = invoice.id
+        order.save()
+        loggin_event(f'Factura generada correctamente {invoice.id}')
+        Invoice.rebuild_totals(invoice)
+        return invoice
 
     def gnerate_invoice_customer(self, order):
         loggin_event(f"Generando factura para la ORDEN VENTA {order.id}")
@@ -43,16 +50,15 @@ class InvoiceOrder:
             date=datetime.now(),
             due_date=due_date,
             status='PENDIENTE',
-            dae_export=dae.dae,
-            awb=dae.awb,
-            hawb=dae.hawb,
-            cargo_agency=dae.cargo_agency
+            dae_export=dae.dae if dae else None,
+            awb=dae.awb if dae else None,
+            hawb=dae.hawb if dae else None,
+            cargo_agency=dae.cargo_agency if dae else None
         )
         # cargamos los items de la orden a la factura
         for oi in OrderItems.get_by_order(order.id):
             inv_item = InvoiceItems.objects.create(
                 invoice=invoice,
-                order_item=oi,
                 box_model=oi.box_model,
                 id_order_item=oi.id,
                 quantity=oi.quantity,
@@ -69,28 +75,26 @@ class InvoiceOrder:
                     length=obx.length,
                     qty_stem_flower=obx.qty_stem_flower,
                     stem_cost_price=obx.stem_cost_price,
-                    stem_price=obx.stem_price,
-                    stem_margin=obx.stem_margin,
+                    profit_margin=obx.profit_margin,
                 )
 
-        # calculamos los totales de la factura
-        Invoice.rebuild_totals(invoice)
-        order.is_invoiced = True
-        order.id_invoice = invoice.id
-        order.save()
         return invoice
 
     def generate_invoice_supplier(self, order):
         loggin_event(f"Generando factura para la ORDEN COMPRA {order.id}")
+        days = order.partner.credit_term
+        due_date = datetime.now() + timedelta(days=days)
+
         invoice = Invoice.objects.create(
             order=order,
             partner=order.partner,
             type_document='FAC_COMPRA',
-            total_price=order.total_price,
+            date=datetime.now(),
+            due_date=due_date,
             status='PENDIENTE',
         )
-        order_items = OrderItems.get_by_order(order.id)
-        for oi in order_items:
+        # cargamos los items de la orden a la factura
+        for oi in OrderItems.get_by_order(order.id):
             inv_item = InvoiceItems.objects.create(
                 invoice=invoice,
                 id_order_item=oi.id,
@@ -99,7 +103,7 @@ class InvoiceOrder:
                 tot_stem_flower=oi.tot_stem_flower,
                 line_price=oi.line_price,
                 line_margin=oi.line_margin,
-                line_total=oi.line_total
+                line_total=oi.line_price
             )
             order_box_items = OrderBoxItems.objects.filter(order_item=oi)
             for obx in order_box_items:
@@ -107,6 +111,9 @@ class InvoiceOrder:
                     invoice_item=inv_item,
                     product=obx.product,
                     length=obx.length,
-                    qty_stem_flower=obx.qty_stem_flower
+                    qty_stem_flower=obx.qty_stem_flower,
+                    stem_cost_price=obx.stem_cost_price,
+                    profit_margin=obx.profit_margin,
                 )
+
         return invoice

@@ -178,6 +178,7 @@ class Order(BaseModel):
         loggin_event(f"Reconstruyendo totales de orden {order.id}")
         total_price = 0
         total_margin = 0
+        total_order = 0
         qb_total = 0
         hb_total = 0
         total_stem_flower = 0
@@ -187,8 +188,9 @@ class Order(BaseModel):
         for order_item in OrderItems.get_by_order(order):
             total_price += order_item.line_price
             total_margin += order_item.line_margin
-
+            total_order += order_item.line_total
             total_stem_flower += order_item.tot_stem_flower
+
             if order_item.box_model == 'QB':
                 qb_total += (order_item.quantity)
             elif order_item.box_model == 'HB':
@@ -196,11 +198,11 @@ class Order(BaseModel):
 
         order.qb_total = qb_total
         order.hb_total = hb_total
-        order.total_stem_flower = total_stem_flower
         order.total_margin = total_margin
+        order.total_stem_flower = total_stem_flower
 
         if order.type_document == 'ORD_VENTA':
-            order.total_price = total_price + total_margin
+            order.total_price = total_order
         else:
             order.total_price = total_price
         order.save()
@@ -342,17 +344,14 @@ class OrderItems(BaseModel):
         total_margin = 0
 
         for box in OrderBoxItems.get_box_items(order_item):
-            total_stem_flower += box.qty_stem_flower
-            total_cost_price += box.stem_cost_price
-            total_margin += box.profit_margin
+            total_stem_flower += box.qty_stem_flower * order_item.quantity
+            total_cost_price += (box.stem_cost_price * box.qty_stem_flower)
+            total_margin += (box.profit_margin * box.qty_stem_flower)
 
-        order_item.tot_stem_flower = total_stem_flower * order_item.quantity
-        order_item.line_price = total_cost_price * total_stem_flower
-        order_item.line_margin = total_margin * total_stem_flower
-        order_item.line_total = (
-            (total_cost_price + total_margin)
-            * total_stem_flower * order_item.quantity
-        )
+        order_item.tot_stem_flower = total_stem_flower
+        order_item.line_price = total_cost_price * order_item.quantity
+        order_item.line_margin = total_margin * order_item.quantity
+        order_item.line_total = (total_cost_price + total_margin) * order_item.quantity
         order_item.save()
 
 # -----------------------------------------------------------------------------
@@ -422,11 +421,11 @@ class OrderBoxItems(BaseModel):
         total_margin = 0
         for box in cls.get_box_items(order_item):
             total_stem_flower += box.qty_stem_flower
-            total_cost_price += box.stem_cost_price
-            total_margin += box.profit_margin
+            total_cost_price += box.stem_cost_price * box.qty_stem_flower
+            total_margin += box.profit_margin * box.qty_stem_flower
 
-        order_item.tot_stem_flower = total_stem_flower
-        order_item.line_price = total_cost_price
-        order_item.line_margin = total_margin
-        order_item.line_total = total_cost_price * total_margin
+        order_item.tot_stem_flower = total_stem_flower * order_item.quantity
+        order_item.line_price = total_cost_price * order_item.quantity
+        order_item.line_margin = total_margin * order_item.quantity
+        order_item.line_total = (total_cost_price + total_margin) * order_item.quantity
         order_item.save()

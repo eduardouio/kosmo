@@ -85,6 +85,12 @@ class Invoice(BaseModel):
         null=True,
         default=0
     )
+    tot_stem_flower = models.IntegerField(
+        'Cantidad Total de Tallos',
+        blank=True,
+        null=True,
+        default=0,
+    )
     awb = models.CharField(
         'MAWB',
         max_length=50,
@@ -158,6 +164,7 @@ class Invoice(BaseModel):
         loggin_event(f"Reconstruyendo totales de factura {invoice.id}")
         total_price = 0
         total_margin = 0
+        total_invoice = 0
         qb_total = 0
         hb_total = 0
         total_stem_flower = 0
@@ -168,8 +175,9 @@ class Invoice(BaseModel):
         for invoice_item in InvoiceItems.get_invoice_items(invoice):
             total_price += invoice_item.line_price
             total_margin += invoice_item.line_margin
+            total_invoice += invoice_item.line_total
             total_stem_flower += invoice_item.tot_stem_flower
-            
+
             if invoice_item.box_model == 'QB':
                 qb_total += invoice_item.quantity
             elif invoice_item.box_model == 'HB':
@@ -178,11 +186,13 @@ class Invoice(BaseModel):
         invoice.qb_total = qb_total
         invoice.hb_total = hb_total
         invoice.total_margin = total_margin
+        invoice.tot_stem_flower = total_stem_flower
 
         if invoice.type_document == 'FAC_VENTA':
-            invoice.total_price = total_price + total_margin
+            invoice.total_price = total_invoice
         else:
             invoice.total_price = total_price
+
         invoice.save()
 
     def __str__(self):
@@ -244,30 +254,31 @@ class InvoiceItems(BaseModel):
         loggin_event(f"Reconstruyendo item de factura {invoice_item.id}")
         box_items = InvoiceBoxItems.get_box_items(invoice_item)
         total_stem_flower = sum(box.qty_stem_flower for box in box_items)
-        total_cost_price = sum(box.stem_cost_price for box in box_items)
-        total_margin = sum(box.profit_margin for box in box_items)
+        total_cost_price = sum(
+            (box.stem_cost_price * box.qty_stem_flower) for box in box_items
+        )
+        total_margin = sum(
+            (box.profit_margin * box.qty_stem_flower) for box in box_items
+        )
 
         invoice_item.tot_stem_flower = (
             total_stem_flower * invoice_item.quantity
         )
-        invoice_item.line_price = total_cost_price * total_stem_flower
-        invoice_item.line_margin = total_margin * total_stem_flower
-        invoice_item.line_total = (
-            (total_cost_price + total_margin)
-            * total_stem_flower * invoice_item.quantity
-        )
+        invoice_item.line_price = total_cost_price * invoice_item.quantity
+        invoice_item.line_margin = total_margin * invoice_item.quantity
+        invoice_item.line_total = (total_cost_price + total_margin) * invoice_item.quantity
         invoice_item.save()
 
     def __str__(self):
-        return f"Item {self.id} - {self.invoice.order.customer.name}"
+        return f"Item {self.id} - {self.invoice}"
 
 
 class InvoiceBoxItems(BaseModel):
     id = models.AutoField(
         primary_key=True
     )
-    order_item = models.ForeignKey(
-        OrderItems,
+    invoice_item = models.ForeignKey(
+        InvoiceItems,
         on_delete=models.CASCADE
     )
     product = models.ForeignKey(
@@ -301,7 +312,7 @@ class InvoiceBoxItems(BaseModel):
             box_item.is_active = False
             box_item.save()
 
-    @classmethod 
+    @classmethod
     def get_box_items(cls, invoice_item):
         return cls.objects.filter(
             invoice_item=invoice_item,

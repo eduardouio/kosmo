@@ -12,8 +12,36 @@ class TestCreateInvoiceOrder():
         result = InvoiceOrder().generate_invoice(order)
         assert result is False
 
-    def generate_supplier_invoice(self, order):
+    def test_generate_supplier_invoice(self):
         loggin_event("[TEST] Pasando la prueba de orden compra aprobada")
         order = Order.get_order_by_id(9)
+        Order.rebuild_totals(order)
         result = InvoiceOrder().generate_invoice(order)
         assert isinstance(result, Invoice)
+        assert result.partner == order.partner
+        assert result.type_document == 'FAC_COMPRA'
+        assert result.total_price == order.total_price
+        assert result.status == 'PENDIENTE'
+        assert result.order == order
+        assert result.qb_total == 3
+        assert result.hb_total == 2
+        assert result.total_price == 508.75
+        assert result.total_margin == 63.75
+        assert result.tot_stem_flower == 1275
+
+    def test_generate_invoice_customer(self):
+        loggin_event("[TEST] Pasando la prueba de orden venta aprobada")
+        order = Order.get_order_by_id(8)
+        Order.rebuild_totals(order)
+        result = InvoiceOrder().generate_invoice(order)
+        assert isinstance(result, Invoice)
+        assert result.partner == order.partner
+        assert result.type_document == 'FAC_VENTA'
+        assert result.status == 'PENDIENTE'
+        assert result.order == order
+        assert result.qb_total == 13
+        assert result.hb_total == 3
+        assert result.total_price == 1514.50
+        assert result.total_margin == 195.75
+        assert result.tot_stem_flower == 2925
+        assert result.total_price == order.total_price
