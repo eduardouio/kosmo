@@ -443,7 +443,7 @@ watch(() => orderStore.selectedOrder,
       </div>
       <div class="col-1 text-end border-end d-flex align-items-end gap-2 ">
         {{ item.box_model }}
-        <span v-if="!orderStore.selectedOrder.is_invoiced"">/</span>
+        <span v-if="!orderStore.selectedOrder.is_invoiced">/</span>
         <IconSitemap size="20" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB' && !orderStore.selectedOrder.is_invoiced" />
         <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB' && !orderStore.selectedOrder.is_invoiced" />
       </div>
