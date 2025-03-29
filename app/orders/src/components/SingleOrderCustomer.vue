@@ -432,13 +432,15 @@ watch(() => orderStore.selectedOrder,
           @click="deleteOrderItem(item)" />
         <input type="number" step="1" class="form-control form-control-sm text-end" v-model="item.quantity"
           @change="(event) => delimitedNumber(event, item)" @focus="selectText"
-          @keydown="event => handleKeydown(event, '.form-control-sm')" />
+          @keydown="event => handleKeydown(event, '.form-control-sm')"
+          :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
+           />
       </div>
       <div class="col-1 text-end border-end d-flex align-items-end gap-2 ">
         {{ item.box_model }}
-        <span>/</span>
-        <IconSitemap size="20" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB'" />
-        <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'" />
+        <span v-if="!orderStore.selectedOrder.is_invoiced"">/</span>
+        <IconSitemap size="20" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB' && !orderStore.selectedOrder.is_invoiced" />
+        <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB' && !orderStore.selectedOrder.is_invoiced" />
       </div>
       <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
         {{ totalStemFlowerOrderItem(item) }}
@@ -461,7 +463,7 @@ watch(() => orderStore.selectedOrder,
               v-model="product.qty_stem_flower" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input')" @change="formatInteger"
               :class="{ 'bg-red-200': parseInt(product.qty_stem_flower) <= 0 }" 
-              :readonly="orderStore.selectedOrder.is_confirmed"
+              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
               />
           </span>
           <span class="border-end text-end w-20 pe-2">
@@ -469,19 +471,19 @@ watch(() => orderStore.selectedOrder,
               v-model="product.stem_cost_price" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-2')" @change="formatNumber"
               :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.00 }"
-              :readonly="orderStore.selectedOrder.is_confirmed" />
+              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
           </span>
           <span class="border-end text-end w-20 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
               v-model="product.margin" @focus="selectText" @keydown="event => handleKeydown(event, '.my-input-3')"
               @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }" 
-              :readonly="orderStore.selectedOrder.is_confirmed"/>
+              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"/>
           </span>
           <span class="border-end text-end w-20 pe-2">
             <input type="number" 
               step="0.01" class="form-control form-control-sm text-end my-input-3" 
               :value="(product.stem_cost_price + parseFloat(product.margin)).toFixed(2)"
-              :readonly="orderStore.selectedOrder.is_confirmed"
+              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
               />
           </span>
         </div>
@@ -525,10 +527,16 @@ watch(() => orderStore.selectedOrder,
       </div>
       <div class="col-8 text-end d-flex gap-3 justify-content-end">
         <span class="ps-4 pe-4"></span>
-        <button type="button" class="btn btn-sm btn-default" @click="updateOrder('update')" :disabled="orderHaveCeroItem" v-if="isModified && !orderStore.selectedOrder.is_confirmed">
+        <button 
+          type="button"
+          class="btn btn-sm btn-default"
+          @click="updateOrder('update')" 
+          :disabled="orderHaveCeroItem" 
+          v-if="isModified && (!orderStore.selectedOrder.is_confirmed && !orderStore.selectedOrder.is_invoiced)"
+        >
           <IconRefresh size="20" stroke="1.5" />
           <span v-if="orderStore.selectedOrder.is_modified">Confirmar Actualización</span>
-          <span v-else>Actualizar</span>
+          <span v-else>Actualizar </span>
         </button>
         <button class="btn btn-default btn-sm">
           <a :href="getUrlReportCusOrder(orderStore.selectedOrder.order.id)">
