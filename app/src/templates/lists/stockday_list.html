@@ -1,10 +1,7 @@
 {% extends 'base/base.html' %}
 {% block content %}
-<div class="container container-lg mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+<div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
     <div class="d-flex justify-content-between">
-        <span class="text-primary">
-            {{ title_section }}
-        </span>
         {% if action == 'delete' %}
             <a class="btn btn-danger btn-sm" href="{% url 'stock_delete' dae.pk %}">
                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" stroke-width="1.5">
