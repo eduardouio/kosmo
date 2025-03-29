@@ -588,15 +588,14 @@ watch(()=> purchaseStore.selectedPurchase,
             Imprimir OC
           </a>
         </button>
-        <a
-          :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)"
-          class="btn btn-sm btn-default"
-          target="_blank" 
-          rel="noopener noreferrer"
-        >
+        <button 
+            class="btn btn-sm btn-default"
+            v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
+            @click="purchaseStore.createInvoice()"
+            >
           <IconFileDollar size="20" stroke="1.5" />
           Generar Factura
-        </a>
+        </button>
       </div>
     </div>
   </div>

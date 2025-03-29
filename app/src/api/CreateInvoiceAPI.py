@@ -7,6 +7,11 @@ from django.http import JsonResponse
 
 
 class CreateInvoiceAPI(View):
+
+    def get(self, request, *args, **kwargs):
+        loggin_event(f'CreateInvoiceAPI GET Create Invoice {request.user}')
+        return JsonResponse({'message': 'GET method not allowed'}, status=405)
+
     def post(self, request, *args, **kwargs):
         loggin_event(f'CreateInvoiceAPI POST Create Invoice {request.user}')
         request_data = json.loads(request.body)

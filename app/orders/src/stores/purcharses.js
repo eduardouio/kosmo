@@ -109,7 +109,7 @@ export const usePurchaseStore = defineStore("purchaseStore", {
       try {
         const response = await axios.post(
           appConfig.urlCreateInvoiceOrder,
-          { id_order: this.selectedPurchase.order.id },
+          { order_id: this.selectedPurchase.order.id },
           { headers: appConfig.headers }
         );
         console.log("Factura creada: " + response.data);
