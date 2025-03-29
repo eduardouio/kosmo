@@ -1,0 +1,159 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+   <div class="row">
+      <div class="col-3">
+         <span class="text-primary">{{ title_section }}</span>
+      </div>
+      <div class="col-4 text-center">
+         {% if action %}
+         <div class="{% if action == 'delete' %} bg-danger {% else %} bg-kosmo-green {% endif %} bg-gradient p-2 rounded">
+            {{ message }}
+         </div>
+         {% endif %}
+      </div>
+      <div class="col-5 d-flex align-items-center justify-content-end gap-3">
+         {% if action != 'delete' %}
+         <a href="" class="btn btn-sm btn-default">Eliminar</a>
+         {% endif %}
+         {% if action == 'delete' %}
+         <a href="" class="btn btn-danger btn-sm">Confirmar Eliminación</a>
+         {% endif %}
+         <a href="" class="btn btn-sm btn-default">Editar</a>
+         <a href="" class="btn btn-sm btn-default">Nueva Factura</a>
+      </div>
+   </div>
+</div>
+<div class="container mt-2">
+   <div class="row">
+      <div class="col-md-12 mb-3">
+         <div class="card">
+            <div class="card-header p-1 bg-peisol-primary bg-gradient bg-opacity-75 text-white rounded-0 upper">
+               Factura {{ invoice.num_invoice }} - Pedido {{ invoice.order.id }}
+            </div>
+            <div class="card-body shadow">
+               <div class="row">
+                  <div class="col-6">
+                     <section>
+                        <span class="text-muted">Número de Factura:</span>
+                        <span class="ps-2">{{ invoice.num_invoice }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Fecha:</span>
+                        <span class="ps-2">{{ invoice.date }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Fecha de Vencimiento:</span>
+                        <span class="ps-2">{{ invoice.due_date }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Estado:</span>
+                        <span class="ps-2">{{ invoice.status }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">AWB:</span>
+                        <span class="ps-2">{{ awb }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">HAWB:</span>
+                        <span class="ps-2">{{ hawb }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">DAE Exportación:</span>
+                        <span class="ps-2">{{ dae_export }}</span>
+                     </section>
+                  </div>
+                  <div class="col-6">
+                     <section>
+                        <span class="text-muted">Total Precio:</span>
+                        <span class="ps-2">{{ invoice.total_price }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Total Margen:</span>
+                        <span class="ps-2">{{ invoice.total_margin }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Comisión Vendedor:</span>
+                        <span class="ps-2">{{ invoice.comision_seler }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Peso Total:</span>
+                        <span class="ps-2">{{ weight }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Agencia de Carga:</span>
+                        <span class="ps-2">{{ cargo_agency }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Fecha de Entrega:</span>
+                        <span class="ps-2">{{ delivery_date }}</span>
+                     </section>
+                  </div>
+               </div>
+               <br>
+               <div class="row">
+                  <div class="col-12">
+                     <h5>Items de Factura</h5>
+                     <table class="table table-bordered">
+                        <thead>
+                           <tr>
+                              <th>ID</th>
+                              <th>Tipo de Caja</th>
+                              <th>Cantidad</th>
+                              <th>Precio Línea</th>
+                              <th>Margen Línea</th>
+                              <th>Total Línea</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for item in invoice_items %}
+                           <tr>
+                              <td>{{ item.id }}</td>
+                              <td>{{ item.box_model }}</td>
+                              <td>{{ item.quantity }}</td>
+                              <td>{{ item.line_price }}</td>
+                              <td>{{ item.line_margin }}</td>
+                              <td>{{ item.line_total }}</td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+               <br>
+               <div class="row">
+                  <div class="col-12">
+                     <h5>Detalles de Cajas</h5>
+                     <table class="table table-bordered">
+                        <thead>
+                           <tr>
+                              <th>ID</th>
+                              <th>Producto</th>
+                              <th>Largo</th>
+                              <th>Cantidad Tallos</th>
+                              <th>Precio Costo Tallo</th>
+                              <th>Margen Ganancia</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for box in box_items %}
+                           <tr>
+                              <td>{{ box.id }}</td>
+                              <td>{{ box.product.name }}</td>
+                              <td>{{ box.length }}</td>
+                              <td>{{ box.qty_stem_flower }}</td>
+                              <td>{{ box.stem_cost_price }}</td>
+                              <td>{{ box.profit_margin }}</td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}

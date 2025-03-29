@@ -1,0 +1,131 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+   <div class="row">
+      <div class="col-3">
+         <span class="text-primary">{{ title_section }}</span>
+      </div>
+      <div class="col-4 text-center">
+         {% if action %}
+         <div class="{% if action == 'delete' %} bg-danger {% else %} bg-kosmo-green {% endif %} bg-gradient p-2 rounded">
+            {{ message }}
+         </div>
+         {% endif %}
+      </div>
+      <div class="col-5 d-flex align-items-center justify-content-end gap-3">
+         {% if action != 'delete' %}
+         <a href="" class="btn btn-sm btn-default">Eliminar</a>
+         {% endif %}
+         {% if action == 'delete' %}
+         <a href="" class="btn btn-danger btn-sm">Confirmar Eliminación</a>
+         {% endif %}
+         <a href="" class="btn btn-sm btn-default">Editar</a>
+         <a href="" class="btn btn-sm btn-default">Nueva Orden</a>
+      </div>
+   </div>
+</div>
+<div class="container mt-2">
+   <div class="row">
+      <div class="col-md-12 mb-3">
+         <div class="card">
+            <div class="card-header p-1 bg-peisol-primary bg-gradient bg-opacity-75 text-white rounded-0 upper">
+               Orden {{ order.num_order }}
+            </div>
+            <div class="card-body shadow">
+               <div class="row">
+                  <div class="col-6">
+                     <section>
+                        <span class="text-muted">Número de Orden:</span>
+                        <span class="ps-2">{{ order.num_order }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Fecha:</span>
+                        <span class="ps-2">{{ order.date }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Estado:</span>
+                        <span class="ps-2">{{ status }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Fecha de Entrega:</span>
+                        <span class="ps-2">{{ delivery_date }}</span>
+                     </section>
+                  </div>
+                  <div class="col-6">
+                     <section>
+                        <span class="text-muted">Total Precio:</span>
+                        <span class="ps-2">{{ total_price }}</span>
+                     </section>
+                     <section>
+                        <span class="text-muted">Total Margen:</span>
+                        <span class="ps-2">{{ total_margin }}</span>
+                     </section>
+                  </div>
+               </div>
+               <br>
+               <div class="row">
+                  <div class="col-12">
+                     <h5>Items de Orden</h5>
+                     <table class="table table-bordered">
+                        <thead>
+                           <tr>
+                              <th>ID</th>
+                              <th>Tipo de Caja</th>
+                              <th>Cantidad</th>
+                              <th>Precio Línea</th>
+                              <th>Margen Línea</th>
+                              <th>Total Línea</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for item in order_items %}
+                           <tr>
+                              <td>{{ item.id }}</td>
+                              <td>{{ item.box_model }}</td>
+                              <td>{{ item.quantity }}</td>
+                              <td>{{ item.line_price }}</td>
+                              <td>{{ item.line_margin }}</td>
+                              <td>{{ item.line_total }}</td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+               <br>
+               <div class="row">
+                  <div class="col-12">
+                     <h5>Detalles de Cajas</h5>
+                     <table class="table table-bordered">
+                        <thead>
+                           <tr>
+                              <th>ID</th>
+                              <th>Producto</th>
+                              <th>Largo</th>
+                              <th>Cantidad Tallos</th>
+                              <th>Precio Costo Tallo</th>
+                              <th>Margen Ganancia</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           {% for box in box_items %}
+                           <tr>
+                              <td>{{ box.id }}</td>
+                              <td>{{ box.product.name }}</td>
+                              <td>{{ box.length }}</td>
+                              <td>{{ box.qty_stem_flower }}</td>
+                              <td>{{ box.stem_cost_price }}</td>
+                              <td>{{ box.profit_margin }}</td>
+                           </tr>
+                           {% endfor %}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endblock %}

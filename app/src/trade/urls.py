@@ -10,6 +10,8 @@ from trade.views import (
     CustomerOrdersList,
     SupplierOrdersList,
     SupplierInvoiceList,
+    InvoiceDetailView,
+    OrderDetailView,
 )
 
 
@@ -22,6 +24,8 @@ urlpatterns = [
     path('trade/stock/detalle/actualizar/<int:pk>/', SingleStockDetailUpdateView.as_view(), name='stock_detail_update'),
     path('trade/customer-invoices/', CustomerInvoiceList.as_view(), name='customer_invoice_list'),
     path('trade/customer-orders/', CustomerOrdersList.as_view(), name='customer_orders_list'),
-    path('trade/supplier-orders/', SupplierOrdersList.as_view(), name='supplier_orders_list'),
+    path('trade/supplier-orders/', SupplierOrdersList.as_view(), name='supplier_orders_list'),    
     path('trade/supplier-invoices/', SupplierInvoiceList.as_view(), name='supplier_invoice_list'),
+    path('trade/invoice/<int:pk>/', InvoiceDetailView.as_view(), name='invoice_detail'),
+    path('trade/order/<int:pk>/', OrderDetailView.as_view(), name='order_detail'),
 ]
