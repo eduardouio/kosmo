@@ -10,3 +10,7 @@ from .StockDetail import (
     SingleStockDetailUpdateView,
 )
 
+from .CustomerInvoiceList import CustomerInvoiceList
+from .CustomerOrdersList import CustomerOrdersList
+from .SupplierOrdersList import SupplierOrdersList
+from .SupplierInvoiceList import SupplierInvoiceList

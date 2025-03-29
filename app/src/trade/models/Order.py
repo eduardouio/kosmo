@@ -1,5 +1,6 @@
 from django.db import models
 from products.models import Product, StockDay, StockDetail
+from accounts.models.CustomUserModel import CustomUserModel
 from common import BaseModel
 from common.AppLoger import loggin_event
 from partners.models import Partner
@@ -130,6 +131,15 @@ class Order(BaseModel):
         null=True,
         default=None
     )
+
+    @property
+    def user_creator(self):
+        """Devuelve el usuario creador de la orden"""
+        if self.id_user_created:
+            user = CustomUserModel.get_by_id(self.id_user_created)
+            if user:
+                return user
+        return None
 
     @classmethod
     def get_order_by_id(cls, id_order):

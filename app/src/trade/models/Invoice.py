@@ -50,7 +50,7 @@ class Invoice(BaseModel):
         'Fecha',
         auto_now=True
     )
-    due_date = models.DateField(
+    due_date = models.DateTimeField(
         'Fecha de vencimiento',
         blank=True,
         null=True
@@ -137,6 +137,12 @@ class Invoice(BaseModel):
         ),
         default='PENDIENTE'
     )
+
+    @property
+    def days_to_due(self):
+        if self.due_date:
+            return (self.due_date - self.date).days
+        return None
 
     @classmethod
     def get_by_id(cls, id_invoice):
