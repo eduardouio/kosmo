@@ -104,7 +104,7 @@ class Order(BaseModel):
         default=0
     )
     hb_total = models.PositiveSmallIntegerField(
-        'Total QB',
+        'Total HB',
         default=0
     )
     total_stem_flower = models.PositiveSmallIntegerField(

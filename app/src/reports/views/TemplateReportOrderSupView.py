@@ -11,6 +11,7 @@ class TemplateReportOrderSupView(TemplateView):
         context = super().get_context_data(**kwargs)
         order = kwargs.get('id_order')
         order = Order.objects.get(pk=order)
+        Order.rebuild_totals(order)
         order_items = OrderItems.get_by_order(order)
         order_items_det = []
         for item in order_items:

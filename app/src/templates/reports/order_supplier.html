@@ -25,7 +25,7 @@
                             </div>
                             <div class="flex justify-end items-center mb-1 border-t-2 border-green-500 pt-1">
                                 <p class="text-xs font-bold text-right">Fecha:</p>
-                                <p class="text-xs w-30 text-xl">{{ order.date | date:"d/m/Y" }}</p>
+                                <p class="text-xs w-30 text-xl">{{ order.date | date:"d/m/Y H:i" }}</p>
                             </div>
                         </div>
                     </div>
@@ -58,6 +58,9 @@
                     <div class="border-2 border-orange-400 p-4 rounded">
                         <h2 class="text-sm font-semibold mb-2 text-gray-500">Información de Compra</h2>
                         <p><strong class="text-lg {% if order.status == 'CONFIRMADO'%} text-green-700 {% else %} text-orange-700{%endif%}">{{ order.status }}</strong></p>
+                        {% if order.status == 'FACTURADO' %}
+                            <p><strong>Factura #:</strong> #{{ order.id_invoice }} / {% if order.num_invoice %} {{ order.num_invoice }}  {% else %} Pendiente {% endif %}</p>
+                        {% endif %}
                         <p><strong>Responsable:</strong> {{ user_owner.first_name }} {{ user_owner.last_name }}</p>
                         <p><strong>Email:</strong> {{ user_owner }} </p>
                         <p><strong>Fecha Impresión:</strong> {{ now|date:"d/m/Y H:i:s" }}</p>
