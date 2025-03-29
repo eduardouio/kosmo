@@ -47,7 +47,8 @@ class AllOrderDetailAPI(View):
                     'qb_total': order.parent_order.qb_total,
                     'hb_total': order.parent_order.hb_total,
                     'total_stem_flower': order.parent_order.total_stem_flower,
-
+                    'status': order.parent_order.status,
+                    'num_invoice': order.parent_order.num_invoice,
                 }
             item_order = {
                 'order': {
@@ -61,6 +62,9 @@ class AllOrderDetailAPI(View):
                     'qb_total': order.qb_total,
                     'hb_total': order.hb_total,
                     'total_stem_flower': order.total_stem_flower,
+                    'num_invoice': order.num_invoice,
+                    'is_invoiced': order.is_invoiced,
+                    'id_invoice': order.id_invoice,
                     'partner': {
                         'id': order.partner.id,
                         'name': order.partner.name,

@@ -199,5 +199,24 @@ export const useOrdersStore = defineStore("ordersStore", {
                 return false
             }
         },
+        async createInvoice(){
+            console.log('Creando factura:', this.selectedOrder)
+            try {
+                const response = await axios.post(
+                    appConfig.urlCreateInvoiceOrder, 
+                    {'id_order' : this.selectedOrder.order.id},
+                    {headers: appConfig.headers})
+                console.log('Factura creada:', response.data)
+                this.selectedOrder.order.status = 'FACTURADO'
+                this.selectedOrder.is_invoiced = true
+                this.selectedOrder.id_invoice = response.data.id_invoice
+                this.selectedOrder.order.num_invoice = response.data.num_invoice
+                return response.data
+            } catch (error) {
+                console.error('Error al crear la factura:', error)
+                alert(`Hubo un error al crear la factura: ${error.message}`)
+                return false
+            }
+        },
     }
 })

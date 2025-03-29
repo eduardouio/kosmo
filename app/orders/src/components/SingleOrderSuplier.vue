@@ -571,7 +571,7 @@ watch(()=> purchaseStore.selectedPurchase,
           class="btn btn-sm btn-default"
           @click="updateOrder('confirm')"
           :disabled="orderHaveCeroItem"
-          v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
+          v-if="purchaseStore.selectedPurchase.order.status === 'FACTURADO'"
         >
           <IconFileDollar size="20" stroke="1.5" />
           <span>Ver Factura</span>
@@ -585,12 +585,8 @@ watch(()=> purchaseStore.selectedPurchase,
         <button class="btn btn-sm btn-default">
           <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)">
             <IconPrinter size="20" stroke="1.5" />
-            Imprimir
+            Imprimir OC
           </a>
-        </button>
-        <button class="btn btn-sm btn-default" @click="updateOrder('confirm')">
-          <IconPrinter size="20" stroke="1.5" />
-          Ver Factura
         </button>
         <a
           :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)"

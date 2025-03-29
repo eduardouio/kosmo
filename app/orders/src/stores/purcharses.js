@@ -104,5 +104,24 @@ export const usePurchaseStore = defineStore("purchaseStore", {
         );
       }
     },
+    async createInvoice() {
+      console.log('Creando factura...');
+      try {
+        const response = await axios.post(
+          appConfig.urlCreateInvoiceOrder,
+          { id_order: this.selectedPurchase.order.id },
+          { headers: appConfig.headers }
+        );
+        console.log("Factura creada: " + response.data);
+        this.selectedPurchase.order.status = "FACTURADO";
+        this.selectedPurchase.is_invoiced = true;
+        this.selectedPurchase.id_invoice = response.invoice_id;
+        this.selectedPurchase.order.num_invoice = response.data.num_invoice;
+        return response.data;
+      } catch (error) {
+        console.error("Error al crear la factura:", error);
+        alert(`Hubo un error al crear la factura: ${error.message}`);
+      }
+    },
   },
 });
