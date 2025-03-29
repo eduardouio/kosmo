@@ -24,11 +24,7 @@
             <th class="bg-secondary bg-opacity-25 text-center">#</th>
             <th class="bg-secondary bg-opacity-25 text-center">N Fac</th>
             <th class="bg-secondary bg-opacity-25 text-center">OC</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Cliente</th>
-            <th class="bg-secondary bg-opacity-25 text-center">DAE</th>
-            <th class="bg-secondary bg-opacity-25 text-center">AWB</th>
-            <th class="bg-secondary bg-opacity-25 text-center">HAWB</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Agencia Cargo</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Proveedor</th>
             <th class="bg-secondary bg-opacity-25 text-center">Fecha</th>
             <th class="bg-secondary bg-opacity-25 text-center">Vencimiento</th>
             <th class="bg-secondary bg-opacity-25 text-center">Dias</th>
@@ -47,10 +43,6 @@
                     </span>
                 </td>
                 <td class="p-0">{{ invoice.partner.name }}</td>
-                <td class="p-0">{{ invoice.dae_export }}</td>
-                <td class="p-0">{{ invoice.awb }}</td>
-                <td class="p-0">{{ invoice.hawb }}</td>
-                <td class="p-0">{{ invoice.cargo_agency }}</td>
                 <td class="p-0 text-end">{{ invoice.date|date:"d/m/Y" }}</td>
                 <td class="p-0 text-end">{{ invoice.due_date|date:"d/m/Y" }}</td>
                 <td class="p-0 text-end">
