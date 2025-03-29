@@ -34,13 +34,12 @@ class CreateInvoiceAPI(View):
         response_data = {
             'invoice_id': invoice.id,
             'order_id': order.id,
-            'invoice_number': invoice.invoice_number,
-            'order_number': order.order_number,
-            'customer_name': invoice.customer.name,
-            'customer_id': invoice.customer.id,
+            'num_invoice': invoice.num_invoice,
+            'num_order': order.num_order,
+            'customer_name': invoice.partner.name,
+            'customer_id': invoice.partner.id,
             'total_price': invoice.total_price,
-            'total_margin': invoice.total_margin,
-            'total_invoice': invoice.total_invoice,
+            'total_margin': invoice.total_margin
         }
 
         return JsonResponse(response_data, status=201)

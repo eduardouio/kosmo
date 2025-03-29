@@ -547,7 +547,7 @@ watch(()=> purchaseStore.selectedPurchase,
           <span v-if="purchaseStore.selectedPurchase.is_cancelled">
             Confirmar Cancelación
           </span>
-          <span v-else> Cancelar Pedido </span>
+          <span v-else> Cancelar </span>
         </button>
       </div>
       <div class="col-8 text-end d-flex gap-3 justify-content-end">
@@ -562,7 +562,7 @@ watch(()=> purchaseStore.selectedPurchase,
         >
           <IconRefresh size="20" stroke="1.5" />
           <span v-if="purchaseStore.selectedPurchase.is_modified">
-            Confirmar Actualización
+            Confirmar
           </span>
           <span v-else>Actualizar</span>
         </button>
@@ -578,7 +578,7 @@ watch(()=> purchaseStore.selectedPurchase,
         </button>
         <button class="btn btn-default btn-sm" @click="updateOrder('confirm')" v-if="purchaseStore.selectedPurchase.order.status != 'CONFIRMADO'">
           <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed"/>
-          <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar Compra</span>
+          <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
           <IconCheckbox size="20" stroke="1.5" v-if="purchaseStore.selectedPurchase.is_confirmed"/>
           <span v-if="purchaseStore.selectedPurchase.is_confirmed">Estoy Seguro</span>
         </button>
@@ -590,7 +590,7 @@ watch(()=> purchaseStore.selectedPurchase,
         </button>
         <button class="btn btn-sm btn-default" @click="updateOrder('confirm')">
           <IconPrinter size="20" stroke="1.5" />
-          Ver Factura Compra
+          Ver Factura
         </button>
         <a
           :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)"
@@ -598,7 +598,7 @@ watch(()=> purchaseStore.selectedPurchase,
           target="_blank" 
           rel="noopener noreferrer"
         >
-          <IconPrinter size="20" stroke="1.5" />
+          <IconFileDollar size="20" stroke="1.5" />
           Generar Factura
         </a>
       </div>
