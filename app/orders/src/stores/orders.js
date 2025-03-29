@@ -204,7 +204,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             try {
                 const response = await axios.post(
                     appConfig.urlCreateInvoiceOrder, 
-                    {'id_order' : this.selectedOrder.order.id},
+                    {'order_id' : this.selectedOrder.order.id},
                     {headers: appConfig.headers})
                 console.log('Factura creada:', response.data)
                 this.selectedOrder.order.status = 'FACTURADO'

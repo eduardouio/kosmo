@@ -306,6 +306,11 @@ const getUrlReportCusOrder = (id) => {
     return urlReportOrder;
 };
 
+const getUrlReportinvoice = (id) => {
+    let urlInvoiceReport = appConfig.urlInvoiceReport.replace('{id_invoice}', id);
+    return urlInvoiceReport;
+};
+
 //watchers
 watch(() => orderStore.selectedOrder, 
   (newValue) => {
@@ -532,13 +537,16 @@ watch(() => orderStore.selectedOrder,
           </a>
         </button>
         <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_invoiced">
+          <a :href="getUrlReportinvoice(orderStore.selectedOrder.order.id_invoice)">
           <IconPrinter size="20" stroke="1.5" />
-          Imprimir Factura #{{  orderStore.selectedOrder.order.num_invoice }}}
+          Imprimir FC
+          </a>
         </button>
-        <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_invoiced">
-          Ver Factura Venta#{{  orderStore.selectedOrder.order.num_invoice }}}
-        </button>
-        <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_confirmed &&  !orderStore.selectedOrder.is_invoiced">
+        <button 
+          class="btn btn-default btn-sm"
+          v-if="orderStore.selectedOrder.is_confirmed &&  !orderStore.selectedOrder.is_invoiced"
+          @click="orderStore.createInvoice()"
+          >
           <IconSettingsDollar size="20" stroke="1.5" />
           Generar Factura
         </button>

@@ -236,6 +236,10 @@ const getUrlReportSupOrder = (id) => {
     return urlReportSupOrder;
 };
 
+const getUrlReportinvoice = (id) => {
+    let urlInvoiceReport = appConfig.urlInvoiceReport.replace('{id_invoice}', id);
+    return urlInvoiceReport;
+};
 // Propiedades computadas
 const isTwoQBSelected = computed(() => {
   let qb = purchaseStore.selectedPurchase.order_details.filter(
@@ -569,12 +573,12 @@ watch(()=> purchaseStore.selectedPurchase,
         <button
           type="button"
           class="btn btn-sm btn-default"
-          @click="updateOrder('confirm')"
-          :disabled="orderHaveCeroItem"
           v-if="purchaseStore.selectedPurchase.order.status === 'FACTURADO'"
         >
+        <a :href="getUrlReportinvoice(purchaseStore.selectedPurchase.order.id_invoice)">
           <IconFileDollar size="20" stroke="1.5" />
           <span>Ver Factura</span>
+        </a>
         </button>
         <button class="btn btn-default btn-sm" @click="updateOrder('confirm')" v-if="purchaseStore.selectedPurchase.order.status != 'CONFIRMADO'">
           <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed"/>

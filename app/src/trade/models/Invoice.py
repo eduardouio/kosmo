@@ -1,8 +1,9 @@
 from django.db import models
 from common import BaseModel
-from .Order import Order, OrderItems
+from trade.models import Order
 from products.models import Product
 from common.AppLoger import loggin_event
+from django.core.exceptions import ObjectDoesNotExist
 
 
 STATUS_CHOICES = (
@@ -136,6 +137,14 @@ class Invoice(BaseModel):
         ),
         default='PENDIENTE'
     )
+
+    @classmethod
+    def get_by_id(cls, id_invoice):
+        try:
+            return cls.objects.get(id=id_invoice)
+        except ObjectDoesNotExist:
+            loggin_event(f"Factura {id_invoice} no existe")
+            return None
 
     @classmethod
     def get_next_invoice_number(cls):

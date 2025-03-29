@@ -29,6 +29,7 @@ export const appConfig = {
     "urlReportSupOrder": apiBaseUrl + "/reports/order-supplier/{id_order}/",
     "urlReportCustOrder": apiBaseUrl + "/reports/order-customer/{id_order}/",
     "urlCreateInvoiceOrder": apiBaseUrl + "/api/invoice/create-by-order/",
+    "urlInvoiceReport": apiBaseUrl + "/reports/invoice/{id_invoice}/",
     "headers": {
         "Accept": "application/json",
         "Content-Type": "application/json",

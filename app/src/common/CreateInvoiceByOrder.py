@@ -31,7 +31,7 @@ class CreateInvoiceByOrder:
                 f"Orden {order.id} ya fue facturada",
                 error=True
             )
-            return False
+            return Invoice.get_by_id(order.id_invoice)
 
         if order.type_document == "ORD_VENTA":
             invoice = self.gnerate_invoice_customer(order)
@@ -43,7 +43,7 @@ class CreateInvoiceByOrder:
                         f"Error generando factura para la orden {supp_order.id}",
                         error=True
                     )
-                    return False
+                    break
                 supp_order.status = 'FACTURADO'
                 supp_order.is_invoiced = True
                 supp_order.id_invoice = sup_invoice.id
