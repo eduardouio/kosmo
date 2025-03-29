@@ -23,3 +23,5 @@ class SupplierOrdersList(ListView):
         return super().get_queryset().filter(
             type_document='ORD_COMPRA',
         ).order_by('-date')
+
+

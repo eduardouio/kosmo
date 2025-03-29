@@ -1,10 +1,27 @@
 {% extends 'base/base.html' %}
 {% block content %}
-<div class="container container-lg mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
-    <div class="d-flex justify-content-between">
-        <span class="text-primary">
-            {{ title_section }}
-        </span>
+<div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+    <div class="d-flex justify-content-end gap-4">
+        <div class="fw-bold">
+            <span>Documentos Activos:</span>
+            <span class="text-primary"> {{ stats.active_invoices }} </span>
+        </div>
+        <div class="fw-bold">
+            <span>Tallos Vendidos:</span>
+            <span class="text-primary"> {{ stats.total_stems_this_month }} </span>
+        </div>
+        <div class="fw-bold">
+            <span>Por Cobrar:</span>
+            <span class="text-success">{{ total_for_charge }}</span>
+        </div>
+        <div class="fw-bold">
+            <span>Por Vencer Mes</span>
+            <span class="text-orange-600">{{ stats.total_dued_this_month }}</span>
+        </div>
+        <div class="fw-bold">
+            <span>Vencido:</span>
+            <span class="text-danger">{{ stats.total_dued }}</span>
+        </div>
         {% if action %}
         <span class="bg-peisol-secondary bg-gradient p-2 rounded">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
