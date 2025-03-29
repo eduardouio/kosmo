@@ -52,7 +52,10 @@ class OrderPurchaseByOrderSale(View):
                     'total_price': float(order.total_price),
                     'qb_total': order.qb_total,
                     'hb_total': order.hb_total,
+                    'total_margin': order.total_margin,
                     'total_stem_flower': order.total_stem_flower,
+                    'is_invoiced': order.is_invoiced,
+                    'id_invoice': order.id_invoice,
                     'partner': {
                         'id': order.partner.id,
                         'name': order.partner.name,
@@ -66,9 +69,11 @@ class OrderPurchaseByOrderSale(View):
                 },
                 'order_details': [],
                 'is_selected': False,
-                'is_cancelled': False,
                 'is_modified': False,
-                'is_confirmed': False,
+                'is_cancelled': order.status == 'CANCELADO',
+                'is_confirmed': order.status == 'CONFIRMADO',
+                'is_invoiced': order.is_invoiced,
+                'id_invoice': order.id_invoice
             }
 
             order_details = OrderItems.get_by_order(order.id)

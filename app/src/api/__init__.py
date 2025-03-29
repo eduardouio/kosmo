@@ -14,3 +14,4 @@ from .UpdateSupplierOrderAPI import UpdateSupplierOrderAPI
 from .CancelCustomerOrderAPI import CancelCustomerOrderAPI
 from .CancelSupplierOrderAPI import CancelSupplierOrderAPI
 from .AproveOrderAPI import AproveOrderAPI
+from .CreateInvoiceAPI import CreateInvoiceAPI

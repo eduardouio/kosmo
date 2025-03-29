@@ -47,6 +47,7 @@ class AllOrderDetailAPI(View):
                     'qb_total': order.parent_order.qb_total,
                     'hb_total': order.parent_order.hb_total,
                     'total_stem_flower': order.parent_order.total_stem_flower,
+
                 }
             item_order = {
                 'order': {
@@ -73,9 +74,11 @@ class AllOrderDetailAPI(View):
                 },
                 'order_details': [],
                 'is_selected': False,
-                'is_cancelled': False,
                 'is_modified': False,
-                'is_confirmed': False,
+                'is_cancelled': order.status == 'CANCELADO',
+                'is_confirmed': order.status == 'CONFIRMADO',
+                'is_invoiced': order.is_invoiced,
+                'id_invoice': order.id_invoice,
             }
 
             order_details = OrderItems.get_by_order(order.id)

@@ -16,6 +16,7 @@ from api import (
     CancelCustomerOrderAPI,
     CancelSupplierOrderAPI,
     AproveOrderAPI,
+    CreateInvoiceAPI,
 )
 
 urlpatterns = [
@@ -36,4 +37,5 @@ urlpatterns = [
     path('api/orders/cancel-order/', CancelCustomerOrderAPI.as_view(), name='cancel_order'),
     path('api/orders/cancel-supplier-order/', CancelSupplierOrderAPI.as_view(), name='cancel_supplier_order'),
     path('api/orders/confirm-order/', AproveOrderAPI.as_view(), name='confirm_order'),
+    path('api/invoice/create-by-order/', CreateInvoiceAPI.as_view(), name='create_invoice_by_order'),
 ]

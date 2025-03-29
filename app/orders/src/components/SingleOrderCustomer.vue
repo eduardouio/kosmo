@@ -9,7 +9,7 @@ import {
     IconLayersIntersect2, 
     IconAlertTriangle,
     IconRefresh,
-    IconFileTypePdf,
+    IconSettingsDollar,
     IconPrinter,
 } from '@tabler/icons-vue';
 
@@ -455,21 +455,29 @@ watch(() => orderStore.selectedOrder,
             <input type="number" step="1" class="form-control form-control-sm text-end my-input"
               v-model="product.qty_stem_flower" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input')" @change="formatInteger"
-              :class="{ 'bg-red-200': parseInt(product.qty_stem_flower) <= 0 }" />
+              :class="{ 'bg-red-200': parseInt(product.qty_stem_flower) <= 0 }" 
+              :readonly="orderStore.selectedOrder.is_confirmed"
+              />
           </span>
           <span class="border-end text-end w-20 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-2"
               v-model="product.stem_cost_price" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-2')" @change="formatNumber"
-              :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.00 }" />
+              :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.00 }"
+              :readonly="orderStore.selectedOrder.is_confirmed" />
           </span>
           <span class="border-end text-end w-20 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
               v-model="product.margin" @focus="selectText" @keydown="event => handleKeydown(event, '.my-input-3')"
-              @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }" />
+              @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }" 
+              :readonly="orderStore.selectedOrder.is_confirmed"/>
           </span>
           <span class="border-end text-end w-20 pe-2">
-            <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3" :value="(product.stem_cost_price + parseFloat(product.margin)).toFixed(2)"/>
+            <input type="number" 
+              step="0.01" class="form-control form-control-sm text-end my-input-3" 
+              :value="(product.stem_cost_price + parseFloat(product.margin)).toFixed(2)"
+              :readonly="orderStore.selectedOrder.is_confirmed"
+              />
           </span>
         </div>
       </div>
@@ -503,7 +511,8 @@ watch(() => orderStore.selectedOrder,
     </div>
     <div class="row mt-3 border-top pt-3">
       <div class="col-4">
-        <button type="button" class="btn btn-sm btn-default text-danger d-flex align-items-center gap-1" @click="updateOrder('cancell')">
+        <button type="button" class="btn btn-sm btn-default text-danger d-flex align-items-center gap-1" @click="updateOrder('cancell')" v-if="orderStore.selectedOrder.is_confirmed && !orderStore.selectedOrder.is_invoiced">
+          
           <IconBan size="20" stroke="1.5" />
           <span v-if="orderStore.selectedOrder.is_cancelled">Confirmar Cancelación</span>
           <span v-else=""> Cancelar Pedido </span>
@@ -511,7 +520,7 @@ watch(() => orderStore.selectedOrder,
       </div>
       <div class="col-8 text-end d-flex gap-3 justify-content-end">
         <span class="ps-4 pe-4"></span>
-        <button type="button" class="btn btn-sm btn-default" @click="updateOrder('update')" :disabled="orderHaveCeroItem" v-if="isModified">
+        <button type="button" class="btn btn-sm btn-default" @click="updateOrder('update')" :disabled="orderHaveCeroItem" v-if="isModified && !orderStore.selectedOrder.is_confirmed">
           <IconRefresh size="20" stroke="1.5" />
           <span v-if="orderStore.selectedOrder.is_modified">Confirmar Actualización</span>
           <span v-else>Actualizar</span>
@@ -519,10 +528,20 @@ watch(() => orderStore.selectedOrder,
         <button class="btn btn-default btn-sm">
           <a :href="getUrlReportCusOrder(orderStore.selectedOrder.order.id)">
             <IconPrinter size="20" stroke="1.5" />
-            Imprimir
+            Imprimir OC
           </a>
         </button>
-        <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.order.status === 'CONFIRMADO'">Ver Factura</button>
+        <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_invoiced">
+          <IconPrinter size="20" stroke="1.5" />
+          Imprimir Factura #{{  orderStore.selectedOrder.order.num_invoice }}}
+        </button>
+        <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_invoiced">
+          Ver Factura Venta#{{  orderStore.selectedOrder.order.num_invoice }}}
+        </button>
+        <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_confirmed &&  !orderStore.selectedOrder.is_invoiced">
+          <IconSettingsDollar size="20" stroke="1.5" />
+          Generar Factura
+        </button>
       </div>
     </div>
   </div>

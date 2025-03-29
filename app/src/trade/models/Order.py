@@ -123,6 +123,13 @@ class Order(BaseModel):
         null=True,
         default=0
     )
+    num_invoice = models.CharField(
+        'No Factura',
+        max_length=50,
+        blank=True,
+        null=True,
+        default=None
+    )
 
     @classmethod
     def get_order_by_id(cls, id_order):

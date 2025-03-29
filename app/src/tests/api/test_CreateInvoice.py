@@ -1,5 +1,5 @@
 import pytest
-from common import InvoiceOrder
+from common import CreateInvoiceByOrder
 from trade.models import Order, Invoice
 from common.AppLoger import loggin_event
 
@@ -9,14 +9,14 @@ class TestCreateInvoiceOrder():
     def test_generate_not_aprve_order(self):
         loggin_event("[TEST] Pasando la prueba de orden no aprobada")
         order = Order.get_order_by_id(1)
-        result = InvoiceOrder().generate_invoice(order)
+        result = CreateInvoiceByOrder().generate_invoice(order)
         assert result is False
 
     def test_generate_supplier_invoice(self):
         loggin_event("[TEST] Pasando la prueba de orden compra aprobada")
         order = Order.get_order_by_id(9)
         Order.rebuild_totals(order)
-        result = InvoiceOrder().generate_invoice(order)
+        result = CreateInvoiceByOrder().generate_invoice(order)
         assert isinstance(result, Invoice)
         assert result.partner == order.partner
         assert result.type_document == 'FAC_COMPRA'
@@ -33,7 +33,7 @@ class TestCreateInvoiceOrder():
         loggin_event("[TEST] Pasando la prueba de orden venta aprobada")
         order = Order.get_order_by_id(8)
         Order.rebuild_totals(order)
-        result = InvoiceOrder().generate_invoice(order)
+        result = CreateInvoiceByOrder().generate_invoice(order)
         assert isinstance(result, Invoice)
         assert result.partner == order.partner
         assert result.type_document == 'FAC_VENTA'
@@ -45,3 +45,10 @@ class TestCreateInvoiceOrder():
         assert result.total_margin == 195.75
         assert result.tot_stem_flower == 2925
         assert result.total_price == order.total_price
+        assert order.status == 'FACTURADO'
+        parent_ordes = Order.get_by_parent_order(order)
+        assert len(parent_ordes) == 2
+        for supp_order in parent_ordes:
+            assert supp_order.status == 'FACTURADO'
+            assert supp_order.id_invoice > 0
+

@@ -37,7 +37,6 @@ class Invoice(BaseModel):
     )
     num_invoice = models.CharField(
         max_length=50,
-        unique=True,
         blank=True,
         default='',
     )
@@ -247,7 +246,17 @@ class InvoiceItems(BaseModel):
 
     @classmethod
     def get_invoice_items(cls, invoice):
-        return cls.objects.filter(invoice=invoice)
+        return cls.objects.filter(
+            invoice=invoice,
+            is_active=True
+        )
+
+    @classmethod
+    def get_by_parent(cls, invoice):
+        return cls.objects.filter(
+            invoice=invoice,
+            is_active=True
+        )
 
     @classmethod
     def rebuild_invoice_item(cls, invoice_item):
@@ -266,7 +275,8 @@ class InvoiceItems(BaseModel):
         )
         invoice_item.line_price = total_cost_price * invoice_item.quantity
         invoice_item.line_margin = total_margin * invoice_item.quantity
-        invoice_item.line_total = (total_cost_price + total_margin) * invoice_item.quantity
+        invoice_item.line_total = (
+            total_cost_price + total_margin) * invoice_item.quantity
         invoice_item.save()
 
     def __str__(self):

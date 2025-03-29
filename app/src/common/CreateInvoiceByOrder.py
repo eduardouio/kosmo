@@ -2,6 +2,7 @@ from common.AppLoger import loggin_event
 from datetime import datetime, timedelta
 from partners.models import DAE
 from trade.models import (
+    Order,
     OrderBoxItems,
     OrderItems,
     Invoice,
@@ -14,7 +15,7 @@ from trade.models import (
 # La orden de venta genera Factura con el consecutivo de kosmo
 # la orden de compra se genera un factura que recibe el
 # numero del proveedor luego de ser creada
-class InvoiceOrder:
+class CreateInvoiceByOrder:
     def generate_invoice(self, order):
         """args: orden: Order"""
         loggin_event(f"Generando factura para la orden {order.id}")
@@ -25,13 +26,40 @@ class InvoiceOrder:
             )
             return False
 
+        if order.is_invoiced:
+            loggin_event(
+                f"Orden {order.id} ya fue facturada",
+                error=True
+            )
+            return False
+
         if order.type_document == "ORD_VENTA":
             invoice = self.gnerate_invoice_customer(order)
+            supp_orders = Order.get_by_parent_order(order)
+            for supp_order in supp_orders:
+                sup_invoice = self.generate_invoice_supplier(supp_order)
+                if not sup_invoice:
+                    loggin_event(
+                        f"Error generando factura para la orden {supp_order.id}",
+                        error=True
+                    )
+                    return False
+                supp_order.status = 'FACTURADO'
+                supp_order.is_invoiced = True
+                supp_order.id_invoice = sup_invoice.id
+                supp_order.num_invoice = sup_invoice.num_invoice
+                supp_order.save()
+                loggin_event(
+                    f"Factura relacionada generada correctamente {sup_invoice.id}"
+                )
+                Invoice.rebuild_totals(sup_invoice)
         else:
             invoice = self.generate_invoice_supplier(order)
 
+        order.status = 'FACTURADO'
         order.is_invoiced = True
         order.id_invoice = invoice.id
+        order.num_invoice = invoice.num_invoice
         order.save()
         loggin_event(f'Factura generada correctamente {invoice.id}')
         Invoice.rebuild_totals(invoice)
@@ -81,6 +109,13 @@ class InvoiceOrder:
         return invoice
 
     def generate_invoice_supplier(self, order):
+        if order.is_invoiced:
+            loggin_event(
+                f"Orden {order.id} ya fue facturada",
+                error=True
+            )
+            return False
+
         loggin_event(f"Generando factura para la ORDEN COMPRA {order.id}")
         days = order.partner.credit_term
         due_date = datetime.now() + timedelta(days=days)

@@ -588,6 +588,19 @@ watch(()=> purchaseStore.selectedPurchase,
             Imprimir
           </a>
         </button>
+        <button class="btn btn-sm btn-default" @click="updateOrder('confirm')">
+          <IconPrinter size="20" stroke="1.5" />
+          Ver Factura Compra
+        </button>
+        <a
+          :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)"
+          class="btn btn-sm btn-default"
+          target="_blank" 
+          rel="noopener noreferrer"
+        >
+          <IconPrinter size="20" stroke="1.5" />
+          Generar Factura
+        </a>
       </div>
     </div>
   </div>
