@@ -441,6 +441,7 @@ watch(()=> purchaseStore.selectedPurchase,
           stroke="1.5"
           :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
           @click="deleteOrderItem(item)"
+          v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced"
         />
         <input
           type="number"
@@ -450,13 +451,23 @@ watch(()=> purchaseStore.selectedPurchase,
           @change="(event) => delimitedNumber(event, item)"
           @focus="selectText"
           @keydown="(event) => handleKeydown(event, '.form-control-sm')"
+          :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
+          
         />
       </div>
       <div class="col-1 text-end border-end d-flex align-items-end gap-2 ">
         {{ item.box_model }}
-        <span>/</span>
-        <IconSitemap size="20" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB'" />
-        <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'" />
+        <span v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced">/</span>
+        <IconSitemap 
+          size="20"
+          stroke="1.5"
+          @click="splitHB(item)"
+          v-if="item.box_model === 'HB' && (!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced)"
+        />
+        <input type="checkbox"
+          v-model="item.is_selected" 
+          v-if="item.box_model === 'QB' && (!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced)" 
+        />
       </div>
       <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
         {{ item.tot_stem_flower }}
@@ -484,6 +495,7 @@ watch(()=> purchaseStore.selectedPurchase,
               @keydown="(event) => handleKeydown(event, '.my-input')"
               @change="formatInteger"
               :class="{ 'bg-red-200': parseInt(product.qty_stem_flower) <= 0 }"
+              :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
             />
           </span>
           <span class="border-end text-end w-20 pe-2">
@@ -496,6 +508,7 @@ watch(()=> purchaseStore.selectedPurchase,
               @keydown="(event) => handleKeydown(event, '.my-input-2')"
               @change="formatNumber"
               :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.0 }"
+              :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
             />
           </span>
           <span class="border-end text-end w-20 pe-2">
@@ -508,6 +521,7 @@ watch(()=> purchaseStore.selectedPurchase,
               @keydown="(event) => handleKeydown(event, '.my-input-3')"
               @change="formatNumber"
               :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.0 }"
+              :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
             />
           </span>
         </div>
@@ -546,6 +560,7 @@ watch(()=> purchaseStore.selectedPurchase,
           type="button"
           class="btn btn-sm btn-default text-danger"
           @click="updateOrder('cancell')"
+          v-if="!purchaseStore.selectedPurchase.is_invoiced && purchaseStore.selectedPurchase.order.status === 'CANCELADO'"
         >
           <IconBan size="20" stroke="1.5" />
           <span v-if="purchaseStore.selectedPurchase.is_cancelled">
@@ -580,7 +595,7 @@ watch(()=> purchaseStore.selectedPurchase,
           <span>Ver Factura</span>
         </a>
         </button>
-        <button class="btn btn-default btn-sm" @click="updateOrder('confirm')" v-if="purchaseStore.selectedPurchase.order.status != 'CONFIRMADO'">
+        <button class="btn btn-default btn-sm" @click="updateOrder('confirm')" v-if="!purchaseStore.selectedPurchase.is_confirmed">
           <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed"/>
           <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
           <IconCheckbox size="20" stroke="1.5" v-if="purchaseStore.selectedPurchase.is_confirmed"/>

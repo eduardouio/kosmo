@@ -80,7 +80,7 @@ class AllOrderDetailAPI(View):
                 'is_selected': False,
                 'is_modified': False,
                 'is_cancelled': order.status == 'CANCELADO',
-                'is_confirmed': order.status == 'CONFIRMADO',
+                'is_confirmed': order.status == 'CONFIRMADO' or order.is_invoiced,
                 'is_invoiced': order.is_invoiced,
                 'id_invoice': order.id_invoice,
             }

@@ -428,8 +428,13 @@ watch(() => orderStore.selectedOrder,
         {{ item.order_item_id }}
       </div>
       <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
-        <IconTrash size="30" stroke="1.5" :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
-          @click="deleteOrderItem(item)" />
+        <IconTrash 
+          size="30"
+          stroke="1.5"
+          :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
+          @click="deleteOrderItem(item)"
+          v-if="!orderStore.selectedOrder.is_confirmed && !orderStore.selectedOrder.is_invoiced"
+        />
         <input type="number" step="1" class="form-control form-control-sm text-end" v-model="item.quantity"
           @change="(event) => delimitedNumber(event, item)" @focus="selectText"
           @keydown="event => handleKeydown(event, '.form-control-sm')"
@@ -518,7 +523,8 @@ watch(() => orderStore.selectedOrder,
     </div>
     <div class="row mt-3 border-top pt-3">
       <div class="col-4">
-        <button type="button" class="btn btn-sm btn-default text-danger d-flex align-items-center gap-1" @click="updateOrder('cancell')" v-if="orderStore.selectedOrder.is_confirmed && !orderStore.selectedOrder.is_invoiced">
+        <button 
+          type="button" class="btn btn-sm btn-default text-danger d-flex align-items-center gap-1" @click="updateOrder('cancell')" v-if="orderStore.selectedOrder.is_confirmed && !orderStore.selectedOrder.is_invoiced">
           
           <IconBan size="20" stroke="1.5" />
           <span v-if="orderStore.selectedOrder.is_cancelled">Confirmar Cancelación</span>
