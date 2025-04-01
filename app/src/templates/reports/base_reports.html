@@ -1,0 +1,267 @@
+<!Doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    /* Configuración básica del documento */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px; /* Ajusta este valor según el tamaño deseado */
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Estilos para el encabezado */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffa500; /* Naranja */
+}
+
+.logo span {
+    color: #008000; /* Verde */
+}
+
+.order-info {
+    border: 2px solid #ffa500;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: right;
+}
+
+.order-info p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.order-info .order-number {
+    color: #ff0000; /* Rojo */
+    font-size: 18px;
+}
+
+.order-info .date {
+    font-size: 18px;
+    border-top: 2px solid #008000; /* Línea verde */
+    padding-top: 5px;
+}
+
+/* Estilos para la sección de información de la empresa */
+.company-info {
+    display: flex;
+    justify-content: space-between;
+    border: 2px solid #ffa500;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.company-info .left,
+.company-info .right {
+    font-size: 14px;
+}
+
+.company-info .right {
+    text-align: right;
+}
+
+/* Estilos para las secciones de cliente y venta */
+.info-sections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.client-info,
+.sale-info {
+    border: 2px solid #ffa500;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.client-info h2,
+.sale-info h2 {
+    font-size: 16px;
+    margin: 0 0 10px 0;
+    color: #000080; /* Azul oscuro */
+}
+
+.client-info p,
+.sale-info p {
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.sale-info .status {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffa500; /* Naranja */
+    text-transform: uppercase;
+}
+
+/* Estilos para la tabla de productos */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.product-table th,
+.product-table td {
+    border: 1px solid #ffa500;
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.product-table th {
+    background-color: #ffa500;
+    color: #ffffff;
+}
+
+.product-table td {
+    background-color: #ffffff;
+}
+
+/* Estilos para la sección de resumen */
+.summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.summary p {
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.summary .total {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+/* Estilos para la nota del pie de página */
+.footer-note {
+    font-size: 12px;
+    color: #000000;
+    text-align: justify;
+    margin-top: 20px;
+}
+</style>
+<body>
+<div class="container">
+<!-- Encabezado -->
+<div class="header">
+    <div class="logo">KOSMO <span>flowers</span></div>
+    <div class="order-info">
+        <p>Orden Venta: <span class="order-number">000-00012</span></p>
+        <p class="date">Fecha: 31/03/2025 05:51</p>
+    </div>
+</div>
+
+<!-- Información de la empresa -->
+<div class="company-info">
+    <div class="left">
+        <p>Roses Grown by: KOSMO FLOWERS</p>
+        <p>Address: Tupigachi - Tabacundo</p>
+    </div>
+    <div class="right">
+        <p>Email: invoices@kosmoflowers.com</p>
+        <p>Phone: (+593) (9) 97753832</p>
+    </div>
+</div>
+
+<!-- Secciones de cliente y venta -->
+<div class="info-sections">
+    <div class="client-info">
+        <h2>Información de Cliente</h2>
+        <p>To: Finca Moonlight Flowers</p>
+        <p>Address: None</p>
+        <p>City - Count: Cayambe - Ecuador</p>
+        <p>E-mail: None</p>
+        <p>Credit: 0 Days</p>
+    </div>
+    <div class="sale-info">
+        <h2>Información de Venta</h2>
+        <p class="status">PENDIENTE</p>
+        <p>Responsable: Eduardo Vilta</p>
+        <p>Email: eduardovil07@gmail.com</p>
+        <p>Fecha Impresión: 31/03/2025 05:51:26</p>
+    </div>
+</div>
+
+<!-- Tabla de productos -->
+<table class="product-table">
+    <thead>
+        <tr>
+            <th>BOXES</th>
+            <th>SZ</th>
+            <th>VARIETY</th>
+            <th>STEM LENGTH</th>
+            <th>TOTAL STEMS</th>
+            <th>UNIT PRICE $</th>
+            <th>TOTAL PRICE $</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>HB</td>
+            <td>EXPLORER</td>
+            <td>40</td>
+            <td>250</td>
+            <td>0.46</td>
+            <td>171.00</td>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>HB</td>
+            <td>EXPLORER</td>
+            <td>50</td>
+            <td>100</td>
+            <td>0.56</td>
+            <td>171.00</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Resumen -->
+<div class="summary">
+    <div>
+        <p>TOTAL HB: 1</p>
+        <p>TOTAL QB: 0</p>
+        <p>TOTAL PIECES: 1</p>
+    </div>
+    <div>
+        <p>TOTAL TALLOS: 350</p>
+        <p>TOTAL FB: 0</p>
+        <p class="total">TOTAL FACTURA: 150.00</p>
+    </div>
+</div>
+
+<!-- Nota del pie -->
+<p class="footer-note">
+    Esta orden de compra es generada automáticamente por el sistema de Kosmo Flowers, si su estado es CONFIRMADO, representa un compromiso de compra por parte de Kosmo Flowers con el proveedor Finca Moonlight Flowers. Si su estado es PENDIENTE, significa que la orden de compra está en proceso de revisión y confirmación.
+</p>
+</div>
+</body>
+</html>
