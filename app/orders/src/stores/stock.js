@@ -115,17 +115,16 @@ export const useStockStore = defineStore('stockStore', {
         },
         filterStock(querySearch) {
             if (!querySearch) {
-                this.stock.forEach(item => {
-                    item.is_visible = true;
-                });
-                this.filterCategories();
+                this.filterCategories(); // Aplica los filtros existentes
                 return;
             }
 
             this.stock.forEach(item => {
-                item.is_visible = item.box_items.some(subItem =>
-                    subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase())
-                );
+                if (item.is_visible) { // Solo aplica el buscador a los registros visibles
+                    item.is_visible = item.box_items.some(subItem =>
+                        subItem.product_variety.toLowerCase().includes(querySearch.toLowerCase())
+                    );
+                }
             });
         },
         selectAll(option) {
