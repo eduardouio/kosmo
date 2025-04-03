@@ -26,10 +26,10 @@ class PartnerListView(LoginRequiredMixin, ListView):
         if self.request.path == '/socios/clientes':
             return super().get_queryset().filter(
                 is_active=True,
-                type_partner='CLIENTE'
-            )
+                type_partner='CLIENTE',
+            ).order_by('-id')
 
         return super().get_queryset().filter(
             is_active=True,
             type_partner='PROVEEDOR'
-        )
+        ).order_by('-id')
