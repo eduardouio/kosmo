@@ -436,19 +436,19 @@ watch(() => orderStore.selectedOrder,
           :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
            />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end gap-2 ">
+      <div class="col-1 text-end border-end d-flex align-items-end gap-2 fs-5 ">
         {{ item.box_model }}
         <span v-if="!orderStore.selectedOrder.is_invoiced">/</span>
         <IconSitemap size="20" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB' && !orderStore.selectedOrder.is_invoiced" />
         <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB' && !orderStore.selectedOrder.is_invoiced" />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
+      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end fs-5">
         {{ totalStemFlowerOrderItem(item) }}
       </div>
       <div class="col-2 d-flex align-items-end">
-        <small>
+        <span>
           {{ item.partner.partner.name }}
-        </small>
+        </span>
       </div>
       <div class="col-6">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
@@ -480,16 +480,24 @@ watch(() => orderStore.selectedOrder,
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"/>
           </span>
           <span class="border-end text-end w-20 pe-2">
-            <input type="number" 
-              step="0.01" class="form-control form-control-sm text-end my-input-3" 
-              :value="(product.stem_cost_price + parseFloat(product.margin)).toFixed(2)"
-              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
+            <input 
+              type="text" 
+              readonly
+              class="form-control form-control-sm text-end my-input-3" 
+              :value="orderStore.formatNumber(product.stem_cost_price + product.margin)"
               />
           </span>
         </div>
       </div>
-      <div class="col-1 fw-semibold d-flex align-items-center justify-content-end fs-6">
-        {{ calcTotalByItem(item) }}
+      <div class="col-1 fw-semibold">
+        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
+          <input
+            type="text"
+            readonly
+            class="form-control form-control-sm text-end"
+            :value="orderStore.formatNumber(product.stem_cost_price * product.qty_stem_flower)"
+            />
+        </div>  
       </div>
     </div>
     <div class="row">
@@ -505,13 +513,13 @@ watch(() => orderStore.selectedOrder,
       </div>
       <div class="col-4 offset-5">
         <div class="row bg-gray-200 bg-gradient rounded-1 shadow-sm p-2">
-          <div class="col-7 text-end border-end fs-6 text-lime-600">Costo:</div>
-          <div class="col-5 fs-6 text-lime-600 text-end">{{ totalCost }}</div>
-          <div class="col-7 text-end border-end fs-6 text-lime-600">Margen:</div>
-          <div class="col-5 fs-6 text-lime-600 text-end">{{ totalMargin }}</div>
-          <div class="col-7 text-end border-end fs-6 text-lime-600">Total Pedido:</div>
-          <div class="col-5 fs-6 text-lime-600 text-end">
-            {{  (parseFloat(totalMargin) + parseFloat(totalCost)).toFixed(2) }}
+          <div class="col-7 text-end border-end fs-5 text-lime-700">Costo:</div>
+          <div class="col-5 fs-5 text-lime-700 text-end">{{ totalCost }}</div>
+          <div class="col-7 text-end border-end fs-5 text-lime-700">Margen:</div>
+          <div class="col-5 fs-5 text-lime-700 text-end">{{ totalMargin }}</div>
+          <div class="col-7 text-end border-end fs-5 text-lime-700">Total Pedido:</div>
+          <div class="col-5 fs-5 text-lime-700 text-end">
+            {{  orderStore.formatNumber(totalMargin + totalCost) }}
           </div>
         </div>
       </div>

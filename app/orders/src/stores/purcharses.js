@@ -122,6 +122,14 @@ export const usePurchaseStore = defineStore("purchaseStore", {
         console.error("Error al crear la factura:", error);
         alert(`Hubo un error al crear la factura: ${error.message}`);
       }
-    },
+    },formatNumber(num) {
+      if (num === null || num === undefined) return '0.00';
+      const base_num = parseFloat(num);
+      if (isNaN(base_num)) return '0.00';
+      const parts = base_num.toString().split(".");
+      const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      const decimalPart = parts.length > 1 ? "." + parts[1].slice(0, 2) : ".00";
+      return integerPart + decimalPart;
+  },
   },
 });
