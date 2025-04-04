@@ -19,7 +19,6 @@ const exceedLimit = ref(false);
 const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
 const exceedLimitMessage = ref();
 const isModified = ref(false);
-const show_buttons = ref(true);
 
 // Methods
 
@@ -396,12 +395,11 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
     <div class="row p-1 text-white ">
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">#</div>
       <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Cant</div>
       <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Mdl</div>
       <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Tl/Cj</div>
       <div class="col-2 fw-bold fs-6 border-end bg-gray-500 text-center">Proveedor</div>
-      <div class="col-5 fw-bold fs-6 border-end bg-gray-500">
+      <div class="col-6 fw-bold fs-6 border-end bg-gray-500">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 35%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -424,9 +422,6 @@ watch(() => orderStore.selectedOrder,
     </div>
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2 d-flex align-items-center"
       :class="{ 'bg-gray': idx % 2 === 0 }">
-      <div class="col-1 dflex align-items-center justify-content-center border-end">
-        {{ item.order_item_id }}
-      </div>
       <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
         <IconTrash 
           size="30"
@@ -455,7 +450,7 @@ watch(() => orderStore.selectedOrder,
           {{ item.partner.partner.name }}
         </small>
       </div>
-      <div class="col-5">
+      <div class="col-6">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
           <span class="border-end text-end w-50 pe-2">
             {{ product.product_name }} {{ product.product_variety }}

@@ -41,6 +41,15 @@ const calcTotalByItem = (item) => {
   return total.toFixed(2);
 };
 
+const calcTotalStemFlower = (item) => {
+  let total = 0;
+  let items = item.box_items.map((i) => i);
+  total = items.reduce((acc, boxItem) => {
+    return acc + parseFloat(boxItem.qty_stem_flower);
+  }, 0) * item.quantity;
+  return total;
+};
+
 const delimitedNumber = (event, item) => {
   exceedLimit.value = false;
   let value = parseInt(event.target.value);
@@ -409,9 +418,8 @@ watch(()=> purchaseStore.selectedPurchase,
     <div class="row p-1 text-white ">
       <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Cant</div>
       <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Tl/Cj</div>
-      <div class="col-2 fw-bold fs-6 border-end bg-cyan-600 text-center">Proveedor</div>
-      <div class="col-6 fw-bold fs-6 border-end bg-cyan-600">
+      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Tll/Cja</div>
+      <div class="col-8 fw-bold fs-6 border-end bg-cyan-600">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 50%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -427,7 +435,7 @@ watch(()=> purchaseStore.selectedPurchase,
           </div>
         </div>
       </div>
-      <div class="col-1 fw-bold fs-6 bg-cyan-600 text-center">C/USD</div>
+      <div class="col-1 fw-bold fs-6 bg-cyan-600 text-center">C Tallo</div>
     </div>
     <div
       v-for="(item, idx) in purchaseStore.selectedPurchase.order_details"
@@ -455,7 +463,7 @@ watch(()=> purchaseStore.selectedPurchase,
           
         />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end gap-2 ">
+      <div class="col-1 text-end border-end d-flex align-items-center gap-2 fs-5">
         {{ item.box_model }}
         <span v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced">/</span>
         <IconSitemap 
@@ -469,15 +477,10 @@ watch(()=> purchaseStore.selectedPurchase,
           v-if="item.box_model === 'QB' && (!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced)" 
         />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
-        {{ item.tot_stem_flower }}
+      <div class="col-1 text-end border-end d-flex align-items-center justify-content-end fs-5">
+        {{ calcTotalStemFlower(item) }}
       </div>
-      <div class="col-2 d-flex align-items-end">
-        <small>
-          {{ item.partner ? item.partner.partner.name : '' }}
-        </small>
-      </div>
-      <div class="col-6">
+      <div class="col-8">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
           <span class="border-end text-end w-50 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
@@ -526,8 +529,14 @@ watch(()=> purchaseStore.selectedPurchase,
           </span>
         </div>
       </div>
-      <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
-        {{ calcTotalByItem(item) }}
+      <div class="col-1 fw-semibold">
+        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
+          <input
+            type="text"
+            class="form-control form-control-sm text-end"
+            :value="product.stem_cost_price + product.margin"
+            />
+        </div>  
       </div>
     </div>
     <div class="row">
