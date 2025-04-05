@@ -1,0 +1,182 @@
+Procesamiento de datos en texto plano a formato JSON, el patron en un array de arrays separados por comas
+Objetivo:
+Convertir datos de entrada en texto plano sobre los stocks disponibles para exportacion de una  floricultura a una estructura de listas en formato JSON.
+la salida debe estar en el mismo orden de entrada
+
+Formato y estructura del análisis
+Estructura general de los datos: Cada línea de texto contiene información sobre cajas de flores y su contenido. El formato puede variar, pero los elementos clave son:
+
+CANTIDAD: Número de cajas.
+MODELO DE CAJA: Identificado como HB, QB o FB.
+VARIEDAD: Nombre de la variedad puede haber mas de una variedad, cada variedad es una palabra.
+MEDIDAS: Longitud de los tallos, puede haber una o más medidas por lo que debe ser una lista.
+TALLOS TOTALES: Número total de tallos en la caja
+PRECIOS: Costo de la caja basado en las medidas, es una lista.
+PRECIO TALLO EN CAJA: Costo mas alto de tallo en caja, si solo hay un precio, se asume que es el precio de todos los tallos.
+
+La respuesta debe estar en este formato
+[CANTIDAD, MODELO DE CAJA, TALLOS TOTALES, PRECION TALLO EN CAJA, VARIEDAD, [MEDIDAS], [PRECIOS]]
+
+Consideraciones:
+En caso de múltiples tallos o precios, se deben crear listas que correspondan a las tallos y precios.
+Si no se especifica un precio, se usará 0 como valor predeterminado
+Si no se especifica cantidad de tallos se debe asumir 0 para cada variedad y/o Tallos totales
+Todas las longitudes y precios deben convertirse a números flotantes para precisión usando el seprador "." punto
+Los precios separados por / o espacios deben asignarse a sus respectivas tallos.
+ESCIMO y ESKIMO son la misma variedad, simpre interpretar como ESKIMO
+
+Ejemplo detallado de análisis:
+
+ENTRADA: 1HB EXPLORER 40/50 X 250 0,40/0,50
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: HB
+TALLOS TOTALES: 250
+PRECIO TALLO EN CAJA: 0 # es cero porque hay mas de un precio
+VARIEDAD: EXPLORER
+MEDIDAS: 40, 50
+PRECIOS: 0.40,0.50   # precios de los tallos respectivos
+SALIDA ESPERADA:
+[1, "HB", 250, 0 ,"EXPLORER", [40, 50], [0.40, 0.50]]
+
+ENTRADA:  2HB SWEET ESCIMO 50 X 300 0,35
+Interpretación de la entrada:
+CANTIDAD: 2
+MODELO DE CAJA: HB
+TALLOS TOTALES: 300
+PRECIO TALLO EN CAJA: 0.35 #  porque solo hay un precio y una medida
+VARIEDAD: SWEET ESKIMO # AL SER ESCIMO SE INTERPRETA COMO ESKIMO
+MEDIDAS: 50
+PRECIOS: 0.35
+SALIDA ESPERADA:
+[2, "HB", 300, 0.35, "SWEET ESKIMO", [50], [0.35]]
+
+ENTRADA: AMARETO 1QB40 $ 0,18
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 40 es una medida
+PRECIO TALLO EN CAJA: 0.18 #  porque solo hay un precio y una medida
+VARIEDAD: AMARETO
+MEDIDAS: 40
+PRECIOS: 0.18
+SALIDA ESPERADA:
+[1, "QB", 0, 0.18, "AMARETO", [40], [0.18]]
+
+ENTRADA: TOPAZ 1HB5060 0.26 0.30
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 50 Y 60 son medidas
+PRECIO TALLO EN CAJA: 0 #  porque hay mas de un precio
+VARIEDAD: TOPAZ
+MEDIDAS: 50, 60
+PRECIOS: 0.26, 0.30
+SALIDA ESPERADA:
+[1, "HB", 0, 0, "TOPAZ", [50, 60], [0.26, 0.30]]
+
+
+ENTRADA: RUSCUS 2HB40
+En este caso sole se idica el modelo de caja y la variedad, no hay tallos totales ni precios se asume 0 para ambos
+Interpretación de la entrada:
+CANTIDAD: 2
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 40 es una medida
+PRECIO TALLO EN CAJA: 0 #  porque no hay precio
+VARIEDAD: RUSCUS
+MEDIDAS: 40
+PRECIOS: 0 #  porque no hay precio  de tallos en caja
+SALIDA ESPERADA:
+[2, "HB", 0, 0, "RUSCUS", [40], [0]]
+
+AMARETO 1QB4050 $0.25-0.35
+En este caso los precios de tallos inicia con el signo $ y se separan por - indicando los precios de los tallos respectivos
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 40 y 50 son medidas
+PRECIO TALLO EN CAJA: 0 #  porque hay mas de un precio
+VARIEDAD: AMARETO
+MEDIDAS: 40,50
+PRECIOS: 0.25,0.35
+SALIDA ESPERADA:
+[1, "QB", 0, 0, "AMARETO", [40, 50], [0.25, 0.35]]
+
+Entrada MIX 1HB6070  $0.48-0.58
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 60 y 70 son medidas
+PRECIO TALLO EN CAJA: 0 #  porque hay mas de un precio
+VARIEDAD: MIX
+MEDIDAS: 60,70
+PRECIOS: 0.48,0.58
+SALIDA ESPERADA:
+[1, "HB", 0, 0, "MIX", [60, 70], [0.48, 0.58]]
+
+
+Entrada: 3HB	BLUSH	70
+Interpretación de la entrada:
+CANTIDAD: 3
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 70 es una medida
+PRECIO TALLO EN CAJA: 0 #  porque no hay precio
+VARIEDAD: BLUSH
+MEDIDAS: 70
+PRECIOS: 0 
+SALIDA ESPERADA:
+[3, "HB", 0, 0, "BLUSH", [70], [0]]
+
+Entrada: 1QB	COUNTRY HOME	40/50
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 40 y 50 son medidas
+PRECIO TALLO EN CAJA: 0 #  porque no hay precio
+VARIEDAD: COUNTRY HOME
+MEDIDAS: 40,50
+PRECIOS: 0
+SALIDA ESPERADA:
+[1, "QB", 0, 0, "COUNTRY HOME", [40,50], [0,0]]
+
+Entrada: 1QB	BE SWEET	90
+Interpretación de la entrada:
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 90 es una medida
+PRECIO TALLO EN CAJA: 0,
+VARIEDAD: BE SWEET
+MEDIDAS: 90
+PRECIOS: 0
+SALIDA ESPERADA:
+[1, "QB", 0, 0, "BE SWEET", [90], [0]]
+
+
+Entrada: DEEP PURPLE 60 cm	2HB	1QB
+en este caso son dos salidas juntas ya que hay cajas HB y QB la salida es doble, 
+mismas que comparten la cantidad de tallos y la variedad equivalente a 
+Interpretación de la entrada 1:
+CANTIDAD: 2
+MODELO DE CAJA: HB
+TALLOS TOTALES: 0 # no hay tallos totales 60 es una medida
+PRECIO TALLO EN CAJA: 0
+VARIEDAD: DEEP PURPLE
+MEDIDAS: 60
+PRECIOS: 0
+# segunda salida
+CANTIDAD: 1
+MODELO DE CAJA: QB
+TALLOS TOTALES: 0 # no hay tallos totales 60 es una medida
+PRECIO TALLO EN CAJA: 0
+VARIEDAD: DEEP PURPLE
+MEDIDAS: 60
+PRECIOS: 0
+
+SALIDA ESPERADA:
+[2, "HB", 0, 0, "DEEP PURPLE", [60], [0]],
+[1, "QB", 0, 0, "DEEP PURPLE", [60], [0]]
+
+# ejemplo
+1 HB *300 EXPLORER 70/80
+Salida Esperada
+[1, "HB", 300, 0, "EXPLORER", [70,80], [0,0]]

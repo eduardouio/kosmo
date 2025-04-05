@@ -224,7 +224,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             const parts = base_num.toString().split(".");
             const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             const decimalPart = parts.length > 1 ? "." + parts[1].slice(0, 2) : ".00";
-            return integerPart + decimalPart;
+            return integerPart + decimalPart
         },
     }
 })

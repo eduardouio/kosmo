@@ -419,7 +419,7 @@ watch(()=> purchaseStore.selectedPurchase,
       <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Cant</div>
       <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Mdl</div>
       <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Tll/Cja</div>
-      <div class="col-7 fw-bold fs-6 border-end bg-cyan-600">
+      <div class="col-6 fw-bold fs-6 border-end bg-cyan-600">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 50%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -436,7 +436,8 @@ watch(()=> purchaseStore.selectedPurchase,
         </div>
       </div>
       <div class="col-1 fw-bold fs-6 bg-cyan-600 text-center">C Tallo</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Total</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">T Compra</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">T Venta</div>
     </div>
     <div
       v-for="(item, idx) in purchaseStore.selectedPurchase.order_details"
@@ -481,7 +482,7 @@ watch(()=> purchaseStore.selectedPurchase,
       <div class="col-1 text-end border-end d-flex align-items-center justify-content-end fs-5">
         {{ calcTotalStemFlower(item) }}
       </div>
-      <div class="col-7">
+      <div class="col-6">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
           <span class="border-end text-end w-50 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
@@ -540,6 +541,7 @@ watch(()=> purchaseStore.selectedPurchase,
             />
         </div>  
       </div>
+     
       <div class="col-1 fw-semibold">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
           <input
@@ -547,6 +549,16 @@ watch(()=> purchaseStore.selectedPurchase,
             readonly
             class="form-control form-control-sm text-end"
             :value="purchaseStore.formatNumber(product.stem_cost_price * product.qty_stem_flower)"
+            />
+        </div>  
+      </div>
+      <div class="col-1 fw-semibold">
+        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
+          <input
+            type="text"
+            readonly
+            class="form-control form-control-sm text-end"
+            :value="purchaseStore.formatNumber((product.stem_cost_price + product.margin )* product.qty_stem_flower)"
             />
         </div>  
       </div>

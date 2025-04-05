@@ -397,9 +397,9 @@ watch(() => orderStore.selectedOrder,
     <div class="row p-1 text-white ">
       <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Cant</div>
       <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Tl/Cj</div>
-      <div class="col-2 fw-bold fs-6 border-end bg-gray-500 text-center">Proveedor</div>
-      <div class="col-6 fw-bold fs-6 border-end bg-gray-500">
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Tll/Cja</div>
+      <div class="col-2 fw-bold fs-6 border-end bg-gray-500 text-center">Proveedor</div>  
+      <div class="col-5 fw-bold fs-6 border-end bg-gray-500">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 35%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -414,11 +414,12 @@ watch(() => orderStore.selectedOrder,
             Margen
           </div>
           <div class="flex-grow-1" style="flex: 0 0 16.25%; text-align: right;">
-            Tot/Tallo
+            C Tallo
           </div>
         </div>
       </div>
-      <div class="col-1 fw-bold fs-6 bg-gray-500 text-center">Total</div>
+      <div class="col-1 fw-bold fs-6 bg-gray-500 text-center">T Compra</div>
+      <div class="col-1 fw-bold fs-6 bg-gray-500 text-center">T Venta</div>
     </div>
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2 d-flex align-items-center"
       :class="{ 'bg-gray': idx % 2 === 0 }">
@@ -450,7 +451,7 @@ watch(() => orderStore.selectedOrder,
           {{ item.partner.partner.name }}
         </span>
       </div>
-      <div class="col-6">
+      <div class="col-5">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
           <span class="border-end text-end w-50 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
@@ -499,6 +500,16 @@ watch(() => orderStore.selectedOrder,
             />
         </div>  
       </div>
+      <div class="col-1 fw-semibold">
+        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
+          <input
+            type="text"
+            readonly
+            class="form-control form-control-sm text-end"
+            :value="orderStore.formatNumber((product.stem_cost_price + product.margin  ) * product.qty_stem_flower)"
+            />
+        </div>  
+      </div>
     </div>
     <div class="row">
       <div class="col-3">
@@ -514,12 +525,12 @@ watch(() => orderStore.selectedOrder,
       <div class="col-4 offset-5">
         <div class="row bg-gray-200 bg-gradient rounded-1 shadow-sm p-2">
           <div class="col-7 text-end border-end fs-5 text-lime-700">Costo:</div>
-          <div class="col-5 fs-5 text-lime-700 text-end">{{ totalCost }}</div>
+          <div class="col-5 fs-5 text-lime-700 text-end">{{orderStore.formatNumber(totalCost) }}</div>
           <div class="col-7 text-end border-end fs-5 text-lime-700">Margen:</div>
-          <div class="col-5 fs-5 text-lime-700 text-end">{{ totalMargin }}</div>
+          <div class="col-5 fs-5 text-lime-700 text-end">{{ orderStore.formatNumber(totalMargin) }}</div>
           <div class="col-7 text-end border-end fs-5 text-lime-700">Total Pedido:</div>
           <div class="col-5 fs-5 text-lime-700 text-end">
-            {{  orderStore.formatNumber(totalMargin + totalCost) }}
+            {{  orderStore.formatNumber(parseFloat(totalMargin) + parseFloat(totalCost)) }}
           </div>
         </div>
       </div>

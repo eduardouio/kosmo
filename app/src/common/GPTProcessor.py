@@ -14,10 +14,15 @@ class GPTProcessor:
         self.assistant = self.client.beta.assistants.retrieve(
             "asst_vVqU2SOi7jJefVllFWGqtoop"
         )
-        self.thread = self.client.beta.threads.create()
+        self.thread = None
         self._initialized = True
 
     def process_text(self, dispo):
+        loggin_event('Intentar co Hilo anterior')
+        if not self.thread:
+            loggin_event('Creando hilo')
+            self.thread = self.client.beta.threads.create()
+
         loggin_event('Procesando texto')
         loggin_event(dispo)
         self.dispo = dispo
@@ -27,7 +32,7 @@ class GPTProcessor:
                 thread_id=self.thread.id,
                 assistant_id=self.assistant.id,
                 additional_messages=[{"role": "user", "content": self.dispo}],
-                temperature=0.01
+                temperature=0.2
             )
             loggin_event('Hilo creado y ejecutado')
             loggin_event(run)
