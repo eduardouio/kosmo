@@ -44,7 +44,7 @@ class TemplateReportCusOrderView(TemplateView):
             totals['total_qb'] += item['item'].quantity if item['item'].box_model == 'QB' else 0
             totals['total_stems'] += item['item'].tot_stem_flower
 
-        total_hb = totals['total_qb'] // 2 + totals['total_hb']
-        totals['total_fb'] = total_hb // 2
+        total_hb = (totals['total_qb'] / 2) + totals['total_hb']
+        totals['total_fb'] = total_hb / 2
 
         return totals
