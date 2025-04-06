@@ -412,6 +412,14 @@ class OrderBoxItems(BaseModel):
     def stem_cost_total(self):
         return self.stem_cost_price + self.profit_margin
 
+    @property
+    def stem_cost_total_price(self):
+        return self.stem_cost_price * self.qty_stem_flower
+    
+    @property
+    def stem_cost_total_sale(self):
+        return self.stem_cost_total * self.qty_stem_flower
+
     @classmethod
     def get_by_order_item(cls, order_item):
         return cls.objects.filter(order_item=order_item, is_active=True)

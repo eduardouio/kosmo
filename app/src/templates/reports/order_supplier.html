@@ -106,7 +106,9 @@
                                     {% endfor %}
                                 </td>
                                 <td class="border border-gray-700 px-4 py-2">
-                                    {{ item.item.line_price }}
+                                    {% for bxs in item.box_items %}
+                                    <p>{{ bxs.stem_cost_total_price }}</p>
+                                    {% endfor %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -116,7 +118,7 @@
         
                 <!-- Total Factura -->
                 <div class="text-right mb-6">
-                    <p class="text-sm font-bold">TOTAL FACTURA {{order.total_price}}</p>
+                    <p class="text-sm font-bold">TOTAL OC {{order.total_price}}</p>
                 </div>
         
                 <!-- Resumen de totales -->
