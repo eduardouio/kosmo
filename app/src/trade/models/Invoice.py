@@ -219,6 +219,8 @@ class Invoice(BaseModel):
         invoice.hb_total = hb_total
         invoice.total_margin = total_margin
         invoice.tot_stem_flower = total_stem_flower
+        invoice.fb_total = ((qb_total / 2) + hb_total) / 2
+        invoice.total_price = total_price
 
         if invoice.type_document == 'FAC_VENTA':
             invoice.total_price = total_invoice
