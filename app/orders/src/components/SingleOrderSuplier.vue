@@ -206,7 +206,7 @@ const updateOrder = async (action) => {
       if (purchaseStore.selectedPurchase.is_confirmed) {
         const response = await purchaseStore.confirmOrder();
         if (response){
-          purchaseStore.selectedPurchase.order.status = 'CONFIRMADO';
+          location.reload();
         }
       } else {
         purchaseStore.selectedPurchase.is_confirmed = true;
