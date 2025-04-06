@@ -1,21 +1,25 @@
 {% extends 'base/base.html'%}
+{% block style%}
+  <style>
+    .my-card:hover {
+      background-color: #bbf79b !important;
+      border-color: #5f5f5f !important;
+    }
+  </style>
+{% endblock %}
 {% block content %}
 <div class="container my-5">
     <div class="row g-4">
       <!-- Sales Card -->
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border shadow-sm rounded-3 h-100 p-4" style="background-color: #f8f9fa;">
+        <div class="card border-red-400 shadow rounded-2 h-100 p-4 my-card" style="background-color: #f8f9fa;">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="text-kosmo-primary">TALLOS VENDIDOS</h6>
-              <h2 class="mb-0">350,897</h2>
+              <h2 class="text-kosmo-primary">DISPONIBILIDAD</h2>
+              <h6 class="mb-0">4 Stocks</h6>
               <div class="mt-2">
                 <span class="text-secondary">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M11 4l3 8l-3 8" />
-                      </svg>
-                    12% Mes Anterior
+                    Último Stock: Hoy | 2,500 Tallos
                 </span>
               </div>
             </div>
@@ -33,48 +37,31 @@
   
       <!-- Purchases Card -->
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border shadow-sm rounded-3 h-100 p-4" style="background-color: #f8f9fa;">
+        <div class="card border-blue-400 shadow rounded-2 h-100 p-4 my-card" style="background-color: #f8f9fa;">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="text-kosmo-green">VENTAS</h6>
-              <h2 class="mb-0">$24,300.32</h2>
+              <h2 class="text-kosmo-green">OV PEDIDOS</h2>
+              <h6 class="mb-0">4 PENDIENTES</h6>
               <p class="text-secondary mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M11 4l3 8l-3 8" />
-                  </svg>
-                 5.25% Mes Anterior
+                 1203 Tallos Por Confirmar ($ 1,200)
               </p>
             </div>
             <div class="icon bg-primary text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-coins" width="50" height="50" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M9 14c0 1.657 2.686 3 6 3s6 -1.343 6 -3s-2.686 -3 -6 -3s-6 1.343 -6 3z" />
-                    <path d="M9 14v4c0 1.656 2.686 3 6 3s6 -1.344 6 -3v-4" />
-                    <path d="M3 6c0 1.072 1.144 2.062 3 2.598s4.144 .536 6 0c1.856 -.536 3 -1.526 3 -2.598c0 -1.072 -1.144 -2.062 -3 -2.598s-4.144 -.536 -6 0c-1.856 .536 -3 1.526 -3 2.598z" />
-                    <path d="M3 6v10c0 .888 .772 1.45 2 2" />
-                    <path d="M3 11c0 .888 .772 1.45 2 2" />
-                  </svg>
+              <svg  xmlns="http://www.w3.org/2000/svg"  width="50"  height="50"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cube-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 12.5v-4.509a1.98 1.98 0 0 0 -1 -1.717l-7 -4.008a2.016 2.016 0 0 0 -2 0l-7 4.007c-.619 .355 -1 1.01 -1 1.718v8.018c0 .709 .381 1.363 1 1.717l7 4.008a2.016 2.016 0 0 0 2 0" /><path d="M12 22v-10" /><path d="M12 12l8.73 -5.04" /><path d="M3.27 6.96l8.73 5.04" /><path d="M16 19h6" /><path d="M19 16v6" /></svg>
             </div>
           </div>
           <a href=" 'bills-create' %}" class="stretched-link"></a>
         </div>
       </div>
-  
       <!-- Partners Card -->
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border shadow-sm rounded-3 h-100 p-4" style="background-color: #f8f9fa;">
+        <div class="card border-yellow-400 shadow rounded-2 h-100 p-4 my-card" style="background-color: #f8f9fa;">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="text-muted">COMPRAS</h6>
-              <h2 class="mb-0">$ 21,251.20</h2>
-    '
+              <h2 class="text-muted">OC COMPRAS</h2>
+              <h6 class="mb-0">3 Ordenes En Espera</h6>
        <p class="text-danger mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M11 4l3 8l-3 8" />
-                  </svg> 1.75% 
-                  <span class="text-muted">Mes Anterior</span>
+                  2330 Tallos Por Confirmar ($ 1302.00)
               </p>
             </div>
             <div class="icon bg-warning text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
@@ -95,28 +82,17 @@
   
       <!-- Manual Ledger Card -->
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border shadow-sm rounded-3 h-100 p-4" style="background-color: #f8f9fa;">
+        <div class="card border-lime-400 shadow rounded-2 h-100 p-4 my-card" style="background-color: #f8f9fa;">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="text-muted">ORDENS DE COMPRA</h6>
-              <h2 class="mb-0">201</h2>
+              <h2 class="text-muted">FC VENTAS</h2>
+              <h6 class="mb-0">3 Facturas por Cobrar</h6>
               <p class="text-secondary mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M11 4l3 8l-3 8" />
-                  </svg>
-                 10.25% Mes Anterior
+                2,500 Tallos Por Cobrar ($ 1,200)
               </p>
             </div>
             <div class="icon bg-success text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-checkup-list" width="50" height="50" viewBox="0 0 24 24" stroke-width="1.5" stroke="#FFFFFF" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" />
-                    <path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" />
-                    <path d="M9 14h.01" />
-                    <path d="M9 17h.01" />
-                    <path d="M12 16l1 1l3 -3" />
-                  </svg>
+              <svg  xmlns="http://www.w3.org/2000/svg"  width="50"  height="50"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M14 11h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" /><path d="M12 17v1m0 -8v1" /></svg>
             </div>
           </div>
           <a href=" url 'journal-create' %}" class="stretched-link"></a>
@@ -125,25 +101,17 @@
   
       <!-- Admin Card -->
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border shadow-sm rounded-3 h-100 p-4" style="background-color: #f8f9fa;">
+        <div class="card border-cyan-400 shadow rounded-2 h-100 p-4 my-card" style="background-color: #f8f9fa;">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="text-muted">ORDENS DE VENTA</h6>
-              <h2 class="mb-0">$12,900</h2>
+              <h2 class="text-muted">FC COMPRAS</h2>
+              <h6 class="mb-0">3 Facturas por Pagar</h6>
               <p class="text-secondary mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M11 4l3 8l-3 8" />
-                  </svg>
-                 5.25% Mes Anterior
+                2,500 Tallos Por Pagar ($ 1,200)
               </p>
             </div>
             <div class="icon bg-info text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plane-departure" width="50" height="50" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M14.639 10.258l4.83 -1.294a2 2 0 1 1 1.035 3.863l-14.489 3.883l-4.45 -5.02l2.897 -.776l2.45 1.414l2.897 -.776l-3.743 -6.244l2.898 -.777l5.675 5.727z" />
-                    <path d="M3 21h18" />
-                  </svg>
+              <svg  xmlns="http://www.w3.org/2000/svg"  width="50"  height="50"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M14 11h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" /><path d="M12 17v1m0 -8v1" /></svg>
             </div>
           </div>
           <a href="url 'admin-panel' %}" class="stretched-link"></a>
@@ -152,26 +120,17 @@
   
       <!-- Transport Card -->
       <div class="col-12 col-md-6 col-lg-4">
-        <div class="card border shadow-sm rounded-3 h-100 p-4" style="background-color: #f8f9fa;">
+        <div class="card border-gray-400 shadow rounded-2 h-100 p-4 my-card" style="background-color: #f8f9fa;">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h6 class="text-muted">STOCK DIARIO</h6>
-              <h2 class="mb-0">14,580</h2>
+              <h2 class="text-muted">PAGOS Y COBROS</h2>
+              <h6 class="mb-0">5 Pagos Vencidos</h6>
               <p class="text-secondary mt-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#000000" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                    <path d="M11 4l3 8l-3 8" />
-                  </svg>
-                 5.25% Mes Anterior
+                Por Pagar: $ 1,200 | Por Cobrar: $ 1,200
               </p>
             </div>
             <div class="icon bg-secondary text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-truck" width="40" height="40" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                <path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                <path d="M5 17h-2v-11a1 1 0 0 1 1 -1h9v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" />
-              </svg>
+              <svg  xmlns="http://www.w3.org/2000/svg"  width="50"  height="50"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-home-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 10l-7 -7l-9 9h2v7a2 2 0 0 0 2 2h6" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2c.387 0 .748 .11 1.054 .3" /><path d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" /><path d="M19 21v1m0 -8v1" /></svg>
             </div>
           </div>
           <a href=" url 'transport-create' %}" class="stretched-link"></a>

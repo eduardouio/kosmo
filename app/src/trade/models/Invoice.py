@@ -329,6 +329,22 @@ class InvoiceBoxItems(BaseModel):
         decimal_places=2,
         default=0.06
     )
+    total_bunches = models.IntegerField(
+        'Total de ramos',
+        blank=True,
+        null=True,
+        default=0
+    )
+    stems_bunch = models.IntegerField(
+        'Cantidad de tallos por ramo',
+        blank=True,
+        null=True,
+        default=0
+    )
+
+    @property
+    def total_price(self):
+        return self.stem_cost_price * self.qty_stem_flower
 
     @classmethod
     def disable_by_invoice_items(cls, invoice_item):

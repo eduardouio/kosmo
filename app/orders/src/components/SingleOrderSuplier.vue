@@ -609,7 +609,7 @@ watch(()=> purchaseStore.selectedPurchase,
           class="btn btn-sm btn-default"
           @click="updateOrder('update')"
           :disabled="orderHaveCeroItem"
-          v-if="isModified && purchaseStore.selectedPurchase.order.status != 'CONFIRMADO'" 
+          v-if="isModified && !purchaseStore.selectedPurchase.is_confirmed" 
         >
           <IconRefresh size="20" stroke="1.5" />
           <span v-if="purchaseStore.selectedPurchase.is_modified">
@@ -627,7 +627,7 @@ watch(()=> purchaseStore.selectedPurchase,
           <span>Ver Factura</span>
         </a>
         </button>
-        <button class="btn btn-default btn-sm" @click="updateOrder('confirm')" v-if="!purchaseStore.selectedPurchase.is_confirmed">
+        <button class="btn btn-default btn-sm" @click="updateOrder('confirm')">
           <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed"/>
           <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
           <IconCheckbox size="20" stroke="1.5" v-if="purchaseStore.selectedPurchase.is_confirmed"/>
