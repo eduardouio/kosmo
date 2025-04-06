@@ -262,6 +262,12 @@ class OrderItems(BaseModel):
         decimal_places=2,
         default=0.00
     )
+    line_commission = models.DecimalField(
+        'Comisión',
+        max_digits=10,
+        decimal_places=2,
+        default=0.00
+    )
     tot_stem_flower = models.IntegerField(
         'Unds Tallos',
         default=0,
@@ -290,6 +296,18 @@ class OrderItems(BaseModel):
         null=True,
         default=0
     )
+
+    @property
+    def qb_total(self):
+        if self.box_model == 'QB':
+            return self.quantity
+        return 0
+
+    @property
+    def hb_total(self):
+        if self.box_model == 'HB':
+            return self.quantity
+        return 0
 
     @classmethod
     def get_by_id(cls, id_order_item):
@@ -406,6 +424,12 @@ class OrderBoxItems(BaseModel):
         max_digits=5,
         decimal_places=2,
         default=0.06
+    )
+    commission = models.DecimalField(
+        'Comisión',
+        max_digits=10,
+        decimal_places=2,
+        default=0.00
     )
 
     @property

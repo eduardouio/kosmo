@@ -62,6 +62,14 @@ const deleteOrderItem = (item) => {
   }
 }
 
+const careteOrderInvoice = async () => {
+  const response = await orderStore.createInvoice();
+  if (response) {
+    orderStore.selectedOrder.is_invoiced = true;
+    orderStore.selectedOrder.is_modified = false;
+    location.reload();
+  }
+}
 
 const handleKeydown = (event, cssClass) => {
     const inputs = document.querySelectorAll(cssClass);
@@ -565,7 +573,7 @@ watch(() => orderStore.selectedOrder,
           </a>
         </button>
         <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_invoiced">
-          <a :href="getUrlReportinvoice(orderStore.selectedOrder.order.id_invoice)">
+          <a :href="getUrlReportinvoice(orderStore.selectedOrder.id_invoice)">
           <IconPrinter size="20" stroke="1.5" />
           Imprimir FC
           </a>
@@ -573,7 +581,7 @@ watch(() => orderStore.selectedOrder,
         <button 
           class="btn btn-default btn-sm"
           v-if="orderStore.selectedOrder.is_confirmed &&  !orderStore.selectedOrder.is_invoiced"
-          @click="orderStore.createInvoice()"
+          @click="careteOrderInvoice"
           >
           <IconSettingsDollar size="20" stroke="1.5" />
           Generar Factura

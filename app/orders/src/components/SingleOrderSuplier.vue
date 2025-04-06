@@ -617,16 +617,6 @@ watch(()=> purchaseStore.selectedPurchase,
           </span>
           <span v-else>Actualizar</span>
         </button>
-        <button
-          type="button"
-          class="btn btn-sm btn-default"
-          v-if="purchaseStore.selectedPurchase.order.status === 'FACTURADO'"
-        >
-        <a :href="getUrlReportinvoice(purchaseStore.selectedPurchase.order.id_invoice)">
-          <IconFileDollar size="20" stroke="1.5" />
-          <span>Ver Factura</span>
-        </a>
-        </button>
         <button class="btn btn-default btn-sm" @click="updateOrder('confirm')">
           <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed"/>
           <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
@@ -645,7 +635,7 @@ watch(()=> purchaseStore.selectedPurchase,
             @click="purchaseStore.createInvoice()"
             >
           <IconFileDollar size="20" stroke="1.5" />
-          Generar Factura
+          Registrar Factura
         </button>
       </div>
     </div>

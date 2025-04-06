@@ -85,6 +85,20 @@ class Invoice(BaseModel):
         null=True,
         default=0
     )
+    fb_total = models.DecimalField(
+        'Total FB',
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        default=0
+    )
+    total_pieces = models.PositiveSmallIntegerField(
+        'Total Piezas',
+        blank=True,
+        null=True,
+        default=0
+    )
     tot_stem_flower = models.IntegerField(
         'Cantidad Total de Tallos',
         blank=True,
@@ -137,6 +151,10 @@ class Invoice(BaseModel):
         ),
         default='PENDIENTE'
     )
+
+    @property
+    def total_invoice(self):
+        return self.total_price + self.total_margin
 
     @property
     def days_to_due(self):
@@ -258,6 +276,12 @@ class InvoiceItems(BaseModel):
         decimal_places=2,
         default=0.00
     )
+    line_commission = models.DecimalField(
+        'Comisión',
+        max_digits=10,
+        decimal_places=2,
+        default=0.00
+    )
 
     @classmethod
     def get_invoice_items(cls, invoice):
@@ -328,6 +352,12 @@ class InvoiceBoxItems(BaseModel):
         max_digits=5,
         decimal_places=2,
         default=0.06
+    )
+    commission = models.DecimalField(
+        'Comisión',
+        max_digits=10,
+        decimal_places=2,
+        default=0.00
     )
     total_bunches = models.IntegerField(
         'Total de ramos',

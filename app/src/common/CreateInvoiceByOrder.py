@@ -67,6 +67,15 @@ class CreateInvoiceByOrder:
 
     def gnerate_invoice_customer(self, order):
         loggin_event(f"Generando factura para la ORDEN VENTA {order.id}")
+        totals = {
+            'qb_total': 0,
+            'hb_total': 0,
+            'tot_stem_flower': 0,
+            'total_price': 0,
+            'total_margin': 0,
+            'fb_total': 0,
+            'total_pieces': 0,
+        }
         days = order.partner.credit_term
         due_date = datetime.now() + timedelta(days=days)
         dae = DAE.get_last_by_partner(order.partner)
@@ -85,6 +94,13 @@ class CreateInvoiceByOrder:
         )
         # cargamos los items de la orden a la factura
         for oi in OrderItems.get_by_order(order.id):
+            totals['qb_total'] += oi.qb_total
+            totals['hb_total'] += oi.hb_total
+            totals['total_pieces'] += oi.quantity
+            totals['tot_stem_flower'] += oi.tot_stem_flower
+            totals['total_price'] += oi.line_price
+            totals['total_margin'] += oi.line_margin
+
             inv_item = InvoiceItems.objects.create(
                 invoice=invoice,
                 box_model=oi.box_model,
@@ -105,6 +121,14 @@ class CreateInvoiceByOrder:
                     stem_cost_price=obx.stem_cost_price,
                     profit_margin=obx.profit_margin,
                 )
+
+        invoice.qb_total = totals['qb_total']
+        invoice.hb_total = totals['hb_total']
+        invoice.fb_total = ((totals['qb_total']/2)+totals['hb_total'])/2
+        invoice.tot_stem_flower = totals['tot_stem_flower']
+        invoice.total_price = totals['total_price']
+        invoice.total_margin = totals['total_margin']
+        invoice.total_pieces = totals['total_pieces']
 
         return invoice
 
