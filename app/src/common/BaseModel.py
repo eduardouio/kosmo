@@ -71,6 +71,15 @@ class BaseModel(models.Model):
         help_text='Identificador del usuario actualizador del registro.'
     )
 
+    @property
+    def user_creator(self):
+        """Devuelve el usuario creador de la orden"""
+        if self.id_user_created:
+            user = CustomUserModel.get_by_id(self.id_user_created)
+            if user:
+                return user
+        return None
+
     history = HistoricalRecords(inherit=True)
 
     def save(self, *args, **kwargs):
