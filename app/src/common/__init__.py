@@ -8,3 +8,4 @@ from .SerializerCustomerOrder import SerializerCustomerOrder
 from .SerializerSupplierOrder import SerializerSupplierOrder
 from .SyncOrders import SyncOrders
 from .CreateInvoiceByOrder import CreateInvoiceByOrder
+from .GPTDirectProcessor import GPTDirectProcessor

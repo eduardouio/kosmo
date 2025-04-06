@@ -3,11 +3,13 @@ from django.views.generic import View
 from django.http import JsonResponse
 from partners.models import Partner
 from products.models import Product, StockDay, StockDetail, BoxItems
-from common import GPTProcessor, TextPrepare
+from common import TextPrepare, GPTDirectProcessor
+from common.AppLoger import loggin_event
 
 
 class AnalizeStockTextAPI(View):
     def post(self, request, *args, **kwargs):
+        loggin_event('AnalizeStockTextAPI Post request')
         data = json.loads(request.body)
         partner = Partner.get_partner_by_id(data['supplier']['id'])
         stock_day = StockDay.get_by_id(data['idStock'])
@@ -22,7 +24,7 @@ class AnalizeStockTextAPI(View):
                 {'message': 'Texto no válido'}, safe=False, status=400
             )
 
-        result_dispo = GPTProcessor().process_text(text_stock)
+        result_dispo = GPTDirectProcessor().process_text(text_stock)
 
         if isinstance(result_dispo, str):
             return JsonResponse(

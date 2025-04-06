@@ -246,13 +246,29 @@ export const useStockStore = defineStore('stockStore', {
             let box_items = [];
             this.stock.forEach(stockItem => {
                 if (stockItem.is_selected) {
-                    stockItem.box_items.forEach(item => {
-                        item[column] = newValue;
-                        box_items.push(item);
+                    stockItem.box_items.forEach(currentItem => {
+                        if(this.checkFilter(currentItem)) {
+                            currentItem[column] = newValue;
+                            box_items.push(currentItem);
+                        }
                     });
                 };
             });
             this.updateStockDetail(box_items);
+        },
+        checkFilter(currentItem) {
+            let isVerified = false;
+            const selectedLengths = this.lengths.filter(item => item.is_selected).map(item => item.name);
+            const length = currentItem.length;
+            
+            if (selectedLengths.length > 0) {
+                if (selectedLengths.includes(length)) {
+                    isVerified = true;
+                } else {
+                    isVerified = false;
+                }
+            }
+            return isVerified;
         },
         formatNumber(num) {
             if (num === null || num === undefined) return '0.00';

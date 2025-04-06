@@ -1,13 +1,9 @@
-import json
-from django.core.serializers import serialize
-from django.views.generic import TemplateView, CreateView, UpdateView, DetailView, RedirectView
-from django.http import JsonResponse
+from django.views.generic import TemplateView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django import forms
 
-from products.models import Stock, Product, StockDay, StockDetail, BoxItems
-from partners.models import Partner
+from products.models import StockDay, StockDetail, BoxItems
 
 
 class StockDetailForm(forms.ModelForm):
