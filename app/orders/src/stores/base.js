@@ -50,6 +50,7 @@ export const useBaseStore = defineStore("baseStore", {
         try {
           const response = await axios.get(appConfig.urlAllSuppliers);
           this.suppliers = response.data;
+          this.suppliers.sort((a, b) => a.name.localeCompare(b.name));
           this.stagesLoaded++;
         }
         catch (error) {
