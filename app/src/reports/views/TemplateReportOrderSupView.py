@@ -42,6 +42,6 @@ class TemplateReportOrderSupView(TemplateView):
             totals['total_qb'] += item['item'].quantity if item['item'].box_model == 'QB' else 0
             totals['total_stems'] += item['item'].tot_stem_flower
 
-        totals['total_fb'] = totals['total_qb'] // 4 + totals['total_hb'] // 2
+        totals['total_fb'] = totals['total_qb'] / 4 + totals['total_hb'] / 2
 
         return totals
