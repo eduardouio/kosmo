@@ -4,8 +4,8 @@ import { useRouter } from 'vue-router';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
 import { useStockStore } from '@/stores/stock';
-import Loader from '@/components/Loader.vue';
-import OrderPreview from '@/components/OrderPreview.vue';
+import Loader from '@/components/Sotcks/Loader.vue';
+import OrderPreview from '@/components/Sotcks/OrderPreview.vue';
 import DataTable from 'datatables.net-dt'
 import { ref } from 'vue'
 import { appConfig } from '@/AppConfig';

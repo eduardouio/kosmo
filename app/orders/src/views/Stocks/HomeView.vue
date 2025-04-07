@@ -3,13 +3,14 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
-import ModalProduct from '@/components/ModalProduct.vue';
-import ModalSuplier from '@/components/ModalSuplier.vue';
-import ModalShareStock from '@/components/ModalShareStock.vue';
-import ModalUpdateValues from '@/components/ModalUpdateValues.vue';
-import ModalEditBox from '@/components/ModalEditBox.vue';
-import ModalOrderPreview from '@/components/ModalOrderPreview.vue';
-import Loader from '@/components/Loader.vue';
+import ModalProduct from '@/components/Sotcks/ModalProduct.vue';
+import ModalSuplier from '@/components/Sotcks/ModalSuplier.vue';
+import ModalShareStock from '@/components/Sotcks/ModalShareStock.vue';
+import ModalUpdateValues from '@/components/Sotcks/ModalUpdateValues.vue';
+import ModalEditBox from '@/components/Sotcks/ModalEditBox.vue';
+import ModalOrderPreview from '@/components/Sotcks/ModalOrderPreview.vue';
+import Loader from '@/components/Sotcks/Loader.vue';
+import SideBar from '@/components/Sotcks/SideBar.vue';
 import {
     IconCheckbox, IconSquare, IconEye, IconShare, IconLockOpen2, IconLock,
     IconCurrencyDollar, IconShoppingCart, IconSettings, IconTrash, IconEdit,
@@ -194,7 +195,12 @@ onMounted(() => {
 });
 </script>
 <template>
-    <div class="container-fluid p-0">
+    <div class="container-fluid">
+    <div class="row">
+    <div class="col-2 bg-light p-1 m-1">
+        <SideBar />
+    </div>
+    <div class="col p-0 p-1 m-1">
         <div class="row" v-if="!isAllLoaded">
             <div class="col text-center">
                 <Loader />
@@ -456,6 +462,8 @@ onMounted(() => {
             <ModalOrderPreview />
         </div>
         </div>
+    </div>
+    </div>
     </div>
 </template>
 <style scoped>

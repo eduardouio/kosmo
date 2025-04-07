@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useRoute } from 'vue-router';
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';

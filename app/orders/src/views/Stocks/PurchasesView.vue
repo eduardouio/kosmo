@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted, watchEffect, computed, nextTick } from 'vue';
 import { usePurchaseStore } from '@/stores/purcharses';
 import { useBaseStore } from '@/stores/base';
-import Loader from '@/components/Loader.vue';
+import Loader from '@/components/Sotcks/Loader.vue';
 import { useRoute } from 'vue-router';
 import { IconHexagonMinus, IconClockHour9, IconCheckbox, IconFileCheck, IconFolderOpen } from '@tabler/icons-vue';
 

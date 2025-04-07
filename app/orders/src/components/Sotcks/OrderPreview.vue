@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
-import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
+import AutocompleteCustomer from '@/components/Sotcks/AutocompleteCustomer.vue';
 import { IconTrash, IconCheckbox, IconSitemap, IconBan, IconLayersIntersect2, 
   IconAlertTriangle
 } from '@tabler/icons-vue';

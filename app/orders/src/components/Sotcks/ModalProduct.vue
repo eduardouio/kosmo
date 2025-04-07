@@ -1,6 +1,6 @@
 <script setup>
 import { IconX } from '@tabler/icons-vue';
-import ProductImage from '@/components/ProductImage.vue';
+import ProductImage from '@/components/Sotcks/ProductImage.vue';
 const props = defineProps(['product']);
 
 </script>

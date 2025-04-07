@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/orders';
 import { useBaseStore } from '@/stores/base';
-import AutocompleteCustomer from '@/components/AutocompleteCustomer.vue';
+import AutocompleteCustomer from '@/components/Sotcks/AutocompleteCustomer.vue';
 import { 
   IconTrash,
   IconCheckbox,

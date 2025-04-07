@@ -3,8 +3,8 @@ import { ref, computed, onMounted } from 'vue';
 import { useBaseStore } from '@/stores/base';
 import { useStockStore } from '@/stores/stock';
 import { appConfig } from '@/AppConfig';
-import Autocomplete from '@/components/Autocomplete.vue';
-import ProductImage from '@/components/ProductImage.vue';
+import Autocomplete from '@/components/Sotcks/Autocomplete.vue';
+import ProductImage from '@/components/Sotcks/ProductImage.vue';
 import { 
     IconX,
     IconPlus,

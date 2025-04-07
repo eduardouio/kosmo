@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBaseStore } from '@/stores/base';
 import { appConfig } from '@/AppConfig';
-import Loader from '@/components/Loader.vue';
+import Loader from '@/components/Sotcks/Loader.vue';
 import axios from 'axios';
 import {
     IconCheckbox,
@@ -65,7 +65,8 @@ onMounted(() => {
 
 </script>
 <template>
-    <div class="container-fluid p-0">
+    <div class="container mx-auto border">
+        <div class="row p-3"></div>
         <div class="row" v-if="!isAllLoaded">
             <div class="col text-center">
                 <Loader />
@@ -76,7 +77,7 @@ onMounted(() => {
         </div>
         <div class="row" v-else>
             <div class="col">
-                <div class="row pt-1 pb-2 pe-2 ps-3">
+                <div class="row pt-1 pb-2 pe-2 ps-3 d-flex align-items-center">
                     <div class="col-3 ">
                         <div class="d-flex justify-content-end align-items-center gap-2 border-gray-600 rounded-1 bg-secondary">
                             <span class="text-white ps-1 pe-1">
@@ -87,13 +88,21 @@ onMounted(() => {
                             </span>
                         </div>
                     </div>
-                    <div class="col-9">
+                    <div class="col-7">
                         <select class="form-select form-select-sm border-gray-500" v-model="selectedSupplier" @change="profitMargin = selectedSupplier.default_profit_margin">
                             <option>Seleccionar Proveedor</option>
                             <option v-for="supplier in baseStore.suppliers" :key="supplier" :value="supplier">
                                 {{ supplier.name }}
                             </option>
                         </select>
+                    </div>
+                    <div class="col-2">
+                        <router-link to="/">
+                            <button class="btn btn-default text-danger">
+                                <IconAlertTriangle size="20" stroke="1.5" />
+                                Cancelar
+                            </button>
+                        </router-link>
                     </div>
                     <div class="col-12 p-2 m-1 " v-if="selectedSupplier">
                         <div class="row">

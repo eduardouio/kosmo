@@ -2,13 +2,13 @@
 import { computed, onMounted, onUnmounted, watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useBaseStore } from '@/stores/base';
-import SingleOrderCustomer from '@/components/SingleOrderCustomer.vue';
-import SingleOrderSuplier from '@/components/SingleOrderSuplier.vue';
+import SingleOrderCustomer from '@/components/Sotcks/SingleOrderCustomer.vue';
+import SingleOrderSuplier from '@/components/Sotcks/SingleOrderSuplier.vue';
 import { usePurchaseStore } from  '@/stores/purcharses';
 import { useOrdersStore } from '@/stores/orders';
-import PurchaseOrdersList from '@/components/PurchaseOrdersList.vue';
+import PurchaseOrdersList from '@/components/Sotcks/PurchaseOrdersList.vue';
 import {  IconShoppingCartUp, IconShoppingCartDown, IconArrowLeft } from '@tabler/icons-vue';
-import Loader from '@/components/Loader.vue';
+import Loader from '@/components/Sotcks/Loader.vue';
 
 const baseStore = useBaseStore();
 const orderStore = useOrdersStore();
