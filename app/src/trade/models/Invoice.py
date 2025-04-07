@@ -154,7 +154,10 @@ class Invoice(BaseModel):
 
     @property
     def total_invoice(self):
-        return self.total_price + self.total_margin
+        if self.type_document == 'FAC_VENTA':
+            return self.total_price + self.total_margin
+
+        return self.total_price
 
     @property
     def days_to_due(self):
@@ -196,7 +199,6 @@ class Invoice(BaseModel):
         loggin_event(f"Reconstruyendo totales de factura {invoice.id}")
         total_price = 0
         total_margin = 0
-        total_invoice = 0
         qb_total = 0
         hb_total = 0
         total_stem_flower = 0
@@ -205,9 +207,8 @@ class Invoice(BaseModel):
             InvoiceItems.rebuild_invoice_item(invoice_item)
 
         for invoice_item in InvoiceItems.get_invoice_items(invoice):
-            total_price += invoice_item.line_price
-            total_margin += invoice_item.line_margin
-            total_invoice += invoice_item.line_total
+            total_price += invoice_item.line_price * invoice_item.quantity
+            total_margin += invoice_item.line_margin * invoice_item.quantity
             total_stem_flower += invoice_item.tot_stem_flower
 
             if invoice_item.box_model == 'QB':
@@ -217,15 +218,11 @@ class Invoice(BaseModel):
 
         invoice.qb_total = qb_total
         invoice.hb_total = hb_total
+        invoice_item.line_price
         invoice.total_margin = total_margin
         invoice.tot_stem_flower = total_stem_flower
         invoice.fb_total = ((qb_total / 2) + hb_total) / 2
         invoice.total_price = total_price
-
-        if invoice.type_document == 'FAC_VENTA':
-            invoice.total_price = total_invoice
-        else:
-            invoice.total_price = total_price
 
         invoice.save()
 
@@ -302,22 +299,22 @@ class InvoiceItems(BaseModel):
     @classmethod
     def rebuild_invoice_item(cls, invoice_item):
         loggin_event(f"Reconstruyendo item de factura {invoice_item.id}")
-        box_items = InvoiceBoxItems.get_box_items(invoice_item)
-        total_stem_flower = sum(box.qty_stem_flower for box in box_items)
-        total_cost_price = sum(
-            (box.stem_cost_price * box.qty_stem_flower) for box in box_items
-        )
-        total_margin = sum(
-            (box.profit_margin * box.qty_stem_flower) for box in box_items
-        )
+        line_price = 0
+        line_margin = 0
+        tot_stem_flower = 0
 
-        invoice_item.tot_stem_flower = (
-            total_stem_flower * invoice_item.quantity
-        )
-        invoice_item.line_price = total_cost_price * invoice_item.quantity
-        invoice_item.line_margin = total_margin * invoice_item.quantity
+        for oitm in InvoiceBoxItems.get_box_items(invoice_item):
+            line_price += oitm.qty_stem_flower * oitm.stem_cost_price
+            line_margin += oitm.profit_margin * oitm.qty_stem_flower
+            tot_stem_flower += oitm.qty_stem_flower
+
+        invoice_item.line_price = line_price * invoice_item.quantity
+        invoice_item.line_margin = line_margin * invoice_item.quantity
         invoice_item.line_total = (
-            total_cost_price + total_margin) * invoice_item.quantity
+            (line_price * invoice_item.quantity)
+            + (line_margin * invoice_item.quantity)
+        )
+        invoice_item.tot_stem_flower = tot_stem_flower
         invoice_item.save()
 
     def __str__(self):

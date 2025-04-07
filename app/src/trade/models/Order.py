@@ -140,6 +140,13 @@ class Order(BaseModel):
         default=None
     )
 
+    @property
+    def total_order(self):
+        if self.type_document == 'ORD_COMPRA':
+            return self.total_price
+
+        return self.total_price + self.total_margin
+
     @classmethod
     def get_order_by_id(cls, id_order):
         try:
@@ -180,6 +187,20 @@ class Order(BaseModel):
             f"La orden {sale_order.pk} no tiene ordenes de proveedor", True)
         return None
 
+    @property
+    def total_purchase_price(self):
+        total = 0
+        for order_item in OrderItems.get_by_order(self):
+            total += order_item.line_price
+        return total
+
+    @property
+    def total_sale_price(self):
+        total = 0
+        for order_item in OrderItems.get_by_order(self):
+            total += order_item.line_total
+        return total
+
     @classmethod
     def disable_order_items(cls, order):
         loggin_event(f"Desactivando items de orden {order.id}")
@@ -198,6 +219,7 @@ class Order(BaseModel):
         qb_total = 0
         hb_total = 0
         total_stem_flower = 0
+
         for order_item in OrderItems.get_by_order(order):
             OrderItems.rebuild_order_item(order_item)
 
@@ -214,13 +236,11 @@ class Order(BaseModel):
 
         order.qb_total = qb_total
         order.hb_total = hb_total
+        order.fb_total = ((qb_total / 2) + hb_total) / 2
         order.total_margin = total_margin
         order.total_stem_flower = total_stem_flower
-
-        if order.type_document == 'ORD_VENTA':
-            order.total_price = total_order
-        else:
-            order.total_price = total_price
+        order.total_price = total_price
+        order.total_margin = total_margin
         order.save()
 
 
@@ -374,18 +394,18 @@ class OrderItems(BaseModel):
     def rebuild_order_item(cls, order_item):
         loggin_event(f"Reconstruyendo item de orden {order_item.id}")
         total_stem_flower = 0
-        total_cost_price = 0
+        total_price = 0
         total_margin = 0
 
         for box in OrderBoxItems.get_box_items(order_item):
             total_stem_flower += box.qty_stem_flower * order_item.quantity
-            total_cost_price += (box.stem_cost_price * box.qty_stem_flower)
+            total_price += (box.stem_cost_price * box.qty_stem_flower)
             total_margin += (box.profit_margin * box.qty_stem_flower)
 
         order_item.tot_stem_flower = total_stem_flower
-        order_item.line_price = total_cost_price * order_item.quantity
+        order_item.line_price = total_price * order_item.quantity
         order_item.line_margin = total_margin * order_item.quantity
-        order_item.line_total = (total_cost_price + total_margin) * order_item.quantity
+        order_item.line_total = order_item.line_price + order_item.line_margin
         order_item.save()
 
 # -----------------------------------------------------------------------------
@@ -438,7 +458,7 @@ class OrderBoxItems(BaseModel):
     @property
     def stem_cost_total_price(self):
         return self.stem_cost_price * self.qty_stem_flower
-    
+
     @property
     def stem_cost_total_sale(self):
         return self.stem_cost_total * self.qty_stem_flower
@@ -464,16 +484,19 @@ class OrderBoxItems(BaseModel):
     @classmethod
     def rebuild_order_item(cls, order_item):
         loggin_event(f"Reconstruyendo item de orden {order_item.id}")
-        total_stem_flower = 0
-        total_cost_price = 0
-        total_margin = 0
+        line_t_stem_flower = 0
+        line_cost_price = 0
+        line_margin = 0
         for box in cls.get_box_items(order_item):
-            total_stem_flower += box.qty_stem_flower
-            total_cost_price += box.stem_cost_price * box.qty_stem_flower
-            total_margin += box.profit_margin * box.qty_stem_flower
+            line_t_stem_flower += box.qty_stem_flower
+            line_cost_price += box.stem_cost_price * box.qty_stem_flower
+            line_margin += box.profit_margin * box.qty_stem_flower
 
-        order_item.tot_stem_flower = total_stem_flower * order_item.quantity
-        order_item.line_price = total_cost_price * order_item.quantity
-        order_item.line_margin = total_margin * order_item.quantity
-        order_item.line_total = (total_cost_price + total_margin) * order_item.quantity
+        order_item.tot_stem_flower = line_t_stem_flower * order_item.quantity
+        order_item.line_price = line_cost_price * order_item.quantity
+        order_item.line_margin = line_margin * order_item.quantity
+        order_item.line_total = (
+            (order_item.line_price * order_item.quantity)
+            + (order_item.line_margin * order_item.quantity)
+        )
         order_item.save()
