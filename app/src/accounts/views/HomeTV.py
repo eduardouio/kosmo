@@ -55,7 +55,7 @@ class HomeTV(LoginRequiredMixin, TemplateView):
         )
 
         return {
-            'total_stock': StockDay.objects.filter(is_active=True).count(),
+            'total_stock': StockDay.objects.filter().count(),
             'last_stock': last_stock,
             'total_stems': sum(i.tot_stem_flower for i in total_stems),
             'total_orders': len(total_orders),
