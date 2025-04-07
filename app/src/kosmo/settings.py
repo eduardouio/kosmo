@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'pytest_django',
     'user_sessions',
     'rest_framework',
+    'django.contrib.humanize',
     'accounts',
     'partners',
     'products',

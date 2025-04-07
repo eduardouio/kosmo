@@ -1,4 +1,5 @@
 {% extends 'base/base.html'%}
+{% load humanize %}
 {% block style%}
   <style>
     .my-card:hover {
@@ -16,10 +17,13 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h2 class="text-kosmo-primary">DISPONIBILIDAD</h2>
-              <h6 class="mb-0">4 Stocks</h6>
+              <h6 class="mb-0">{{ stats.total_stock}} Stocks</h6>
               <div class="mt-2">
                 <span class="text-secondary">
-                    Último Stock: Hoy | 2,500 Tallos
+                    Último Stock: 
+                      <span class="text-primary">{{ stats.last_stock.date | date:'d M' }} 
+                        {{ stats.last_stock.date | naturalday }}</span> | 
+                        <strong>{{ stats.total_stems | intcomma }}  Tallos</strong>
                 </span>
               </div>
             </div>
@@ -31,7 +35,7 @@
                   </svg>
             </div>
           </div>
-          <a href=" 'sales-create' %}" class="stretched-link"></a>
+          <a href="{% url 'stock_detail_detail' stats.last_stock.id %}" class="stretched-link"></a>
         </div>
       </div>
   
@@ -41,16 +45,17 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h2 class="text-kosmo-green">OV PEDIDOS</h2>
-              <h6 class="mb-0">4 PENDIENTES</h6>
+              <h6 class="mb-0">{{ stats.total_orders }} PENDIENTES</h6>
               <p class="text-secondary mt-2">
-                 1203 Tallos Por Confirmar ($ 1,200)
+                 {{ stats.total_orders_stems }} Tallos Por Confirmar
+                 <strong>${{ stats.general_stats.sales_stats.total_dollars }}</strong>
               </p>
             </div>
             <div class="icon bg-primary text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
               <svg  xmlns="http://www.w3.org/2000/svg"  width="50"  height="50"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cube-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 12.5v-4.509a1.98 1.98 0 0 0 -1 -1.717l-7 -4.008a2.016 2.016 0 0 0 -2 0l-7 4.007c-.619 .355 -1 1.01 -1 1.718v8.018c0 .709 .381 1.363 1 1.717l7 4.008a2.016 2.016 0 0 0 2 0" /><path d="M12 22v-10" /><path d="M12 12l8.73 -5.04" /><path d="M3.27 6.96l8.73 5.04" /><path d="M16 19h6" /><path d="M19 16v6" /></svg>
             </div>
           </div>
-          <a href=" 'bills-create' %}" class="stretched-link"></a>
+          <a href="{% url 'customer_orders_list' %}" class="stretched-link"></a>
         </div>
       </div>
       <!-- Partners Card -->
@@ -59,9 +64,10 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h2 class="text-muted">OC COMPRAS</h2>
-              <h6 class="mb-0">3 Ordenes En Espera</h6>
-       <p class="text-danger mt-2">
-                  2330 Tallos Por Confirmar ($ 1302.00)
+              <h6 class="mb-0">{{ stats.total_purchase_orders }} Ordenes En Espera</h6>
+       <p class="text-secondary mt-2">
+                  {{ stats.total_purchase_orders_stems }} Tallos Por Confirmar
+                  <strong>${{ stats.general_stats.purchase_stats.total_dollars }}</strong>
               </p>
             </div>
             <div class="icon bg-warning text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
@@ -76,7 +82,7 @@
                   </svg>
             </div>
           </div>
-          <a href=" 'partner-list' %}" class="stretched-link"></a>
+          <a href="{% url 'supplier_orders_list' %}" class="stretched-link"></a>
         </div>
       </div>
   
@@ -86,16 +92,17 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h2 class="text-muted">FC VENTAS</h2>
-              <h6 class="mb-0">3 Facturas por Cobrar</h6>
+              <h6 class="mb-0">{{ stats.total_invoices }} Facturas por Cobrar</h6>
               <p class="text-secondary mt-2">
-                2,500 Tallos Por Cobrar ($ 1,200)
+                {{ stats.total_invoices_stems }} Tallos Por Cobrar
+                <strong>${{ stats.general_stats.sales_invoices_stats.total_dollars }}</strong>
               </p>
             </div>
             <div class="icon bg-success text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
               <svg  xmlns="http://www.w3.org/2000/svg"  width="50"  height="50"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M14 11h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" /><path d="M12 17v1m0 -8v1" /></svg>
             </div>
           </div>
-          <a href=" url 'journal-create' %}" class="stretched-link"></a>
+          <a href="{% url 'customer_invoice_list' %}" class="stretched-link"></a>
         </div>
       </div>
   
@@ -105,16 +112,17 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h2 class="text-muted">FC COMPRAS</h2>
-              <h6 class="mb-0">3 Facturas por Pagar</h6>
+              <h6 class="mb-0">{{ stats.total_purchase_invoices }} Facturas por Pagar</h6>
               <p class="text-secondary mt-2">
-                2,500 Tallos Por Pagar ($ 1,200)
+                {{ stats.total_purchase_invoices_stems }} Tallos Por Pagar
+                <strong>${{ stats.general_stats.purchase_invoices_stats.total_dollars }}</strong>
               </p>
             </div>
             <div class="icon bg-info text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
               <svg  xmlns="http://www.w3.org/2000/svg"  width="50"  height="50"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-file-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" /><path d="M14 11h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" /><path d="M12 17v1m0 -8v1" /></svg>
             </div>
           </div>
-          <a href="url 'admin-panel' %}" class="stretched-link"></a>
+          <a href="{% url 'supplier_invoice_list' %}" class="stretched-link"></a>
         </div>
       </div>
   
@@ -124,16 +132,16 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h2 class="text-muted">PAGOS Y COBROS</h2>
-              <h6 class="mb-0">5 Pagos Vencidos</h6>
+              <h6 class="mb-0">0 Pagos Vencidos</h6>
               <p class="text-secondary mt-2">
-                Por Pagar: $ 1,200 | Por Cobrar: $ 1,200
+                Por Pagar: <strong class="text-danger">$ 1,200</strong> | Por Cobrar: <strong class="text-success">$ 1,200</strong>
               </p>
             </div>
             <div class="icon bg-secondary text-white rounded-circle p-3 d-flex justify-content-center align-items-center">
               <svg  xmlns="http://www.w3.org/2000/svg"  width="50"  height="50"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-home-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 10l-7 -7l-9 9h2v7a2 2 0 0 0 2 2h6" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2c.387 0 .748 .11 1.054 .3" /><path d="M21 15h-2.5a1.5 1.5 0 0 0 0 3h1a1.5 1.5 0 0 1 0 3h-2.5" /><path d="M19 21v1m0 -8v1" /></svg>
             </div>
           </div>
-          <a href=" url 'transport-create' %}" class="stretched-link"></a>
+          <a href="#" class="stretched-link"></a>
         </div>
       </div>
     </div>
