@@ -172,15 +172,15 @@ onMounted(() => {
                         <table ref="tableRef" class="table table-bordered table-striped table-hover">
                             <thead>
                                 <tr class="text-center">
-                                    <th class="p-1 bg-teal-500">Nro</th>
-                                    <th class="p-1 bg-teal-500">Fecha</th>
-                                    <th class="p-1 bg-teal-500">Cliente</th>
-                                    <th class="p-1 bg-teal-500">Tipo</th>
-                                    <th class="p-1 bg-teal-500">Estado</th>
-                                    <th class="p-1 bg-teal-500">QB</th>
-                                    <th class="p-1 bg-teal-500">HB</th>
-                                    <th class="p-1 bg-teal-500">Tallos</th>
-                                    <th class="p-1 bg-teal-500">Reporte</th>
+                                    <th class="p-1 bg-teal-500 text-white">Nro</th>
+                                    <th class="p-1 bg-teal-500 text-white">Fecha</th>
+                                    <th class="p-1 bg-teal-500 text-white">Cliente</th>
+                                    <th class="p-1 bg-teal-500 text-white">Tipo</th>
+                                    <th class="p-1 bg-teal-500 text-white">Estado</th>
+                                    <th class="p-1 bg-teal-500 text-white">QB</th>
+                                    <th class="p-1 bg-teal-500 text-white">HB</th>
+                                    <th class="p-1 bg-teal-500 text-white">Tallos</th>
+                                    <th class="p-1 bg-teal-500 text-white">Reporte</th>
                                 </tr>
                             </thead>
                             <tbody>
