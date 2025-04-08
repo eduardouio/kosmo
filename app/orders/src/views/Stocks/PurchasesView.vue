@@ -93,9 +93,12 @@ onUnmounted(() => {
         <div class="row" v-else>
             <div class="container-fluid">
                 <div class="row pt-2">
+                    <div class="col-12 text-center fs-5 text-orange-700 upper">
+                        Órdenes de Compra a Proveedores
+                    </div>
                     <div class="col-4 text-center">
                         <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
-                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                            <span class="text-white bg-orange-700 ps-1 pe-2">
                                 Disponibilidad
                             </span>
                             <span class="text-orange-900 ps-1 pe-2">
@@ -105,7 +108,7 @@ onUnmounted(() => {
                     </div>
                     <div class="col-8 text-end d-flex justify-content-end gap-3">
                         <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
-                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                            <span class="text-white bg-orange-700 ps-1 pe-2">
                                 Pendientes
                             </span>
                             <span class="text-orange-900 ps-1 pe-2">
@@ -113,7 +116,7 @@ onUnmounted(() => {
                             </span>
                         </div>
                         <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
-                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                            <span class="text-white bg-orange-700 ps-1 pe-2">
                                 Confirmados
                             </span>
                             <span class="text-orange-900 ps-1 pe-2">
@@ -121,7 +124,7 @@ onUnmounted(() => {
                             </span>
                         </div>
                         <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
-                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                            <span class="text-white bg-orange-700 ps-1 pe-2">
                                 Cancelados
                             </span>
                             <span class="text-orange-900 ps-1 pe-2">
@@ -129,7 +132,7 @@ onUnmounted(() => {
                             </span>
                         </div>
                         <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
-                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                            <span class="text-white bg-orange-700 ps-1 pe-2">
                                 Facturados
                             </span>
                             <span class="text-orange-900 ps-1 pe-2">
@@ -143,15 +146,15 @@ onUnmounted(() => {
                         <table ref="tableRef" class="table table-bordered table-striped table-hover">
                             <thead>
                                 <tr class="text-center">
-                                    <th class="p-1 bg-orange-600 text-white">Nro</th>
-                                    <th class="p-1 bg-orange-600 text-white">Fecha</th>
-                                    <th class="p-1 bg-orange-600 text-white">Cliente</th>
-                                    <th class="p-1 bg-orange-600 text-white">Tipo</th>
-                                    <th class="p-1 bg-orange-600 text-white">Estado</th>
-                                    <th class="p-1 bg-orange-600 text-white">QB</th>
-                                    <th class="p-1 bg-orange-600 text-white">HB</th>
-                                    <th class="p-1 bg-orange-600 text-white">Tallos</th>
-                                    <th class="p-1 bg-orange-600 text-white">Total</th>
+                                    <th class="p-1 bg-orange-700 text-white">Nro</th>
+                                    <th class="p-1 bg-orange-700 text-white">Fecha</th>
+                                    <th class="p-1 bg-orange-700 text-white">Cliente</th>
+                                    <th class="p-1 bg-orange-700 text-white">Tipo</th>
+                                    <th class="p-1 bg-orange-700 text-white">Estado</th>
+                                    <th class="p-1 bg-orange-700 text-white">QB</th>
+                                    <th class="p-1 bg-orange-700 text-white">HB</th>
+                                    <th class="p-1 bg-orange-700 text-white">Tallos</th>
+                                    <th class="p-1 bg-orange-700 text-white">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -159,7 +162,7 @@ onUnmounted(() => {
                                     <td class="p-1 text-center">
                                         {{ item.order.id }}
                                         <span class="text-gray-200 ps-1 pe-1"> | </span>
-                                        <IconFolderOpen size="20" stroke="1.5" class="text-teal-600"
+                                        <IconFolderOpen size="20" stroke="1.5" class="text-orange-700"
                                             @click="selectOrder(item.order.id)" />
                                     </td>
                                     <td class="p-1">{{ baseStore.formatDate(item.order.date) }}</td>

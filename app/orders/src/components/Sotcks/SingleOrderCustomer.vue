@@ -330,7 +330,7 @@ watch(() => orderStore.selectedOrder,
 </script>
 
 <template>
-  <div class="container-fluid p-3">
+  <div class="container-fluid">
     <div class="row">
       <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
         <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
@@ -343,7 +343,7 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
       <div class="row">  
-      <div class="col-12 rounded-1 shadow-sm p-2 bordered bg-gray-200 border-gray-300">
+      <div class="col-12 rounded-1 shadow-sm p-2 bordered bg-teal-600 border-gray-300 text-white">
         <div class="row">
           <div class="col-4 fs-4">
             {{ orderStore.selectedOrder.order.partner.name }}
@@ -402,7 +402,7 @@ watch(() => orderStore.selectedOrder,
         </button>
       </div>
     </div>
-    <div class="row p-1 text-white ">
+    <div class="row p-1 text-white border-teal-500">
       <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Cant</div>
       <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Mdl</div>
       <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Tll/Cja</div>
@@ -521,23 +521,23 @@ watch(() => orderStore.selectedOrder,
     </div>
     <div class="row">
       <div class="col-3">
-        <div class="row shadow-sm p-2">
-          <div class="col-9 fs-6 text-start text-end">{{ totalBoxesHB }}</div>
-          <div class="col-3 fs-6 text-end">HB's:</div>
-          <div class="col-9 fs-6 text-start text-end">{{ totalBoxesQB }}</div>
-          <div class="col-3 fs-6 text-end">QB's:</div>
-          <div class="col-9 fs-6 text-start text-end">{{ totalStems }}</div>
-          <div class="col-3 fs-6 text-end">Tallos:</div>
+        <div class="row shadow-sm p-2 border-teal-500 rounded-1 bg-gray-200 bg-gradient">
+          <div class="col-9 fs-5  text-teal-700 text-start text-end">{{ totalBoxesHB }}</div>
+          <div class="col-3 fs-5  text-teal-700 text-end">HB's:</div>
+          <div class="col-9 fs-5  text-teal-700 text-start text-end">{{ totalBoxesQB }}</div>
+          <div class="col-3 fs-5  text-teal-700 text-end">QB's:</div>
+          <div class="col-9 fs-5  text-teal-700 text-start text-end">{{ totalStems }}</div>
+          <div class="col-3 fs-5  text-teal-700 text-end">Tallos:</div>
         </div>
       </div>
       <div class="col-4 offset-5">
-        <div class="row bg-gray-200 bg-gradient rounded-1 shadow-sm p-2">
-          <div class="col-7 text-end border-end fs-5 text-lime-700">Costo:</div>
-          <div class="col-5 fs-5 text-lime-700 text-end">{{orderStore.formatNumber(totalCost) }}</div>
-          <div class="col-7 text-end border-end fs-5 text-lime-700">Margen:</div>
-          <div class="col-5 fs-5 text-lime-700 text-end">{{ orderStore.formatNumber(totalMargin) }}</div>
-          <div class="col-7 text-end border-end fs-5 text-lime-700">Total Pedido:</div>
-          <div class="col-5 fs-5 text-lime-700 text-end">
+        <div class="row bg-gray-200 border-teal-500 bg-gradient rounded-1 shadow-sm p-2">
+          <div class="col-7 text-end border-end fs-5 text-teal-700">Costo:</div>
+          <div class="col-5 fs-5 text-teal-700 text-end">{{orderStore.formatNumber(totalCost) }}</div>
+          <div class="col-7 text-end border-end fs-5 text-teal-700">Margen:</div>
+          <div class="col-5 fs-5 text-teal-700 text-end">{{ orderStore.formatNumber(totalMargin) }}</div>
+          <div class="col-7 text-end border-end fs-5 text-teal-700">Total Pedido:</div>
+          <div class="col-5 fs-5 text-teal-700 text-end">
             {{  orderStore.formatNumber(parseFloat(totalMargin) + parseFloat(totalCost)) }}
           </div>
         </div>

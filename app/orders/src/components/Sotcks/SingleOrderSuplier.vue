@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { usePurchaseStore } from '@/stores/purcharses';
 import { appConfig } from '@/AppConfig';
+import SideBar from '@/components/Sotcks/SideBar.vue';
 import {
   IconTrash,
   IconCheckbox,
@@ -32,9 +33,9 @@ const calcTotalByItem = (item) => {
   total = items.reduce((acc, boxItem) => {
     return (
       acc + (
-        boxItem.stem_cost_price + parseFloat(boxItem.margin)) 
-        * parseFloat(boxItem.qty_stem_flower
-        )
+        boxItem.stem_cost_price + parseFloat(boxItem.margin))
+      * parseFloat(boxItem.qty_stem_flower
+      )
     );
   }, 0) * item.quantity;
   item.line_total = total;
@@ -134,7 +135,7 @@ const splitHB = (item) => {
       tot_stem_flower: item.tot_stem_flower / 2,
       box_model: 'QB',
     });
-  }else{
+  } else {
     newDetails.push({
       ...item,
       tot_stem_flower: Math.floor(item.tot_stem_flower / 2),
@@ -205,7 +206,7 @@ const updateOrder = async (action) => {
     case 'confirm':
       if (purchaseStore.selectedPurchase.is_confirmed) {
         const response = await purchaseStore.confirmOrder();
-        if (response){
+        if (response) {
           location.reload();
         }
       } else {
@@ -218,7 +219,7 @@ const updateOrder = async (action) => {
         const response = await purchaseStore.updateSupplierOrder();
         if (response) {
           purchaseStore.selectedPurchase.is_confirmed = false;
-         location.reload();
+          location.reload();
         }
       } else {
         purchaseStore.selectedPurchase.is_modified = true;
@@ -241,13 +242,13 @@ const updateOrder = async (action) => {
 };
 
 const getUrlReportSupOrder = (id) => {
-    let urlReportSupOrder = appConfig.urlReportSupOrder.replace('{id_order}', id);
-    return urlReportSupOrder;
+  let urlReportSupOrder = appConfig.urlReportSupOrder.replace('{id_order}', id);
+  return urlReportSupOrder;
 };
 
 const getUrlReportinvoice = (id) => {
-    let urlInvoiceReport = appConfig.urlInvoiceReport.replace('{id_invoice}', id);
-    return urlInvoiceReport;
+  let urlInvoiceReport = appConfig.urlInvoiceReport.replace('{id_invoice}', id);
+  return urlInvoiceReport;
 };
 // Propiedades computadas
 const isTwoQBSelected = computed(() => {
@@ -328,322 +329,268 @@ const orderHaveCeroItem = computed(() => {
 });
 
 // watchers
-watch(()=> purchaseStore.selectedPurchase, 
-(newValue) => {
-  console.log('selectedPurchase', newValue);
+watch(() => purchaseStore.selectedPurchase,
+  (newValue) => {
+    console.log('selectedPurchase', newValue);
     isModified.value = true;
-}, { deep: true }
+  }, { deep: true }
 );
 </script>
 
 <template>
-  <div class="container-fluid p-3" v-if="purchaseStore.selectedPurchase.order">
-    <div class="row">
-      <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
-        <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
-        <span v-if="confirmDelete">
-          {{ deleteMessage }}
-        </span>
-        <span v-if="exceedLimit">
-          {{ exceedLimitMessage }}
-        </span>
+  <div class="container-fluid">
+    <div class="row pt-2">
+      <div class="col-2">
+        <SideBar />
       </div>
-    </div>
-    <div class="row">
-      <div class="col-12 rounded-1 shadow-sm p-2 bg-amber-200 border-gray-300">
-        <div class="row">
-          <div class="col-4 fs-4">
-            {{ purchaseStore.selectedPurchase.order.partner.name }}
+      <div class="col-10">
+        <div class="container-fluid" v-if="purchaseStore.selectedPurchase.order">
+          <div class="row">
+            <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
+              <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
+              <span v-if="confirmDelete">
+                {{ deleteMessage }}
+              </span>
+              <span v-if="exceedLimit">
+                {{ exceedLimitMessage }}
+              </span>
+            </div>
           </div>
-          <div class="col-8 text-end fs-6">
-            <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
-              Pedido {{ purchaseStore.selectedPurchase.order.id }}
-            </strong>
-            <span class="pe-1 ps-1"></span>
-            <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2"
-            :class="{
-                'bg-green-600 text-white': purchaseStore.selectedPurchase.order.status === 'CONFIRMADO',
-                'bg-yellow-300': purchaseStore.selectedPurchase.order.status === 'PENDIENTE',
-                'bg-red-600 text-white': purchaseStore.selectedPurchase.order.status === 'CANCELADO',
-                'bg-orange-600 text-white': purchaseStore.selectedPurchase.order.status === 'MODIFICADO'
-              }"
-            >
-              {{ purchaseStore.selectedPurchase.order.status }}
-            </strong>
+          <div class="row">
+            <div class="col-12 rounded-1 shadow-sm p-2 bg-orange-700 border-gray-300 text-white">
+              <div class="row">
+                <div class="col-4 fs-4">
+                  {{ purchaseStore.selectedPurchase.order.partner.name }}
+                </div>
+                <div class="col-4 text-center fs-5 upper">
+                  <span>Orden De Compra</span>
+                </div>
+                <div class="col-4 text-end fs-6">
+                  <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
+                    Pedido {{ purchaseStore.selectedPurchase.order.id }}
+                  </strong>
+                  <span class="pe-1 ps-1"></span>
+                  <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2" :class="{
+                    'bg-green-600 text-white': purchaseStore.selectedPurchase.order.status === 'CONFIRMADO',
+                    'bg-yellow-300': purchaseStore.selectedPurchase.order.status === 'PENDIENTE',
+                    'bg-red-600 text-white': purchaseStore.selectedPurchase.order.status === 'CANCELADO',
+                    'bg-orange-600 text-white': purchaseStore.selectedPurchase.order.status === 'MODIFICADO'
+                  }">
+                    {{ purchaseStore.selectedPurchase.order.status }}
+                  </strong>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-1 text-end">ID:</div>
+                <div class="col-1">{{ purchaseStore.selectedPurchase.order.partner.business_tax_id }}</div>
+                <div class="col-1 text-end">Dir:</div>
+                <div class="col-6">
+                  {{ purchaseStore.selectedPurchase.order.partner.address }}
+                  {{ purchaseStore.selectedPurchase.order.partner.city }}
+                </div>
+                <div class="col-1 text-end">Skype:</div>
+                <div class="col-2">{{ purchaseStore.selectedPurchase.order.partner.skype }}</div>
+              </div>
+              <div class="row pt-1">
+                <div class="col-1 text-end">Contacto:</div>
+                <div class="col-8 d-flex gap-2" v-if="purchaseStore.selectedPurchase.order.partner.contact">
+                  <span>{{ purchaseStore.selectedPurchase.order.partner.contact.name }}</span>
+                  <span>{{ purchaseStore.selectedPurchase.order.partner.contact.email }}</span>
+                  <span>{{ purchaseStore.selectedPurchase.order.partner.contact.phone }}</span>
+                  <span class="badge bg-green-600">
+                    {{ purchaseStore.selectedPurchase.order.partner.contact.contact_type }}
+                  </span>
+                </div>
+                <div class="col-1 text-end fw-semibold">
+                  Consolida:
+                </div>
+                <div class="col-2">
+                  {{ purchaseStore.selectedPurchase.order.partner.consolidate ? 'Si' : 'No' }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row pb-2 pt-2">
+            <div class="col-8">
+              <span class="text-danger" v-if="purchaseStore.selectedPurchase.is_modified">
+                Orden de Compra Modificada, si actualiza el pedido se actualizarán la o las ordenes de compra
+              </span>
+            </div>
+            <div class="col-4 text-end">
+              <button class="btn btn-sm btn-default" v-if="isTwoQBSelected" @click="mergeQB">
+                <IconLayersIntersect2 size="20" stroke="1.5" />
+                Unificar a HB
+              </button>
+            </div>
+          </div>
+          <div class="row p-1 text-white ">
+            <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Cant</div>
+            <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Mdl</div>
+            <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Tll/Cja</div>
+            <div class="col-6 fw-bold fs-6 border-end bg-gray-500">
+              <div class="d-flex">
+                <div class="flex-grow-1" style="flex: 0 0 50%; border-right: 1px solid #ddd; text-align: center;">
+                  Variedad
+                </div>
+                <div class="flex-grow-1" style="flex: 0 0 16.666%; border-right: 1px solid #ddd; text-align: center;">
+                  Tallos
+                </div>
+                <div class="flex-grow-1" style="flex: 0 0 16.666%; border-right: 1px solid #ddd; text-align: center;">
+                  Costo
+                </div>
+                <div class="flex-grow-1" style="flex: 0 0 16.666%; text-align: center;">
+                  Margen
+                </div>
+              </div>
+            </div>
+            <div class="col-1 fw-bold fs-6 bg-cyan-600 text-center">C Tallo</div>
+            <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">T Compra</div>
+            <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">T Venta</div>
+          </div>
+          <div v-for="(item, idx) in purchaseStore.selectedPurchase.order_details" :key="item.order_item_id"
+            class="row mb-1 border my-hover-2" :class="{ 'bg-gray': idx % 2 === 0 }">
+            <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
+              <IconTrash size="30" stroke="1.5" :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
+                @click="deleteOrderItem(item)"
+                v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced" />
+              <input type="number" step="1" class="form-control form-control-sm text-end" v-model="item.quantity"
+                @change="(event) => delimitedNumber(event, item)" @focus="selectText"
+                @keydown="(event) => handleKeydown(event, '.form-control-sm')"
+                :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
+            </div>
+            <div class="col-1 text-end border-end d-flex align-items-center gap-2 fs-5">
+              {{ item.box_model }}
+              <span
+                v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced">/</span>
+              <IconSitemap size="20" stroke="1.5" @click="splitHB(item)"
+                v-if="item.box_model === 'HB' && (!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced)" />
+              <input type="checkbox" v-model="item.is_selected"
+                v-if="item.box_model === 'QB' && (!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced)" />
+            </div>
+            <div class="col-1 text-end border-end d-flex align-items-center justify-content-end fs-5">
+              {{ calcTotalStemFlower(item) }}
+            </div>
+            <div class="col-6">
+              <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
+                <span class="border-end text-end w-50 pe-2">
+                  {{ product.product_name }} {{ product.product_variety }}
+                </span>
+                <span class="border-end text-end w-10 pe-2">
+                  {{ product.length }} cm
+                </span>
+                <span class="border-end text-end w-20 pe-2">
+                  <input type="number" step="1" class="form-control form-control-sm text-end my-input"
+                    v-model="product.qty_stem_flower" @focus="selectText"
+                    @keydown="(event) => handleKeydown(event, '.my-input')" @change="formatInteger"
+                    :class="{ 'bg-red-200': parseInt(product.qty_stem_flower) <= 0 }"
+                    :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
+                </span>
+                <span class="border-end text-end w-20 pe-2">
+                  <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-2"
+                    v-model="product.stem_cost_price" @focus="selectText"
+                    @keydown="(event) => handleKeydown(event, '.my-input-2')" @change="formatNumber"
+                    :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.0 }"
+                    :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
+                </span>
+                <span class="border-end text-end w-20 pe-2">
+                  <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
+                    v-model="product.margin" @focus="selectText"
+                    @keydown="(event) => handleKeydown(event, '.my-input-3')" @change="formatNumber"
+                    :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.0 }"
+                    :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
+                </span>
+              </div>
+            </div>
+            <div class="col-1 fw-semibold">
+              <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
+                <input type="text" class="form-control form-control-sm text-end"
+                  :value="product.stem_cost_price + product.margin" readonly />
+              </div>
+            </div>
+
+            <div class="col-1 fw-semibold">
+              <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
+                <input type="text" readonly class="form-control form-control-sm text-end"
+                  :value="purchaseStore.formatNumber(product.stem_cost_price * product.qty_stem_flower)" />
+              </div>
+            </div>
+            <div class="col-1 fw-semibold">
+              <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
+                <input type="text" readonly class="form-control form-control-sm text-end"
+                  :value="purchaseStore.formatNumber((product.stem_cost_price + product.margin) * product.qty_stem_flower)" />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-3">
+              <div class="row shadow-sm p-2">
+                <div class="col-9 fs-5 text-start text-end">{{ totalBoxesHB }}</div>
+                <div class="col-3 fs-5 text-end">HB's:</div>
+                <div class="col-9 fs-5 text-start text-end">{{ totalBoxesQB }}</div>
+                <div class="col-3 fs-5 text-end">QB's:</div>
+                <div class="col-9 fs-5 text-start text-end">{{ totalStems }}</div>
+                <div class="col-3 fs-5 text-end">Tallos:</div>
+              </div>
+            </div>
+            <div class="col-4 offset-5">
+              <div class="row bg-gray-200 bg-gradient rounded-1 shadow-sm p-2">
+                <div class="col-7 text-end border-end fs-5 text-lime-600">Costo:</div>
+                <div class="col-5 fs-5 text-lime-600 text-end">{{ totalCost }}</div>
+                <div class="col-7 text-end border-end fs-5 text-lime-600">Margen:</div>
+                <div class="col-5 fs-5 text-lime-600 text-end">{{ totalMargin }}</div>
+                <div class="col-7 text-end border-end fs-5 text-lime-600">Total Pedido:</div>
+                <div class="col-5 fs-5 text-lime-600 text-end">
+                  {{ purchaseStore.formatNumber(totalCost + totalMargin) }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-3 border-top pt-3">
+            <div class="col-4">
+              <button type="button" class="btn btn-sm btn-default text-danger" @click="updateOrder('cancell')"
+                v-if="!purchaseStore.selectedPurchase.is_invoiced && purchaseStore.selectedPurchase.order.status === 'CANCELADO'">
+                <IconBan size="20" stroke="1.5" />
+                <span v-if="purchaseStore.selectedPurchase.is_cancelled">
+                  Confirmar Cancelación
+                </span>
+                <span v-else> Cancelar </span>
+              </button>
+            </div>
+            <div class="col-8 text-end d-flex gap-3 justify-content-end">
+              <span class="ps-4 pe-4"></span>
+              <button type="button" class="btn btn-sm btn-default" @click="updateOrder('update')"
+                :disabled="orderHaveCeroItem" v-if="isModified && !purchaseStore.selectedPurchase.is_confirmed">
+                <IconRefresh size="20" stroke="1.5" />
+                <span v-if="purchaseStore.selectedPurchase.is_modified">
+                  Confirmar
+                </span>
+                <span v-else>Actualizar</span>
+              </button>
+              <button class="btn btn-default btn-sm" @click="updateOrder('confirm')">
+                <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed" />
+                <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
+                <IconCheckbox size="20" stroke="1.5" v-if="purchaseStore.selectedPurchase.is_confirmed" />
+                <span v-if="purchaseStore.selectedPurchase.is_confirmed">Estoy Seguro</span>
+              </button>
+              <button class="btn btn-sm btn-default">
+                <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)">
+                  <IconPrinter size="20" stroke="1.5" />
+                  Imprimir OC
+                </a>
+              </button>
+              <button class="btn btn-sm btn-default" v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
+                @click="purchaseStore.createInvoice()">
+                <IconFileDollar size="20" stroke="1.5" />
+                Registrar Factura
+              </button>
+            </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-1 text-end">ID:</div>
-          <div class="col-1">{{ purchaseStore.selectedPurchase.order.partner.business_tax_id }}</div>
-          <div class="col-1 text-end">Dir:</div>
-          <div class="col-6">
-            {{ purchaseStore.selectedPurchase.order.partner.address }}
-            {{ purchaseStore.selectedPurchase.order.partner.city }}
-          </div>
-          <div class="col-1 text-end">Skype:</div>
-          <div class="col-2">{{ purchaseStore.selectedPurchase.order.partner.skype }}</div>
-        </div>
-        <div class="row pt-1">
-          <div class="col-1 text-end">Contacto:</div>
-          <div class="col-8 d-flex gap-2" v-if="purchaseStore.selectedPurchase.order.partner.contact">
-            <span>{{ purchaseStore.selectedPurchase.order.partner.contact.name }}</span>
-            <span>{{ purchaseStore.selectedPurchase.order.partner.contact.email }}</span>
-            <span>{{ purchaseStore.selectedPurchase.order.partner.contact.phone }}</span>
-            <span class="badge bg-green-600">
-              {{ purchaseStore.selectedPurchase.order.partner.contact.contact_type }}
-            </span>
-          </div>
-          <div class="col-1 text-end fw-semibold">
-            Consolida:
-          </div>
-          <div class="col-2">
-            {{ purchaseStore.selectedPurchase.order.partner.consolidate ? 'Si' : 'No' }}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row pb-2 pt-2">
-      <div class="col-8">
-        <span class="text-danger" v-if="purchaseStore.selectedPurchase.is_modified">
-          Orden de Compra Modificada, si actualiza el pedido se actualizarán la o las ordenes de compra
-        </span>
-      </div>
-      <div class="col-4 text-end">
-        <button class="btn btn-sm btn-default" v-if="isTwoQBSelected" @click="mergeQB">
-          <IconLayersIntersect2 size="20" stroke="1.5" />
-          Unificar a HB
-        </button>
-      </div>
-    </div>
-    <div class="row p-1 text-white ">
-      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Cant</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">Tll/Cja</div>
-      <div class="col-6 fw-bold fs-6 border-end bg-cyan-600">
-        <div class="d-flex">
-          <div class="flex-grow-1" style="flex: 0 0 50%; border-right: 1px solid #ddd; text-align: center;">
-            Variedad
-          </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.666%; border-right: 1px solid #ddd; text-align: center;">
-            Tallos
-          </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.666%; border-right: 1px solid #ddd; text-align: center;">
-            Costo
-          </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.666%; text-align: center;">
-            Margen
-          </div>
-        </div>
-      </div>
-      <div class="col-1 fw-bold fs-6 bg-cyan-600 text-center">C Tallo</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">T Compra</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">T Venta</div>
-    </div>
-    <div
-      v-for="(item, idx) in purchaseStore.selectedPurchase.order_details"
-      :key="item.order_item_id"
-      class="row mb-1 border my-hover-2"
-      :class="{ 'bg-gray': idx % 2 === 0 }"
-    >
-      <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
-        <IconTrash
-          size="30"
-          stroke="1.5"
-          :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
-          @click="deleteOrderItem(item)"
-          v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced"
-        />
-        <input
-          type="number"
-          step="1"
-          class="form-control form-control-sm text-end"
-          v-model="item.quantity"
-          @change="(event) => delimitedNumber(event, item)"
-          @focus="selectText"
-          @keydown="(event) => handleKeydown(event, '.form-control-sm')"
-          :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
-          
-        />
-      </div>
-      <div class="col-1 text-end border-end d-flex align-items-center gap-2 fs-5">
-        {{ item.box_model }}
-        <span v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced">/</span>
-        <IconSitemap 
-          size="20"
-          stroke="1.5"
-          @click="splitHB(item)"
-          v-if="item.box_model === 'HB' && (!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced)"
-        />
-        <input type="checkbox"
-          v-model="item.is_selected" 
-          v-if="item.box_model === 'QB' && (!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced)" 
-        />
-      </div>
-      <div class="col-1 text-end border-end d-flex align-items-center justify-content-end fs-5">
-        {{ calcTotalStemFlower(item) }}
-      </div>
-      <div class="col-6">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <span class="border-end text-end w-50 pe-2">
-            {{ product.product_name }} {{ product.product_variety }}
-          </span>
-          <span class="border-end text-end w-10 pe-2">
-            {{ product.length }} cm
-          </span>
-          <span class="border-end text-end w-20 pe-2">
-            <input
-              type="number"
-              step="1"
-              class="form-control form-control-sm text-end my-input"
-              v-model="product.qty_stem_flower"
-              @focus="selectText"
-              @keydown="(event) => handleKeydown(event, '.my-input')"
-              @change="formatInteger"
-              :class="{ 'bg-red-200': parseInt(product.qty_stem_flower) <= 0 }"
-              :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
-            />
-          </span>
-          <span class="border-end text-end w-20 pe-2">
-            <input
-              type="number"
-              step="0.01"
-              class="form-control form-control-sm text-end my-input-2"
-              v-model="product.stem_cost_price"
-              @focus="selectText"
-              @keydown="(event) => handleKeydown(event, '.my-input-2')"
-              @change="formatNumber"
-              :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.0 }"
-              :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
-            />
-          </span>
-          <span class="border-end text-end w-20 pe-2">
-            <input
-              type="number"
-              step="0.01"
-              class="form-control form-control-sm text-end my-input-3"
-              v-model="product.margin"
-              @focus="selectText"
-              @keydown="(event) => handleKeydown(event, '.my-input-3')"
-              @change="formatNumber"
-              :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.0 }"
-              :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
-            />
-          </span>
-        </div>
-      </div>
-      <div class="col-1 fw-semibold">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <input
-            type="text"
-            class="form-control form-control-sm text-end"
-            :value="product.stem_cost_price + product.margin"
-            readonly
-            />
-        </div>  
-      </div>
-     
-      <div class="col-1 fw-semibold">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <input
-            type="text"
-            readonly
-            class="form-control form-control-sm text-end"
-            :value="purchaseStore.formatNumber(product.stem_cost_price * product.qty_stem_flower)"
-            />
-        </div>  
-      </div>
-      <div class="col-1 fw-semibold">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <input
-            type="text"
-            readonly
-            class="form-control form-control-sm text-end"
-            :value="purchaseStore.formatNumber((product.stem_cost_price + product.margin )* product.qty_stem_flower)"
-            />
-        </div>  
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-3">
-        <div class="row shadow-sm p-2">
-          <div class="col-9 fs-5 text-start text-end">{{ totalBoxesHB }}</div>
-          <div class="col-3 fs-5 text-end">HB's:</div>
-          <div class="col-9 fs-5 text-start text-end">{{ totalBoxesQB }}</div>
-          <div class="col-3 fs-5 text-end">QB's:</div>
-          <div class="col-9 fs-5 text-start text-end">{{ totalStems }}</div>
-          <div class="col-3 fs-5 text-end">Tallos:</div>
-        </div>
-      </div>
-      <div class="col-4 offset-5">
-        <div class="row bg-gray-200 bg-gradient rounded-1 shadow-sm p-2">
-          <div class="col-7 text-end border-end fs-5 text-lime-600">Costo:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">{{ totalCost }}</div>
-          <div class="col-7 text-end border-end fs-5 text-lime-600">Margen:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">{{ totalMargin }}</div>
-          <div class="col-7 text-end border-end fs-5 text-lime-600">Total Pedido:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">
-            {{  purchaseStore.formatNumber(totalCost + totalMargin) }}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row mt-3 border-top pt-3">
-      <div class="col-4">
-        <button
-          type="button"
-          class="btn btn-sm btn-default text-danger"
-          @click="updateOrder('cancell')"
-          v-if="!purchaseStore.selectedPurchase.is_invoiced && purchaseStore.selectedPurchase.order.status === 'CANCELADO'"
-        >
-          <IconBan size="20" stroke="1.5" />
-          <span v-if="purchaseStore.selectedPurchase.is_cancelled">
-            Confirmar Cancelación
-          </span>
-          <span v-else> Cancelar </span>
-        </button>
-      </div>
-      <div class="col-8 text-end d-flex gap-3 justify-content-end">
-        <span class="ps-4 pe-4"></span>
-        <button
-          type="button"
-          class="btn btn-sm btn-default"
-          @click="updateOrder('update')"
-          :disabled="orderHaveCeroItem"
-          v-if="isModified && !purchaseStore.selectedPurchase.is_confirmed" 
-        >
-          <IconRefresh size="20" stroke="1.5" />
-          <span v-if="purchaseStore.selectedPurchase.is_modified">
-            Confirmar
-          </span>
-          <span v-else>Actualizar</span>
-        </button>
-        <button class="btn btn-default btn-sm" @click="updateOrder('confirm')">
-          <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed"/>
-          <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
-          <IconCheckbox size="20" stroke="1.5" v-if="purchaseStore.selectedPurchase.is_confirmed"/>
-          <span v-if="purchaseStore.selectedPurchase.is_confirmed">Estoy Seguro</span>
-        </button>
-        <button class="btn btn-sm btn-default">
-          <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)">
-            <IconPrinter size="20" stroke="1.5" />
-            Imprimir OC
-          </a>
-        </button>
-        <button 
-            class="btn btn-sm btn-default"
-            v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
-            @click="purchaseStore.createInvoice()"
-            >
-          <IconFileDollar size="20" stroke="1.5" />
-          Registrar Factura
-        </button>
       </div>
     </div>
   </div>
 </template>
-
 <style scoped>
-
 .my-input,
 .my-input-2,
 .my-input-3 {

@@ -9,6 +9,7 @@ import { useOrdersStore } from '@/stores/orders';
 import PurchaseOrdersList from '@/components/Sotcks/PurchaseOrdersList.vue';
 import {  IconShoppingCartUp, IconShoppingCartDown, IconArrowLeft } from '@tabler/icons-vue';
 import Loader from '@/components/Sotcks/Loader.vue';
+import SideBar from '@/components/Sotcks/SideBar.vue';
 
 const baseStore = useBaseStore();
 const orderStore = useOrdersStore();
@@ -58,7 +59,12 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
 
 </script>
 <template>
-  <div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-2">
+        <SideBar />
+      </div>
+      <div class="col">
   <div class="row" v-if="!isAllLoaded">
     <div class="col text-center">
       <Loader />
@@ -98,5 +104,7 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
     </button>
       </div>
     </div>
+  </div>
+  </div>
   </div>
 </template>

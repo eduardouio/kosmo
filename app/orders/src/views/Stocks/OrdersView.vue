@@ -108,6 +108,9 @@ onMounted(() => {
         <div class="row" v-else>
             <div class="container-fluid" v-if="ordersStore.showViews.listOrders">
                 <div class="row pt-2">
+                    <div class="col-12 text-center fs-5 text-teal-700 upper">
+                        Pedidos de Clientes
+                    </div>
                     <div class="col-4 text-center">
                         <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                             <span class="text-white bg-cyan-600 ps-1 pe-2">
