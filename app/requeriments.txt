@@ -22,3 +22,4 @@ django-user-sessions
 gunicorn
 WeasyPrint
 playwright
+Werkzeug
