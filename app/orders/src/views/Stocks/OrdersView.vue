@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted, watchEffect, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
@@ -7,8 +7,8 @@ import { useStockStore } from '@/stores/stock';
 import Loader from '@/components/Sotcks/Loader.vue';
 import OrderPreview from '@/components/Sotcks/OrderPreview.vue';
 import DataTable from 'datatables.net-dt'
-import { ref } from 'vue'
 import { appConfig } from '@/AppConfig';
+import SideBar from '@/components/Sotcks/SideBar.vue';
 import { 
     IconAlertCircle,
     IconClockHour9,
@@ -52,10 +52,29 @@ const initDataTable = async () => {
     }
 }
 
+const destroyDataTable = () => {
+    if (dataTableInstance) {
+        dataTableInstance.destroy();
+        dataTableInstance = null;
+    }
+};
+
+
 const getUrlReportCusOrder = (id) => {
     let urlReportOrder = appConfig.urlReportCustOrder.replace('{id_order}', id);
     return urlReportOrder;
 };
+
+watchEffect(() => {
+    if (ordersStore.orders.length) {
+        destroyDataTable();
+        initDataTable();
+    }
+});
+
+onUnmounted(() => {
+    destroyDataTable();
+});
 
 // ON MOUNTED
 onMounted(() => {
@@ -72,7 +91,12 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="container-fluid p-0">
+    <div class="cotainer-fluid">
+        <div class="row">
+        <div class="col-2">
+            <SideBar />
+        </div>
+    <div class="col pe-3">
         <div class="row" v-if="!isAllLoaded">
             <div class="col text-center">
                 <Loader />
@@ -81,9 +105,9 @@ onMounted(() => {
                 </h6>
             </div>
         </div>
-        <div class="row ps-1" v-else>
+        <div class="row" v-else>
             <div class="container-fluid" v-if="ordersStore.showViews.listOrders">
-                <div class="row">
+                <div class="row pt-2">
                     <div class="col-4 text-center">
                         <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
                             <span class="text-white bg-cyan-600 ps-1 pe-2">
@@ -144,9 +168,6 @@ onMounted(() => {
                     </div>
                 </div>
                 <div class="row pt-4" v-if="ordersStore.showViews.listOrders && !ordersStore.newOrder.length">
-                    <div class="col-12 fs-6 text-center text-teal-800 p-1 fw-semibold">
-                        Listado de Pedidos de Clientes segun este Stock
-                    </div>
                     <div class="col-12">
                         <table ref="tableRef" class="table table-bordered table-striped table-hover">
                             <thead>
@@ -208,5 +229,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+    </div>
+        
+</div>
     </div>
 </template>

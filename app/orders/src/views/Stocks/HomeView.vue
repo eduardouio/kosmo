@@ -197,10 +197,10 @@ onMounted(() => {
 <template>
     <div class="container-fluid">
     <div class="row">
-    <div class="col-2 bg-light p-1 m-1">
+    <div class="col-2 bg-opacity-75">
         <SideBar />
     </div>
-    <div class="col p-0 p-1 m-1">
+    <div class="col p-1 m-1">
         <div class="row" v-if="!isAllLoaded">
             <div class="col text-center">
                 <Loader />

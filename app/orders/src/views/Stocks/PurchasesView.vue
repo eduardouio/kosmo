@@ -2,27 +2,23 @@
 import { ref, onMounted, onUnmounted, watchEffect, computed, nextTick } from 'vue';
 import { usePurchaseStore } from '@/stores/purcharses';
 import { useBaseStore } from '@/stores/base';
+import { useStockStore } from '@/stores/stock';
 import Loader from '@/components/Sotcks/Loader.vue';
-import { useRoute } from 'vue-router';
 import { IconHexagonMinus, IconClockHour9, IconCheckbox, IconFileCheck, IconFolderOpen } from '@tabler/icons-vue';
-
-// Importación de DataTables.net y su CSS
 import DataTable from 'datatables.net-dt';
 import router from '@/router';
+import SideBar from '@/components/Sotcks/SideBar.vue';
 
 const baseStore = useBaseStore();
 const purchaseStore = usePurchaseStore();
-
-// Referencia a la tabla
+const stockStore = useStockStore();
 const tableRef = ref(null);
 let dataTableInstance = null;
 
-// Computed para verificar si los datos están cargados
-const isAllLoaded = computed(() => baseStore.stagesLoaded === 2);
+const isAllLoaded = computed(() => baseStore.stagesLoaded === 3);
 
-// Método para inicializar DataTable
 const initDataTable = async () => {
-    await nextTick(); // Asegura que la tabla está renderizada antes de inicializar DataTables
+    await nextTick();
 
     if (tableRef.value) {
         dataTableInstance = new DataTable(tableRef.value, {
@@ -58,6 +54,11 @@ onMounted(() => {
     baseStore.stagesLoaded = 0;
     baseStore.loadProducts(baseStore);
     purchaseStore.loadSales(baseStore);
+    if (stockStore.stockDay === null) {
+        stockStore.getStock(baseStore);
+    }else{
+        baseStore.stagesLoaded++;
+    }
 });
 
 // Observar cambios en `purchaseStore.sales` para actualizar DataTable
@@ -75,7 +76,12 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="container-fluid p-0">
+    <div class="conainer-fluid">
+        <div class="row">
+            <div class="col-2">
+                <SideBar />
+            </div>
+    <div class="col pe-3">
         <div class="row" v-if="!isAllLoaded">
             <div class="col text-center">
                 <Loader />
@@ -84,25 +90,68 @@ onUnmounted(() => {
                 </h6>
             </div>
         </div>
-        <div class="row ps-1" v-else>
+        <div class="row" v-else>
             <div class="container-fluid">
-                <div class="row pt-4">
-                    <div class="col-12 fs-6 text-center text-orange-800 p-1 fw-semibold">
-                        Listado de Pedidos de Clientes según este Stock
+                <div class="row pt-2">
+                    <div class="col-4 text-center">
+                        <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
+                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                                Disponibilidad
+                            </span>
+                            <span class="text-orange-900 ps-1 pe-2">
+                                {{ stockStore.stockDay.date }}
+                            </span>
+                        </div>
                     </div>
+                    <div class="col-8 text-end d-flex justify-content-end gap-3">
+                        <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
+                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                                Pendientes
+                            </span>
+                            <span class="text-orange-900 ps-1 pe-2">
+                                1
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
+                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                                Confirmados
+                            </span>
+                            <span class="text-orange-900 ps-1 pe-2">
+                                100
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
+                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                                Cancelados
+                            </span>
+                            <span class="text-orange-900 ps-1 pe-2">
+                                1
+                            </span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 border-orange-600 rounded-1">
+                            <span class="text-white bg-orange-600 ps-1 pe-2">
+                                Facturados
+                            </span>
+                            <span class="text-orange-900 ps-1 pe-2">
+                                1
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row pt-4">
                     <div class="col-12">
                         <table ref="tableRef" class="table table-bordered table-striped table-hover">
                             <thead>
                                 <tr class="text-center">
-                                    <th class="p-1 bg-orange-500">Nro</th>
-                                    <th class="p-1 bg-orange-500">Fecha</th>
-                                    <th class="p-1 bg-orange-500">Cliente</th>
-                                    <th class="p-1 bg-orange-500">Tipo</th>
-                                    <th class="p-1 bg-orange-500">Estado</th>
-                                    <th class="p-1 bg-orange-500">QB</th>
-                                    <th class="p-1 bg-orange-500">HB</th>
-                                    <th class="p-1 bg-orange-500">Tallos</th>
-                                    <th class="p-1 bg-orange-500">Total</th>
+                                    <th class="p-1 bg-orange-600 text-white">Nro</th>
+                                    <th class="p-1 bg-orange-600 text-white">Fecha</th>
+                                    <th class="p-1 bg-orange-600 text-white">Cliente</th>
+                                    <th class="p-1 bg-orange-600 text-white">Tipo</th>
+                                    <th class="p-1 bg-orange-600 text-white">Estado</th>
+                                    <th class="p-1 bg-orange-600 text-white">QB</th>
+                                    <th class="p-1 bg-orange-600 text-white">HB</th>
+                                    <th class="p-1 bg-orange-600 text-white">Tallos</th>
+                                    <th class="p-1 bg-orange-600 text-white">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -142,4 +191,6 @@ onUnmounted(() => {
             </div>
         </div>
     </div>
+</div>
+</div>
 </template>
