@@ -420,7 +420,7 @@ watch(() => purchaseStore.selectedPurchase,
               </button>
             </div>
           </div>
-          <div class="row p-1 text-white ">
+          <div class="row p-1 text-white border-orange-700">
             <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Cant</div>
             <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Mdl</div>
             <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Tll/Cja</div>
@@ -440,9 +440,9 @@ watch(() => purchaseStore.selectedPurchase,
                 </div>
               </div>
             </div>
-            <div class="col-1 fw-bold fs-6 bg-cyan-600 text-center">C Tallo</div>
-            <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">T Compra</div>
-            <div class="col-1 fw-bold fs-6 border-end bg-cyan-600 text-center">T Venta</div>
+            <div class="col-1 fw-bold fs-6 bg-gray-500 text-center">C Tallo</div>
+            <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">T Compra</div>
+            <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">T Venta</div>
           </div>
           <div v-for="(item, idx) in purchaseStore.selectedPurchase.order_details" :key="item.order_item_id"
             class="row mb-1 border my-hover-2" :class="{ 'bg-gray': idx % 2 === 0 }">
