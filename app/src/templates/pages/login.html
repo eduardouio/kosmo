@@ -2,23 +2,47 @@
 {% block style%}
 <style>
    .login-bg {
-        background-image: url('/static/img/login_image_2.jpg');
-        background-size:cover
+        background-color: transparent;
+        background-size: cover;
+        background-position: center;
         background-repeat: no-repeat;
-        height: 100vh; /* Asegura que el fondo solo ocupe la altura de la pantalla visible */
-        background-attachment: fixed; /* Hace que el fondo no se desplace */
-        background-blend-mode: overlay;
-        background-color: rgba(255, 255, 255, 0.2);
-        overflow: hidden; /* Evita el scroll innecesario */
+        height: 100vh;
+        background-attachment: fixed;
+        position: relative;
+        overflow: hidden;
+   }
+
+   .login-content {
+        position: absolute;
+        color: white;
+        text-align: center;
+        padding: 2rem;
+   }
+
+   .login-content h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+   }
+
+   .login-content p {
+        font-size: 1.2rem;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
    }
 </style>
 {% endblock %}
 {% block content %}
 <div class="container-fluid">
    <div class="row w-100">
-      <div
-         class="login-bg col-6 d-flex justify-content-center align-items-center border-end border-success border-2 p-0"
-         >
+      <div class="login-bg col-6 d-flex justify-content-center align-items-center border-end border-success border-2 p-0">
+         <div class="login-content">
+            <img src="/static/img/logo-kosmo.png" alt="Logo" class="mb-5" style="width: 50%; height: auto;" />
+            <h1 class="text-secondary">Bienvenido a Kosmo Flowers</h1>
+            <p class="text-info">Sistema de Gestión Integral</p>
+            <p><small>
+               eduardouio7@gmail.com
+            </small></p>
+         </div>
       </div>
       <div class="col-6 d-flex justify-content-center align-items-center bg-opacity-50">
          <div class="bg-success bg-gradient border rounded-4 shadow pt-2 pb-2">
