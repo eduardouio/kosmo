@@ -8,7 +8,9 @@ import SingleOrderSuplier from '@/components/Sotcks/SingleOrderSuplier.vue';
       <div class="col-2">
         <SideBar />
       </div>
+      <div class="col-10">
         <SingleOrderSuplier/>
+      </div>
     </div>
   </div>
 </template>

@@ -91,8 +91,14 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
   <SingleOrderCustomer v-if="isAllLoaded" :key="route.params.id"/>
   </div>
   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-    <PurchaseOrdersList/>
-    <SingleOrderSuplier v-if="isPurchOrderSelected" :key="purchaseStore.selectedPurchase"/>
+      <div class="d-flex">
+        <div class="bg-transparent pt-5" style="width: 300px;">
+          <PurchaseOrdersList/>  
+        </div>
+        <div>
+          <SingleOrderSuplier v-if="isPurchOrderSelected" :key="purchaseStore.selectedPurchase"/>
+        </div>
+      </div>
   </div>
 </div>
     </div>

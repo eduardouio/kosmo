@@ -340,9 +340,7 @@ watch(() => purchaseStore.selectedPurchase,
 <template>
   <div class="container-fluid">
     <div class="row pt-2">
-      <div class="col-2">
-      </div>
-      <div class="col-10">
+      <div class="col">
         <div class="container-fluid" v-if="purchaseStore.selectedPurchase.order">
           <div class="row">
             <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
@@ -522,7 +520,7 @@ watch(() => purchaseStore.selectedPurchase,
           </div>
           <div class="row">
             <div class="col-3">
-              <div class="row shadow-sm p-2">
+              <div class="row shadow-sm p-2 border-orange-700 bg-transparent rounded-1">
                 <div class="col-9 fs-5 text-start text-end">{{ totalBoxesHB }}</div>
                 <div class="col-3 fs-5 text-end">HB's:</div>
                 <div class="col-9 fs-5 text-start text-end">{{ totalBoxesQB }}</div>
@@ -532,7 +530,7 @@ watch(() => purchaseStore.selectedPurchase,
               </div>
             </div>
             <div class="col-4 offset-5">
-              <div class="row bg-gray-200 bg-gradient rounded-1 shadow-sm p-2">
+              <div class="row bg-trasparent  border-orange-700 rounded-1 shadow-sm p-2">
                 <div class="col-7 text-end border-end fs-5 text-lime-600">Costo:</div>
                 <div class="col-5 fs-5 text-lime-600 text-end">{{ totalCost }}</div>
                 <div class="col-7 text-end border-end fs-5 text-lime-600">Margen:</div>

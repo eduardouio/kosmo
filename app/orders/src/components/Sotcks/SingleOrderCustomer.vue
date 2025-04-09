@@ -330,7 +330,7 @@ watch(() => orderStore.selectedOrder,
 </script>
 
 <template>
-  <div class="container-fluid">
+  <div class="container-fluid bg-transparent">
     <div class="row">
       <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
         <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
@@ -342,13 +342,16 @@ watch(() => orderStore.selectedOrder,
         </span>
       </div>
     </div>
-      <div class="row">  
+      <div class="row pt-2">  
       <div class="col-12 rounded-1 shadow-sm p-2 bordered bg-teal-600 border-gray-300 text-white">
         <div class="row">
           <div class="col-4 fs-4">
             {{ orderStore.selectedOrder.order.partner.name }}
           </div>
-          <div class="col-8 text-end fs-6">
+          <div class="col-4 text-center fs-5">
+          <span>PEDIDO DE CLIENTE</span>  
+          </div>
+          <div class="col-4 text-end fs-6">
               <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">Pedido {{ orderStore.selectedOrder.order.id }} </strong>
               <span class="pe-1 ps-1"></span>
               <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2" 
@@ -521,7 +524,7 @@ watch(() => orderStore.selectedOrder,
     </div>
     <div class="row">
       <div class="col-3">
-        <div class="row shadow-sm p-2 border-teal-500 rounded-1 bg-gray-200 bg-gradient">
+        <div class="row shadow-sm p-2 border-teal-500 rounded-1 bg-transparent">
           <div class="col-9 fs-5  text-teal-700 text-start text-end">{{ totalBoxesHB }}</div>
           <div class="col-3 fs-5  text-teal-700 text-end">HB's:</div>
           <div class="col-9 fs-5  text-teal-700 text-start text-end">{{ totalBoxesQB }}</div>
@@ -531,7 +534,7 @@ watch(() => orderStore.selectedOrder,
         </div>
       </div>
       <div class="col-4 offset-5">
-        <div class="row bg-gray-200 border-teal-500 bg-gradient rounded-1 shadow-sm p-2">
+        <div class="row bg-transparent-200 border-teal-500 rounded-1 shadow-sm p-2">
           <div class="col-7 text-end border-end fs-5 text-teal-700">Costo:</div>
           <div class="col-5 fs-5 text-teal-700 text-end">{{orderStore.formatNumber(totalCost) }}</div>
           <div class="col-7 text-end border-end fs-5 text-teal-700">Margen:</div>
