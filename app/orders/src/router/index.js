@@ -45,6 +45,16 @@ const router = createRouter({
       name: 'orderDetail',
       component: SingleOrderView,
     },
+    {
+      path: '/invoice/new',
+      name: 'createInvoice',
+      component: () => import('../views/Orders/SingleOrderView.vue')
+    },
+    {
+      path: '/invoice/:id',
+      name: 'editInvoice',
+      component: () => import('../views/Orders/SingleOrderView.vue')
+    }
   ],
 })
 

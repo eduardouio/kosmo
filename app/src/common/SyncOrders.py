@@ -20,9 +20,14 @@ class SyncOrders:
     def sync_customer(self, sup_order):
         loggin_event(f"Actualizando ordern del cliente {sup_order.id}")
         cus_order = Order.get_order_by_id(sup_order.parent_order.id)
-        cust_order_items = OrderItems.get_by_supplier(
-            cus_order, sup_order.partner
-        )
+
+        [
+            OrderItems.disable_by_order_item(item)
+            for item in OrderItems.get_by_supplier(
+                cus_order, sup_order.partner
+            )
+        ]
+
         sup_order_items = OrderItems.get_by_order(sup_order)
         if cus_order.status not in ['PENDIENTE', 'MODIFICADO']:
             loggin_event(
@@ -33,32 +38,32 @@ class SyncOrders:
             )
 
         # recorro las ordenes de compra del proveedor modificadas
-        for cus_item in cust_order_items:
-            for sup_item in sup_order_items:
-                if cus_item.id_stock_detail == sup_item.id_stock_detail:
-                    cus_item.quantity = sup_item.quantity
-                    cus_item.box_model = sup_item.box_model
-                    cus_item.line_margin = sup_item.line_margin
-                    cus_item.line_price = sup_item.line_price
-                    cus_item.line_total = sup_item.line_total
-                    cus_item.save()
-                    # cajas
-                    sup_boxes = OrderBoxItems.get_by_order_item(sup_item)
-                    OrderBoxItems.disable_by_order_items(cus_item)
-                    for box in sup_boxes:
-                        OrderBoxItems.objects.create(
-                            order_item=cus_item,
-                            product=box.product,
-                            length=box.length,
-                            qty_stem_flower=box.qty_stem_flower,
-                            stem_cost_price=box.stem_cost_price,
-                            profit_margin=box.profit_margin
-                        )
+        for sup_item in sup_order_items:
+            new_order_item = OrderItems.objects.create(
+                order=cus_order,
+                id_stock_detail=sup_item.id_stock_detail,
+                line_price=sup_item.line_price,
+                line_margin=sup_item.line_margin,
+                line_total=sup_item.line_total,
+                tot_stem_flower=sup_item.tot_stem_flower,
+                box_model=sup_item.box_model,
+                quantity=sup_item.quantity
+            )
+            for box in OrderBoxItems.get_by_order_item(sup_item):
 
-            OrderBoxItems.rebuild_order_item(cus_item)
-        cus_order.status = 'MODIFICADO' 
+                OrderBoxItems.objects.create(
+                    order_item=new_order_item,
+                    product=box.product,
+                    length=box.length,
+                    qty_stem_flower=box.qty_stem_flower,
+                    stem_cost_price=box.stem_cost_price,
+                    profit_margin=box.profit_margin
+                )
+
+        cus_order.status = 'MODIFICADO'
         cus_order.save()
         Order.rebuild_totals(cus_order)
+        return True
 
     def _sync_supplier_orders(self, cus_order):
         loggin_event(f"Actualizando ordenes de proveedor {cus_order.id}")
@@ -272,8 +277,3 @@ class SyncOrders:
         order.status = 'CANCELADO'
         order.save()
         return True
-
-
-    def update_customer_order(self, cus_order):
-        loggin_event(f"Actualizando orden de venta {cus_order.id}")
-        

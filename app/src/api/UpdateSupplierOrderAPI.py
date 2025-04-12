@@ -15,85 +15,50 @@ class UpdateSupplierOrderAPI(View):
 
         if my_order.type_document != 'ORD_COMPRA':
             return JsonResponse(
-                {'error': 'No se puede modificar una orden de venta por este medio'},
+                {
+                    'error':
+                    'No se puede modificar una orden de venta por este medio'
+                },
                 status=400
             )
 
-        old_order_items = OrderItems.get_by_order(my_order.pk)
-        to_delete = []
-
-        # desactivo las order_item que no estan en la nueva orden
-        for new_order_item in order_data['order_details']:
-            for old_order_item in old_order_items:
-                if old_order_item.id not in [i['order_item_id'] for i in order_data['order_details']]:
-                    loggin_event(
-                        f'Desactivando item de orden {old_order_item.id}')
-                    to_delete.append(old_order_item.id)
-                    ord_itm = OrderItems.get_by_id(old_order_item.id)
-                    ord_itm.is_active = False
-                    ord_itm.save()
-                    OrderBoxItems.disable_by_order_items(ord_itm)
-                    continue
-
-        purge_new_details = [
-            i for i in old_order_items if i.id not in to_delete
-        ]
-
-        # actualizo los items de la orden
-        for new_order_item in order_data['order_details']:
-            for old_order_item in purge_new_details:
-                if old_order_item.id == new_order_item['order_item_id']:
-                    self.update_order_item(new_order_item, old_order_item)
-
+        Order.disable_order_items(my_order)
+        self.create_order_item(order_data['order_details'], my_order)
+        Order.rebuild_totals(my_order)
         SyncOrders().sync_customer(my_order)
 
         return JsonResponse(
             {'message': 'actualizado con exito'}, status=201
         )
 
-    def update_order_item(self, new_order_item, old_order_item):
-        loggin_event(f'Actualizando item de orden {old_order_item.id}')
-        current_data = {
-            'order_item_id': old_order_item.pk,
-            'id_stock_detail': old_order_item.id_stock_detail,
-            'quantity': int(old_order_item.quantity),
-            'box_model': old_order_item.box_model,
-            'line_price': float(old_order_item.line_price),
-            'total_stem_flower': int(old_order_item.tot_stem_flower)
-        }
-        new_data = {
-            'order_item_id': new_order_item['order_item_id'],
-            'id_stock_detail': new_order_item['id_stock_detail'],
-            'quantity': new_order_item['quantity'],
-            'box_model': new_order_item['box_model'],
-            'line_price': float(new_order_item['line_price']),
-            'total_stem_flower': new_order_item['tot_stem_flower'],
-        }
+    def create_order_item(self, order_dertails, my_order):
+        loggin_event(f'Creando los items nuevamente {my_order.pk}')
 
-        if current_data != new_data:
-            old_order_item.id_stock_detail = new_order_item['id_stock_detail']
-            old_order_item.quantity = new_order_item['quantity']
-            old_order_item.box_model = new_order_item['box_model']
-            old_order_item.line_total = new_order_item['line_total']
-            old_order_item.is_modified = True
-            old_order_item.save()
-            # actualizamos las cajas de la orden
-            self.update_box_items(old_order_item, new_order_item)
+        for ord_item in order_dertails:
+            new_ord_det = OrderItems.objects.create(
+                order=my_order,
+                id_stock_detail=ord_item['id_stock_detail'],
+                line_price=ord_item['line_price'],
+                line_margin=ord_item['line_margin'],
+                line_total=ord_item['line_total'],
+                tot_stem_flower=ord_item['tot_stem_flower'],
+                box_model=ord_item['box_model'],
+                quantity=ord_item['quantity']
+            )
 
+            self.create_box_items(ord_item['box_items'], new_ord_det)
         return True
 
-    def update_box_items(self, old_order_item, new_order_item):
-        loggin_event(f'Actualizando cajas de la orden {old_order_item.id}')
-        OrderBoxItems.disable_by_order_items(old_order_item)
-
-        for new_box_item in new_order_item['box_items']:
+    def create_box_items(self, box_items, ord_item):
+        loggin_event(f'Actualizando cajas de la orden {ord_item.pk}')
+        for new_bx_item in box_items:
             OrderBoxItems.objects.create(
-                order_item=old_order_item,
-                product=Product.get_by_id(new_box_item['product_id']),
-                length=new_box_item['length'],
-                qty_stem_flower=new_box_item['qty_stem_flower'],
-                stem_cost_price=new_box_item['stem_cost_price'],
-                profit_margin=new_box_item['margin']
+                order_item=ord_item,
+                product=Product.get_by_id(new_bx_item['product_id']),
+                length=new_bx_item['length'],
+                qty_stem_flower=new_bx_item['qty_stem_flower'],
+                stem_cost_price=new_bx_item['stem_cost_price'],
+                profit_margin=new_bx_item['margin']
             )
 
         return True
