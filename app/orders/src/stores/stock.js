@@ -41,9 +41,10 @@ export const useStockStore = defineStore('stockStore', {
                 this.extractLengths();
                 this.extractBoxModels();
                 baseStore.stagesLoaded++;
+                return true;
             } catch (error) {
                 console.error('Error al obtener el stock:', error);
-                alert(`Hubo un error al obtener el stock: ${error.message}`);
+                return false;
             }
         },
         async addBoxItem(boxItem) {

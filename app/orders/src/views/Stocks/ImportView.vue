@@ -55,8 +55,6 @@ const analyzeStock = async () => {
 const isAllLoaded = computed(() => {
     return baseStore.stagesLoaded === 2;
 })
-
-
 onMounted(() => {
     baseStore.stagesLoaded = 0;
     baseStore.loadSuppliers();
@@ -65,8 +63,8 @@ onMounted(() => {
 
 </script>
 <template>
-    <div class="container mx-auto border">
-        <div class="row p-3"></div>
+    <div class="container border">
+        <div class="row p-2"></div>
         <div class="row" v-if="!isAllLoaded">
             <div class="col text-center">
                 <Loader />
@@ -76,7 +74,12 @@ onMounted(() => {
             </div>
         </div>
         <div class="row" v-else>
-            <div class="col">
+            <div class="col-12 text-center pt-2 pb-2">
+                <span class="fs-6 upper text-primary">
+                    Asistente de Carga de Stocks
+                </span>
+            </div>
+            <div class="col pb-5 shadow">
                 <div class="row pt-1 pb-2 pe-2 ps-3 d-flex align-items-center">
                     <div class="col-3 ">
                         <div class="d-flex justify-content-end align-items-center gap-2 border-gray-600 rounded-1 bg-secondary">
