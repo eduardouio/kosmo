@@ -1,14 +1,12 @@
 <script setup>
 import { usePurchaseStore } from '@/stores/purcharses';
-import { useBaseStore } from '@/stores/base';   
-import { appConfig } from '@/AppConfig';
+import { onMounted } from 'vue';
 import { 
-    IconFolderOpen, IconFolder, IconPrinter
+    IconFolderOpen, IconFolder
 } from '@tabler/icons-vue';
 
 // Variables
 const purchasesStore = usePurchaseStore();
-const baseStore = useBaseStore();
 
 // Methods
 const selectPurchase = (id) => {
@@ -23,10 +21,10 @@ const selectPurchase = (id) => {
         });
 };
 
-const getUrlReportSupOrder = (id) => {
-    let urlReportSupOrder = appConfig.urlReportSupOrder.replace('{id_order}', id);
-    return urlReportSupOrder;
-};
+// Lifecycle
+onMounted(() => {
+    selectPurchase(purchasesStore.purcharses_by_order[0].order.id);
+});
 
 </script>
 

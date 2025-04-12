@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useStockStore } from '@/stores/stock';
 import { useBaseStore } from '@/stores/base';
 import { useOrdersStore } from '@/stores/orders';
@@ -19,6 +20,7 @@ import {
 
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
+const router = useRouter();
 const ordersStore = useOrdersStore();
 const generalIndicators = ref({});
 const productSelected = ref(null);
@@ -192,6 +194,11 @@ onMounted(() => {
     ordersStore.loadCustomers(baseStore);
     baseStore.loadSuppliers();
     calcIndicators();
+    setTimeout(() => {
+        if (!stockStore.stock.length) {
+            router.push({ name: 'import' });
+        }
+    }, 3000);
 });
 </script>
 <template>
