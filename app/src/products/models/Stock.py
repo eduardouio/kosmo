@@ -38,15 +38,6 @@ class StockDay(BaseModel):
         stock_day.is_active = False
         stock_day.save()
 
-    @classmethod
-    def get_by_id(cls, stock_day_id):
-        try:
-            return cls.objects.get(
-                pk=stock_day_id
-            )
-        except ObjectDoesNotExist:
-            return None
-
     def __str__(self):
         return str(self.date)
 
@@ -94,15 +85,6 @@ class StockDetail(BaseModel):
         decimal_places=2,
         default=0.06
     )
-
-    @classmethod
-    def get_by_id(cls, stock_detail_id):
-        try:
-            return cls.objects.get(
-                pk=stock_detail_id
-            )
-        except ObjectDoesNotExist:
-            return None
 
     @classmethod
     def get_by_stock_day(cls, stock_day):
@@ -210,15 +192,6 @@ class BoxItems(BaseModel):
         decimal_places=2,
         default=0.06
     )
-
-    @classmethod
-    def get_by_id(cls, box_id):
-        try:
-            return cls.objects.get(
-                pk=box_id
-            )
-        except ObjectDoesNotExist:
-            return None
 
     @classmethod
     def get_box_items(cls, stock_detail):

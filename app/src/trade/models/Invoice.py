@@ -166,14 +166,6 @@ class Invoice(BaseModel):
         return None
 
     @classmethod
-    def get_by_id(cls, id_invoice):
-        try:
-            return cls.objects.get(id=id_invoice)
-        except ObjectDoesNotExist:
-            loggin_event(f"Factura {id_invoice} no existe")
-            return None
-
-    @classmethod
     def get_next_invoice_number(cls):
         last_invoice = cls.objects.filter(type_document='FAC_VENTA').last()
 

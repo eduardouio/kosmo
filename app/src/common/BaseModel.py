@@ -143,10 +143,43 @@ class BaseModel(models.Model):
         loggin_event(f'Buscando todos los registros {self.__name__}')
         return self.objects.filter(is_active=True)
 
-    def get_all_inactive(self):
+    def get_all_with_inactive(self):
         """Devuelve todos los registros"""
         loggin_event(f'Buscando todos los registros {self.__name__}')
         return self.objects.all()
+
+    def get_all_related(self):
+        """Devuelve todos los registros activos del mismo tipo"""
+        loggin_event(f'Buscando todos los registros {self.__class__.__name__}')
+        return self.__class__.objects.filter(is_active=True)
+
+    def get_all_inactive_related(self):
+        """Devuelve todos los registros del mismo tipo, incluyendo inactivos"""
+        loggin_event(f'Buscando todos los registros {self.__class__.__name__}')
+        return self.__class__.objects.all()
+
+    def get_all_related_with_inactive(self):
+        """Devuelve todos los registros del mismo tipo incluyendo inactivos"""
+        loggin_event(f'Buscando todos los registros {self.__class__.__name__}')
+        return self.__class__.objects.all()
+
+    @classmethod
+    def get_all(cls):
+        """Método de clase para obtener todos los registros activos"""
+        loggin_event(f'Buscando todos los registros {cls.__name__}')
+        return cls.objects.filter(is_active=True)
+
+    @classmethod
+    def get_all_inactive(cls):
+        """Método de clase para obtener todos los registros inactivos"""
+        loggin_event(f'Buscando todos los registros inactivos {cls.__name__}')
+        return cls.objects.filter(is_active=False)
+
+    @classmethod
+    def get_all_with_inactive(cls):
+        """Método de clase para obtener todos los registros incluyendo inactivos"""
+        loggin_event(f'Buscando todos los registros {cls.__name__}')
+        return cls.objects.all()
 
     class Meta:
         abstract = True

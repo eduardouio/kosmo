@@ -228,15 +228,6 @@ class Partner(BaseModel):
             return None
 
     @classmethod
-    def get_partner_by_id(cls, id):
-        try:
-            return cls.objects.get(
-                id=id
-            )
-        except ObjectDoesNotExist:
-            return None
-
-    @classmethod
     def get_by_parcial_name(cls, name):
         partners = cls.objects.filter(
             name__icontains=name

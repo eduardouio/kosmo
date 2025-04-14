@@ -40,19 +40,6 @@ class Product(BaseModel):
         unique_together = ('name', 'variety')
 
     @classmethod
-    def get_by_id(cls, id):
-        try:
-            return cls.objects.get(id=id)
-        except cls.DoesNotExist:
-            return None
-
-    @classmethod
-    def get_all(cls):
-        return cls.objects.filter(
-            is_active=True
-        )
-
-    @classmethod
     def get_by_variety(cls, name):
         flower = cls.objects.filter(variety__icontains=name).first()
         if not flower:

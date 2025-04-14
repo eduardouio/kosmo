@@ -1,6 +1,5 @@
 from django.db import models
 from products.models import Product, StockDay, StockDetail
-from accounts.models.CustomUserModel import CustomUserModel
 from common import BaseModel
 from common.AppLoger import loggin_event
 from partners.models import Partner
