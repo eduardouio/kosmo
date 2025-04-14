@@ -21,7 +21,7 @@ class CustomUserModelAdmin(UserAdmin):
         ),
         ('Información Personal', {
             'fields': (
-                'first_name', 'last_name'
+                'first_name', 'last_name', 'phone'
             )
         }
         ),
@@ -49,6 +49,7 @@ class CustomUserModelAdmin(UserAdmin):
         'last_name',
         'is_active',
         'is_confirmed_mail',
+        'date_joined'
     )
 
     list_filter = (
@@ -56,7 +57,7 @@ class CustomUserModelAdmin(UserAdmin):
         'is_confirmed_mail',
     )
 
-    search_fields = ('email', 'first_name', 'last_name')
+    search_fields = ('email', 'first_name', 'last_name', 'phone')
 
     ordering = ('-date_joined',)
 

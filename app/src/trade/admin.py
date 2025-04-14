@@ -19,7 +19,8 @@ class OrderAdmin(SimpleHistoryAdmin):
         'id',
         'date',
         'partner__name',
-        'status'
+        'status',
+        'num_order'
     )
 
 
@@ -47,6 +48,7 @@ class OrderItemsAdmin(SimpleHistoryAdmin):
 
     search_fields = (
         'order__id',
+        'id_stock_detail'
     )
     inlines = [OrderBoxItemsAdmin]
 
@@ -65,7 +67,8 @@ class InvoiceAdmin(SimpleHistoryAdmin):
     search_fields = (
         'num_invoice',
         'type_document',
-        'partner__name'
+        'partner__name',
+        'awb'
     )
 
 
@@ -87,6 +90,12 @@ class PaymentAdmin(SimpleHistoryAdmin):
         'method',
         'nro_operation',
         'bank'
+    )
+    search_fields = (
+        'id',
+        'nro_operation',
+        'bank',
+        'method'
     )
 
 
