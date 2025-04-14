@@ -1,4 +1,3 @@
-import json
 from products.models import StockDetail
 from trade.models import OrderBoxItems
 

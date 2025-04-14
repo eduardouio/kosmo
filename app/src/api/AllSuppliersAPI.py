@@ -10,6 +10,11 @@ class AllSuppliersAPI(View):
     def get(self, request, *args, **kwargs):
         loggin_event('Obteniendo todos los proveedores')
         id_stock = request.GET.get('id_stock', None)
+        if not id_stock:
+            return JsonResponse(
+                {'error': 'ID de stock no proporcionado'}, status=400
+            )
+
         stock_day = StockDay.get_by_id(id_stock)
         suppliers = Partner.get_suppliers()
         if not suppliers or not stock_day:
@@ -75,6 +80,6 @@ class AllSuppliersAPI(View):
                 'related_partners': related_customers
             }
             result_dict.append(item)
-        
+
         loggin_event('Proveedores obtenidos')
         return JsonResponse(result_dict, safe=False)

@@ -164,20 +164,31 @@ class BaseModel(models.Model):
         return self.__class__.objects.all()
 
     @classmethod
+    def get_by_id(cls, id):
+        """Devuelve el registro por id"""
+        loggin_event(f'Buscando registro {cls.__name__} con id {id}')
+        try:
+            result = cls.objects.get(pk=id)
+            if result.is_active:
+                return result
+            else:
+                loggin_event("El registro no existe o fue eliminado")
+                raise Exception("El registro no existe o fue eliminado")
+        except ObjectDoesNotExist:
+            return None
+
+    @classmethod
     def get_all(cls):
-        """Método de clase para obtener todos los registros activos"""
         loggin_event(f'Buscando todos los registros {cls.__name__}')
         return cls.objects.filter(is_active=True)
 
     @classmethod
     def get_all_inactive(cls):
-        """Método de clase para obtener todos los registros inactivos"""
         loggin_event(f'Buscando todos los registros inactivos {cls.__name__}')
         return cls.objects.filter(is_active=False)
 
     @classmethod
     def get_all_with_inactive(cls):
-        """Método de clase para obtener todos los registros incluyendo inactivos"""
         loggin_event(f'Buscando todos los registros {cls.__name__}')
         return cls.objects.all()
 
