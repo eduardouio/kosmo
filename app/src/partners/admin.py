@@ -17,7 +17,9 @@ class PartnerAdmin(SimpleHistoryAdmin):
     search_fields = (
         'business_tax_id',
         'name',
-        'email'
+        'email',
+        'short_name',
+        'phone'
     )
 
 
@@ -33,7 +35,8 @@ class ContactAdmin(SimpleHistoryAdmin):
     search_fields = (
         'name',
         'email',
-        'partner__name'
+        'partner__name',
+        'phone'
     )
 
 
@@ -49,9 +52,10 @@ class BankAdmin(SimpleHistoryAdmin):
     )
 
     search_fields = (
-        'parner__name',
+        'partner__name',
         'account_number',
-        'bank_name'
+        'bank_name',
+        'swift_code'
     )
 
 

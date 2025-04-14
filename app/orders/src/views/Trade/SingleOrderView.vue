@@ -1,180 +1,46 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useBaseStore } from '@/stores/base';
-import { useOrdersStore } from '@/stores/orders';
-import { IconTrash, IconDeviceFloppy, IconAlertTriangle } from '@tabler/icons-vue';
+import { useBaseStore } from '@/stores/base'; 
+import { IconTrash, IconAlertTriangle } from '@tabler/icons-vue';
 
-const route = useRoute();
 const baseStore = useBaseStore();
-const ordersStore = useOrdersStore();
 
 const orderForm = ref({
+    num_invoice: '',
+    date: '',
   partner: null,
-  type_document: 'FAC_VENTA',
-  num_invoice: '',
-  date: new Date().toISOString().split('T')[0],
-due_date: null,
-  delivery_date: null,
-  awb: '',
-  dae_export: '',
-  hawb: '',
-  cargo_agency: '',
-  weight: 0,
-  status: 'PENDIENTE',
-  order_details: [],
-});
-
-const newBoxItem = ref({
-  product: null,
-  length: '',
-  qty_stem_flower: 0,
-  stem_cost_price: 0.00,
-  profit_margin: 0.06,
-  commission: 0.00,
-  total_bunches: 0,
-  stems_bunch: 0
-});
-
-const boxTypes = ['QB', 'HB', 'FB'];
-const currentBox = ref({
-  box_model: 'QB',
-  quantity: 1,
-  box_items: [],
-  tot_stem_flower: 0,
-  line_price: 0,
-  line_margin: 0,
-  line_total: 0,
-  line_commission: 0
-});
-
-const errors = ref({
-  partner: false,
-  box_items: false,
-  message: ''
-});
-
-// Métodos
-const addBoxItem = () => {
-  if (!validateBoxItem()) return;
-  
-  currentBox.value.box_items.push({...newBoxItem.value});
-  // Reiniciar valores
-  newBoxItem.value = {
-    product: null,
-    length: '',
-    qty_stem_flower: 0,
-    stem_cost_price: 0.00,
-    profit_margin: 0.06,
-    commission: 0.00,
-    total_bunches: 0,
-    stems_bunch: 0
-  };
-  
-  calcTotals();
-};
-
-const validateBoxItem = () => {
-  if (!newBoxItem.value.product || 
-      !newBoxItem.value.length || 
-      newBoxItem.value.qty_stem_flower <= 0 || 
-      newBoxItem.value.stem_cost_price <= 0) {
-    errors.value.message = 'Todos los campos son requeridos y los valores deben ser mayores a 0';
-    errors.value.box_items = true;
-    return false;
-  }
-  errors.value.box_items = false;
-  errors.value.message = '';
-  return true;
-};
-
-const addBoxToOrder = () => {
-  if (currentBox.value.box_items.length === 0) {
-    errors.value.message = 'Debe agregar al menos un item a la caja';
-    return;
-  }
-  orderForm.value.order_details.push({...currentBox.value});
-  // Reiniciar la caja actual
-  currentBox.value = {
-    box_model: 'QB',
-    quantity: 1,
-    box_items: [],
+    order_details: [],
+    hb_total: 0,
+    qb_total: 0,  
+    fb_total: 0,
     tot_stem_flower: 0,
-    line_price: 0,
-    line_margin: 0,
-    line_total: 0,
-    line_commission: 0
-  };
-  calcTotals();
-};
+    total_price: 0,
+    total_margin: 0
+  })
 
-const removeBoxItem = (index) => {
-  currentBox.value.box_items.splice(index, 1);
-  calcTotals();
-};
+const  newBoxItem = ref({
+    product: null,
+    length: null,
+    stems_bunch: null,
+    total_bunches: null,
+    qty_stem_flower: null,
+    stem_cost_price: null
+  })
 
-const removeOrderDetail = (index) => {
-  orderForm.value.order_details.splice(index, 1);
-  calcTotals();
-};
+const currentBox = ref({
+    quantity: 1,
+    box_model: ''
+  })
 
-const calcTotals = () => {
-  let totalPrice = 0;
-  let totalMargin = 0;
-  let totalStems = 0;
-  let qbTotal = 0;
-  let hbTotal = 0;
-  let fbTotal = 0;
 
-  orderForm.value.order_details.forEach(detail => {
-    if (detail.box_model === 'QB') qbTotal += detail.quantity;
-    if (detail.box_model === 'HB') hbTotal += detail.quantity;
-    if (detail.box_model === 'FB') fbTotal += detail.quantity;
-
-    detail.box_items.forEach(item => {
-      const itemTotal = item.qty_stem_flower * item.stem_cost_price * detail.quantity;
-      const itemMargin = item.qty_stem_flower * item.profit_margin * detail.quantity;
-      totalPrice += itemTotal;
-      totalMargin += itemMargin;
-      totalStems += item.qty_stem_flower * detail.quantity;
-    });
-  });
-
-  orderForm.value.total_price = totalPrice;
-  orderForm.value.total_margin = totalMargin;
-  orderForm.value.tot_stem_flower = totalStems;
-  orderForm.value.qb_total = qbTotal;
-  orderForm.value.hb_total = hbTotal;
-  orderForm.value.fb_total = ((qbTotal / 2) + hbTotal) / 2;
-};
-
-const formatNumber = (event) => {
-  let value = event.target.value;
-  value = value.replace(',', '.');
-  if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
-    event.target.value = '0.00';
-    return;
-  }
-  event.target.value = parseFloat(value).toFixed(2);
-  calcTotals();
-};
-
-const saveOrder = async () => {
-  if (!orderForm.value.partner) {
-    errors.value.partner = true;
-    errors.value.message = 'Debe seleccionar un cliente';
-    return;
-  }
-  if (orderForm.value.order_details.length === 0) {
-    errors.value.message = 'Debe agregar al menos una caja al pedido';
-    return;
-  }
-  // Aquí iría la lógica para guardar el pedido
-  console.log(orderForm.value);
-};
+// lifecycle
+onMounted(() => {
+  baseStore.loadSuppliers();
+  baseStore.getProducts();
+});
 
 </script>
-
 <template>
   <div class="container-fluid">
     <div class="bg-light py-4">
@@ -187,7 +53,7 @@ const saveOrder = async () => {
           <div class="col-5">
             <div class="border border-2 border-warning p-2 rounded">
               <div class="d-flex justify-content-end align-items-center mb-1">
-                <span class="small fw-bold me-2">FACTURA:</span>
+                <span class="small fw-bold me-2">PEDIDO:</span>
                 <span class="text-danger fs-4">{{ orderForm.num_invoice }}</span>
               </div>
               <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
@@ -240,29 +106,7 @@ const saveOrder = async () => {
               </div>
             </div>
           </div>
-          <div class="col-5">
-            <div class="border border-2 border-warning p-3 rounded h-100">
-              <h6 class="fw-bold mb-3 text-secondary">Información Adicional</h6>
-              <div class="mb-2">
-                <label class="form-label small">Agencia de Carga:</label>
-                <input type="text" class="form-control form-control-sm" v-model="orderForm.cargo_agency">
-              </div>
-              <div class="mb-2">
-                <label class="form-label small">M.A.W.B.:</label>
-                <input type="text" class="form-control form-control-sm" v-model="orderForm.awb">
-              </div>
-              <div class="mb-2">
-                <label class="form-label small">H.A.W.B.:</label>
-                <input type="text" class="form-control form-control-sm" v-model="orderForm.hawb">
-              </div>
-              <div class="mb-2">
-                <label class="form-label small">DAE USA:</label>
-                <input type="text" class="form-control form-control-sm" v-model="orderForm.dae_export">
-              </div>
-            </div>
-          </div>
         </div>
-
         <!-- Tabla de productos -->
         <div class="row mb-4">
           <div class="col-12">
@@ -390,7 +234,7 @@ const saveOrder = async () => {
         <!-- Botón guardar -->
         <div class="row">
           <div class="col-12 text-end">
-            <button class="btn btn-primary" @click="saveOrder">
+            <button class="btn btn-default" @click="saveOrder">
               <IconSave class="me-2"/>
               Guardar Factura
             </button>

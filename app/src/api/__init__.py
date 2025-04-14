@@ -15,3 +15,4 @@ from .CancelCustomerOrderAPI import CancelCustomerOrderAPI
 from .CancelSupplierOrderAPI import CancelSupplierOrderAPI
 from .AproveOrderAPI import AproveOrderAPI
 from .CreateInvoiceAPI import CreateInvoiceAPI
+from .OrderDetailAPI import OrderDetailAPI
