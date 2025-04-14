@@ -19,6 +19,7 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
 from django.core.exceptions import ObjectDoesNotExist
+from common.AppLoger import loggin_event
 
 # django-crum
 from crum import get_current_user
@@ -83,6 +84,8 @@ class BaseModel(models.Model):
     history = HistoricalRecords(inherit=True)
 
     def save(self, *args, **kwargs):
+        loggin_event(
+            f'Guardando registro {self.__class__.__name__} con id {self.pk}')
         user = get_current_user()
 
         if user is None:
@@ -107,6 +110,43 @@ class BaseModel(models.Model):
             return CustomUserModel.objects.get(pk=self.id_user_updated)
         except ObjectDoesNotExist:
             return None
+
+    def get_by_id(self, id):
+        """Devuelve el registro por id"""
+        loggin_event(f'Buscando registro {self.__name__} con id {id}')
+        try:
+            result = self.objects.get(pk=id)
+            if result.is_active:
+                return result
+            else:
+                loggin_event("El registro no existe o fue eliminado")
+                raise Exception("El registro no existe o fue eliminado")
+        except ObjectDoesNotExist:
+            return None
+
+    def delete(self, id):
+        """Marca el registro como eliminado"""
+        loggin_event(f'Eliminando registro {self.__name__} con id {id}')
+        try:
+            instance = self.objects.get(pk=id)
+            instance.is_active = False
+            instance.save()
+            return instance
+        except ObjectDoesNotExist:
+            return None
+        except Exception as e:
+            print(f"Error deleting instance: {e}")
+            return None
+
+    def get_all(self):
+        """Devuelve todos los registros"""
+        loggin_event(f'Buscando todos los registros {self.__name__}')
+        return self.objects.filter(is_active=True)
+
+    def get_all_inactive(self):
+        """Devuelve todos los registros"""
+        loggin_event(f'Buscando todos los registros {self.__name__}')
+        return self.objects.all()
 
     class Meta:
         abstract = True
