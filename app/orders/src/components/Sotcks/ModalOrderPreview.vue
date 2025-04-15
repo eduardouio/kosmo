@@ -289,4 +289,3 @@ const totalStems = computed(() => {
     </div>
   </div>
 </template>
-@/stores/baseStore@/stores/ordersStore

@@ -77,4 +77,3 @@ watch(() => orderStore.selectedCustomer, (newValue) => {
         </div>
     </div>
 </template>
-@/stores/baseStore@/stores/ordersStore@/stores/stockStore

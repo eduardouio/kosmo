@@ -252,4 +252,4 @@ onMounted(() => {
             </div>
         </div>
     </div>
-</template>@/stores/baseStore
+</template>

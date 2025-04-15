@@ -106,4 +106,4 @@ const formatNumber = (event) => {
             </div>
         </div>
     </div>
-</template>@/stores/stockStore
+</template>

@@ -223,4 +223,4 @@ import { useSingleOrderStore } from '@/stores/trade/singleOrder.js'
       </div>
     </div>
   </div>
-</template>@/stores/baseStore.js
+</template>

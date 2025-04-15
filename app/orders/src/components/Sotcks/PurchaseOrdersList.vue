@@ -53,4 +53,4 @@ onMounted(() => {
             </li>
         </ul>
     </div>
-</template>@/stores/purcharsesStore
+</template>

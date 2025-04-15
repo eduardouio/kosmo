@@ -85,4 +85,3 @@ watch(() => searchTerm.value, (newValue) => {
     </ul>
   </div>
 </template>
-@/stores/ordersStore

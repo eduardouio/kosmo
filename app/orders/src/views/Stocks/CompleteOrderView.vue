@@ -117,4 +117,4 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
   </div>
   </div>
   </div>
-</template>@/stores/baseStore@/stores/ordersStore@/stores/purcharsesStore
+</template>

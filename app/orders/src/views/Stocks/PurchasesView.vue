@@ -197,4 +197,3 @@ onUnmounted(() => {
 </div>
 </div>
 </template>
-@/stores/baseStore@/stores/purcharsesStore@/stores/stockStore@/router/indexRouter
