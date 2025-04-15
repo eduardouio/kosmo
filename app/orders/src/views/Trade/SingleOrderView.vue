@@ -1,10 +1,31 @@
 <script setup>
+import {onMounted, ref, computed} from 'vue'
+
 import {useBaseStore} from '@/stores/baseStore.js'
-import { useSingleOrderStore } from '@/stores/trade/singleOrder.js'
+import { useSingleOrderStore } from '@/stores/trade/singleOrderStore.js'
+
+import AutocompleteCustomer from '@/components/Sotcks/AutocompleteCustomer.vue'
+import Loader from '@/components/Sotcks/Loader.vue'
+
+const baseStore = useBaseStore()
+const stagesToLoad = ref(3)
+
+// computed
+const isLoading = computed(() => {
+  return baseStore.stagesLoaded != stagesToLoad.value
+})
+
+// mouted
+onMounted(() => {
+  baseStore.loadSuppliers()
+  baseStore.loadProducts()
+  baseStore.loadCustomers(true)
+})
 
 </script>
 <template>
   <div class="container-fluid">
+    <Loader v-if="isLoading" />
     <div class="bg-light py-4">
       <div class="container bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto" style="max-width: 1200px;">
         <!-- Encabezado -->

@@ -36,19 +36,26 @@ export const useBaseStore = defineStore("baseStore", {
         },
         suppliers:[],
         products:[],
+        customers:[],
         isLoading: false,
         stagesLoaded: 0,
         idStock: appConfig.idStock,
         selectedProduct: null,
     }),
     actions: {
-      async loadSuppliers(){
+      async loadSuppliers(all=false){
         if (this.suppliers.length > 0) {
           this.stagesLoaded++;
           return;
         }
         try {
-          const response = await axios.get(appConfig.urlAllSuppliers);
+          let url = appConfig.urlAllSuppliers.replace("{isStockDay}", this.idStock);
+          
+          if (all){
+            url = appConfig.urlAllSuppliers.replace("{isStockDay}", 0);
+          }
+
+          const response = await axios.get(url, { headers: appConfig.headers });
           this.suppliers = response.data;
           this.suppliers.sort((a, b) => a.name.localeCompare(b.name));
           this.stagesLoaded++;
@@ -64,13 +71,34 @@ export const useBaseStore = defineStore("baseStore", {
           return;
         }
         try{
-          const response = await axios.get(appConfig.urlAllProducts);
+          const response = await axios.get(
+            appConfig.urlAllProducts, { headers: appConfig.headers }
+          );
           this.products = response.data.products;
           this.stagesLoaded++;
         }
         catch (error) {
           console.error('Error al cargar los productos:', error);
           alert(`Hubo un error al cargar los productos: ${error.message}`);
+        }
+      },
+      async loadCustomers(){
+        console.log("Cargando clientes...");
+        if (this.customers.length > 0) {
+          this.stagesLoaded++;
+          return;
+        }
+        try{
+          const response = await axios.get(
+              appConfig.urlAllCustomers, { headers: appConfig.headers }
+          );
+          this.customers = response.data;
+          this.customers.sort((a, b) => a.name.localeCompare(b.name));
+          this.stagesLoaded++;
+        }
+        catch (error) {
+          console.error('Error al cargar los clientes:', error);
+          alert(`Hubo un error al cargar los clientes: ${error.message}`);
         }
       },
       formatDate(date){
