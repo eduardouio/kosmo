@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useBaseStore } from '@/stores/base';
-import { useStockStore } from '@/stores/stock';
+import { useBaseStore } from '@/stores/baseStore.js';
+import { useStockStore } from '@/stores/stockStore.js';
 import { appConfig } from '@/AppConfig';
 import Autocomplete from '@/components/Sotcks/Autocomplete.vue';
 import ProductImage from '@/components/Sotcks/ProductImage.vue';
@@ -326,3 +326,4 @@ onMounted(() => {
         </div>
     </div>
 </template>
+@/stores/baseStore@/stores/stockStore

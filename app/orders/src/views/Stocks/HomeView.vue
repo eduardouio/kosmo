@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useStockStore } from '@/stores/stock';
-import { useBaseStore } from '@/stores/base';
-import { useOrdersStore } from '@/stores/orders';
+import { useStockStore } from '@/stores/stockStore.js';
+import { useBaseStore } from '@/stores/baseStore.js';
+import { useOrdersStore } from '@/stores/ordersStore.js';
 import ModalProduct from '@/components/Sotcks/ModalProduct.vue';
 import ModalSuplier from '@/components/Sotcks/ModalSuplier.vue';
 import ModalShareStock from '@/components/Sotcks/ModalShareStock.vue';
@@ -486,4 +486,4 @@ input[type="checkbox"] {
     border-radius: 2px;
     text-align: right;
 }
-</style>
+</style>@/stores/baseStore@/stores/ordersStore@/stores/stockStore

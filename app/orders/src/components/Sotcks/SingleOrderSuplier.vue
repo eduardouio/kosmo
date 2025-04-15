@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { usePurchaseStore } from '@/stores/purcharses';
+import { usePurchaseStore } from '@/stores/purcharsesStore.js';
 import { appConfig } from '@/AppConfig';
 import SideBar from '@/components/Sotcks/SideBar.vue';
 import {
@@ -596,3 +596,4 @@ watch(() => purchaseStore.selectedPurchase,
   text-align: right;
 }
 </style>
+@/stores/purcharsesStore

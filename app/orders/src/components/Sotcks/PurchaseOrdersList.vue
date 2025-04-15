@@ -1,5 +1,5 @@
 <script setup>
-import { usePurchaseStore } from '@/stores/purcharses';
+import { usePurchaseStore } from '@/stores/purcharsesStore.js';
 import { onMounted } from 'vue';
 import { 
     IconFolderOpen, IconFolder
@@ -53,4 +53,4 @@ onMounted(() => {
             </li>
         </ul>
     </div>
-</template>
+</template>@/stores/purcharsesStore

@@ -73,4 +73,4 @@ function handleKeyDown(e) {
             </li>
         </ul>
     </div>
-</template>
+</template>@/stores/baseStore

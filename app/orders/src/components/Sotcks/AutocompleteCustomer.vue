@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { useOrdersStore } from '@/stores/orders';
+import { useOrdersStore } from '@/stores/ordersStore.js';
 
 const ordersStore = useOrdersStore();
 const searchTerm = ref("")
@@ -85,3 +85,4 @@ watch(() => searchTerm.value, (newValue) => {
     </ul>
   </div>
 </template>
+@/stores/ordersStore

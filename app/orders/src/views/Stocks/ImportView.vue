@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useBaseStore } from '@/stores/base';
+import { useBaseStore } from '@/stores/baseStore.js';
 import { appConfig } from '@/AppConfig';
 import Loader from '@/components/Sotcks/Loader.vue';
 import axios from 'axios';
@@ -252,4 +252,4 @@ onMounted(() => {
             </div>
         </div>
     </div>
-</template>
+</template>@/stores/baseStore

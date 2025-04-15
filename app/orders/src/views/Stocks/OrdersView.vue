@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watchEffect, computed, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import { useBaseStore } from '@/stores/base';
-import { useOrdersStore } from '@/stores/orders';
-import { useStockStore } from '@/stores/stock';
+import { useBaseStore } from '@/stores/baseStore.js';
+import { useOrdersStore } from '@/stores/ordersStore.js';
+import { useStockStore } from '@/stores/stockStore.js';
 import Loader from '@/components/Sotcks/Loader.vue';
 import OrderPreview from '@/components/Sotcks/OrderPreview.vue';
 import { appConfig } from '@/AppConfig';

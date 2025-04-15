@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { IconX, IconCheck } from '@tabler/icons-vue';
-import { useStockStore } from '@/stores/stock';
+import { useStockStore } from '@/stores/stockStore.js';
 
 const confirmUpdate = ref(false);
 const profitMargin = ref(0.00);
@@ -106,4 +106,4 @@ const formatNumber = (event) => {
             </div>
         </div>
     </div>
-</template>
+</template>@/stores/stockStore

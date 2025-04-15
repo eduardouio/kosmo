@@ -1,8 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useOrdersStore } from '@/stores/orders';
-import { useBaseStore } from '@/stores/base';
+import { useOrdersStore } from '@/stores/ordersStore.js';
+import { useBaseStore } from '@/stores/baseStore.js';
 import AutocompleteCustomer from '@/components/Sotcks/AutocompleteCustomer.vue';
 import { 
   IconTrash,
@@ -289,3 +289,4 @@ const totalStems = computed(() => {
     </div>
   </div>
 </template>
+@/stores/baseStore@/stores/ordersStore

@@ -1,13 +1,17 @@
 <script setup>
 import { computed, onMounted, onUnmounted, watch, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useBaseStore } from '@/stores/base';
+import { useOrdersStore } from '@/stores/ordersStore.js';
+import { useBaseStore } from '@/stores/baseStore.js';
+import { usePurchaseStore } from  '@/stores/purcharsesStore.js';
 import SingleOrderCustomer from '@/components/Sotcks/SingleOrderCustomer.vue';
 import SingleOrderSuplier from '@/components/Sotcks/SingleOrderSuplier.vue';
-import { usePurchaseStore } from  '@/stores/purcharses';
-import { useOrdersStore } from '@/stores/orders';
 import PurchaseOrdersList from '@/components/Sotcks/PurchaseOrdersList.vue';
-import {  IconShoppingCartUp, IconShoppingCartDown, IconArrowLeft } from '@tabler/icons-vue';
+import { 
+  IconShoppingCartUp,
+  IconShoppingCartDown,
+  IconArrowLeft 
+} from '@tabler/icons-vue';
 import Loader from '@/components/Sotcks/Loader.vue';
 import SideBar from '@/components/Sotcks/SideBar.vue';
 
@@ -113,4 +117,4 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
   </div>
   </div>
   </div>
-</template>
+</template>@/stores/baseStore@/stores/ordersStore@/stores/purcharsesStore

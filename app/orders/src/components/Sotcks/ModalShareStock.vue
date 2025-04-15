@@ -1,10 +1,10 @@
 <script setup>
 import { watch } from 'vue';
-import { useBaseStore } from '@/stores/base';
-import { useOrdersStore } from '@/stores/orders';
+import { useBaseStore } from '@/stores/baseStore.js';
+import { useOrdersStore } from '@/stores/ordersStore.js';
+import { useStockStore } from '@/stores/stockStore.js';
 import { IconClipboard, IconX  } from '@tabler/icons-vue';
 import AutocompleteCustomer from './AutocompleteCustomer.vue';
-import { useStockStore } from '@/stores/stock';
 
 const baseStore = useBaseStore();
 const orderStore = useOrdersStore();
@@ -77,3 +77,4 @@ watch(() => orderStore.selectedCustomer, (newValue) => {
         </div>
     </div>
 </template>
+@/stores/baseStore@/stores/ordersStore@/stores/stockStore

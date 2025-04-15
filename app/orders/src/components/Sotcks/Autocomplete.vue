@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { useBaseStore } from '@/stores/base'
+import { useBaseStore } from '@/stores/baseStore.js'
 
 const baseStore = useBaseStore();
 const products = ref(baseStore.products);
@@ -72,4 +72,4 @@ function handleKeyDown(e) {
         </li>
       </ul>
     </div>
-  </template>
+  </template>@/stores/baseStore

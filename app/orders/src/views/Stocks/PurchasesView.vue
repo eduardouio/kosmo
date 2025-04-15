@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watchEffect, computed, nextTick } from 'vue';
-import { usePurchaseStore } from '@/stores/purcharses';
-import { useBaseStore } from '@/stores/base';
-import { useStockStore } from '@/stores/stock';
+import { usePurchaseStore } from '@/stores/purcharsesStore.js';
+import { useBaseStore } from '@/stores/baseStore.js';
+import { useStockStore } from '@/stores/stockStore.js';
 import Loader from '@/components/Sotcks/Loader.vue';
 import { IconHexagonMinus, IconClockHour9, IconCheckbox, IconFileCheck, IconFolderOpen } from '@tabler/icons-vue';
 import DataTable from 'datatables.net-dt';
@@ -197,3 +197,4 @@ onUnmounted(() => {
 </div>
 </div>
 </template>
+@/stores/baseStore@/stores/purcharsesStore@/stores/stockStore@/router/indexRouter

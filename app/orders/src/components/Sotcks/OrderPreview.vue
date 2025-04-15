@@ -1,11 +1,16 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useOrdersStore } from '@/stores/orders';
-import { useStockStore } from '@/stores/stock';
-import { useBaseStore } from '@/stores/base';
+import { useOrdersStore } from '@/stores/ordersStore.js';
+import { useStockStore } from '@/stores/stockStore.js';
+import { useBaseStore } from '@/stores/baseStore.js';
 import AutocompleteCustomer from '@/components/Sotcks/AutocompleteCustomer.vue';
-import { IconTrash, IconCheckbox, IconSitemap, IconBan, IconLayersIntersect2, 
+import { 
+  IconTrash,
+  IconCheckbox,
+  IconSitemap,
+  IconBan,
+  IconLayersIntersect2, 
   IconAlertTriangle
 } from '@tabler/icons-vue';
 
@@ -384,4 +389,4 @@ input[type="checkbox"] {
   text-align: right;
 }
 
-</style>
+</style>@/stores/baseStore@/stores/ordersStore@/stores/stockStore

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { useOrdersStore } from '@/stores/orders';
+import { useOrdersStore } from '@/stores/ordersStore.js';
 import { appConfig } from '@/AppConfig';
 import { 
     IconTrash,
@@ -602,4 +602,4 @@ watch(() => orderStore.selectedOrder,
   text-align: right;
 }
 
-</style>
+</style>@/stores/ordersStore

@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useBaseStore } from '@/stores/base';
-import { useOrdersStore } from '@/stores/orders';
+import { useBaseStore } from '@/stores/baseStore.js';
+import { useOrdersStore } from '@/stores/ordersSotre.js';
 import { IconTrash, IconDeviceFloppy, IconAlertTriangle } from '@tabler/icons-vue';
 
 const route = useRoute();
@@ -420,4 +420,4 @@ const saveOrder = async () => {
 .table {
   font-size: 0.875rem;
 }
-</style>
+</style>@/stores/baseStore@/stores/ordersStore

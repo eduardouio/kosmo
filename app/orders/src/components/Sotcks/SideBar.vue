@@ -1,8 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute } from 'vue-router';
-import { useStockStore } from '@/stores/stock';
-import { useBaseStore } from '@/stores/base';
+import { useStockStore } from '@/stores/stockStore.js';
+import { useBaseStore } from '@/stores/baseStore.js';
 import { 
     IconCheckbox,
     IconSquare,
@@ -233,3 +233,4 @@ const getClass = (item) => {
   background-color: rgba(0, 0, 0, 0.1);
 }
 </style>
+@/stores/baseStore@/stores/stockStore
