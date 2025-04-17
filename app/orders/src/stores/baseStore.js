@@ -41,6 +41,8 @@ export const useBaseStore = defineStore("baseStore", {
         stagesLoaded: 0,
         idStock: appConfig.idStock,
         selectedProduct: null,
+        selectedCustomer: null,
+        selectedSupplier: null,
     }),
     actions: {
       async loadSuppliers(all=false){
