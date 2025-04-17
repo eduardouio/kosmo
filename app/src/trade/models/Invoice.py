@@ -49,11 +49,11 @@ class Invoice(BaseModel):
     )
     order = models.ForeignKey(
         Order,
-        on_delete=models.CASCADE
+        on_delete=models.RESTRICT
     )
     partner = models.ForeignKey(
         'partners.Partner',
-        on_delete=models.CASCADE
+        on_delete=models.RESTRICT
     )
     num_invoice = models.CharField(
         max_length=50,

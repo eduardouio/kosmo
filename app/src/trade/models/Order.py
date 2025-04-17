@@ -54,7 +54,7 @@ class Order(BaseModel):
     )
     stock_day = models.ForeignKey(
         StockDay,
-        on_delete=models.CASCADE,
+        on_delete=models.RESTRICT,
         blank=True,
         null=True,
     )
@@ -64,7 +64,7 @@ class Order(BaseModel):
     )
     partner = models.ForeignKey(
         Partner,
-        on_delete=models.CASCADE,
+        on_delete=models.RESTRICT,
         help_text='C customer S supplier'
     )
     type_document = models.CharField(
@@ -74,7 +74,7 @@ class Order(BaseModel):
     )
     parent_order = models.ForeignKey(
         'self',
-        on_delete=models.CASCADE,
+        on_delete=models.RESTRICT,
         blank=True,
         null=True,
     )
