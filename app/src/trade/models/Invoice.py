@@ -23,6 +23,11 @@ BOX_CHOICES = (
     ('FB', 'FB')
 )
 
+SERIES = (
+    ('100', 'FAC-VENTA'),
+    ('200', 'FAC-COMPRA'),
+)
+
 
 class Invoice(BaseModel):
     id = models.AutoField(
@@ -33,7 +38,8 @@ class Invoice(BaseModel):
         max_length=5,
         blank=True,
         null=True,
-        default=None
+        default=None,
+        choices=SERIES
     )
     consecutive = models.PositiveSmallIntegerField(
         'Consecutivo',

@@ -24,6 +24,11 @@ BOX_CHOICES = (
     ('FB', 'FB')
 )
 
+SERIES = (
+    ('100', 'ORD-COMPRA'),
+    ('200', 'ORD-VENTA'),
+)
+
 
 # -----------------------------------------------------------------------------
 # MODELO DE ORDENES
@@ -38,7 +43,8 @@ class Order(BaseModel):
         max_length=5,
         blank=True,
         null=True,
-        default=None
+        default=None,
+        choices=SERIES
     )
     consecutive = models.PositiveSmallIntegerField(
         'Consecutivo',
