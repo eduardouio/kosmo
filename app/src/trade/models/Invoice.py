@@ -28,6 +28,19 @@ class Invoice(BaseModel):
     id = models.AutoField(
         primary_key=True
     )
+    serie = models.CharField(
+        'Serie',
+        max_length=5,
+        blank=True,
+        null=True,
+        default=None
+    )
+    consecutive = models.PositiveSmallIntegerField(
+        'Consecutivo',
+        blank=True,
+        null=True,
+        default=None
+    )
     order = models.ForeignKey(
         Order,
         on_delete=models.CASCADE
