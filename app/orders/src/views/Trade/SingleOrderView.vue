@@ -4,8 +4,10 @@ import {onMounted, ref, computed} from 'vue'
 import {useBaseStore} from '@/stores/baseStore.js'
 import { useSingleOrderStore } from '@/stores/trade/singleOrderStore.js'
 
-import AutocompleteCustomer from '@/components/Sotcks/AutocompleteCustomer.vue'
+import AutocompleteCustomer from '@/components/common/AutocompleteCustomer.vue'
+import AutocompleteSupplier from '@/components/common/AutocompleteSupplier.vue'
 import Loader from '@/components/Sotcks/Loader.vue'
+import OrderLine from './OrderLine.vue'
 
 const baseStore = useBaseStore()
 const stagesToLoad = ref(3)
@@ -21,6 +23,50 @@ onMounted(() => {
   baseStore.loadProducts()
   baseStore.loadCustomers(true)
 })
+
+const orderLines = ref([
+  {
+    cajas: 1,
+    tipo: 'HB',
+    variedad: '',
+    largo: '',
+    tallosRamo: '',
+    totalRamos: '',
+    totalTallos: '',
+    precioU: ''
+  }
+])
+
+function addOrderLine() {
+  orderLines.value.push({
+    cajas: 1,
+    tipo: 'HB',
+    variedad: '',
+    largo: '',
+    tallosRamo: '',
+    totalRamos: '',
+    totalTallos: '',
+    precioU: ''
+  })
+}
+
+function removeOrderLine(idx) {
+  orderLines.value.splice(idx, 1)
+}
+
+const selectedCustomer = ref(null)
+
+function onSelectCustomer(customer) {
+  selectedCustomer.value = customer
+  baseStore.selectedCustomer = customer // Actualiza el store global
+}
+
+const selectedSupplier = ref(null)
+
+function onSelectSupplier(supplier) {
+  selectedSupplier.value = supplier
+  baseStore.selectedSupplier = supplier // Actualiza el store global
+}
 
 </script>
 <template>
@@ -66,26 +112,43 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Información del cliente y adicional -->
+        <!-- Información del cliente y proveedor -->
         <div class="row mb-4">
-          <div class="col-7">
+          <div class="col-6">
             <div class="border border-2 border-warning p-3 rounded h-100">
               <h6 class="fw-bold mb-3">Información del Cliente</h6>
               <div class="mb-3">
-                <select class="form-select">
-                  <option value="">Seleccione un cliente</option>
-                  <option value="1">Cliente 1</option>
-                  <option value="2">Cliente 2</option>
-                  <option value="3">Cliente 3</option>
-                </select>
+                <AutocompleteCustomer @select="onSelectCustomer"/>
               </div>
-              <div>
-                <p class="small mb-1"><strong>Dirección:</strong> Calle Principal #123</p>
-                <p class="small mb-1"><strong>Ciudad - País:</strong> Miami - USA</p>
+              <div v-if="baseStore.selectedCustomer">
+                <p class="small mb-1"><strong>Dirección:</strong> {{ baseStore.selectedCustomer.address || 'No disponible' }}</p>
+                <p class="small mb-1"><strong>Ciudad - País:</strong> {{ baseStore.selectedCustomer.city || 'No disponible' }} - {{ baseStore.selectedCustomer.country || 'No disponible' }}</p>
                 <div class="d-flex justify-content-between">
-                  <p class="small mb-1"><strong>Email:</strong> cliente@example.com</p>
-                  <p class="small mb-1"><strong>Crédito:</strong> 30 Días</p>
+                  <p class="small mb-1"><strong>Email:</strong> {{ baseStore.selectedCustomer.email || 'No disponible' }}</p>
+                  <p class="small mb-1"><strong>Crédito:</strong> {{ baseStore.selectedCustomer.credit || 'No disponible' }}</p>
                 </div>
+              </div>
+              <div v-else>
+                <p class="small mb-1 text-muted">Seleccione un cliente para ver la información de contacto.</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="border border-2 border-warning p-3 rounded h-100">
+              <h6 class="fw-bold mb-3">Información del Proveedor</h6>
+              <div class="mb-3">
+                <AutocompleteSupplier @select="onSelectSupplier"/>
+              </div>
+              <div v-if="baseStore.selectedSupplier">
+                <p class="small mb-1"><strong>Dirección:</strong> {{ baseStore.selectedSupplier.address || 'No disponible' }}</p>
+                <p class="small mb-1"><strong>Ciudad - País:</strong> {{ baseStore.selectedSupplier.city || 'No disponible' }} - {{ baseStore.selectedSupplier.country || 'No disponible' }}</p>
+                <div class="d-flex justify-content-between">
+                  <p class="small mb-1"><strong>Email:</strong> {{ baseStore.selectedSupplier.email || 'No disponible' }}</p>
+                  <p class="small mb-1"><strong>Contacto:</strong> {{ baseStore.selectedSupplier.contact || 'No disponible' }}</p>
+                </div>
+              </div>
+              <div v-else>
+                <p class="small mb-1 text-muted">Seleccione un proveedor para ver la información de contacto.</p>
               </div>
             </div>
           </div>
@@ -111,69 +174,18 @@ onMounted(() => {
                   </tr>
                 </thead>
                 <tbody>
-                  <!-- Formulario para agregar items -->
+                  <OrderLine
+                    v-for="(line, idx) in orderLines"
+                    :key="idx"
+                    :line="line"
+                    @remove="removeOrderLine(idx)"
+                  />
                   <tr>
-                    <td>
-                      <input type="number" class="form-control form-control-sm" min="1">
-                    </td>
-                    <td>
-                      <select class="form-select form-select-sm">
-                        <option>HB</option>
-                        <option>FB</option>
-                        <option>QB</option>
-                      </select>
-                    </td>
-                    <td colspan="7">
-                      <div class="d-flex gap-2 align-items-center">
-                        <select class="form-control form-control-sm" style="width: 200px">
-                          <option value="">Seleccione un producto</option>
-                          <option value="1">Rosa - Freedom</option>
-                          <option value="2">Rosa - Explorer</option>
-                        </select>
-                        <input type="number" class="form-control form-control-sm" placeholder="Largo" style="width: 80px">
-                        <input type="number" class="form-control form-control-sm" placeholder="Tallos/Ramo" style="width: 100px">
-                        <input type="number" class="form-control form-control-sm" placeholder="Total Ramos" style="width: 100px">
-                        <input type="number" class="form-control form-control-sm" placeholder="Total Tallos" style="width: 100px">
-                        <input type="number" class="form-control form-control-sm" placeholder="Precio U." style="width: 100px">
-                        <div class="form-control form-control-sm text-end" style="width: 100px">
-                          0.00
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-center">
-                      <button class="btn btn-primary btn-sm">+</button>
-                    </td>
-                  </tr>
-
-                  <!-- Items agregados - ejemplo estático -->
-                  <tr class="text-end small">
-                    <td class="text-center" rowspan="2">
-                      2
-                    </td>
-                    <td class="text-center" rowspan="2">
-                      HB
-                    </td>
-                    <td>Rosa - Freedom</td>
-                    <td>50</td>
-                    <td>25</td>
-                    <td>8</td>
-                    <td>200</td>
-                    <td>0.45</td>
-                    <td>90.00</td>
-                    <td class="text-center" rowspan="2">
-                      <button class="btn btn-danger btn-sm">
-                        <i class="bi bi-trash"></i>
+                    <td colspan="10" class="text-center">
+                      <button class="btn btn-primary btn-sm" @click="addOrderLine">
+                        <i class="bi bi-plus"></i> Agregar línea
                       </button>
                     </td>
-                  </tr>
-                  <tr class="text-end small">
-                    <td>Rosa - Explorer</td>
-                    <td>60</td>
-                    <td>25</td>
-                    <td>8</td>
-                    <td>200</td>
-                    <td>0.50</td>
-                    <td>100.00</td>
                   </tr>
                 </tbody>
               </table>
