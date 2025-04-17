@@ -10,18 +10,18 @@
       @blur="hideList"
       @keydown="onKeydown"
     />
-    <ul v-if="showList && filteredCustomers.length" 
+    <ul v-if="showList && filteredSuppliers.length" 
         class="list-group position-absolute w-100 z-3 autocomplete-list"
         :style="{ maxWidth: '300px' }"
     >
       <li
-        v-for="(customer, idx) in filteredCustomers"
-        :key="customer.id"
+        v-for="(supplier, idx) in filteredSuppliers"
+        :key="supplier.id"
         class="list-group-item list-group-item-action"
         :class="{ 'active': idx === highlightedIndex }"
-        @mousedown.prevent="selectCustomer(customer)"
+        @mousedown.prevent="selectSupplier(supplier)"
       >
-        {{ customer.name }}
+        {{ supplier.name }}
       </li>
     </ul>
   </div>
@@ -34,7 +34,7 @@ import { useBaseStore } from '@/stores/baseStore.js'
 const props = defineProps({
   placeholder: {
     type: String,
-    default: 'Buscar cliente...'
+    default: 'Buscar proveedor...'
   }
 })
 const emit = defineEmits(['select'])
@@ -44,16 +44,16 @@ const search = ref('')
 const showList = ref(false)
 const highlightedIndex = ref(-1)
 
-const filteredCustomers = computed(() => {
-  if (!search.value) return baseStore.customers
-  return baseStore.customers.filter(c =>
-    c.name.toLowerCase().includes(search.value.toLowerCase())
+const filteredSuppliers = computed(() => {
+  if (!search.value) return baseStore.suppliers
+  return baseStore.suppliers.filter(s =>
+    s.name.toLowerCase().includes(search.value.toLowerCase())
   )
 })
 
-function selectCustomer(customer) {
-  search.value = customer.name
-  emit('select', customer)
+function selectSupplier(supplier) {
+  search.value = supplier.name
+  emit('select', supplier)
   showList.value = false
   highlightedIndex.value = -1
 }
@@ -68,16 +68,16 @@ function hideList() {
 }
 
 function onKeydown(e) {
-  if (!showList.value || !filteredCustomers.value.length) return
+  if (!showList.value || !filteredSuppliers.value.length) return
   if (e.key === 'ArrowDown') {
-    highlightedIndex.value = (highlightedIndex.value + 1) % filteredCustomers.value.length
+    highlightedIndex.value = (highlightedIndex.value + 1) % filteredSuppliers.value.length
     e.preventDefault()
   } else if (e.key === 'ArrowUp') {
-    highlightedIndex.value = (highlightedIndex.value - 1 + filteredCustomers.value.length) % filteredCustomers.value.length
+    highlightedIndex.value = (highlightedIndex.value - 1 + filteredSuppliers.value.length) % filteredSuppliers.value.length
     e.preventDefault()
   } else if (e.key === 'Enter') {
-    if (highlightedIndex.value >= 0 && highlightedIndex.value < filteredCustomers.value.length) {
-      selectCustomer(filteredCustomers.value[highlightedIndex.value])
+    if (highlightedIndex.value >= 0 && highlightedIndex.value < filteredSuppliers.value.length) {
+      selectSupplier(filteredSuppliers.value[highlightedIndex.value])
       e.preventDefault()
     }
   }
