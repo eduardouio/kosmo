@@ -468,6 +468,18 @@ class OrderBoxItems(BaseModel):
         decimal_places=2,
         default=0.00
     )
+    total_bunches = models.IntegerField(
+        'Total de ramos',
+        blank=True,
+        null=True,
+        default=0
+    )
+    stems_bunch = models.IntegerField(
+        'Cantidad de tallos por ramo',
+        blank=True,
+        null=True,
+        default=0
+    )
 
     @property
     def stem_cost_total(self):
