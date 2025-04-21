@@ -23,6 +23,32 @@ const newboxItem = ref({
     stems_bunch: 0
 });
 
+// Variables temporales para respaldar valores previos
+const previousValues = ref({
+    length: '',
+    qty_stem_flower: '',
+    stem_cost_price: '',
+    profit_margin: ''
+});
+
+const onFocusField = (field) => {
+    previousValues.value[field] = newboxItem.value[field];
+    newboxItem.value[field] = '';
+};
+
+const onBlurField = (field, format = false) => {
+    if (newboxItem.value[field] === '' || newboxItem.value[field] === null) {
+        newboxItem.value[field] = previousValues.value[field];
+    } else if (format) {
+        newboxItem.value[field] = baseStore.formatInputNumber(newboxItem.value[field]);
+    }
+    if (field === 'stem_cost_price' || field === 'qty_stem_flower') {
+        // Recalcular total si cambia alguno de estos campos
+        const price = parseFloat(newboxItem.value.stem_cost_price) || 0;
+        const qty = parseFloat(newboxItem.value.qty_stem_flower) || 0;
+        newboxItem.value.total = baseStore.formatInputNumber(price * qty);
+    }
+};
 
 const formatInputNumber = () => {
     console.log('Formatting input number')
@@ -60,7 +86,8 @@ const props = defineProps({
                         v-model="newboxItem.length"
                         class="border w-100 text-end" 
                         step="1" 
-                        @focus="newboxItem.length = ''"
+                        @focus="onFocusField('length')"
+                        @blur="onBlurField('length')"
                     />
                 </div>
                 <div style="width:10%" class="text-end">
@@ -69,7 +96,8 @@ const props = defineProps({
                         v-model="newboxItem.qty_stem_flower"
                         class="border w-100 text-end" 
                         step="1"
-                        @focus="newboxItem.qty_stem_flower = ''"
+                        @focus="onFocusField('qty_stem_flower')"
+                        @blur="onBlurField('qty_stem_flower')"
                     />
                 </div>
                 <div style="width:10%" class="text-end">
@@ -77,16 +105,16 @@ const props = defineProps({
                         type="text"
                         v-model="newboxItem.stem_cost_price"
                         class="border w-100 text-end"
-                        @focus="newboxItem.stem_cost_price = ''"
-                        @blur="formatInputNumber()" />
+                        @focus="onFocusField('stem_cost_price')"
+                        @blur="onBlurField('stem_cost_price', true)" />
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 
                         type="text"
                         v-model="newboxItem.profit_margin"
                         class="border w-100 text-end" 
-                        @focus="newboxItem.profit_margin = ''"
-                        @blur="formatInputNumber()"
+                        @focus="onFocusField('profit_margin')"
+                        @blur="onBlurField('profit_margin', true)"
                         />
                 </div>
                 <div style="width:10%" class="text-end">
