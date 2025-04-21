@@ -46,7 +46,7 @@ function handleKeyDown(e) {
 }
 </script>
 <template>
-    <div class="position-relative mb-3">
+    <div class="position-relative mb-4">
       <input 
         type="text"
         class="form-control"

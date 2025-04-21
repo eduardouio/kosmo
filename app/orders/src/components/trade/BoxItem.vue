@@ -1,7 +1,6 @@
 <script setup>
 import { computed, defineProps, ref } from 'vue'
 import AutocompleteProduct from '@/components/common/AutocompleteProduct.vue'
-import { IconMinus, IconPlus, IconMaximize } from '@tabler/icons-vue'
 import { useBaseStore } from '@/stores/baseStore';
 
 const baseStore = useBaseStore();
@@ -43,34 +42,16 @@ const onBlurField = (field, format = false) => {
         newboxItem.value[field] = baseStore.formatInputNumber(newboxItem.value[field]);
     }
     if (field === 'stem_cost_price' || field === 'qty_stem_flower') {
-        // Recalcular total si cambia alguno de estos campos
         const price = parseFloat(newboxItem.value.stem_cost_price) || 0;
         const qty = parseFloat(newboxItem.value.qty_stem_flower) || 0;
         newboxItem.value.total = baseStore.formatInputNumber(price * qty);
     }
+
+    newboxItem.value.total = baseStore.formatInputNumber(
+        parseFloat(newboxItem.value.stem_cost_price) + parseFloat(newboxItem.value.profit_margin)
+    );
+    
 };
-
-const formatInputNumber = () => {
-    console.log('Formatting input number')
-    Object.keys(newboxItem.value).forEach((key) => {
-        if (key === 'stem_cost_price' || key === 'profit_margin') {
-            newboxItem.value[key] = baseStore.formatInputNumber(newboxItem.value[key])
-        }
-    })
-    const total = parseFloat(newboxItem.value.stem_cost_price) * parseFloat(newboxItem.value.qty_stem_flower)
-    newboxItem.value.total = baseStore.formatInputNumber(newboxItem.value.total)
-}
-
-const props = defineProps({
-    line: {
-        type: Object,
-        required: true
-    },
-    lineIndex: {
-        type: Number,
-        required: true
-    }
-})
 
 </script>
 <template>
@@ -124,14 +105,6 @@ const props = defineProps({
                         class="border w-100 text-end" 
                         readonly
                         />
-                </div>
-                <div style="width: 5%;" class="d-flex align-items-center justify-content-center gap-1">
-                    <span class="text-center border bg-red-500 rounded-1" @click="$emit('add')">
-                        <IconMinus size="15" stroke="1.5" class="text-white" />
-                    </span>
-                    <span class="text-center border bg-blue-400 rounded-1" @click="$emit('remove')">
-                        <IconPlus size="15" stroke="1.5" class="text-white" />
-                    </span>
                 </div>
             </div>
         </div>
