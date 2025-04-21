@@ -140,6 +140,14 @@ export const useBaseStore = defineStore("baseStore", {
               return;
           }
           event.target.value = parseInt(value);
-      }
+      },
+      formatInputNumber(number){
+        console.log('Formatting input number')
+        number = number.replace(',', '.');
+        if (number === null || number === undefined || number === '' || number === '0') {
+          return '0.00';
+        }
+        return parseFloat(number).toFixed(2);
+      },
     },
 });

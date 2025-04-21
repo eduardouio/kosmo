@@ -1,35 +1,7 @@
-<template>
-  <div>
-    <input
-      type="text"
-      class="form-control"
-      v-model="search"
-      @input="onInput"
-      :placeholder="placeholder"
-      @focus="showList = true"
-      @blur="hideList"
-      @keydown="onKeydown"
-    />
-    <ul v-if="showList && filteredProducts.length" 
-        class="list-group position-absolute w-100 z-3 autocomplete-list"
-        :style="{ maxWidth: '300px' }"
-    >
-      <li
-        v-for="(product, idx) in filteredProducts"
-        :key="product.id"
-        class="list-group-item list-group-item-action"
-        :class="{ 'active': idx === highlightedIndex }"
-        @mousedown.prevent="selectProduct(product)"
-      >
-        {{ product.name }}
-      </li>
-    </ul>
-  </div>
-</template>
-
 <script setup>
 import { ref, computed } from 'vue'
 import { useBaseStore } from '@/stores/baseStore.js'
+import { IconWindowMaximize } from '@tabler/icons-vue'
 
 const props = defineProps({
   placeholder: {
@@ -37,7 +9,7 @@ const props = defineProps({
     default: 'Buscar producto...'
   }
 })
-const emit = defineEmits(['select'])
+const emit = defineEmits(['selectProduct'])
 
 const baseStore = useBaseStore()
 const search = ref('')
@@ -47,13 +19,14 @@ const highlightedIndex = ref(-1)
 const filteredProducts = computed(() => {
   if (!search.value) return baseStore.products
   return baseStore.products.filter(p =>
-    p.name.toLowerCase().includes(search.value.toLowerCase())
+    p.variety.toLowerCase().includes(search.value.toLowerCase())
   )
 })
 
 function selectProduct(product) {
-  search.value = product.name
-  emit('select', product)
+  console.log('Selected product:', product)
+  search.value = product.variety
+  emit('selectProduct', product)
   showList.value = false
   highlightedIndex.value = -1
 }
@@ -83,7 +56,39 @@ function onKeydown(e) {
   }
 }
 </script>
-
+<template>
+  <div class="d-flex">
+    <IconWindowMaximize 
+      class="text-primary me-2"
+      size="20"
+      @click="$emit('open-modal')"
+    />
+    <input
+      type="text"
+      class="form-control form-control-sm"
+      v-model="search"
+      @input="onInput"
+      :placeholder="placeholder"
+      @focus="showList = true"
+      @blur="hideList"
+      @keydown="onKeydown"
+    />
+    <ul v-if="showList && filteredProducts.length" 
+        class="list-group position-absolute w-100 z-3 autocomplete-list"
+        :style="{ maxWidth: '300px' }"
+    >
+      <li
+        v-for="(product, idx) in filteredProducts"
+        :key="product.id"
+        class="list-group-item list-group-item-action"
+        :class="{ 'active': idx === highlightedIndex }"
+        @mousedown.prevent="selectProduct(product)"
+      >
+        {{ product.variety }}
+      </li>
+    </ul>
+  </div>
+</template>
 <style scoped>
 .list-group {
   max-height: 200px;
