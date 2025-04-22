@@ -1,22 +1,44 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import AutocompleteProduct from '@/components/common/AutocompleteProduct.vue'
 import { useBaseStore } from '@/stores/baseStore';
 import { IconWindowMaximize } from '@tabler/icons-vue';
 const baseStore = useBaseStore()
 
-const emit = defineEmits(['showProductModal'])
-const newboxItem = ref({
-    product: null,
-    length: '0',
-    qty_stem_flower: 0,
-    stem_cost_price: '0.00',
-    profit_margin: '0.00',
-    commission: '0.00',
-    total_bunches: 0,
-    total: '0.00',
-    stems_bunch: 0
-});
+const emit = defineEmits(['showProductModal', 'update:modelValue'])
+const props = defineProps({
+    modelValue: {
+        type: Object,
+        default: () => ({
+            product: null,
+            length: '0',
+            qty_stem_flower: 0,
+            stem_cost_price: '0.00',
+            profit_margin: '0.00',
+            commission: '0.00',
+            total_bunches: 0,
+            total: '0.00',
+            stems_bunch: 0
+        })
+    }
+})
+
+const newboxItem = ref({ ...props.modelValue })
+
+watch(() => props.modelValue, (val) => {
+    newboxItem.value = { ...val }
+}, { deep: true })
+
+const isEqual = (a, b) => {
+    // Comparación profunda simple para objetos planos
+    return JSON.stringify(a) === JSON.stringify(b);
+};
+
+watch(newboxItem, (val) => {
+    if (!isEqual(val, props.modelValue)) {
+        emit('update:modelValue', val)
+    }
+}, { deep: true })
 
 const previousValues = ref({
     length: '',

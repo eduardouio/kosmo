@@ -23,11 +23,20 @@ const filteredProducts = computed(() => {
 })
 
 function selectProduct(product) {
+  if (!product || !product.variety) {
+    // Evita errores si el producto es undefined o no tiene variety
+    return;
+  }
   console.log('Selected product:', product)
   search.value = product.variety
   emit('selectProduct', product)
   showList.value = false
   highlightedIndex.value = -1
+}
+
+function showListAndHighlightFirst() {
+  showList.value = true
+  highlightedIndex.value = 0
 }
 
 function onInput() {
@@ -36,7 +45,7 @@ function onInput() {
 }
 
 function hideList() {
-  setTimeout(() => { showList.value = false }, 150)
+  showList.value = false
 }
 
 function onKeydown(e) {
@@ -63,7 +72,7 @@ function onKeydown(e) {
       class="border w-100" 
       @input="onInput"
       :placeholder="placeholder"
-      @focus="showList = true"
+      @focus="showListAndHighlightFirst"
       @blur="hideList"
       @keydown="onKeydown"
     />

@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import { appConfig } from "@/AppConfig";
 import axios from "axios";
 
-
 export const useSingleOrderStore = defineStore("singleOrderStore", {
   state: () => ({
     order:{
@@ -29,7 +28,32 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
       id_invoice: null,
       num_invoice: null
     },
-    orderLines: [],
+    // Inicializa con una línea en blanco
+    orderLines: [ 
+      // Se clona para evitar referencia reactiva
+      JSON.parse(JSON.stringify({
+        id_stock_detail: 0,
+        line_price: 0,
+        line_margin: 0,
+        line_total: 0,
+        line_commission: 0,
+        tot_stem_flower: 0,
+        box_model: "QB",
+        quantity: 1,
+        order_box_items: [
+          {
+            product: null,
+            length: '',
+            stems_bunch: 0,
+            total_bunches: 0,
+            qty_stem_flower: 0,
+            stem_cost_price: 0,
+            profit_margin: 0,
+            total_stem_flower: 0,
+          }
+        ]
+      }))
+    ],
     new_orderLine:  {
       id_stock_detail: 0,
       line_price: 0,
@@ -72,13 +96,41 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
         alert(`Hubo un error al cargar la orden de compra: ${error.message}`);
       }
     },
+    calculateOrderLineTotal(orderLine) {
+      // Suma el total de cada box_item: (stem_cost_price + profit_margin) * qty_stem_flower
+      // Luego multiplica por la cantidad de cajas (quantity)
+      let boxItemsTotal = 0;
+      if (orderLine.order_box_items && Array.isArray(orderLine.order_box_items)) {
+        boxItemsTotal = orderLine.order_box_items.reduce((sum, item) => {
+          const price = parseFloat(item.stem_cost_price) || 0;
+          const margin = parseFloat(item.profit_margin) || 0;
+          const qtyStems = parseFloat(item.qty_stem_flower) || 0;
+          return sum + (price + margin) * qtyStems;
+        }, 0);
+      }
+      const quantity = parseFloat(orderLine.quantity) || 0;
+      orderLine.line_total = boxItemsTotal * quantity;
+      return orderLine.line_total;
+    },
     addOrderLine() {
       console.log("Agregando línea de pedido...");
-      this.orderLines.push(this.new_orderLine);
+      // Clonar la línea para evitar referencias reactivas
+      const line = JSON.parse(JSON.stringify(this.new_orderLine));
+      this.calculateOrderLineTotal(line);
+      this.orderLines.push(line);
+    },
+    updateOrderLineTotal(index) {
+      if (this.orderLines[index]) {
+        this.calculateOrderLineTotal(this.orderLines[index]);
+      }
     },
     removeOrderLine(index) {
       this.orderLines.splice(index, 1);
+      // Si no queda ninguna línea, agrega una nueva en blanco
+      if (this.orderLines.length === 0) {
+        const line = JSON.parse(JSON.stringify(this.new_orderLine));
+        this.orderLines.push(line);
+      }
     },
-
-},
+  },
 });

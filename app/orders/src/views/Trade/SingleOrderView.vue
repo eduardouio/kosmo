@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, computed} from 'vue'
+import {onMounted, ref, computed, watch} from 'vue'
 
 import {useBaseStore} from '@/stores/baseStore.js'
 import { useSingleOrderStore } from '@/stores/trade/singleOrderStore.js'
@@ -19,8 +19,6 @@ const selectedSupplier = ref(null)
 const selectedProduct = ref(null)
 orderStore.order.date = baseStore.formatDate(new Date())
 
-
-
 // computed
 const isLoading = computed(() => {
   return baseStore.stagesLoaded != stagesToLoad.value
@@ -33,12 +31,10 @@ onMounted(() => {
   baseStore.loadCustomers(true)
 })
 
-
 function showProductModal($event) {
   console.log('Activamos el modal del ---', $event)
   selectedProduct.value = $event
 }
-
 
 function onSelectCustomer(customer) {
   selectedCustomer.value = customer
@@ -49,11 +45,69 @@ function onSelectSupplier(supplier) {
   selectedSupplier.value = supplier
   baseStore.selectedSupplier = supplier
 }
+
+// Calcular totales del documento
+function calculateOrderTotals() {
+  let hb_total = 0
+  let qb_total = 0
+  let fb_total = 0
+  let total_stem_flower = 0
+  let total_price = 0
+  let total_margin = 0
+
+  const lines = orderStore.orderLines.slice()
+  lines.forEach(line => {
+    if (line.box_model === 'HB') hb_total += Number(line.quantity) || 0
+    if (line.box_model === 'QB') qb_total += Number(line.quantity) || 0
+
+    if (Array.isArray(line.order_box_items)) {
+      line.order_box_items.forEach(item => {
+        total_stem_flower += Number(item.qty_stem_flower) || 0
+        total_price += (Number(item.stem_cost_price) || 0) * (Number(item.qty_stem_flower) || 0)
+        total_margin += (Number(item.profit_margin) || 0) * (Number(item.qty_stem_flower) || 0)
+      })
+    }
+  })
+
+  // FB = (HB/2) + (QB/4)
+  fb_total = (hb_total / 2) + (qb_total / 4)
+
+  // Asignar los resultados al final para evitar recursividad, con dos decimales
+  orderStore.order = {
+    ...orderStore.order,
+    hb_total: Number(hb_total.toFixed(2)),
+    qb_total: Number(qb_total.toFixed(2)),
+    fb_total: Number(fb_total.toFixed(2)),
+    total_stem_flower: Number(total_stem_flower.toFixed(2)),
+    total_price: Number(total_price.toFixed(2)),
+    total_margin: Number(total_margin.toFixed(2))
+  }
+}
+
+// Recalcular totales cuando cambian las líneas
+watch(() => orderStore.orderLines, calculateOrderTotals, { deep: true })
+
+function addOrderLine() {
+  orderStore.addOrderLine()
+}
+
+function removeOrderLine(index) {
+  orderStore.removeOrderLine(index)
+}
+
+function updateOrderLineTotal(idx, tempLine) {
+  // Actualiza la línea con los nuevos valores y recalcula el total
+  orderStore.orderLines[idx].quantity = tempLine.quantity
+  orderStore.orderLines[idx].box_model = tempLine.box_model
+  orderStore.orderLines[idx].order_box_items = tempLine.order_box_items
+  orderStore.updateOrderLineTotal(idx)
+}
+
 </script>
 <template>
   <div class="container-fluid">
-    <Loader v-if="isLoading" />
-    <div class="bg-light py-4">
+    <Loader :show="isLoading" />
+    <div v-if="!isLoading" class="bg-light py-4">
       <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
         <!-- Encabezado -->
          <div class="row">
@@ -143,10 +197,20 @@ function onSelectSupplier(supplier) {
                   </tr>
                 </thead>
                 <tbody>
-                  <OrderLine @showProductModal="showProductModal"/>
+                  <template v-for="(line, idx) in orderStore.orderLines" :key="idx">
+                    <OrderLine
+                      v-model:quantity="line.quantity"
+                      v-model:box_model="line.box_model"
+                      v-model:boxItems="line.order_box_items"
+                      :line_total="orderStore.calculateOrderLineTotal(line)"
+                      @showProductModal="showProductModal"
+                      @remove="removeOrderLine(idx)"
+                      @updateLineTotal="tempLine => updateOrderLineTotal(idx, tempLine)"
+                    />
+                  </template>
                   <tr>
                     <td colspan="5" class="text-end">
-                      <button class="btn btn-primary btn-sm">
+                      <button class="btn btn-primary btn-sm" @click="addOrderLine">
                         <IconPlus size="15" stroke="1.5" class="text-white"/>
                         Agregar
                       </button>
@@ -161,38 +225,38 @@ function onSelectSupplier(supplier) {
         <!-- Totales -->
         <div class="row mb-4">
           <div class="col-6">
-            <div class="border border-secondary p-3 rounded">
+            <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
               <div class="row">
-                <div class="col-8 text-end"><strong>TOTAL HB:</strong></div>
-                <div class="col-4 text-end">{{ orderStore.order.hb_total }}</div>
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.hb_total }}</div>
               </div>
               <div class="row">
-                <div class="col-8 text-end"><strong>TOTAL QB:</strong></div>
-                <div class="col-4 text-end">{{ orderStore.order.qb_total }}</div>
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.qb_total }}</div>
               </div>
               <div class="row">
-                <div class="col-8 text-end"><strong>TOTAL FB:</strong></div>
-                <div class="col-4 text-end">{{ orderStore.order.fb_total }}</div>
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.fb_total }}</div>
               </div>
               <div class="row">
-                <div class="col-8 text-end"><strong>TOTAL TALLOS:</strong></div>
-                <div class="col-4 text-end">{{ orderStore.order.total_stem_flower }}</div>
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.total_stem_flower }}</div>
               </div>
             </div>
           </div>
           <div class="col-6">
-            <div class="bg-light bg-gradient rounded shadow-sm p-3">
-              <div class="row">
-                <div class="col-7 text-end border-end text-success"><strong>Costo:</strong></div>
-                <div class="col-5 text-end text-success">$1{{ orderStore.order.total_price }}</div>
+            <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+              <div class="row mt-4">
+                <div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div>
+                <div class="col-5 text-end text-success fs-5">${{ orderStore.order.total_price.toFixed(2) }}</div>
               </div>
               <div class="row">
-                <div class="col-7 text-end border-end text-success"><strong>Margen:</strong></div>
-                <div class="col-5 text-end text-success">${{ orderStore.order.total_margin }}</div>
+                <div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div>
+                <div class="col-5 text-end text-success fs-5">${{ orderStore.order.total_margin.toFixed(2) }}</div>
               </div>
-              <div class="row">
-                <div class="col-7 text-end border-end text-success"><strong>Total Factura:</strong></div>
-                <div class="col-5 text-end text-success fs-5">${{ orderStore.order.total_margin + orderStore.order.total_price }}</div>
+              <div class="row mb-1">
+                <div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div>
+                <div class="col-5 text-end text-success fs-5">${{ (orderStore.order.total_margin + orderStore.order.total_price).toFixed(2) }}</div>
               </div>
             </div>
           </div>
