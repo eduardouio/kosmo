@@ -1,15 +1,11 @@
 <script setup>
-import { computed, defineProps, ref } from 'vue'
+import { ref } from 'vue'
 import AutocompleteProduct from '@/components/common/AutocompleteProduct.vue'
 import { useBaseStore } from '@/stores/baseStore';
+import { IconWindowMaximize } from '@tabler/icons-vue';
+const baseStore = useBaseStore()
 
-const baseStore = useBaseStore();
-const selectedProduct = ref(null)
-const selectProduct = ($event) => {
-    selectedProduct.value = product
-    console.log('Product selected in BoxItem:', product)  
-}
-
+const emit = defineEmits(['showProductModal'])
 const newboxItem = ref({
     product: null,
     length: '0',
@@ -28,6 +24,16 @@ const previousValues = ref({
     stem_cost_price: '',
     profit_margin: ''
 });
+
+const showProductModal = (product)=>{
+    console.log('Activamos el modal del ', product)
+    emit('showProductModal', product)
+}
+
+const selectProduct = ($event) => {
+    newboxItem.value.product = $event
+    console.log('Product selected in BoxItem:', $event)  
+}
 
 const onFocusField = (field) => {
     previousValues.value[field] = newboxItem.value[field];
@@ -48,15 +54,24 @@ const onBlurField = (field, format = false) => {
     
     newboxItem.value.total = baseStore.formatInputNumber(
         parseFloat(newboxItem.value.stem_cost_price) + parseFloat(newboxItem.value.profit_margin)
-    );
-    
+    );  
 };
-
 </script>
 <template>
     <div class="container-fluid">
         <div class="row">
             <div class="d-flex align-items-center justify-between gap-1 p-0">
+                <div class="d-flex align-items-center">
+                    <IconWindowMaximize
+                        v-if="newboxItem.product"
+                        stroke="1.5"
+                        size="15"
+                        class="text-primary"
+                        @click="showProductModal(newboxItem.product)"
+                         data-bs-toggle="modal"
+                         data-bs-target="#productModal"
+                        />
+                </div>
                 <div style="width:55%;">
                     <AutocompleteProduct @selectProduct="selectProduct" />
                 </div>
@@ -103,6 +118,7 @@ const onBlurField = (field, format = false) => {
                         v-model="newboxItem.total"
                         class="border w-100 text-end" 
                         readonly
+                        tabindex="-1"
                         />
                 </div>
             </div>

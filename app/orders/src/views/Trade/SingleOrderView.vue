@@ -6,17 +6,19 @@ import { useSingleOrderStore } from '@/stores/trade/singleOrderStore.js'
 
 import AutocompleteCustomer from '@/components/common/AutocompleteCustomer.vue'
 import AutocompleteSupplier from '@/components/common/AutocompleteSupplier.vue'
+import GenericProductModal from '@/components/common/GenericProductModal.vue'
 import Loader from '@/components/Sotcks/Loader.vue'
 import OrderLine from '@/components/trade/OrderLine.vue'
-import { IconSettings } from '@tabler/icons-vue'
-import { IconPlus } from '@tabler/icons-vue'
+import { IconSettings, IconPlus } from '@tabler/icons-vue'
 
 const baseStore = useBaseStore()
 const stagesToLoad = ref(3)
 const orderStore = useSingleOrderStore()
 const selectedCustomer = ref(null)
 const selectedSupplier = ref(null)
+const selectedProduct = ref(null)
 orderStore.order.date = baseStore.formatDate(new Date())
+
 
 
 // computed
@@ -30,6 +32,13 @@ onMounted(() => {
   baseStore.loadProducts()
   baseStore.loadCustomers(true)
 })
+
+
+function showProductModal($event) {
+  console.log('Activamos el modal del ---', $event)
+  selectedProduct.value = $event
+}
+
 
 function onSelectCustomer(customer) {
   selectedCustomer.value = customer
@@ -134,7 +143,7 @@ function onSelectSupplier(supplier) {
                   </tr>
                 </thead>
                 <tbody>
-                  <OrderLine/>
+                  <OrderLine @showProductModal="showProductModal"/>
                   <tr>
                     <td colspan="5" class="text-end">
                       <button class="btn btn-primary btn-sm">
@@ -211,6 +220,6 @@ function onSelectSupplier(supplier) {
 
       </div>
     </div>
-    <ModalProduct v-if="selectedCustomer" :product="selectedCustomer" />
+    <GenericProductModal :product="selectedProduct"/>
   </div>
 </template>

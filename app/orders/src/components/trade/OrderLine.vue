@@ -1,56 +1,44 @@
 <script setup>
-import { ref } from 'vue'
-import { computed, defineProps } from 'vue'
 import BoxItem from '@/components/trade/BoxItem.vue'
-import { IconTrash } from '@tabler/icons-vue'
+import { IconTrash, IconPlus, IconMinus } from '@tabler/icons-vue'
 
-const props = defineProps({
-  line: {
-    type: Object,
-    required: true
-  },
-  lineIndex: {
-    type: Number,
-    required: true
-  }
-})
+const emit = defineEmits(['showProductModal'])
 
-const lineIndex = computed(() => props.lineIndex);
-const normalizedLine = computed(() => store.normalizeLine(props.line));
-
-function addBoxItem() {
-  store.addBoxItem(lineIndex.value, newBoxItem.value);
-  newBoxItem.value = { product: null, length: '', stems_bunch: 0, total_bunches: 0, qty_stem_flower: 0, stem_cost_price: 0 };
+const showProductModal = ($event) => {
+  console.log("propagacion segundo nivel")
+  emit('showProductModal', $event);
 }
-
-function removeBoxItem(idx) {
-  store.removeBoxItem(lineIndex.value, idx);
-}
-
-const totalLine = computed(() => store.calculateTotalLine(lineIndex.value));
 
 </script>
 <template>
   <tr>
     <td class="bg-gray-200 w-10">
-
-      <input type="number" class="form-control form-control-sm" min="1" model.number="normalizedLine.quantity">
+      <input 
+        type="number"
+        class="border w-100 text-center"
+        min="1"
+        step="1"
+      >
     </td>
     <td class="w-10">
-      <select class="form-select form-select-sm" model="normalizedLine.box_model">
+      <select class="border w-100" model="normalizedLine.box_model">
         <option>QB</option>
         <option>HB</option>
         <option>FB</option>
       </select>
     </td>
     <td>
-     <BoxItem/>
+     <BoxItem @showProductModal="showProductModal"/>
     </td>
     <td class="text-end">
       00
-    </td>
+    </td> 
     <td class="text-center" style="width: 20px;">
-        <IconTrash size="15" stroke="1.5" @click="$emit('remove')"/>
+        <IconTrash
+          size="15"
+          stroke="1.5"
+          class="text-danger"
+          />
     </td>
   </tr>
 </template>

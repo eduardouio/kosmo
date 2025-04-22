@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useBaseStore } from '@/stores/baseStore.js'
-import { IconWindowMaximize } from '@tabler/icons-vue'
 
 const props = defineProps({
   placeholder: {
@@ -57,12 +56,7 @@ function onKeydown(e) {
 }
 </script>
 <template>
-  <div class="d-flex">
-    <IconWindowMaximize 
-      class="text-primary me-2"
-      size="20"
-      @click="$emit('open-modal')"
-    />
+  <div>
     <input
       type="text"
       v-model="search"
@@ -74,7 +68,7 @@ function onKeydown(e) {
       @keydown="onKeydown"
     />
     <ul v-if="showList && filteredProducts.length" 
-        class="list-group position-absolute w-100 z-3 autocomplete-list mt-4 ms-4"
+        class="list-group position-absolute w-100 z-3 autocomplete-list mt-1 ms-1"
         :style="{ maxWidth: '500px' }"
     >
       <li
