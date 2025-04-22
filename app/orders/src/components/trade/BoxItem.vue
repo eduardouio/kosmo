@@ -22,7 +22,6 @@ const newboxItem = ref({
     stems_bunch: 0
 });
 
-// Variables temporales para respaldar valores previos
 const previousValues = ref({
     length: '',
     qty_stem_flower: '',
@@ -46,7 +45,7 @@ const onBlurField = (field, format = false) => {
         const qty = parseFloat(newboxItem.value.qty_stem_flower) || 0;
         newboxItem.value.total = baseStore.formatInputNumber(price * qty);
     }
-
+    
     newboxItem.value.total = baseStore.formatInputNumber(
         parseFloat(newboxItem.value.stem_cost_price) + parseFloat(newboxItem.value.profit_margin)
     );

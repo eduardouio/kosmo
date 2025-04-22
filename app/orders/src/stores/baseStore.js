@@ -146,7 +146,11 @@ export const useBaseStore = defineStore("baseStore", {
         if (number === null || number === undefined || number === '' || number === '0') {
           return '0.00';
         }
-        number = number.replace(',', '.');
+        if (typeof(number) === 'string') {
+          number = number.replace(',', '.');
+        }
+      
+        number = typeof number === 'string' ? number.replace(',', '.') : number;
         return parseFloat(number).toFixed(2);
       },
     },
