@@ -65,8 +65,8 @@ function onKeydown(e) {
     />
     <input
       type="text"
-      class="form-control form-control-sm"
       v-model="search"
+      class="border w-100" 
       @input="onInput"
       :placeholder="placeholder"
       @focus="showList = true"
@@ -74,8 +74,8 @@ function onKeydown(e) {
       @keydown="onKeydown"
     />
     <ul v-if="showList && filteredProducts.length" 
-        class="list-group position-absolute w-100 z-3 autocomplete-list"
-        :style="{ maxWidth: '300px' }"
+        class="list-group position-absolute w-100 z-3 autocomplete-list mt-4 ms-4"
+        :style="{ maxWidth: '500px' }"
     >
       <li
         v-for="(product, idx) in filteredProducts"
