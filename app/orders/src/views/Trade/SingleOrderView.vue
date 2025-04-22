@@ -10,6 +10,7 @@ import GenericProductModal from '@/components/common/GenericProductModal.vue'
 import Loader from '@/components/Sotcks/Loader.vue'
 import OrderLine from '@/components/trade/OrderLine.vue'
 import { IconSettings, IconPlus } from '@tabler/icons-vue'
+import axios from 'axios'
 
 const baseStore = useBaseStore()
 const stagesToLoad = ref(3)
@@ -101,6 +102,23 @@ function updateOrderLineTotal(idx, tempLine) {
   orderStore.orderLines[idx].box_model = tempLine.box_model
   orderStore.orderLines[idx].order_box_items = tempLine.order_box_items
   orderStore.updateOrderLineTotal(idx)
+}
+
+async function saveOrder() {
+  // Agrupa los datos necesarios
+  const payload = {
+    order: orderStore.order,
+    orderLines: orderStore.orderLines,
+    customer: baseStore.selectedCustomer,
+    supplier: baseStore.selectedSupplier
+  }
+  try {
+    const response = await axios.post('http://localhost/orders/create', payload)
+    alert('Pedido guardado correctamente')
+    // Opcional: manejar respuesta, limpiar formulario, etc.
+  } catch (error) {
+    alert('Error al guardar el pedido: ' + (error.response?.data?.message || error.message))
+  }
 }
 
 </script>
@@ -265,7 +283,7 @@ function updateOrderLineTotal(idx, tempLine) {
         <!-- Botón guardar -->
         <div class="row">
           <div class="col-12 text-end">
-            <button class="btn btn-default">
+            <button class="btn btn-default" @click="saveOrder">
               <i class="bi bi-save me-2"></i>
               Guardar Factura
             </button>
