@@ -6,7 +6,7 @@
       v-model="search"
       @input="onInput"
       :placeholder="placeholder"
-      @focus="showList = true"
+      @focus="showListAndHighlightFirst"
       @blur="hideList"
       @keydown="onKeydown"
     />
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useBaseStore } from '@/stores/baseStore.js'
 
 const props = defineProps({
@@ -43,6 +43,7 @@ const baseStore = useBaseStore()
 const search = ref('')
 const showList = ref(false)
 const highlightedIndex = ref(-1)
+const selecting = ref(false)  // Flag para evitar actualizaciones recursivas
 
 const filteredSuppliers = computed(() => {
   if (!search.value) return baseStore.suppliers
@@ -52,23 +53,55 @@ const filteredSuppliers = computed(() => {
 })
 
 function selectSupplier(supplier) {
-  search.value = supplier.name
-  emit('select', supplier)
-  showList.value = false
-  highlightedIndex.value = -1
+  if (!supplier || !supplier.name || selecting.value) {
+    // Evitar errores si el proveedor es undefined o está en proceso de selección
+    return;
+  }
+  
+  selecting.value = true;
+  
+  // Usar nextTick para diferir las actualizaciones y evitar ciclos
+  nextTick(() => {
+    search.value = supplier.name
+    showList.value = false
+    highlightedIndex.value = -1
+    
+    // Emitir el evento después de actualizar el estado local
+    emit('select', supplier)
+    
+    // Permitir nuevas selecciones después de un breve retraso
+    setTimeout(() => {
+      selecting.value = false;
+    }, 50);
+  });
+}
+
+function showListAndHighlightFirst() {
+  if (!selecting.value) {
+    showList.value = true
+    highlightedIndex.value = 0
+  }
 }
 
 function onInput() {
-  showList.value = true
-  highlightedIndex.value = 0
+  if (!selecting.value) {
+    showList.value = true
+    highlightedIndex.value = 0
+  }
 }
 
 function hideList() {
-  setTimeout(() => { showList.value = false }, 150)
+  // Usar un pequeño retraso para permitir que el clic se procese primero
+  setTimeout(() => {
+    if (!selecting.value) {
+      showList.value = false
+    }
+  }, 150);
 }
 
 function onKeydown(e) {
-  if (!showList.value || !filteredSuppliers.value.length) return
+  if (!showList.value || !filteredSuppliers.value.length || selecting.value) return
+  
   if (e.key === 'ArrowDown') {
     highlightedIndex.value = (highlightedIndex.value + 1) % filteredSuppliers.value.length
     e.preventDefault()
@@ -77,9 +110,12 @@ function onKeydown(e) {
     e.preventDefault()
   } else if (e.key === 'Enter') {
     if (highlightedIndex.value >= 0 && highlightedIndex.value < filteredSuppliers.value.length) {
-      selectSupplier(filteredSuppliers.value[highlightedIndex.value])
       e.preventDefault()
+      selectSupplier(filteredSuppliers.value[highlightedIndex.value])
     }
+  } else if (e.key === 'Escape') {
+    showList.value = false
+    e.preventDefault()
   }
 }
 </script>

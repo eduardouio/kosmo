@@ -18,6 +18,8 @@ const orderStore = useSingleOrderStore()
 const selectedCustomer = ref(null)
 const selectedSupplier = ref(null)
 const selectedProduct = ref(null)
+const errorMessage = ref('')
+const hasError = ref(false)
 orderStore.order.date = baseStore.formatDate(new Date())
 
 // computed
@@ -30,6 +32,7 @@ onMounted(() => {
   baseStore.loadSuppliers()
   baseStore.loadProducts()
   baseStore.loadCustomers(true)
+  validateData()
 })
 
 function showProductModal($event) {
@@ -102,6 +105,43 @@ function updateOrderLineTotal(idx, tempLine) {
   orderStore.orderLines[idx].box_model = tempLine.box_model
   orderStore.orderLines[idx].order_box_items = tempLine.order_box_items
   orderStore.updateOrderLineTotal(idx)
+}
+
+function validateData(){
+  // validamos datos minimos de orden de venta
+  hasError.value = false;
+  errorMessage.value = '';
+
+  if (!baseStore.selectedCustomer || !baseStore.selectedSupplier) {
+    errorMessage.value = 'Debe seleccionar un cliente y un proveedor.';
+    hasError.value = true;
+    return false;
+  }
+  if (orderStore.orderLines.length === 0) {
+    
+    errorMessage.value = 'Debe agregar al menos una línea de pedido.';
+    hasError.value = true;
+    return false;
+  }
+
+  orderStore.orderLines.forEach(line => {
+    if (!line.quantity) {
+      errorMessage.value = 'Cada línea debe tener cantidad y modelo de caja.';
+      hasError.value = true;
+      return false;
+    }
+    
+    line.boxItems.forEach(itm => {
+      if (!itm.qty_stem_flower || !itm.product) {
+        errorMessage.value = 'Cada item debe tener cantidad y producto.';
+        hasError.value = true;
+        return false;
+      }
+    });
+  });
+
+  // validamos los items de las lineas de pedido
+  return true;
 }
 
 async function saveOrder() {
@@ -285,7 +325,7 @@ async function saveOrder() {
           <div class="col-12 text-end">
             <button class="btn btn-default" @click="saveOrder">
               <i class="bi bi-save me-2"></i>
-              Guardar Factura
+              Guardar Order deCompra
             </button>
           </div>
         </div>
@@ -295,7 +335,7 @@ async function saveOrder() {
           <div class="col-12">
             <div class="alert alert-danger d-flex align-items-center">
               <i class="bi bi-exclamation-triangle me-2"></i>
-              Error de ejemplo: Seleccione un cliente antes de guardar
+              {{ errorMessage}}
             </div>
           </div>
         </div>

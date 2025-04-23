@@ -6,7 +6,7 @@
       v-model="search"
       @input="onInput"
       :placeholder="placeholder"
-      @focus="showList = true"
+      @focus="showListAndHighlightFirst"
       @blur="hideList"
       @keydown="onKeydown"
     />
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useBaseStore } from '@/stores/baseStore.js'
 
 const props = defineProps({
@@ -43,6 +43,7 @@ const baseStore = useBaseStore()
 const search = ref('')
 const showList = ref(false)
 const highlightedIndex = ref(-1)
+const selecting = ref(false)  // Flag para evitar actualizaciones recursivas
 
 const filteredCustomers = computed(() => {
   if (!search.value) return baseStore.customers
@@ -52,23 +53,55 @@ const filteredCustomers = computed(() => {
 })
 
 function selectCustomer(customer) {
-  search.value = customer.name
-  emit('select', customer)
-  showList.value = false
-  highlightedIndex.value = -1
+  if (!customer || !customer.name || selecting.value) {
+    // Evitar errores si el cliente es undefined o está en proceso de selección
+    return;
+  }
+  
+  selecting.value = true;
+  
+  // Usar nextTick para diferir las actualizaciones y evitar ciclos
+  nextTick(() => {
+    search.value = customer.name
+    showList.value = false
+    highlightedIndex.value = -1
+    
+    // Emitir el evento después de actualizar el estado local
+    emit('select', customer)
+    
+    // Permitir nuevas selecciones después de un breve retraso
+    setTimeout(() => {
+      selecting.value = false;
+    }, 50);
+  });
+}
+
+function showListAndHighlightFirst() {
+  if (!selecting.value) {
+    showList.value = true
+    highlightedIndex.value = 0
+  }
 }
 
 function onInput() {
-  showList.value = true
-  highlightedIndex.value = 0
+  if (!selecting.value) {
+    showList.value = true
+    highlightedIndex.value = 0
+  }
 }
 
 function hideList() {
-  setTimeout(() => { showList.value = false }, 150)
+  // Usar un pequeño retraso para permitir que el clic se procese primero
+  setTimeout(() => {
+    if (!selecting.value) {
+      showList.value = false
+    }
+  }, 150);
 }
 
 function onKeydown(e) {
-  if (!showList.value || !filteredCustomers.value.length) return
+  if (!showList.value || !filteredCustomers.value.length || selecting.value) return
+  
   if (e.key === 'ArrowDown') {
     highlightedIndex.value = (highlightedIndex.value + 1) % filteredCustomers.value.length
     e.preventDefault()
@@ -77,9 +110,12 @@ function onKeydown(e) {
     e.preventDefault()
   } else if (e.key === 'Enter') {
     if (highlightedIndex.value >= 0 && highlightedIndex.value < filteredCustomers.value.length) {
-      selectCustomer(filteredCustomers.value[highlightedIndex.value])
       e.preventDefault()
+      selectCustomer(filteredCustomers.value[highlightedIndex.value])
     }
+  } else if (e.key === 'Escape') {
+    showList.value = false
+    e.preventDefault()
   }
 }
 </script>

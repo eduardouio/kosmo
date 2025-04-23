@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import AutocompleteProduct from '@/components/common/AutocompleteProduct.vue'
 import { useBaseStore } from '@/stores/baseStore';
 import { IconWindowMaximize } from '@tabler/icons-vue';
@@ -24,9 +24,12 @@ const props = defineProps({
 })
 
 const newboxItem = ref({ ...props.modelValue })
+const updating = ref(false)
 
 watch(() => props.modelValue, (val) => {
-    newboxItem.value = { ...val }
+    if (!updating.value) {
+        newboxItem.value = { ...val }
+    }
 }, { deep: true })
 
 const isEqual = (a, b) => {
@@ -35,8 +38,12 @@ const isEqual = (a, b) => {
 };
 
 watch(newboxItem, (val) => {
-    if (!isEqual(val, props.modelValue)) {
-        emit('update:modelValue', val)
+    if (!isEqual(val, props.modelValue) && !updating.value) {
+        updating.value = true;
+        nextTick(() => {
+            emit('update:modelValue', val);
+            updating.value = false;
+        });
     }
 }, { deep: true })
 
@@ -53,8 +60,12 @@ const showProductModal = (product)=>{
 }
 
 const selectProduct = ($event) => {
-    newboxItem.value.product = $event
-    console.log('Product selected in BoxItem:', $event)  
+    updating.value = true;
+    nextTick(() => {
+        newboxItem.value.product = $event;
+        console.log('Product selected in BoxItem:', $event);
+        updating.value = false;
+    });
 }
 
 const onFocusField = (field) => {
@@ -68,15 +79,20 @@ const onBlurField = (field, format = false) => {
     } else if (format) {
         newboxItem.value[field] = baseStore.formatInputNumber(newboxItem.value[field]);
     }
-    if (field === 'stem_cost_price' || field === 'qty_stem_flower') {
+    
+    // Corregido: Actualizar el total solo cuando cambian campos relevantes
+    if (field === 'stem_cost_price' || field === 'qty_stem_flower' || field === 'profit_margin') {
         const price = parseFloat(newboxItem.value.stem_cost_price) || 0;
         const qty = parseFloat(newboxItem.value.qty_stem_flower) || 0;
-        newboxItem.value.total = baseStore.formatInputNumber(price * qty);
-    }
-    
-    newboxItem.value.total = baseStore.formatInputNumber(
-        parseFloat(newboxItem.value.stem_cost_price) + parseFloat(newboxItem.value.profit_margin)
-    );  
+        const margin = parseFloat(newboxItem.value.profit_margin) || 0;
+        
+        // El total debe ser (precio + margen) * cantidad
+        updating.value = true;
+        newboxItem.value.total = baseStore.formatInputNumber(price + margin);
+        nextTick(() => {
+            updating.value = false;
+        });
+    }  
 };
 </script>
 <template>

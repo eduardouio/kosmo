@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useBaseStore } from '@/stores/baseStore.js'
 
 const props = defineProps({
@@ -14,6 +14,7 @@ const baseStore = useBaseStore()
 const search = ref('')
 const showList = ref(false)
 const highlightedIndex = ref(-1)
+const selecting = ref(false)
 
 const filteredProducts = computed(() => {
   if (!search.value) return baseStore.products
@@ -23,33 +24,57 @@ const filteredProducts = computed(() => {
 })
 
 function selectProduct(product) {
-  if (!product || !product.variety) {
+  if (!product || !product.variety || selecting.value) {
     // Evita errores si el producto es undefined o no tiene variety
+    // O si ya estamos en proceso de selección
     return;
   }
-  console.log('Selected product:', product)
-  search.value = product.variety
-  emit('selectProduct', product)
-  showList.value = false
-  highlightedIndex.value = -1
+  
+  selecting.value = true;
+  
+  // Usar nextTick para diferir las actualizaciones y evitar ciclos
+  nextTick(() => {
+    console.log('Selected product:', product)
+    search.value = product.variety
+    showList.value = false
+    highlightedIndex.value = -1
+    
+    // Emitir el evento después de actualizar el estado local
+    emit('selectProduct', product)
+    
+    // Permitir nuevas selecciones después de un breve retraso
+    setTimeout(() => {
+      selecting.value = false;
+    }, 50);
+  });
 }
 
 function showListAndHighlightFirst() {
-  showList.value = true
-  highlightedIndex.value = 0
+  if (!selecting.value) {
+    showList.value = true
+    highlightedIndex.value = 0
+  }
 }
 
 function onInput() {
-  showList.value = true
-  highlightedIndex.value = 0
+  if (!selecting.value) {
+    showList.value = true
+    highlightedIndex.value = 0
+  }
 }
 
 function hideList() {
-  showList.value = false
+  // Usar un pequeño retraso para permitir que el clic se procese primero
+  setTimeout(() => {
+    if (!selecting.value) {
+      showList.value = false
+    }
+  }, 150);
 }
 
 function onKeydown(e) {
-  if (!showList.value || !filteredProducts.value.length) return
+  if (!showList.value || !filteredProducts.value.length || selecting.value) return
+  
   if (e.key === 'ArrowDown') {
     highlightedIndex.value = (highlightedIndex.value + 1) % filteredProducts.value.length
     e.preventDefault()
@@ -58,9 +83,12 @@ function onKeydown(e) {
     e.preventDefault()
   } else if (e.key === 'Enter') {
     if (highlightedIndex.value >= 0 && highlightedIndex.value < filteredProducts.value.length) {
-      selectProduct(filteredProducts.value[highlightedIndex.value])
       e.preventDefault()
+      selectProduct(filteredProducts.value[highlightedIndex.value])
     }
+  } else if (e.key === 'Escape') {
+    showList.value = false
+    e.preventDefault()
   }
 }
 </script>
