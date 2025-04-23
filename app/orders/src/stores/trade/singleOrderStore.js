@@ -11,7 +11,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
       stock_day: 0,
       date: null,
       partner: 1,
-      type_document: "ORD_COMPRA",
+      type_document: "ORD_VENTA",
       parent_order: null,
       num_order: "PO-001",
       delivery_date: "2024-04-18",
@@ -141,7 +141,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
         supplier: supplier
       }
       try {
-        const response = await axios.post('http://localhost/orders/create', payload)
+        const response = await axios.post(appConfig.urlCreateFutureOrder, payload)
         return { success: true, message: 'Pedido guardado correctamente' }
       } catch (error) {
         return { 
