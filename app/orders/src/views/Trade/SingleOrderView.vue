@@ -9,7 +9,7 @@ import AutocompleteSupplier from '@/components/common/AutocompleteSupplier.vue'
 import GenericProductModal from '@/components/common/GenericProductModal.vue'
 import Loader from '@/components/Sotcks/Loader.vue'
 import OrderLine from '@/components/trade/OrderLine.vue'
-import { IconSettings, IconPlus } from '@tabler/icons-vue'
+import { IconSettings, IconPlus, IconDeviceFloppy } from '@tabler/icons-vue'
 import axios from 'axios'
 
 const baseStore = useBaseStore()
@@ -33,6 +33,9 @@ onMounted(() => {
   baseStore.loadProducts()
   baseStore.loadCustomers(true)
   validateData()
+  setInterval(() => {
+    validateData()
+  }, 2000)
 })
 
 function showProductModal($event) {
@@ -118,46 +121,48 @@ function validateData(){
     return false;
   }
   if (orderStore.orderLines.length === 0) {
-    
     errorMessage.value = 'Debe agregar al menos una línea de pedido.';
     hasError.value = true;
     return false;
   }
 
-  orderStore.orderLines.forEach(line => {
+  // Usar bucle for tradicional en lugar de forEach para poder retornar correctamente
+  for (let i = 0; i < orderStore.orderLines.length; i++) {
+    const line = orderStore.orderLines[i];
     if (!line.quantity) {
       errorMessage.value = 'Cada línea debe tener cantidad y modelo de caja.';
       hasError.value = true;
       return false;
     }
     
-    line.boxItems.forEach(itm => {
-      if (!itm.qty_stem_flower || !itm.product) {
-        errorMessage.value = 'Cada item debe tener cantidad y producto.';
-        hasError.value = true;
-        return false;
+    if (Array.isArray(line.order_box_items)) {
+      for (let j = 0; j < line.order_box_items.length; j++) {
+        const itm = line.order_box_items[j];
+        // Verificar si product es un objeto válido y tiene la propiedad variety
+        if (!itm.qty_stem_flower || !itm.product || !itm.stem_cost_price || !itm.profit_margin ) {
+          errorMessage.value = 'Cada item debe tener cantidad y producto.';
+          hasError.value = true;
+          return false;
+        }
       }
-    });
-  });
+    }
+  }
 
-  // validamos los items de las lineas de pedido
+  // Si llega hasta aquí, no hay errores
   return true;
 }
 
 async function saveOrder() {
-  // Agrupa los datos necesarios
-  const payload = {
-    order: orderStore.order,
-    orderLines: orderStore.orderLines,
-    customer: baseStore.selectedCustomer,
-    supplier: baseStore.selectedSupplier
-  }
-  try {
-    const response = await axios.post('http://localhost/orders/create', payload)
-    alert('Pedido guardado correctamente')
-    // Opcional: manejar respuesta, limpiar formulario, etc.
-  } catch (error) {
-    alert('Error al guardar el pedido: ' + (error.response?.data?.message || error.message))
+  const result = await orderStore.saveOrder(
+    baseStore.selectedCustomer, 
+    baseStore.selectedSupplier
+  )
+  
+  if (result.success) {
+    alert(result.message)
+    // Opcional: limpiar formulario, etc.
+  } else {
+    alert(result.message)
   }
 }
 
@@ -322,24 +327,19 @@ async function saveOrder() {
 
         <!-- Botón guardar -->
         <div class="row">
-          <div class="col-12 text-end">
-            <button class="btn btn-default" @click="saveOrder">
-              <i class="bi bi-save me-2"></i>
-              Guardar Order deCompra
-            </button>
-          </div>
-        </div>
-
-        <!-- Mensajes de error -->
-        <div class="row mt-3">
-          <div class="col-12">
+          <div class="col-12"  v-if="hasError">
             <div class="alert alert-danger d-flex align-items-center">
               <i class="bi bi-exclamation-triangle me-2"></i>
               {{ errorMessage}}
             </div>
           </div>
+          <div class="col-12 text-end" v-else>
+            <button class="btn btn-default" @click="saveOrder">
+              <IconDeviceFloppy size="20" stroke="1.5" class="text-primary"/> 
+              Guardar Orden De Compra
+            </button>
+          </div>
         </div>
-
       </div>
     </div>
     <GenericProductModal :product="selectedProduct"/>

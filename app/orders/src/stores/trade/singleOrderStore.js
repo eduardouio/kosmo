@@ -132,5 +132,23 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
         this.orderLines.push(line);
       }
     },
+    async saveOrder(customer, supplier) {
+      // Agrupa los datos necesarios
+      const payload = {
+        order: this.order,
+        orderLines: this.orderLines,
+        customer: customer,
+        supplier: supplier
+      }
+      try {
+        const response = await axios.post('http://localhost/orders/create', payload)
+        return { success: true, message: 'Pedido guardado correctamente' }
+      } catch (error) {
+        return { 
+          success: false, 
+          message: 'Error al guardar el pedido: ' + (error.response?.data?.message || error.message) 
+        }
+      }
+    },
   },
 });
