@@ -17,10 +17,10 @@ from api import (
     CancelSupplierOrderAPI,
     AproveOrderAPI,
     CreateInvoiceAPI,
-    CreateFutureOrderAPI
+    CreateFutureOrderAPI,
+    OrderDetailAPI,
+    CustomerOrderDetailAPI
 )
-from .OrderDetailAPI import OrderDetailAPI
-from .CustomerOrderDetailAPI import CustomerOrderDetailAPI
 
 urlpatterns = [
     path('api/stock_detail/<int:stock_day_id>/', StockDetailAPI.as_view(), name='stock_detail'),
@@ -43,5 +43,5 @@ urlpatterns = [
     path('api/orders/confirm-order/', AproveOrderAPI.as_view(), name='confirm_order'),
     path('api/orders/detail/<int:order_id>/', OrderDetailAPI.as_view(), name='order_detail'),
     path('api/invoice/create-by-order/', CreateInvoiceAPI.as_view(), name='create_invoice_by_order'),
-    path('/api/orders/customer-order-detail/<int:order_id>/', CustomerOrderDetailAPI.as_view(), name='customer-order-detail'),
+    path('api/orders/customer-order-detail/<int:order_id>/', CustomerOrderDetailAPI.as_view(), name='customer-order-detail'),
 ]

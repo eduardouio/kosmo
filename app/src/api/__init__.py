@@ -17,3 +17,4 @@ from .AproveOrderAPI import AproveOrderAPI
 from .CreateInvoiceAPI import CreateInvoiceAPI
 from .OrderDetailAPI import OrderDetailAPI
 from .CreateFutureOrderAPI import CreateFutureOrderAPI
+from .CustomerOrderDetailAPI import CustomerOrderDetailAPI

@@ -11,17 +11,17 @@ class CustomerOrderDetailAPI(APIView):
     """
     API para obtener detalles completos de un pedido
     """
-    
+
     def get(self, request, order_id):
         """
         Obtiene detalles completos de un pedido por su ID
         """
         order = get_object_or_404(Order, pk=order_id)
-        
+
         # Obtener el cliente y proveedor
         customer = order.partner
         supplier = None
-        
+
         # Si es una orden de venta, buscar la orden de compra relacionada para obtener proveedor
         if order.type_document == 'ORD_VENTA' and Order.get_by_parent_order(order):
             supplier_orders = Order.get_by_parent_order(order)
@@ -30,14 +30,14 @@ class CustomerOrderDetailAPI(APIView):
         else:
             # Para órdenes de compra, el proveedor es el partner
             supplier = order.partner
-            
+
         # Si no se encontró proveedor, usar uno por defecto
         if not supplier:
             try:
                 supplier = Partner.objects.get(name="A DEFINIR")
             except Partner.DoesNotExist:
                 supplier = customer  # Fallback
-        
+
         # Construir respuesta JSON para el pedido
         order_data = {
             "serie": order.serie,
@@ -63,18 +63,18 @@ class CustomerOrderDetailAPI(APIView):
             "id_invoice": order.id_invoice,
             "num_invoice": order.num_invoice
         }
-        
+
         # Obtener líneas de pedido
         order_lines = OrderItems.get_by_order(order)
         order_lines_data = []
-        
+
         for line in order_lines:
             box_items = OrderBoxItems.get_box_items(line)
             order_box_items_data = []
-            
+
             for box in box_items:
                 product = box.product
-                
+
                 box_item_data = {
                     "product": {
                         "id": product.id,
@@ -93,9 +93,9 @@ class CustomerOrderDetailAPI(APIView):
                     "total_stem_flower": box.qty_stem_flower * line.quantity,
                     "total": str(box.stem_cost_price)
                 }
-                
+
                 order_box_items_data.append(box_item_data)
-            
+
             line_data = {
                 "id_stock_detail": line.id_stock_detail,
                 "line_price": float(line.line_price),
@@ -107,9 +107,9 @@ class CustomerOrderDetailAPI(APIView):
                 "quantity": line.quantity,
                 "order_box_items": order_box_items_data
             }
-            
+
             order_lines_data.append(line_data)
-        
+
         # Construir respuesta JSON para el cliente
         customer_data = {
             "id": customer.id,
@@ -129,7 +129,7 @@ class CustomerOrderDetailAPI(APIView):
             "related_partners": getattr(customer, 'related_partners', []),
             "is_selected": False
         }
-        
+
         # Construir respuesta JSON para el proveedor
         supplier_data = {
             "id": supplier.id,
@@ -152,7 +152,7 @@ class CustomerOrderDetailAPI(APIView):
             "have_stock": getattr(supplier, 'have_stock', False),
             "related_partners": getattr(supplier, 'related_partners', [])
         }
-        
+
         # Construir respuesta JSON completa
         response_data = {
             "order": order_data,
@@ -160,5 +160,5 @@ class CustomerOrderDetailAPI(APIView):
             "customer": customer_data,
             "supplier": supplier_data
         }
-        
+
         return Response(response_data, status=status.HTTP_200_OK)

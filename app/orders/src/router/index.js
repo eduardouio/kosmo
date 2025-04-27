@@ -46,11 +46,6 @@ const router = createRouter({
       component: SingleOrderView,
     },
     {
-      path: '/order/new/',
-      name: 'orderDetail',
-      component: SingleOrderView,
-    },
-    {
       path: '/invoice/new/',
       name: 'createInvoice',
       component: SingleOrderView,
