@@ -18,3 +18,4 @@ from .CreateInvoiceAPI import CreateInvoiceAPI
 from .OrderDetailAPI import OrderDetailAPI
 from .CreateFutureOrderAPI import CreateFutureOrderAPI
 from .CustomerOrderDetailAPI import CustomerOrderDetailAPI
+from .UpdateFutureOrderAPI import UpdateFutureOrderAPI

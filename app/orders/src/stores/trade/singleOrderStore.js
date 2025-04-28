@@ -114,13 +114,12 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
         const orderData = {
           order_id: orderId,
           order: this.order,
-          customer: customer,
+          customer: customer,  // Se mantiene por compatibilidad con la API
           supplier: supplier,
           orderLines: this.orderLines
         }
-        
         const response = await axios.post(
-          appConfig.urlUpdateOrder, 
+          appConfig.urlUpdateCustomerOrder, 
           orderData, 
           { headers: appConfig.headers }
         )

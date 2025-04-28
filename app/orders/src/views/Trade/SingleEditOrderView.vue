@@ -66,6 +66,8 @@ function showProductModal($event) {
 }
 
 function onSelectCustomer(customer) {
+  // Esta función ya no se utilizará activamente, pero la mantenemos 
+  // por si se necesita para la carga inicial de datos
   selectedCustomer.value = customer
   baseStore.selectedCustomer = customer
 }
@@ -235,7 +237,10 @@ onMounted(async () => {
             <div class="border border-2 border-warning p-3 rounded h-100">
               <h6 class="fw-bold mb-3">Información del Cliente</h6>
               <div class="mb-3">
-                <AutocompleteCustomer @select="onSelectCustomer" :initialValue="baseStore.selectedCustomer?.name"/>
+                <!-- Reemplazar el autocomplete por un campo de solo lectura -->
+                <div class="form-control bg-light">
+                  {{ baseStore.selectedCustomer?.name || 'Cliente no seleccionado' }}
+                </div>
               </div>
               <div v-if="baseStore.selectedCustomer">
                 <p class="small mb-1"><strong>Dirección:</strong> {{ baseStore.selectedCustomer.address || 'No disponible' }}</p>
@@ -246,7 +251,7 @@ onMounted(async () => {
                 </div>
               </div>
               <div v-else>
-                <p class="small mb-1 text-muted">Seleccione un cliente para ver la información de contacto.</p>
+                <p class="small mb-1 text-muted">Información del cliente no disponible.</p>
               </div>
             </div>
           </div>
