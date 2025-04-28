@@ -28,13 +28,17 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed, nextTick, onMounted, watch } from 'vue'
 import { useBaseStore } from '@/stores/baseStore.js'
 
 const props = defineProps({
   placeholder: {
     type: String,
     default: 'Buscar cliente...'
+  },
+  initialValue: {
+    type: String,
+    default: ''
   }
 })
 const emit = defineEmits(['select'])
@@ -44,6 +48,20 @@ const search = ref('')
 const showList = ref(false)
 const highlightedIndex = ref(-1)
 const selecting = ref(false)  // Flag para evitar actualizaciones recursivas
+
+// Inicializar el valor de búsqueda cuando el componente se monta
+onMounted(() => {
+  if (props.initialValue) {
+    search.value = props.initialValue
+  }
+})
+
+// Observar cambios en initialValue para actualizar el campo
+watch(() => props.initialValue, (newValue) => {
+  if (newValue && !selecting.value) {
+    search.value = newValue
+  }
+})
 
 const filteredCustomers = computed(() => {
   if (!search.value) return baseStore.customers
