@@ -1,138 +1,103 @@
 <script setup>
-import { ref, computed, nextTick } from 'vue'
-import { useBaseStore } from '@/stores/baseStore.js'
+import { ref, watch, onMounted } from 'vue';
+import { useBaseStore } from '@/stores/baseStore';
 
+const emit = defineEmits(['selectProduct']);
 const props = defineProps({
-  placeholder: {
+  initialValue: {
     type: String,
-    default: 'Buscar producto...'
+    default: ''
   }
-})
-const emit = defineEmits(['selectProduct'])
+});
 
-const baseStore = useBaseStore()
-const search = ref('')
-const showList = ref(false)
-const highlightedIndex = ref(-1)
-const selecting = ref(false)
+const store = useBaseStore();
+const searchTerm = ref(props.initialValue || '');
+const showDropdown = ref(false);
+const filteredProducts = ref([]);
+const selectedIndex = ref(-1);
 
-const filteredProducts = computed(() => {
-  if (!search.value) return baseStore.products
-  return baseStore.products.filter(p =>
-    p.variety.toLowerCase().includes(search.value.toLowerCase())
-  )
-})
+// Observar cambios en initialValue para actualizar searchTerm
+watch(() => props.initialValue, (newValue) => {
+  if (newValue !== searchTerm.value) {
+    searchTerm.value = newValue;
+  }
+});
 
-function selectProduct(product) {
-  if (!product || !product.variety || selecting.value) {
-    // Evita errores si el producto es undefined o no tiene variety
-    // O si ya estamos en proceso de selección
+function filterProducts() {
+  if (!searchTerm.value) {
+    filteredProducts.value = [];
     return;
   }
   
-  selecting.value = true;
+  const search = searchTerm.value.toLowerCase();
+  filteredProducts.value = store.products.filter(product => {
+    const productName = `${product.name} ${product.variety}`.toLowerCase();
+    return productName.includes(search);
+  }).slice(0, 10); // Limitar a 10 resultados
   
-  // Usar nextTick para diferir las actualizaciones y evitar ciclos
-  nextTick(() => {
-    console.log('Selected product:', product)
-    search.value = product.variety
-    showList.value = false
-    highlightedIndex.value = -1
-    
-    // Emitir el evento después de actualizar el estado local
-    emit('selectProduct', product)
-    
-    // Permitir nuevas selecciones después de un breve retraso
-    setTimeout(() => {
-      selecting.value = false;
-    }, 50);
-  });
+  selectedIndex.value = -1;
 }
 
-function showListAndHighlightFirst() {
-  if (!selecting.value) {
-    showList.value = true
-    highlightedIndex.value = 0
-  }
+function selectProduct(product) {
+  searchTerm.value = `${product.name} ${product.variety}`;
+  emit('selectProduct', product);
+  showDropdown.value = false;
 }
 
-function onInput() {
-  if (!selecting.value) {
-    showList.value = true
-    highlightedIndex.value = 0
-  }
-}
-
-function hideList() {
-  // Usar un pequeño retraso para permitir que el clic se procese primero
-  setTimeout(() => {
-    if (!selecting.value) {
-      showList.value = false
+function handleKeyDown(event) {
+  if (showDropdown.value) {
+    if (event.key === 'ArrowDown') {
+      selectedIndex.value = Math.min(selectedIndex.value + 1, filteredProducts.value.length - 1);
+      event.preventDefault();
+    } else if (event.key === 'ArrowUp') {
+      selectedIndex.value = Math.max(selectedIndex.value - 1, 0);
+      event.preventDefault();
+    } else if (event.key === 'Enter' && selectedIndex.value >= 0) {
+      selectProduct(filteredProducts.value[selectedIndex.value]);
+      event.preventDefault();
+    } else if (event.key === 'Escape') {
+      showDropdown.value = false;
+      event.preventDefault();
     }
-  }, 150);
-}
-
-function onKeydown(e) {
-  if (!showList.value || !filteredProducts.value.length || selecting.value) return
-  
-  if (e.key === 'ArrowDown') {
-    highlightedIndex.value = (highlightedIndex.value + 1) % filteredProducts.value.length
-    e.preventDefault()
-  } else if (e.key === 'ArrowUp') {
-    highlightedIndex.value = (highlightedIndex.value - 1 + filteredProducts.value.length) % filteredProducts.value.length
-    e.preventDefault()
-  } else if (e.key === 'Enter') {
-    if (highlightedIndex.value >= 0 && highlightedIndex.value < filteredProducts.value.length) {
-      e.preventDefault()
-      selectProduct(filteredProducts.value[highlightedIndex.value])
-    }
-  } else if (e.key === 'Escape') {
-    showList.value = false
-    e.preventDefault()
   }
 }
+
+watch(searchTerm, filterProducts);
+
+// Si ya hay un valor inicial, asegurarse de que se muestre correctamente al montar
+onMounted(() => {
+  if (props.initialValue) {
+    searchTerm.value = props.initialValue;
+  }
+});
 </script>
+
 <template>
-  <div>
+  <div class="position-relative">
     <input
       type="text"
-      v-model="search"
-      class="border w-100" 
-      @input="onInput"
-      :placeholder="placeholder"
-      @focus="showListAndHighlightFirst"
-      @blur="hideList"
-      @keydown="onKeydown"
+      class="form-control form-control-sm"
+      v-model="searchTerm"
+      @focus="showDropdown = true; filterProducts()"
+      @blur="setTimeout(() => showDropdown = false, 200)"
+      @keydown="handleKeyDown"
+      placeholder="Buscar producto..."
     />
-    <ul v-if="showList && filteredProducts.length" 
-        class="list-group position-absolute w-100 z-3 autocomplete-list mt-1 ms-1"
-        :style="{ maxWidth: '500px' }"
+    <div
+      v-if="showDropdown && filteredProducts.length > 0"
+      class="dropdown-menu show w-100 position-absolute"
+      style="max-height: 250px; overflow-y: auto; z-index: 9999; top: 100%; left: 0; right: 0;"
     >
-      <li
-        v-for="(product, idx) in filteredProducts"
+      <div
+        v-for="(product, index) in filteredProducts"
         :key="product.id"
-        class="list-group-item list-group-item-action"
-        :class="{ 'active': idx === highlightedIndex }"
-        @mousedown.prevent="selectProduct(product)"
+        class="dropdown-item py-1"
+        :class="{ 'active': index === selectedIndex }"
+        @mousedown="selectProduct(product)"
+        @mouseover="selectedIndex = index"
       >
-        {{ product.variety }}
-      </li>
-    </ul>
+        {{ product.name }} {{ product.variety }}
+      </div>
+    </div>
   </div>
 </template>
-<style scoped>
-.list-group {
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.autocomplete-list {
-  max-width: 300px;
-  min-width: 180px;
-}
-
-.list-group-item.active {
-  background-color: #007bff;
-  color: white;
-}
-</style>

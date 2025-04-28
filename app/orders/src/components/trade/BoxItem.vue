@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
 import AutocompleteProduct from '@/components/common/AutocompleteProduct.vue'
 import { useBaseStore } from '@/stores/baseStore';
 import { IconWindowMaximize } from '@tabler/icons-vue';
@@ -94,6 +94,14 @@ const onBlurField = (field, format = false) => {
         });
     }  
 };
+
+// Calcular el nombre del producto para mostrar en el autocomplete
+const productInitialValue = computed(() => {
+    if (newboxItem.value.product) {
+        return `${newboxItem.value.product.name} ${newboxItem.value.product.variety}`.trim();
+    }
+    return '';
+});
 </script>
 <template>
     <div class="container-fluid">
@@ -111,7 +119,10 @@ const onBlurField = (field, format = false) => {
                         />
                 </div>
                 <div style="width:55%;">
-                    <AutocompleteProduct @selectProduct="selectProduct" />
+                    <AutocompleteProduct 
+                        @selectProduct="selectProduct" 
+                        :initialValue="productInitialValue"
+                    />
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 

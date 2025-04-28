@@ -1,7 +1,10 @@
 <script setup>
-import {onMounted, ref, computed, watch } from 'vue' 
-import {useBaseStore} from '@/stores/baseStore.js'
+import { onMounted, ref, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { useBaseStore } from '@/stores/baseStore.js'
 import { useSingleOrderStore } from '@/stores/trade/singleOrderStore.js'
+import axios from 'axios'
+import { appConfig } from '@/AppConfig'
 
 import AutocompleteCustomer from '@/components/common/AutocompleteCustomer.vue'
 import AutocompleteSupplier from '@/components/common/AutocompleteSupplier.vue'
@@ -10,6 +13,7 @@ import Loader from '@/components/Sotcks/Loader.vue'
 import OrderLine from '@/components/trade/OrderLine.vue'
 import { IconSettings, IconPlus, IconDeviceFloppy } from '@tabler/icons-vue'
 
+const route = useRoute()
 const baseStore = useBaseStore()
 const stagesToLoad = ref(3)
 const orderStore = useSingleOrderStore()
@@ -18,26 +22,46 @@ const selectedSupplier = ref(null)
 const selectedProduct = ref(null)
 const errorMessage = ref('')
 const hasError = ref(false)
-orderStore.order.date = baseStore.formatDate(new Date())
+const isLoading = ref(true)
+const orderId = computed(() => route.params.id)
 
 // computed
-const isLoading = computed(() => {
+const formLoading = computed(() => {
   return baseStore.stagesLoaded != stagesToLoad.value
 })
 
-// mouted
-onMounted(() => {
-  baseStore.loadSuppliers()
-  baseStore.loadProducts()
-  baseStore.loadCustomers(true)
-  validateData()
-  setInterval(() => {
-    validateData()
-  }, 2000)
-})
+async function loadOrderData() {
+    console.log("Cargando datops de pedido existente")
+  if (!orderId.value) {
+    errorMessage.value = 'ID de orden no proporcionado'
+    hasError.value = true
+    isLoading.value = false
+    return
+  }
+  
+  isLoading.value = true
+  try {
+    const result = await orderStore.loadOrder(orderId.value, baseStore)
+    
+    if (result.success) {
+      selectedCustomer.value = baseStore.selectedCustomer
+      selectedSupplier.value = baseStore.selectedSupplier
+      calculateOrderTotals()
+      validateData()
+    } else {
+      errorMessage.value = orderStore.errorMessage
+      hasError.value = true
+    }
+  } catch (error) {
+    console.error('Error al cargar la orden:', error)
+    errorMessage.value = `Error al cargar la orden: ${error.message}`
+    hasError.value = true
+  } finally {
+    isLoading.value = false
+  }
+}
 
 function showProductModal($event) {
-  console.log('Activamos el modal del ---', $event)
   selectedProduct.value = $event
 }
 
@@ -145,32 +169,46 @@ function validateData(){
       }
     }
   }
+
+  // Si llega hasta aquí, no hay errores
   return true;
 }
 
-async function saveOrder() {
-  const result = await orderStore.saveOrder(
+async function updateOrder() {
+  const result = await orderStore.updateOrder(
+    orderId.value,
     baseStore.selectedCustomer, 
     baseStore.selectedSupplier
   )
   
   if (result.success) {
-    window.location.href = `/#/order/${result.data.order_id}/`
+    alert(result.message)
   } else {
     alert(result.message)
   }
 }
 
+onMounted(async () => {
+  baseStore.loadSuppliers()
+  baseStore.loadProducts()
+  baseStore.loadCustomers(true)
+  await loadOrderData()
+  
+  setInterval(() => {
+    validateData()
+  }, 2000)
+})
+
 </script>
 <template>
   <div class="container-fluid">
-    <Loader :show="isLoading" />
-    <div v-if="!isLoading" class="bg-light py-4">
+    <Loader :show="formLoading || isLoading" />
+    <div v-if="!formLoading && !isLoading" class="bg-light py-4">
       <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
         <!-- Encabezado -->
          <div class="row">
           <div class="col text-center fs-2 text-kosmo-secondary">
-            ORDEN DE VENTA
+            EDITAR ORDEN DE VENTA
           </div>
          </div>
         <div class="row mb-4 align-items-center">
@@ -197,7 +235,7 @@ async function saveOrder() {
             <div class="border border-2 border-warning p-3 rounded h-100">
               <h6 class="fw-bold mb-3">Información del Cliente</h6>
               <div class="mb-3">
-                <AutocompleteCustomer @select="onSelectCustomer"/>
+                <AutocompleteCustomer @select="onSelectCustomer" :initialValue="baseStore.selectedCustomer?.name"/>
               </div>
               <div v-if="baseStore.selectedCustomer">
                 <p class="small mb-1"><strong>Dirección:</strong> {{ baseStore.selectedCustomer.address || 'No disponible' }}</p>
@@ -216,7 +254,7 @@ async function saveOrder() {
             <div class="border border-2 border-warning p-3 rounded h-100">
               <h6 class="fw-bold mb-3">Información del Proveedor</h6>
               <div class="mb-3">
-                <AutocompleteSupplier @select="onSelectSupplier"/>
+                <AutocompleteSupplier @select="onSelectSupplier" :initialValue="baseStore.selectedSupplier?.name"/>
               </div>
               <div v-if="baseStore.selectedSupplier">
                 <p class="small mb-1"><strong>Dirección:</strong> {{ baseStore.selectedSupplier.address || 'No disponible' }}</p>
@@ -322,16 +360,16 @@ async function saveOrder() {
 
         <!-- Botón guardar -->
         <div class="row">
-          <div class="col-12"  v-if="hasError">
+          <div class="col-12" v-if="hasError">
             <div class="alert alert-danger d-flex align-items-center">
               <i class="bi bi-exclamation-triangle me-2"></i>
-              {{ errorMessage}}
+              {{ errorMessage }}
             </div>
           </div>
           <div class="col-12 text-end" v-else>
-            <button class="btn btn-default" @click="saveOrder">
+            <button class="btn btn-default" @click="updateOrder">
               <IconDeviceFloppy size="20" stroke="1.5" class="text-primary"/> 
-              Guardar Orden De Compra
+              Actualizar Orden De Compra
             </button>
           </div>
         </div>

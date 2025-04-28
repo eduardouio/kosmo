@@ -6,6 +6,7 @@ import PurchasesView from '@/views/Stocks/PurchasesView.vue'
 import CompleteOrderView from '@/views/Stocks/CompleteOrderView.vue'
 import SingleSupplierOrderView from '@/views/Stocks/SingleSupplierOrderView.vue'
 import SingleOrderView from '@/views/Trade/SingleOrderView.vue'
+import SingleEditOrderViewVue from '@/views/Trade/SingleEditOrderView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -43,16 +44,11 @@ const router = createRouter({
     {
       path: '/order/:id/',  
       name: 'orderDetail',
-      component: SingleOrderView,
+      component: SingleEditOrderViewVue,
     },
     {
-      path: '/invoice/new/',
-      name: 'createInvoice',
-      component: SingleOrderView,
-    },
-    {
-      path: '/invoice/:id/',
-      name: 'editInvoice',
+      path: '/order/new/',
+      name: 'createOrder',
       component: SingleOrderView,
     }
   ],
