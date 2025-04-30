@@ -3,6 +3,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework import status
+from common import SyncOrders
 
 from trade.models.Order import Order, OrderItems, OrderBoxItems
 from partners.models import Partner
@@ -53,6 +54,9 @@ class UpdateFutureOrderAPI(APIView):
         # Verificar que el cliente y proveedor existan
         customer = Partner.get_by_id(customer_data.get('id'))
         supplier = Partner.get_by_id(supplier_data.get('id'))
+
+        if not supplier:
+            supplier = Partner.get_partner_by_taxi_id('99999999999')
 
         if not customer or not supplier:
             loggin_event('Cliente o proveedor no encontrado')
@@ -150,9 +154,10 @@ class UpdateFutureOrderAPI(APIView):
         loggin_event(
             f'Generando órdenes de compra asociadas para la orden {order.id}'
         )
-        # Generar órdenes de compra asociadas si es necesario (opcional)
-        # Aquí podríamos implementar la lógica para generar/actualizar
-        # órdenes para el proveedor
+        loggin_event('Verificamos tipo de orden de compra')
+        if supplier.business_tax_id == '99999999999':
+            loggin_event('Sincronizando pedidos de proveedor...')
+            SyncOrders().sync_suppliers(order)
 
         return JsonResponse({
             'success': True,
