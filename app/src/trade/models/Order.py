@@ -185,6 +185,13 @@ class Order(BaseModel):
         )
 
     @classmethod
+    def get_last_sale_consecutive(cls):
+        my_order = cls.objects.filter(
+            type_document='ORD_VENTA'
+        ).order_by('-id').first()
+        return my_order.consecutive
+
+    @classmethod
     def get_purchases_by_stock_day(cls, stock_day):
         return cls.objects.filter(
             stock_day=stock_day,
