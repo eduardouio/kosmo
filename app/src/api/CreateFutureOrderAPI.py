@@ -5,46 +5,28 @@ from trade.models.Order import Order, OrderItems, OrderBoxItems
 from products.models import Product
 from partners.models import Partner
 from datetime import datetime
+from common.AppLoger import loggin_event
+from common import SyncOrders
 
 
 class CreateFutureOrderAPI(View):
 
     def post(self, request):
         data = json.loads(request.body)
+        loggin_event('Recibiendo solicitud de creaciond e orden Futura')
 
-        # Extraer las secciones principales de datos
         order_data = data.get('order', {})
         order_lines = data.get('orderLines', [])
         customer_data = data.get('customer', {})
         supplier_data = data.get('supplier', {})
 
-        # Crear el objeto de orden
         order = Order()
         order.serie = order_data.get('serie', '200')
-        order.consecutive = 0  # Ignorar número consecutivo como solicitado
-
-        # Parsear fecha si está proporcionada
-        date_str = order_data.get('date')
-        if date_str:
-            try:
-                # Formato de fecha "DD/MM/YYYY HH:MM"
-                order.date = datetime.strptime(date_str, '%d/%m/%Y %H:%M')
-            except ValueError:
-                pass
-
-        # Establecer socio basado en type_document
+        order.consecutive = Order.get_last_sale_consecutive() + 1
+        order.date = datetime.now()
         order.type_document = order_data.get('type_document')
-
-        if order.type_document == 'ORD_COMPRA':
-            partner_id = supplier_data.get('id')
-            order.partner = Partner.objects.get(id=partner_id)
-        else:  # ORD_VENTA
-            partner_id = customer_data.get('id')
-            order.partner = Partner.objects.get(id=partner_id)
-
-        # Establecer otros campos de la orden
+        order.partner = Partner.get_by_id(customer_data.get('id'))
         order.num_order = order_data.get('num_order')
-
         delivery_date_str = order_data.get('delivery_date')
         if delivery_date_str:
             try:
@@ -62,11 +44,9 @@ class CreateFutureOrderAPI(View):
         order.hb_total = order_data.get('hb_total', 0)
         order.fb_total = order_data.get('fb_total', 0)
         order.total_stem_flower = order_data.get('total_stem_flower', 0)
-
-        # Guardar la orden para obtener un ID
         order.save()
+        loggin_event(f'Orden futura creada con éxito {order.id}')
 
-        # Crear items de la orden
         for line_data in order_lines:
             order_item = OrderItems()
             order_item.order = order
@@ -78,11 +58,8 @@ class CreateFutureOrderAPI(View):
             order_item.tot_stem_flower = line_data.get('tot_stem_flower', 0)
             order_item.box_model = line_data.get('box_model', 'QB')
             order_item.quantity = line_data.get('quantity', 1)
-
-            # Guardar el item de orden para obtener un ID
             order_item.save()
 
-            # Crear items de caja
             for box_item_data in line_data.get('order_box_items', []):
                 product_data = box_item_data.get('product', {})
                 product_id = product_data.get('id')
@@ -100,13 +77,16 @@ class CreateFutureOrderAPI(View):
                 box_item.profit_margin = float(
                     box_item_data.get('profit_margin', 0))
 
-                # Guardar el item de caja
                 box_item.save()
+                loggin_event(f'Item de caja guardado con éxito {box_item.id}')
 
-        # Recalcular totales para asegurar consistencia
         Order.rebuild_totals(order)
 
+        if supplier_data.get('business_tax_id', '9999999999') != '9999999999':
+            loggin_event(f'Creando Orden de Compra')
+            SyncOrders().sync_suppliers(order=order, create=True)
+
         return JsonResponse({
-            'message': 'Future order created successfully', 'order_id': order.id
+            'message': 'Orden Futura Creada', 'order_id': order.id
         }, status=201
         )
