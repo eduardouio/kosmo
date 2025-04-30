@@ -83,7 +83,7 @@ class CreateFutureOrderAPI(View):
         Order.rebuild_totals(order)
 
         if supplier_data.get('business_tax_id', '9999999999') != '9999999999':
-            loggin_event(f'Creando Orden de Compra')
+            loggin_event('Creando Orden de Compra')
             SyncOrders().sync_suppliers(order=order, create=True)
 
         return JsonResponse({
