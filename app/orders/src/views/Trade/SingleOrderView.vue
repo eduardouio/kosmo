@@ -9,6 +9,7 @@ import GenericProductModal from '@/components/common/GenericProductModal.vue'
 import Loader from '@/components/Sotcks/Loader.vue'
 import OrderLine from '@/components/trade/OrderLine.vue'
 import { IconSettings, IconPlus, IconDeviceFloppy } from '@tabler/icons-vue'
+import { appConfig } from '@/AppConfig'
 
 const baseStore = useBaseStore()
 const stagesToLoad = ref(3)
@@ -155,7 +156,7 @@ async function saveOrder() {
   )
   
   if (result.success) {
-    window.location.href = `/#/order/${result.data.order_id}/`
+    window.location.href =  `${appConfig.apiBaseUrlTest}/#/order/${result.data.order_id}/`
   } else {
     alert(result.message)
   }
