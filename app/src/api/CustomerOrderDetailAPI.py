@@ -25,18 +25,16 @@ class CustomerOrderDetailAPI(APIView):
         # Si es una orden de venta, buscar la orden de compra relacionada para obtener proveedor
         if order.type_document == 'ORD_VENTA' and Order.get_by_parent_order(order):
             supplier_orders = Order.get_by_parent_order(order)
-            if supplier_orders and len(supplier_orders) > 0:
+            if supplier_orders:
                 supplier = supplier_orders[0].partner
-        else:
-            # Para órdenes de compra, el proveedor es el partner
-            supplier = order.partner
 
         # Si no se encontró proveedor, usar uno por defecto
         if not supplier:
-            try:
-                supplier = Partner.objects.get(name="A DEFINIR")
-            except Partner.DoesNotExist:
-                supplier = customer  # Fallback
+            supplier = Partner.get_partner_by_taxi_id('9999999999')
+            if supplier is None:
+                raise Exception(
+                    "No existe proveedor definifo para tarifas generales"
+                )
 
         # Construir respuesta JSON para el pedido
         order_data = {
