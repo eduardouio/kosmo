@@ -26,24 +26,34 @@ const props = defineProps({
 const newboxItem = ref({ ...props.modelValue })
 const updating = ref(false)
 
+// Función mejorada para comparar objetos y evitar actualizaciones innecesarias
+const isEqual = (a, b) => {
+    if (a === b) return true;
+    try {
+        return JSON.stringify(a) === JSON.stringify(b);
+    } catch {
+        return false;
+    }
+}
+
+// Watchers mejorados con manejo de estado updating para evitar recursión
 watch(() => props.modelValue, (val) => {
     if (!updating.value) {
-        newboxItem.value = { ...val }
+        updating.value = true;
+        newboxItem.value = JSON.parse(JSON.stringify(val));
+        setTimeout(() => {
+            updating.value = false;
+        }, 10);
     }
 }, { deep: true })
 
-const isEqual = (a, b) => {
-    // Comparación profunda simple para objetos planos
-    return JSON.stringify(a) === JSON.stringify(b);
-};
-
 watch(newboxItem, (val) => {
-    if (!isEqual(val, props.modelValue) && !updating.value) {
+    if (!updating.value && !isEqual(val, props.modelValue)) {
         updating.value = true;
-        nextTick(() => {
-            emit('update:modelValue', val);
+        emit('update:modelValue', JSON.parse(JSON.stringify(val)));
+        setTimeout(() => {
             updating.value = false;
-        });
+        }, 10);
     }
 }, { deep: true })
 
@@ -59,13 +69,20 @@ const showProductModal = (product)=>{
     emit('showProductModal', product)
 }
 
+// Modificar la función selectProduct para evitar actualizaciones recursivas
 const selectProduct = ($event) => {
     updating.value = true;
-    nextTick(() => {
-        newboxItem.value.product = $event;
-        console.log('Product selected in BoxItem:', $event);
+    const productValue = $event;
+    
+    // Crear un nuevo objeto para evitar referencias mutables
+    newboxItem.value = {
+        ...newboxItem.value,
+        product: productValue
+    };
+    
+    setTimeout(() => {
         updating.value = false;
-    });
+    }, 10);
 }
 
 const onFocusField = (field) => {
@@ -80,15 +97,14 @@ const onBlurField = (field, format = false) => {
         newboxItem.value[field] = baseStore.formatInputNumber(newboxItem.value[field]);
     }
     
-    // Corregido: Actualizar el total solo cuando cambian campos relevantes
+    // Actualizar el total con manejo para prevenir recursión
     if (field === 'stem_cost_price' || field === 'qty_stem_flower' || field === 'profit_margin') {
         const price = parseFloat(newboxItem.value.stem_cost_price) || 0;
         const qty = parseFloat(newboxItem.value.qty_stem_flower) || 0;
         const margin = parseFloat(newboxItem.value.profit_margin) || 0;
         
-        // El total debe ser (precio + margen) * cantidad
         updating.value = true;
-        newboxItem.value.total = baseStore.formatInputNumber(price + margin);
+        newboxItem.value.total = baseStore.formatInputNumber((price + margin) * qty);
         nextTick(() => {
             updating.value = false;
         });

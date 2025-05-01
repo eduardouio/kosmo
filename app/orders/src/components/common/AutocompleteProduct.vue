@@ -15,11 +15,16 @@ const searchTerm = ref(props.initialValue || '');
 const showDropdown = ref(false);
 const filteredProducts = ref([]);
 const selectedIndex = ref(-1);
+const isUpdatingFromProps = ref(false);
 
 // Observar cambios en initialValue para actualizar searchTerm
 watch(() => props.initialValue, (newValue) => {
-  if (newValue !== searchTerm.value) {
+  if (newValue !== searchTerm.value && !isUpdatingFromProps.value) {
+    isUpdatingFromProps.value = true;
     searchTerm.value = newValue;
+    setTimeout(() => {
+      isUpdatingFromProps.value = false;
+    }, 10);
   }
 });
 
@@ -39,9 +44,17 @@ function filterProducts() {
 }
 
 function selectProduct(product) {
-  searchTerm.value = `${product.name} ${product.variety}`;
-  emit('selectProduct', product);
+  // Limitar cambios reactivos
+  const productValue = { ...product };
+  isUpdatingFromProps.value = true;
+  searchTerm.value = `${productValue.name} ${productValue.variety}`;
   showDropdown.value = false;
+  
+  // Emitir el evento después de actualizar los valores locales
+  setTimeout(() => {
+    emit('selectProduct', productValue);
+    isUpdatingFromProps.value = false;
+  }, 10);
 }
 
 function handleKeyDown(event) {
@@ -62,6 +75,13 @@ function handleKeyDown(event) {
   }
 }
 
+// Nueva función para ocultar el dropdown usando setTimeout
+function hideDropdown() {
+  setTimeout(() => {
+    showDropdown.value = false;
+  }, 200);
+}
+
 watch(searchTerm, filterProducts);
 
 // Si ya hay un valor inicial, asegurarse de que se muestre correctamente al montar
@@ -79,7 +99,7 @@ onMounted(() => {
       class="form-control form-control-sm"
       v-model="searchTerm"
       @focus="showDropdown = true; filterProducts()"
-      @blur="setTimeout(() => showDropdown = false, 200)"
+      @blur="hideDropdown"
       @keydown="handleKeyDown"
       placeholder="Buscar producto..."
     />

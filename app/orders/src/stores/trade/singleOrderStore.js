@@ -239,6 +239,12 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
       } finally {
         this.isLoading = false
       }
-    }
+    },
+    updateOrderTotals(newValues) {
+      this.order = {
+        ...this.order,
+        ...newValues
+      }
+    },
   }
 })

@@ -3,15 +3,11 @@ import { onMounted, ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useBaseStore } from '@/stores/baseStore.js'
 import { useSingleOrderStore } from '@/stores/trade/singleOrderStore.js'
-import axios from 'axios'
-import { appConfig } from '@/AppConfig'
 
-import AutocompleteCustomer from '@/components/common/AutocompleteCustomer.vue'
 import AutocompleteSupplier from '@/components/common/AutocompleteSupplier.vue'
 import GenericProductModal from '@/components/common/GenericProductModal.vue'
 import Loader from '@/components/Sotcks/Loader.vue'
 import OrderLine from '@/components/trade/OrderLine.vue'
-import { IconSettings, IconPlus, IconDeviceFloppy } from '@tabler/icons-vue'
 
 const route = useRoute()
 const baseStore = useBaseStore()
@@ -221,7 +217,7 @@ onMounted(async () => {
             <div class="border border-2 border-warning p-2 rounded">
               <div class="d-flex justify-content-end align-items-center mb-1">
                 <span class="small fw-bold me-2">PEDIDO:</span>
-                <span class="text-danger fs-4">{{ orderStore.order.serie }}-{{ orderStore.order.consecutive }}</span>
+                <span class="text-danger fs-4">{{ orderStore.order.serie }}-0000{{ orderStore.order.consecutive }}</span>
               </div>
               <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
                 <span class="small fw-bold me-2">FECHA:</span>

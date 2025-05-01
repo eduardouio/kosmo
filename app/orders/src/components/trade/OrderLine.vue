@@ -18,26 +18,62 @@ const { quantity, box_model, boxItems } = toRefs(props)
 const localQuantity = ref(quantity.value)
 const localBoxModel = ref(box_model.value)
 const localBoxItems = ref([...boxItems.value])
+const isUpdating = ref(false)
 
-watch(() => props.quantity, val => { localQuantity.value = val })
-watch(() => props.box_model, val => { localBoxModel.value = val })
-watch(() => props.boxItems, val => { localBoxItems.value = [...val] })
+// Mejorar watchers para evitar actualizaciones recursivas
+watch(() => props.quantity, val => { 
+  if (!isUpdating.value) {
+    localQuantity.value = val 
+  }
+})
+watch(() => props.box_model, val => { 
+  if (!isUpdating.value) {
+    localBoxModel.value = val 
+  }
+})
+watch(() => props.boxItems, val => { 
+  if (!isUpdating.value) {
+    localBoxItems.value = [...val] 
+  }
+}, { deep: true })
 
-watch(localQuantity, val => emit('update:quantity', val))
-watch(localBoxModel, val => emit('update:box_model', val))
-watch(localBoxItems, val => emit('update:boxItems', val), { deep: true })
+// Optimizar emisión de eventos
+watch(localQuantity, val => {
+  isUpdating.value = true;
+  emit('update:quantity', val);
+  setTimeout(() => { isUpdating.value = false }, 10);
+})
+watch(localBoxModel, val => {
+  isUpdating.value = true;
+  emit('update:box_model', val);
+  setTimeout(() => { isUpdating.value = false }, 10);
+})
+
+// Usar debounce para actualizar boxItems solo cuando sea necesario
+let debounceTimer = null;
+watch(localBoxItems, val => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    isUpdating.value = true;
+    emit('update:boxItems', val);
+    setTimeout(() => { isUpdating.value = false }, 10);
+  }, 50);
+}, { deep: true })
 
 const orderStore = useSingleOrderStore()
 
-// Watch para recalcular el total de la línea cuando cambian los items
+// Optimizar la actualización del total de la línea
+const updateLineDebounce = ref(null);
 watch([localQuantity, localBoxModel, localBoxItems], () => {
-  // Calcula el total usando la función del store, pasando los valores actuales
-  const tempLine = {
-    quantity: localQuantity.value,
-    box_model: localBoxModel.value,
-    order_box_items: localBoxItems.value
-  }
-  emit('updateLineTotal', tempLine)
+  clearTimeout(updateLineDebounce.value);
+  updateLineDebounce.value = setTimeout(() => {
+    const tempLine = {
+      quantity: localQuantity.value,
+      box_model: localBoxModel.value,
+      order_box_items: localBoxItems.value
+    }
+    emit('updateLineTotal', tempLine);
+  }, 100);
 }, { deep: true })
 
 const showProductModal = ($event) => {

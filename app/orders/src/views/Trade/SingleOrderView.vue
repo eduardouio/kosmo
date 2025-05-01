@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, ref, computed, watch } from 'vue' 
+import {onMounted, ref, computed, watch, onUnmounted } from 'vue' 
 import {useBaseStore} from '@/stores/baseStore.js'
 import { useSingleOrderStore } from '@/stores/trade/singleOrderStore.js'
 
@@ -32,10 +32,9 @@ onMounted(() => {
   baseStore.loadProducts()
   baseStore.loadCustomers(true)
   validateData()
-  setInterval(() => {
-    validateData()
-  }, 2000)
 })
+
+onUnmounted(() => {clearInterval(validateInterval)});
 
 function showProductModal($event) {
   console.log('Activamos el modal del ---', $event)
@@ -91,7 +90,11 @@ function calculateOrderTotals() {
 }
 
 // Recalcular totales cuando cambian las líneas
-watch(() => orderStore.orderLines, calculateOrderTotals, { deep: true })
+let totalCalculationTimeout = null;
+watch(() => orderStore.orderLines, () => {
+  clearTimeout(totalCalculationTimeout);
+  totalCalculationTimeout = setTimeout(calculateOrderTotals, 200);
+}, { deep: true })
 
 function addOrderLine() {
   orderStore.addOrderLine()
@@ -101,12 +104,23 @@ function removeOrderLine(index) {
   orderStore.removeOrderLine(index)
 }
 
+// Mejorar la función updateOrderLineTotal para evitar recursión
 function updateOrderLineTotal(idx, tempLine) {
-  // Actualiza la línea con los nuevos valores y recalcula el total
-  orderStore.orderLines[idx].quantity = tempLine.quantity
-  orderStore.orderLines[idx].box_model = tempLine.box_model
-  orderStore.orderLines[idx].order_box_items = tempLine.order_box_items
-  orderStore.updateOrderLineTotal(idx)
+  // Crear un nuevo objeto para actualizar la línea
+  const updatedLine = {
+    ...orderStore.orderLines[idx],
+    quantity: tempLine.quantity,
+    box_model: tempLine.box_model,
+    order_box_items: JSON.parse(JSON.stringify(tempLine.order_box_items))
+  }
+  
+  // Actualizar el store directamente con el objeto nuevo
+  orderStore.orderLines.splice(idx, 1, updatedLine);
+  
+  // Usar un setTimeout para el cálculo del total para romper posible recursión
+  setTimeout(() => {
+    orderStore.updateOrderLineTotal(idx);
+  }, 10);
 }
 
 function validateData(){
@@ -161,6 +175,9 @@ async function saveOrder() {
     alert(result.message)
   }
 }
+
+// Inicializar un validador recurrente para verificar datos
+const validateInterval = setInterval(validateData, 2000);
 
 </script>
 <template>
