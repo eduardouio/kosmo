@@ -25,8 +25,8 @@ BOX_CHOICES = (
 )
 
 SERIES = (
-    ('100', 'ORD-COMPRA'),
-    ('200', 'ORD-VENTA'),
+    ('100', '100'),
+    ('200', '200'),
 )
 
 
@@ -164,6 +164,11 @@ class Order(BaseModel):
             return self.total_price
 
         return self.total_price + self.total_margin
+
+    @property
+    def consecutive_text(self):
+        consecutive = self.consecutive if self.consecutive else 0
+        return str(consecutive).zfill(6)
 
     @classmethod
     def get_order_by_id(cls, id_order):
@@ -371,7 +376,7 @@ class OrderItems(BaseModel):
         ).distinct()
 
         if partners:
-            return [Partner.get_partner_by_id(x) for x in set(partners)]
+            return [Partner.get_by_id(x) for x in set(partners)]
 
         return []
 
