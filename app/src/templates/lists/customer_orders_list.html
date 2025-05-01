@@ -1,20 +1,6 @@
 {% extends 'base/base.html' %}
 {% block content %}
-<div class="container container-lg mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
-    <div class="d-flex justify-content-between">
-        {% if action %}
-        <span class="bg-peisol-secondary bg-gradient p-2 rounded">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                <path d="M9 12l2 2l4 -4" />
-              </svg>
-            {{ message }}
-        </span>
-        {% endif %}
-    </div>
-</div>
-<div class="container-fluid mx-auto">
+<div class="container-fluid mx-auto mt-3">
     <table class="table table-bordered table-striped" id="myTable">
         <thead>
         <tr>
