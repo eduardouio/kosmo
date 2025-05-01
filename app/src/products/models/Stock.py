@@ -113,7 +113,7 @@ class StockDetail(BaseModel):
             is_active=True
         ).values('partner').distinct()
         partners = set([i['partner'] for i in partners])
-        return [Partner.get_partner_by_id(i) for i in partners]
+        return [Partner.get_by_id(i) for i in partners]
 
     @classmethod
     def get_total_boxes_by_model(cls, stock_day, box_model):

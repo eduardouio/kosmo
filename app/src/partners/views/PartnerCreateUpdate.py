@@ -79,7 +79,7 @@ class PartnerUpdateParent(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         partner = Partner.objects.get(pk=kwargs['pk'])
-        partner_parent = Partner.get_partner_by_id(data['id'])
+        partner_parent = Partner.get_by_id(data['id'])
         if data['selected']:
             partner.partner.add(partner_parent)
         else:

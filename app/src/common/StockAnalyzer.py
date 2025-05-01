@@ -13,7 +13,7 @@ class StockAnalyzer():
 
     def get_stock(self, stock_test, partner):
         if isinstance(partner, int):
-            partner = Partner.get_partner_by_id(partner)
+            partner = Partner.get_by_id(partner)
 
         if not isinstance(partner, Partner):
             raise ValueError('El proveedor no existe')

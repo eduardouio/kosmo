@@ -7,7 +7,6 @@ class SyncOrders:
 
     def sync_suppliers(self, order, create=False):
         if order.status in ['PENDIENTE', 'MODIFICADO']:
-            # ORDER DE VENTA Actualiza ordenes de proveedor
             if order.type_document == 'ORD_VENTA':
                 if create:
                     loggin_event(f"Creando orden de compra para {order.id}")
