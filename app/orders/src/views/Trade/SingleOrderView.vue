@@ -32,6 +32,8 @@ onMounted(() => {
   baseStore.loadProducts()
   baseStore.loadCustomers(true)
   validateData()
+  // Calcular totales iniciales después de cargar los datos
+  setTimeout(calculateOrderTotals, 500)
 })
 
 onUnmounted(() => {clearInterval(validateInterval)});
@@ -51,7 +53,7 @@ function onSelectSupplier(supplier) {
   baseStore.selectedSupplier = supplier
 }
 
-// Calcular totales del documento
+// Calcular totales del documento - versión mejorada
 function calculateOrderTotals() {
   let hb_total = 0
   let qb_total = 0
@@ -62,34 +64,40 @@ function calculateOrderTotals() {
 
   const lines = orderStore.orderLines.slice()
   lines.forEach(line => {
-    if (line.box_model === 'HB') hb_total += Number(line.quantity) || 0
-    if (line.box_model === 'QB') qb_total += Number(line.quantity) || 0
+    // Asegurarse que quantity es un número
+    const quantity = Number(line.quantity) || 0;
+    if (line.box_model === 'HB') hb_total += quantity;
+    if (line.box_model === 'QB') qb_total += quantity;
 
     if (Array.isArray(line.order_box_items)) {
       line.order_box_items.forEach(item => {
-        total_stem_flower += Number(item.qty_stem_flower) || 0
-        total_price += (Number(item.stem_cost_price) || 0) * (Number(item.qty_stem_flower) || 0)
-        total_margin += (Number(item.profit_margin) || 0) * (Number(item.qty_stem_flower) || 0)
+        // Asegurarnos de limpiar cualquier formato y convertir a número
+        const qtyStems = parseFloat(String(item.qty_stem_flower || '0').replace(/,/g, '')) || 0;
+        const costPrice = parseFloat(String(item.stem_cost_price || '0.00').replace(/,/g, '')) || 0;
+        const profitMargin = parseFloat(String(item.profit_margin || '0.00').replace(/,/g, '')) || 0;
+
+        total_stem_flower += qtyStems;
+        total_price += costPrice * qtyStems;
+        total_margin += profitMargin * qtyStems;
       })
     }
   })
 
   // FB = (HB/2) + (QB/4)
   fb_total = (hb_total / 2) + (qb_total / 4)
-
-  // Asignar los resultados al final para evitar recursividad, con dos decimales
-  orderStore.order = {
-    ...orderStore.order,
-    hb_total: Number(hb_total.toFixed(2)),
-    qb_total: Number(qb_total.toFixed(2)),
-    fb_total: Number(fb_total.toFixed(2)),
-    total_stem_flower: Number(total_stem_flower.toFixed(2)),
-    total_price: Number(total_price.toFixed(2)),
-    total_margin: Number(total_margin.toFixed(2))
-  }
+  
+  // Asegurarnos que los valores son números válidos antes de asignarlos
+  orderStore.updateOrderTotals({
+    hb_total: parseFloat(hb_total.toFixed(2)),
+    qb_total: parseFloat(qb_total.toFixed(2)),
+    fb_total: parseFloat(fb_total.toFixed(2)),
+    total_stem_flower: parseFloat(total_stem_flower.toFixed(2)),
+    total_price: parseFloat(total_price.toFixed(2)),
+    total_margin: parseFloat(total_margin.toFixed(2))
+  })
 }
 
-// Recalcular totales cuando cambian las líneas
+// Recalcular totales cuando cambian las líneas - versión mejorada
 let totalCalculationTimeout = null;
 watch(() => orderStore.orderLines, () => {
   clearTimeout(totalCalculationTimeout);
@@ -106,21 +114,27 @@ function removeOrderLine(index) {
 
 // Mejorar la función updateOrderLineTotal para evitar recursión
 function updateOrderLineTotal(idx, tempLine) {
-  // Crear un nuevo objeto para actualizar la línea
-  const updatedLine = {
-    ...orderStore.orderLines[idx],
-    quantity: tempLine.quantity,
-    box_model: tempLine.box_model,
-    order_box_items: JSON.parse(JSON.stringify(tempLine.order_box_items))
+  if (idx >= 0 && idx < orderStore.orderLines.length) {
+    // Crear un nuevo objeto para asegurar la reactividad
+    const updatedLine = {
+      ...orderStore.orderLines[idx], // Mantener propiedades existentes
+      quantity: tempLine.quantity,
+      box_model: tempLine.box_model,
+      // Asegurar una copia profunda de los items para la reactividad
+      order_box_items: JSON.parse(JSON.stringify(tempLine.order_box_items))
+    };
+
+    // Actualizar el store directamente con el objeto nuevo
+    // Usar Vue.set o similar si splice no es reactivo, pero en Pinia/Vue 3 debería serlo.
+    orderStore.orderLines.splice(idx, 1, updatedLine);
+
+    // Llamar directamente a calculateOrderTotals después de la actualización
+    // Usar nextTick para asegurar que el DOM se actualice antes de calcular si fuera necesario,
+    // pero aquí calculamos sobre los datos del store, así que puede ser inmediato o con pequeño delay.
+    setTimeout(calculateOrderTotals, 10); // Pequeño delay por si acaso
+  } else {
+    console.error("Índice inválido para updateOrderLineTotal:", idx);
   }
-  
-  // Actualizar el store directamente con el objeto nuevo
-  orderStore.orderLines.splice(idx, 1, updatedLine);
-  
-  // Usar un setTimeout para el cálculo del total para romper posible recursión
-  setTimeout(() => {
-    orderStore.updateOrderLineTotal(idx);
-  }, 10);
 }
 
 function validateData(){
@@ -208,7 +222,6 @@ const validateInterval = setInterval(validateData, 2000);
             </div>
           </div>
         </div>
-
         <!-- Información del cliente y proveedor -->
         <div class="row mb-4">
           <div class="col-6">
@@ -250,7 +263,6 @@ const validateInterval = setInterval(validateData, 2000);
             </div>
           </div>
         </div>
-
         <!-- Tabla de productos -->
         <div class="row mb-4">
           <div class="col-12">
@@ -324,15 +336,24 @@ const validateInterval = setInterval(validateData, 2000);
             <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
               <div class="row mt-4">
                 <div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div>
-                <div class="col-5 text-end text-success fs-5">${{ orderStore.order.total_price.toFixed(2) }}</div>
+                <div class="col-5 text-end text-success fs-5">
+                  ${{ typeof orderStore.order.total_price === 'number' ? orderStore.order.total_price.toFixed(2) : '0.00' }}
+                </div>
               </div>
               <div class="row">
                 <div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div>
-                <div class="col-5 text-end text-success fs-5">${{ orderStore.order.total_margin.toFixed(2) }}</div>
+                <div class="col-5 text-end text-success fs-5">
+                  ${{ typeof orderStore.order.total_margin === 'number' ? orderStore.order.total_margin.toFixed(2) : '0.00' }}
+                </div>
               </div>
               <div class="row mb-1">
                 <div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div>
-                <div class="col-5 text-end text-success fs-5">${{ (orderStore.order.total_margin + orderStore.order.total_price).toFixed(2) }}</div>
+                <div class="col-5 text-end text-success fs-5">
+                  ${{
+                    ((typeof orderStore.order.total_margin === 'number' ? orderStore.order.total_margin : 0) +
+                     (typeof orderStore.order.total_price === 'number' ? orderStore.order.total_price : 0)).toFixed(2)
+                  }}
+                </div>
               </div>
             </div>
           </div>

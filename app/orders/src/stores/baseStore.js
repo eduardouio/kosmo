@@ -144,13 +144,9 @@ export const useBaseStore = defineStore("baseStore", {
       formatInputNumber(number){
         console.log('Formatting input number')
         if (number === null || number === undefined || number === '' || number === '0') {
-          return '0.00';
+          return parseFloat(0).toFixed(2)
         }
-        if (typeof(number) === 'string') {
-          number = number.replace(',', '.');
-        }
-      
-        number = typeof number === 'string' ? number.replace(',', '.') : number;
+        number =  String(number).replace(',','.')
         return parseFloat(number).toFixed(2);
       },
     },

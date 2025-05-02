@@ -5,9 +5,8 @@ import axios from 'axios'
 export const useSingleOrderStore = defineStore("singleOrderStore", {
   state: () => ({
     order: {
-      serie: '',
-      serie_name: '',
-      consecutive: '',
+      serie: '100',
+      consecutive: '000000',
       stock_day: 0,
       date: '',
       partner: null,
@@ -46,7 +45,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
     removeOrderLine(index) {
       this.orderLines.splice(index, 1)
     },
-    
+
     calculateOrderLineTotal(line) {
       let total = 0
       if (Array.isArray(line.order_box_items)) {
@@ -169,7 +168,6 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
         // Configurar la información de la orden
         this.order = {
           serie: data.order.serie || '',
-          serie_name: data.order.serie_name || '',
           consecutive: data.order.consecutive || '',
           stock_day: data.order.stock_day || 0,
           date: data.order.date ? data.order.date : baseStore.formatDate(new Date()),

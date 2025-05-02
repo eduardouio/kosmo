@@ -69,15 +69,19 @@ const showProductModal = (product)=>{
     emit('showProductModal', product)
 }
 
-// Modificar la función selectProduct para evitar actualizaciones recursivas
+// Modificar la función selectProduct para garantizar que todos los valores necesarios estén inicializados
 const selectProduct = ($event) => {
     updating.value = true;
     const productValue = $event;
     
-    // Crear un nuevo objeto para evitar referencias mutables
+    // Crear un nuevo objeto para evitar referencias mutables, asegurando valores por defecto
     newboxItem.value = {
         ...newboxItem.value,
-        product: productValue
+        product: productValue,
+        stem_cost_price: newboxItem.value.stem_cost_price || '0.00',
+        profit_margin: newboxItem.value.profit_margin || '0.00',
+        qty_stem_flower: newboxItem.value.qty_stem_flower || 0,
+        total: newboxItem.value.total || '0.00'
     };
     
     setTimeout(() => {
@@ -85,31 +89,62 @@ const selectProduct = ($event) => {
     }, 10);
 }
 
+// Modificada para preparar el campo para edición - guarda el valor anterior y elimina formato
 const onFocusField = (field) => {
     previousValues.value[field] = newboxItem.value[field];
-    newboxItem.value[field] = '';
+    
+    // Si es un campo numérico con formato, eliminar el formato al entrar
+    if (field === 'stem_cost_price' || field === 'profit_margin') {
+        const cleanValue = newboxItem.value[field].toString().replace(/,/g, '');
+        newboxItem.value[field] = cleanValue;
+    }
 };
 
+// Compute the total safely with null checks
+const calculateTotal = computed(() => {
+    console.log('Propiesdad conputada caculateTotal');
+    const priceStr = newboxItem.value?.stem_cost_price?.toString() || '0';
+    const marginStr = newboxItem.value?.profit_margin?.toString() || '0';
+    
+    const price = parseFloat(priceStr.replace(/,/g, '')) || 0;
+    const margin = parseFloat(marginStr.replace(/,/g, '')) || 0;
+    
+    const total = price + margin;
+    return baseStore.formatInputNumber(total.toFixed(2));
+});
+
 const onBlurField = (field, format = false) => {
+    console.log('Propiesdad al avandonart el input');
     if (newboxItem.value[field] === '' || newboxItem.value[field] === null) {
         newboxItem.value[field] = previousValues.value[field];
     } else if (format) {
-        newboxItem.value[field] = baseStore.formatInputNumber(newboxItem.value[field]);
+        // Clean the input and format it properly
+        const cleanValue = newboxItem.value[field].toString().replace(/,/g, '');
+        const numValue = parseFloat(cleanValue);
+        if (!isNaN(numValue)) {
+            newboxItem.value[field] = baseStore.formatInputNumber(numValue.toFixed(2));
+        }
     }
     
-    // Actualizar el total con manejo para prevenir recursión
-    if (field === 'stem_cost_price' || field === 'qty_stem_flower' || field === 'profit_margin') {
-        const price = parseFloat(newboxItem.value.stem_cost_price) || 0;
-        const qty = parseFloat(newboxItem.value.qty_stem_flower) || 0;
-        const margin = parseFloat(newboxItem.value.profit_margin) || 0;
-        
-        updating.value = true;
-        newboxItem.value.total = baseStore.formatInputNumber((price + margin) * qty);
-        nextTick(() => {
-            updating.value = false;
-        });
+    // Actualizar inmediatamente el total después de salir del campo
+    if (field === 'stem_cost_price' || field === 'profit_margin') {
+        newboxItem.value.total = calculateTotal.value;
     }  
 };
+
+// Watch for changes in calculation fields and update total - with additional safety checks
+watch([
+    () => newboxItem.value?.stem_cost_price,
+    () => newboxItem.value?.qty_stem_flower,
+    () => newboxItem.value?.profit_margin
+], () => {
+    // Solo actualizar si newboxItem existe y tiene todas las propiedades necesarias
+    if (newboxItem.value && 
+        newboxItem.value.stem_cost_price !== undefined && 
+        newboxItem.value.profit_margin !== undefined) {
+        newboxItem.value.total = calculateTotal.value;
+    }
+}, { deep: true });
 
 // Calcular el nombre del producto para mostrar en el autocomplete
 const productInitialValue = computed(() => {

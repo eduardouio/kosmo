@@ -1,11 +1,13 @@
 const idStockDay = window.djangoConfig?.stockId ?? 1;
 const apiBaseUrl = window.djangoConfig?.baseUrl ?? "http://localhost:8000";
+const apiBaseUrlTest = apiBaseUrl;
 const csrfToken = window.djangoConfig?.csrfToken ?? "";
 
 
 
 export const appConfig = {
     "apiBaseUrl": apiBaseUrl,
+    "apiBaseUrlTest": apiBaseUrlTest,
     "csrfToken": csrfToken,
     "idStock": idStockDay,
     "imgPlaceholder": apiBaseUrl + "/static/img/rosa_placeholder.jpg",
