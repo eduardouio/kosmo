@@ -22,7 +22,7 @@ class CreateFutureOrderAPI(View):
 
         order = Order()
         order.serie = order_data.get('serie', '200')
-        order.consecutive = Order.get_last_sale_consecutive() + 1
+        order.consecutive = Order.get_next_sale_consecutive()
         order.date = datetime.now()
         order.type_document = order_data.get('type_document')
         order.partner = Partner.get_by_id(customer_data.get('id'))
@@ -83,10 +83,27 @@ class CreateFutureOrderAPI(View):
         Order.rebuild_totals(order)
 
         if supplier_data.get('business_tax_id', '9999999999') != '9999999999':
-            loggin_event('Creando Orden de Compra')
-            SyncOrders().sync_suppliers(order=order, create=True)
+            self.create_purchase_order(
+                customer_order=order, is_partner=supplier_data.get('id')
+            )
 
         return JsonResponse({
             'message': 'Orden Futura Creada', 'order_id': order.id
         }, status=201
         )
+
+    def create_purchase_order(self, customer_order, is_partner):
+        loggin_event(
+            f'Creando Orden de Compra parapedido {customer_order.id} '
+            f'con proveedor {is_partner}'
+        )
+        purchase_order = Order()
+        purchase_order.serie = '200'
+        purchase_order.consecutive = Order.get_next_purchase_consecutive()
+        purchase_order.date = datetime.now()
+        purchase_order.type_document = 'ORD_COMPRA'
+        purchase_order.partner = customer_order.partner
+        purchase_order.num_order = customer_order.num_order
+        purchase_order.status = 'PENDIENTE'
+        purchase_order.save()
+

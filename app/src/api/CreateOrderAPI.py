@@ -15,7 +15,7 @@ class CreateOrderAPI(View):
         if not order_data:
             return JsonResponse({'error': 'No data provided'}, status=400)
 
-        customer = Partner.get_partner_by_id(order_data['customer']['id'])
+        customer = Partner.get_by_id(order_data['customer']['id'])
         if not customer:
             return JsonResponse(
                 {'error': 'Customer not found'},
@@ -28,6 +28,8 @@ class CreateOrderAPI(View):
             stock_day=stock_day,
             type_document='ORD_VENTA',
             status='PENDIENTE',
+            serie='100',
+            consecutive=Order.get_next_consecutive()
         )
 
         for new_order_item in order_data['order_detail']:

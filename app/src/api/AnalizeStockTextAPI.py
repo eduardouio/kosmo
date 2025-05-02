@@ -11,7 +11,7 @@ class AnalizeStockTextAPI(View):
     def post(self, request, *args, **kwargs):
         loggin_event('AnalizeStockTextAPI Post request')
         data = json.loads(request.body)
-        partner = Partner.get_partner_by_id(data['supplier']['id'])
+        partner = Partner.get_by_id(data['supplier']['id'])
         stock_day = StockDay.get_by_id(data['idStock'])
         if not stock_day:
 
