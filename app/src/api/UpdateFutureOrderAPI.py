@@ -71,8 +71,6 @@ class UpdateFutureOrderAPI(APIView):
         # Actualizar datos básicos de la orden
         order.partner = customer
         order.num_order = order_data.get('num_order', order.num_order)
-        order.delivery_date = order_data.get(
-            'delivery_date', order.delivery_date)
 
         # Actualizar totales de la orden desde el payload
         order.total_price = Decimal(str(order_data.get('total_price', 0)))

@@ -190,10 +190,23 @@ class Order(BaseModel):
         )
 
     @classmethod
-    def get_next_sale_consecutive(cls):
+    def get_purchases_by_stock_day(cls, id_stock_day):
         return cls.objects.filter(
+            stock_day=id_stock_day,
+            type_document='ORD_COMPRA',
+            is_active=True,
+        )
+
+    @classmethod
+    def get_next_sale_consecutive(cls):
+        consecutive = cls.objects.filter(
             type_document='ORD_VENTA',
-        ).order_by('-id').first().consecutive + 1
+        ).order_by('-id').first().consecutive
+
+        if consecutive is None:
+            return 1
+
+        return consecutive + 1
 
     @classmethod
     def get_next_purchase_consecutive(cls):
