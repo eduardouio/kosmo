@@ -1,4 +1,4 @@
-    from .Stock import (
+from .Stock import (
     StockDayListView,
     StockDayCreateView,
     StockDayDeleteView,
