@@ -19,3 +19,28 @@ from .OrderDetailAPI import OrderDetailAPI
 from .CreateFutureOrderAPI import CreateFutureOrderAPI
 from .CustomerOrderDetailAPI import CustomerOrderDetailAPI
 from .UpdateFutureOrderAPI import UpdateFutureOrderAPI
+
+
+__all__ = [
+    'StockDetailAPI',
+    'AllSuppliersAPI',
+    'AnalizeStockTextAPI',
+    'DeleteStockDetailAPI',
+    'UpdateStockDetailAPI',
+    'AllProductsAPI',
+    'AddBoxItemAPI',
+    'AllCustomerAPI',
+    'CreateOrderAPI',
+    'UpdateCustmerOrderAPI',
+    'OrderPurchaseByOrderSale',
+    'AllOrderDetailAPI',
+    'UpdateSupplierOrderAPI',
+    'CancelCustomerOrderAPI',
+    'CancelSupplierOrderAPI',
+    'AproveOrderAPI',
+    'CreateInvoiceAPI',
+    'OrderDetailAPI',
+    'CreateFutureOrderAPI',
+    'CustomerOrderDetailAPI',
+    'UpdateFutureOrderAPI',
+]

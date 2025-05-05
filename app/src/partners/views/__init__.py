@@ -3,7 +3,6 @@ from .PartnerCreateUpdate import (
     PartnerUpdateView,
     PartnerUpdateParent,
 )
-
 from .Bank import (
     BankDetailView,
     BankListView,
@@ -11,7 +10,6 @@ from .Bank import (
     BankUpdateView,
     BankDeleteView,
 )
-
 from .Contact import (
     ContactDetailView,
     ContactListView,
@@ -19,7 +17,6 @@ from .Contact import (
     ContactUpdateView,
     ContactDeleteView,
 )
-
 from .DAEPartners import (
     DAECreateView,
     DAEUpdateView,
@@ -27,8 +24,32 @@ from .DAEPartners import (
     DAEListView,
     DAEDetailView,
 )
-
 from .PartnerDelete import PartnerDeleteView
 from .PartnerDetail import PartnerDetailView
 from .PartnerList import PartnerListView
 from .PartnerAutoRegister import PartnerAutoRegister
+
+__all__ = [
+    'PartnerCreateView',
+    'PartnerUpdateView',
+    'PartnerUpdateParent',
+    'BankDetailView',
+    'BankListView',
+    'BankCreateView',
+    'BankUpdateView',
+    'BankDeleteView',
+    'ContactDetailView',
+    'ContactListView',
+    'ContactCreateView',
+    'ContactUpdateView',
+    'ContactDeleteView',
+    'DAECreateView',
+    'DAEUpdateView',
+    'DAEDeleteView',
+    'DAEListView',
+    'DAEDetailView',
+    'PartnerDeleteView',
+    'PartnerDetailView',
+    'PartnerListView',
+    'PartnerAutoRegister',
+]
