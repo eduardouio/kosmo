@@ -1,0 +1,395 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container">
+  <div class="bg-light py-4">
+    <form method="POST" id="collectForm" action="">
+      {% csrf_token %}
+      <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
+        <!-- Encabezado -->
+        <div class="row">
+          <div class="col text-center fs-2 text-kosmo-secondary">
+            {% if collection %}EDITAR COBRO{% else %}NUEVO COBRO{% endif %}
+          </div>
+        </div>
+      
+        <div class="row mb-4 align-items-center">
+          <div class="col-9">
+            <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
+          </div>
+          <div class="col-3">
+            <div class="border border-2 border-warning p-2 rounded">
+              <div class="d-flex justify-content-end align-items-center mb-1">
+                <span class="small fw-bold me-2">COBRO ID:</span>
+                <span class="text-danger fs-4">{% if collection %}{{ collection.id }}{% else %}Nuevo{% endif %}</span>
+              </div>
+              <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
+                <span class="small fw-bold me-2">FECHA:</span>
+                <input type="date" name="date" class="form-control form-control-sm" value="{{ collection.date|date:'Y-m-d' }}" required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del cliente -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="border border-2 border-warning p-3 rounded">
+              <h6 class="fw-bold mb-3">Seleccionar Cliente</h6>
+              <select id="partner-select" class="form-select mb-3" required>
+                <option value="">-- Seleccione un cliente --</option>
+                {% for partner in partners %}
+                <option value="{{ partner.id }}">{{ partner.name }}</option>
+                {% endfor %}
+              </select>
+              <div id="partner-info" class="bg-light p-3 rounded" style="display: none;">
+                <p class="small mb-1"><strong>Dirección:</strong> <span id="partner-address"></span></p>
+                <p class="small mb-1"><strong>Ciudad - País:</strong> <span id="partner-location"></span></p>
+                <div class="d-flex justify-content-between">
+                  <p class="small mb-1"><strong>Email:</strong> <span id="partner-email"></span></p>
+                  <p class="small mb-1"><strong>Crédito:</strong> <span id="partner-credit"></span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen del cliente -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="border border-2 border-warning p-3 rounded">
+              <h6 class="fw-bold mb-3">Resumen del Cliente</h6>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="card bg-light">
+                    <div class="card-body text-center">
+                      <h6 class="card-title">Total Facturado</h6>
+                      <p class="card-text text-primary fs-4" id="total-invoiced">$0.00</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card bg-light">
+                    <div class="card-body text-center">
+                      <h6 class="card-title">Total Cobrado</h6>
+                      <p class="card-text text-success fs-4" id="total-collected">$0.00</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card bg-light">
+                    <div class="card-body text-center">
+                      <h6 class="card-title">Total Pendiente</h6>
+                      <p class="card-text text-danger fs-4" id="total-pending">$0.00</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del cobro -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="border border-2 border-warning p-3 rounded">
+              <h6 class="fw-bold mb-3">Detalles del Cobro</h6>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="method" class="form-label">Método de cobro:</label>
+                  <select name="method" id="method" class="form-select" required>
+                    <option value="">-- Seleccione método --</option>
+                    {% for value, label in method_choices %}
+                      <option value="{{ value }}" {% if collection.method == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label for="amount" class="form-label">Monto total:</label>
+                  <input type="number" step="0.01" name="amount" id="amount" class="form-control" value="{{ collection.amount|default:'0.00' }}" required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <label for="bank" class="form-label">Banco:</label>
+                  <input type="text" name="bank" id="bank" class="form-control" value="{{ collection.bank|default:'' }}">
+                </div>
+                <div class="col-md-4">
+                  <label for="nro_account" class="form-label">Número de cuenta:</label>
+                  <input type="text" name="nro_account" id="nro_account" class="form-control" value="{{ collection.nro_account|default:'' }}">
+                </div>
+                <div class="col-md-4">
+                  <label for="nro_operation" class="form-label">Número de operación:</label>
+                  <input type="text" name="nro_operation" id="nro_operation" class="form-control" value="{{ collection.nro_operation|default:'' }}">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de facturas -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="border border-2 border-warning p-3 rounded">
+              <h6 class="fw-bold mb-3">Facturas pendientes de cobro</h6>
+              <div class="table-responsive">
+                <table class="table table-bordered table-sm" id="invoices-table">
+                  <thead class="bg-warning bg-opacity-25">
+                    <tr class="text-center small">
+                      <th>FACTURA</th>
+                      <th>FECHA</th>
+                      <th>VENCE</th>
+                      <th>TOTAL</th>
+                      <th>COBRADO</th>
+                      <th>SALDO</th>
+                      <th>A COBRAR</th>
+                      <th>ACCIÓN</th>
+                    </tr>
+                  </thead>
+                  <tbody id="invoice-list">
+                    <!-- Las facturas se cargarán dinámicamente con JavaScript -->
+                    <tr id="no-invoices">
+                      <td colspan="8" class="text-center">Seleccione un cliente para ver las facturas pendientes</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facturas seleccionadas -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="border border-2 border-warning p-3 rounded">
+              <h6 class="fw-bold mb-3">Facturas seleccionadas para cobrar</h6>
+              <div class="table-responsive">
+                <table class="table table-bordered table-sm" id="selected-invoices-table">
+                  <thead class="bg-success bg-opacity-25">
+                    <tr class="text-center small">
+                      <th>FACTURA</th>
+                      <th>FECHA</th>
+                      <th>TOTAL</th>
+                      <th>SALDO</th>
+                      <th>MONTO A COBRAR</th>
+                      <th>ACCIÓN</th>
+                    </tr>
+                  </thead>
+                  <tbody id="selected-invoice-list">
+                    <tr id="no-selected-invoices">
+                      <td colspan="6" class="text-center">No hay facturas seleccionadas</td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="4" class="text-end fw-bold">TOTAL:</td>
+                      <td class="text-end fw-bold" id="total-collection">0.00</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <input type="hidden" name="invoice_payments" id="invoice-payments-json" value="{}">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Botones de acción -->
+        <div class="row">
+          <div class="col d-flex justify-content-end gap-3">
+            <button type="submit" class="btn btn-primary" id="save-button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
+              Guardar cobro
+            </button>
+            <a href="" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+              Cancelar
+            </a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const partnerSelect = document.getElementById('partner-select');
+    const invoicePaymentsJson = document.getElementById('invoice-payments-json');
+    const totalCollectionElement = document.getElementById('total-collection');
+    const amountInput = document.getElementById('amount');
+    
+    let selectedInvoices = {};
+    
+    // Cargar facturas cuando se selecciona un cliente
+    partnerSelect.addEventListener('change', function() {
+      const partnerId = this.value;
+      if (partnerId) {
+        fetchPartnerInvoices(partnerId);
+        fetchClientSummary(partnerId);
+        document.getElementById('partner-info').style.display = 'block';
+      } else {
+        document.getElementById('invoice-list').innerHTML = '<tr><td colspan="8" class="text-center">Seleccione un cliente para ver las facturas pendientes</td></tr>';
+        document.getElementById('partner-info').style.display = 'none';
+        
+        // Resetear resumen
+        document.getElementById('total-invoiced').textContent = '$0.00';
+        document.getElementById('total-collected').textContent = '$0.00';
+        document.getElementById('total-pending').textContent = '$0.00';
+      }
+    });
+    
+    function fetchPartnerInvoices(partnerId) {
+      fetch(`/api/collections/?action=get_partner_invoices&partner_id=${partnerId}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.invoices && data.invoices.length > 0) {
+            renderInvoicesTable(data.invoices);
+          } else {
+            document.getElementById('invoice-list').innerHTML = '<tr><td colspan="8" class="text-center">No hay facturas pendientes para este cliente</td></tr>';
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching invoices:', error);
+          document.getElementById('invoice-list').innerHTML = '<tr><td colspan="8" class="text-center">Error al cargar facturas</td></tr>';
+        });
+    }
+    
+    function fetchClientSummary(partnerId) {
+      fetch(`/api/collections/?action=get_client_summary&partner_id=${partnerId}`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById('total-invoiced').textContent = '$' + data.total_invoiced.toFixed(2);
+          document.getElementById('total-collected').textContent = '$' + data.total_collected.toFixed(2);
+          document.getElementById('total-pending').textContent = '$' + data.total_pending.toFixed(2);
+        })
+        .catch(error => {
+          console.error('Error fetching client summary:', error);
+        });
+    }
+    
+    function renderInvoicesTable(invoices) {
+      let html = '';
+      invoices.forEach(invoice => {
+        html += `
+          <tr data-invoice-id="${invoice.id}">
+            <td class="text-center">${invoice.serie}-${invoice.consecutive}</td>
+            <td class="text-center">${invoice.date}</td>
+            <td class="text-center">${invoice.due_date}</td>
+            <td class="text-end">${invoice.total_amount.toFixed(2)}</td>
+            <td class="text-end">${invoice.paid_amount.toFixed(2)}</td>
+            <td class="text-end">${invoice.balance.toFixed(2)}</td>
+            <td>
+              <input type="number" step="0.01" class="form-control form-control-sm collection-amount" 
+                     max="${invoice.balance.toFixed(2)}" value="${invoice.balance.toFixed(2)}">
+            </td>
+            <td class="text-center">
+              <button type="button" class="btn btn-sm btn-success add-invoice" data-invoice-id="${invoice.id}">
+                <i class="fas fa-plus"></i> Agregar
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      document.getElementById('invoice-list').innerHTML = html;
+      
+      // Añadir evento a los botones de agregar
+      document.querySelectorAll('.add-invoice').forEach(button => {
+        button.addEventListener('click', function() {
+          const invoiceId = this.getAttribute('data-invoice-id');
+          const row = document.querySelector(`tr[data-invoice-id="${invoiceId}"]`);
+          const collectionAmount = row.querySelector('.collection-amount').value;
+          
+          addInvoiceToSelected(invoiceId, row, parseFloat(collectionAmount));
+        });
+      });
+    }
+    
+    function addInvoiceToSelected(invoiceId, sourceRow, collectionAmount) {
+      if (selectedInvoices[invoiceId]) {
+        // Ya existe, actualizar el monto
+        selectedInvoices[invoiceId] = collectionAmount;
+        document.querySelector(`#selected-invoice-${invoiceId} .collection-value`).textContent = collectionAmount.toFixed(2);
+      } else {
+        // Nuevo, agregar a la tabla
+        const serie = sourceRow.cells[0].textContent;
+        const date = sourceRow.cells[1].textContent;
+        const total = sourceRow.cells[3].textContent;
+        const balance = sourceRow.cells[5].textContent;
+        
+        selectedInvoices[invoiceId] = collectionAmount;
+        
+        if (document.getElementById('no-selected-invoices')) {
+          document.getElementById('no-selected-invoices').remove();
+        }
+        
+        const newRow = document.createElement('tr');
+        newRow.id = `selected-invoice-${invoiceId}`;
+        newRow.innerHTML = `
+          <td class="text-center">${serie}</td>
+          <td class="text-center">${date}</td>
+          <td class="text-end">${total}</td>
+          <td class="text-end">${balance}</td>
+          <td class="text-end collection-value">${collectionAmount.toFixed(2)}</td>
+          <td class="text-center">
+            <button type="button" class="btn btn-sm btn-danger remove-invoice" data-invoice-id="${invoiceId}">
+              <i class="fas fa-trash"></i> Quitar
+            </button>
+          </td>
+        `;
+        
+        document.getElementById('selected-invoice-list').appendChild(newRow);
+        
+        // Añadir evento al botón de quitar
+        newRow.querySelector('.remove-invoice').addEventListener('click', function() {
+          const invoiceId = this.getAttribute('data-invoice-id');
+          removeInvoiceFromSelected(invoiceId);
+        });
+      }
+      
+      updateTotalCollection();
+      updateInvoicePaymentsJson();
+    }
+    
+    function removeInvoiceFromSelected(invoiceId) {
+      if (selectedInvoices[invoiceId]) {
+        delete selectedInvoices[invoiceId];
+        document.getElementById(`selected-invoice-${invoiceId}`).remove();
+        
+        if (Object.keys(selectedInvoices).length === 0) {
+          document.getElementById('selected-invoice-list').innerHTML = `
+            <tr id="no-selected-invoices">
+              <td colspan="6" class="text-center">No hay facturas seleccionadas</td>
+            </tr>
+          `;
+        }
+        
+        updateTotalCollection();
+        updateInvoicePaymentsJson();
+      }
+    }
+    
+    function updateTotalCollection() {
+      let total = 0;
+      for (const invoiceId in selectedInvoices) {
+        total += selectedInvoices[invoiceId];
+      }
+      
+      totalCollectionElement.textContent = total.toFixed(2);
+      amountInput.value = total.toFixed(2);
+    }
+    
+    function updateInvoicePaymentsJson() {
+      invoicePaymentsJson.value = JSON.stringify(selectedInvoices);
+    }
+    
+    // Validar el formulario antes de enviar
+    document.getElementById('collectForm').addEventListener('submit', function(e) {
+      if (Object.keys(selectedInvoices).length === 0) {
+        e.preventDefault();
+        alert('Debe seleccionar al menos una factura para registrar el cobro');
+      }
+    });
+  });
+</script>
+{% endblock %}
