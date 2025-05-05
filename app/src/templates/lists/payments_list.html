@@ -1,0 +1,143 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
+    <div class="d-flex justify-content-end gap-4">
+        <div class="fw-bold">
+            <span>Total Pagos:</span>
+            <span class="text-primary"> {{ stats.total_payments }} </span>
+        </div>
+        <div class="fw-bold">
+            <span>Pagos del Mes:</span>
+            <span class="text-primary"> {{ stats.payments_this_month }} </span>
+        </div>
+        <div class="fw-bold">
+            <span>Monto Total del Mes:</span>
+            <span class="text-success">{{ stats.amount_this_month }}</span>
+        </div>
+        <div class="fw-bold">
+            <span>Monto Total Histórico:</span>
+            <span class="text-orange-600">{{ stats.total_amount }}</span>
+        </div>
+        {% if action %}
+        <span class="bg-peisol-secondary bg-gradient p-2 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                <path d="M9 12l2 2l4 -4" />
+              </svg>
+            {{ message }}
+        </span>
+        {% endif %}
+    </div>
+</div>
+<div class="container-fluid mx-auto">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Resumen de métodos de pago</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold">Transferencias</div>
+                            <div class="fs-4 text-primary">{{ stats.payments_by_transfer }}</div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold">Cheques</div>
+                            <div class="fs-4 text-primary">{{ stats.payments_by_check }}</div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold">Efectivo</div>
+                            <div class="fs-4 text-primary">{{ stats.payments_by_cash }}</div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold">Tarjeta de Crédito</div>
+                            <div class="fs-4 text-primary">{{ stats.payments_by_credit_card }}</div>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold">Nota de Crédito</div>
+                            <div class="fs-4 text-primary">{{ stats.payments_by_credit_note }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="table table-bordered table-striped" id="myTable">
+        <thead>
+        <tr>
+            <th class="bg-secondary bg-opacity-25 text-center">#</th>
+            <th class="bg-secondary bg-opacity-25 text-center">ID Pago</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Fecha</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Monto</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Método</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Banco</th>
+            <th class="bg-secondary bg-opacity-25 text-center"># Operación</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Facturas</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td class="p-0 text-center">{{ forloop.counter }}</td>
+                <td class="p-0 text-end">{{ payment.id }}</td>
+                <td class="p-0 text-end">{{ payment.date|date:"d/m/Y" }}</td>
+                <td class="p-0 text-end">{{ payment.amount }}</td>
+                <td class="p-0 text-center">
+                    {% if payment.method == 'TRANSF' %}
+                        <span class="badge bg-primary">Transferencia</span>
+                    {% elif payment.method == 'CHEQUE' %}
+                        <span class="badge bg-success">Cheque</span>
+                    {% elif payment.method == 'EFECTIVO' %}
+                        <span class="badge bg-warning">Efectivo</span>
+                    {% elif payment.method == 'TC' %}
+                        <span class="badge bg-info">Tarjeta de Crédito</span>
+                    {% elif payment.method == 'NC' %}
+                        <span class="badge bg-secondary">Nota de Crédito</span>
+                    {% else %}
+                        <span class="badge bg-dark">Otro</span>
+                    {% endif %}
+                </td>
+                <td class="p-0">{{ payment.bank|default:"-" }}</td>
+                <td class="p-0">{{ payment.nro_operation|default:"-" }}</td>
+                <td class="p-0 text-center">
+                    {% if payment.invoice_count > 0 %}
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ payment.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ payment.invoice_count }} Facturas
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ payment.id }}">
+                                {% for invoice in payment.related_invoices %}
+                                <li><a class="dropdown-item" href="{% url 'report_invoice' invoice.id %}">{{ invoice.num_invoice }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% else %}
+                        <span>Sin facturas</span>
+                    {% endif %}
+                </td>
+                <td class="p-0 text-center">
+                    <a href="#" class="text-primary" title="Ver detalles">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                            <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                        </svg>
+                    </a>
+                    <a href="#" class="ms-2 text-primary" title="Imprimir comprobante">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
+                            <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
+                            <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+                        </svg>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
