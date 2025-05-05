@@ -11,7 +11,7 @@ from trade.views import (
     SupplierOrdersList,
     SupplierInvoiceList,
     InvoiceDetailView,
-    OrderDetailView,
+    OrderDetailView,InvoiceDetailView
 )
 
 
