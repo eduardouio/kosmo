@@ -138,7 +138,7 @@ function updateOrderLineTotal(idx, tempLine) {
 }
 
 function validateData(){
-  // validamos datos minimos de orden de venta
+  // validamos datos sminimos de orden de venta
   hasError.value = false;
   errorMessage.value = '';
 
