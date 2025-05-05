@@ -10,10 +10,10 @@ from trade.views import (
     CustomerOrdersList,
     SupplierOrdersList,
     SupplierInvoiceList,
+    OrderDetailView,
     InvoiceDetailView,
-    OrderDetailView,InvoiceDetailView
+    InvoiceFormView,
 )
-
 
 urlpatterns = [
     path('trade/<int:pk>/', DetailStockDetail.as_view(),name='stock_detail_detail'),
@@ -27,5 +27,6 @@ urlpatterns = [
     path('trade/supplier-orders/', SupplierOrdersList.as_view(), name='supplier_orders_list'),    
     path('trade/supplier-invoices/', SupplierInvoiceList.as_view(), name='supplier_invoice_list'),
     path('trade/invoice/<int:pk>/', InvoiceDetailView.as_view(), name='invoice_detail_presentation'),
+    path('trade/invoice-form/', InvoiceFormView.as_view(), name='invoice_form'),
     path('trade/order/<int:pk>/', OrderDetailView.as_view(), name='order_detail_presentation'),
 ]

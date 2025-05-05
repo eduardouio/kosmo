@@ -13,9 +13,15 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
         context['title_section'] = f"Factura {self.object.num_invoice or self.object.id}"
         context['title_page'] = f"Factura {self.object.num_invoice or self.object.id}"
         context['invoice_items'] = InvoiceItems.get_invoice_items(self.object)
-        context['box_items'] = InvoiceBoxItems.objects.filter(
+        
+        # Calcular totales para cada box_item
+        box_items = InvoiceBoxItems.objects.filter(
             invoice_item__invoice=self.object, is_active=True
         )
+        for box_item in box_items:
+            box_item.calculated_total = box_item.total_price + (box_item.profit_margin * box_item.qty_stem_flower)
+        
+        context['box_items'] = box_items
         
         # Añadir datos de envío directamente del objeto invoice
         context['awb'] = self.object.awb

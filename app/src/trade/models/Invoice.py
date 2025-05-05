@@ -385,6 +385,10 @@ class InvoiceBoxItems(BaseModel):
     def total_price(self):
         return self.stem_cost_price * self.qty_stem_flower
 
+    @property
+    def unit_price(self):
+        return self.stem_cost_price + self.profit_margin
+
     @classmethod
     def disable_by_invoice_items(cls, invoice_item):
         box_items = cls.get_box_items(invoice_item)
