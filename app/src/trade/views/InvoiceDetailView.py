@@ -10,19 +10,24 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(InvoiceDetailView, self).get_context_data(**kwargs)
-        context['title_section'] = f"Factura {self.object.num_invoice}"
-        context['title_page'] = f"Factura {self.object.num_invoice}"
+        context['title_section'] = f"Factura {self.object.num_invoice or self.object.id}"
+        context['title_page'] = f"Factura {self.object.num_invoice or self.object.id}"
         context['invoice_items'] = InvoiceItems.get_invoice_items(self.object)
         context['box_items'] = InvoiceBoxItems.objects.filter(
             invoice_item__invoice=self.object, is_active=True
         )
+        
+        # Añadir datos de envío directamente del objeto invoice
         context['awb'] = self.object.awb
-        context['hawb'] = self.object.hawb  # Agregar HAWB al contexto
-        context['dae_export'] = self.object.dae_export  # Agregar DAE Exportación al contexto
-        context['cargo_agency'] = self.object.cargo_agency  # Agregar Agencia de Carga al contexto
-        context['delivery_date'] = self.object.delivery_date  # Agregar Fecha de Entrega al contexto
-        context['weight'] = self.object.weight  # Agregar Peso al contexto
+        context['hawb'] = self.object.hawb
+        context['dae_export'] = self.object.dae_export
+        context['cargo_agency'] = self.object.cargo_agency
+        context['delivery_date'] = self.object.delivery_date
+        context['weight'] = self.object.weight
         context['action'] = self.request.GET.get('action')
+        
+        # Calcular días hasta vencimiento
+        context['days_to_due'] = self.object.days_to_due
 
         if 'action' not in self.request.GET:
             return context
@@ -38,6 +43,10 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
             message = 'Esta acción es irreversible. ¿Desea continuar?.'
         elif context['action'] == 'deleted_related':
             message = 'El registro ha sido eliminado exitosamente.'
+        elif context['action'] == 'paid':
+            message = 'La factura ha sido marcada como pagada.'
+        elif context['action'] == 'cancelled':
+            message = 'La factura ha sido anulada.'
 
         context['message'] = message
         return context

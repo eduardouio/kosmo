@@ -1,4 +1,4 @@
-from .Stock import (
+    from .Stock import (
     StockDayListView,
     StockDayCreateView,
     StockDayDeleteView,
@@ -16,3 +16,20 @@ from .SupplierOrdersList import SupplierOrdersList
 from .SupplierInvoiceList import SupplierInvoiceList
 from .InvoiceDetailView import InvoiceDetailView
 from .OrderDetailView import OrderDetailView
+
+
+__all__ = [
+
+    'StockDayListView',
+    'StockDayCreateView',
+    'StockDayDeleteView',
+    'StockDayDetailView',
+    'DetailStockDetail',
+    'SingleStockDetailUpdateView',
+    'CustomerInvoiceList',
+    'CustomerOrdersList',
+    'SupplierOrdersList',
+    'SupplierInvoiceList',
+    'InvoiceDetailView',
+    'OrderDetailView',
+]

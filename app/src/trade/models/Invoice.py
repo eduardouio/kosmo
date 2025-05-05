@@ -3,7 +3,6 @@ from common import BaseModel
 from trade.models import Order
 from products.models import Product
 from common.AppLoger import loggin_event
-from django.core.exceptions import ObjectDoesNotExist
 
 
 STATUS_CHOICES = (
