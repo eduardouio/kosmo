@@ -1,0 +1,264 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container">
+  <div class="bg-light py-4">
+    <form method="POST" action="{% url 'update_invoice' invoice.id %}">
+      {% csrf_token %}
+      <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
+        <!-- Encabezado -->
+        <div class="row">
+          <div class="col text-center fs-2 text-kosmo-secondary">
+            EDITAR FACTURA DE {% if invoice.type_document == "FAC_VENTA" %}VENTA{% else %}COMPRA{% endif %}
+          </div>
+          <div class="row">
+            <span class="text-secondary fs-6">
+              Factura de {% if invoice.type_document == "FAC_VENTA" %}Venta{% else %}Compra{% endif %} {{ invoice.status }}
+            </span>
+          </div>
+        </div>
+      
+        <div class="row mb-4 align-items-center">
+          <div class="col-9">
+            <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
+          </div>
+          <div class="col-3">
+            <div class="border border-2 border-warning p-2 rounded">
+              <div class="d-flex justify-content-end align-items-center mb-1">
+                <span class="small fw-bold me-2">FACTURA:</span>
+                <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive }}</span>
+              </div>
+              <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
+                <span class="small fw-bold me-2">FECHA:</span>
+                <input type="date" name="date" class="form-control form-control-sm" value="{{ invoice.date|date:'Y-m-d' }}" required>
+              </div>
+              <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
+                <span class="small fw-bold me-2">VENCIMIENTO:</span>
+                <input type="date" name="due_date" class="form-control form-control-sm" value="{{ invoice.due_date|date:'Y-m-d' }}">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del cliente y proveedor (solo lectura) -->
+        <div class="row mb-4">
+          <div class="col-6">
+            <div class="border border-2 border-warning p-3 rounded h-100">
+              <h6 class="fw-bold mb-3">Información del Cliente</h6>
+              <div class="form-control bg-light">
+                {{ invoice.partner.name }}
+              </div>
+              <div>
+                <p class="small mb-1"><strong>Dirección:</strong> {{ invoice.partner.address|default:'No disponible' }}</p>
+                <p class="small mb-1"><strong>Ciudad - País:</strong> {{ invoice.partner.city|default:'No disponible' }} - {{ invoice.partner.country|default:'No disponible' }}</p>
+                <div class="d-flex justify-content-between">
+                  <p class="small mb-1"><strong>Email:</strong> {{ invoice.partner.email|default:'No disponible' }}</p>
+                  <p class="small mb-1"><strong>Crédito:</strong> {{ invoice.partner.credit_term|default:'No disponible' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="border border-2 border-warning p-3 rounded h-100">
+              <h6 class="fw-bold mb-3">Información de Envío</h6>
+              <div class="form-control bg-light mb-2">
+                Información de Transporte
+              </div>
+              <div class="row mb-2">
+                <div class="col-4"><strong>MAWB:</strong></div>
+                <div class="col-8">
+                  <input type="text" name="awb" class="form-control form-control-sm" value="{{ invoice.awb|default:'' }}">
+                </div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-4"><strong>HAWB:</strong></div>
+                <div class="col-8">
+                  <input type="text" name="hawb" class="form-control form-control-sm" value="{{ invoice.hawb|default:'' }}">
+                </div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-4"><strong>DAE Exportación:</strong></div>
+                <div class="col-8">
+                  <input type="text" name="dae_export" class="form-control form-control-sm" value="{{ invoice.dae_export|default:'' }}">
+                </div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-4"><strong>Agencia de Carga:</strong></div>
+                <div class="col-8">
+                  <input type="text" name="cargo_agency" class="form-control form-control-sm" value="{{ invoice.cargo_agency|default:'' }}">
+                </div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-4"><strong>Fecha de Entrega:</strong></div>
+                <div class="col-8">
+                  <input type="date" name="delivery_date" class="form-control form-control-sm" value="{{ invoice.delivery_date|date:'Y-m-d'|default:'' }}">
+                </div>
+              </div>
+              <div class="row mb-2">
+                <div class="col-4"><strong>Peso (KG):</strong></div>
+                <div class="col-8">
+                  <input type="number" name="weight" step="0.01" class="form-control form-control-sm" value="{{ invoice.weight|default:'' }}">
+                </div>
+              </div>
+              <div class="row mb-1">
+                <div class="col-4"><strong># Orden:</strong></div>
+                <div class="col-8">
+                  <span class="form-control-plaintext">{{ invoice.order.serie }}-{{ invoice.order.consecutive }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de productos (solo lectura) -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="table-responsive">
+              <table class="table table-bordered table-sm">
+                <thead class="bg-warning bg-opacity-25">
+                  <tr class="text-center small">
+                    <th>CANT</th>
+                    <th>MODELO</th>
+                    <th>VARIEDAD</th>
+                    <th>LARGO CM</th>
+                    <th>TALLOS</th>
+                    <th>COSTO</th>
+                    <th>MARGEN</th>
+                    <th>VENTA</th>
+                    <th>TOTAL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in invoice_items %}
+                  <tr>
+                    <td rowspan="{{ item.box_items_count|default:'1' }}" class="text-center">{{ item.quantity }}</td>
+                    <td rowspan="{{ item.box_items_count|default:'1' }}" class="text-center">{{ item.box_model }}</td>
+                    <td>
+                      {% for box_item in box_items %}
+                      {% if box_item.invoice_item.id == item.id %}
+                      <p>{{ box_item.product.variety }}</p>
+                      {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td class="text-end">
+                      {% for box_item in box_items %}
+                      {% if box_item.invoice_item.id == item.id %}
+                      <p>{{ box_item.length }}</p>
+                      {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td class="text-end">
+                      {% for box_item in box_items %}
+                      {% if box_item.invoice_item.id == item.id %}
+                      <p>{{ box_item.qty_stem_flower }}</p>
+                      {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td class="text-end">
+                      {% for box_item in box_items %}
+                      {% if box_item.invoice_item.id == item.id %}
+                      <p>{{ box_item.stem_cost_price }}</p>
+                      {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td class="text-end">
+                      {% for box_item in box_items %}
+                      {% if box_item.invoice_item.id == item.id %}
+                      <p>{{ box_item.profit_margin }}</p>
+                      {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td class="text-end">
+                      {% for box_item in box_items %}
+                      {% if box_item.invoice_item.id == item.id %}
+                      <p>{{ box_item.unit_price }}</p>
+                      {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td class="text-end">
+                      {% for box_item in box_items %}
+                      {% if box_item.invoice_item.id == item.id %}
+                      <p>{{ box_item.calculated_total|floatformat:2 }}</p>
+                      {% endif %}
+                      {% endfor %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Totales (solo lectura) -->
+        <div class="row mb-4">
+          <div class="col-6">
+            <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+              <div class="row">
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ invoice.hb_total }}</div>
+              </div>
+              <div class="row">
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ invoice.qb_total }}</div>
+              </div>
+              <div class="row">
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ invoice.fb_total }}</div>
+              </div>
+              <div class="row">
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ invoice.tot_stem_flower }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+              <div class="row mt-4">
+                <div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div>
+                <div class="col-5 text-end text-success fs-5">${{ invoice.total_price|floatformat:2 }}</div>
+              </div>
+              <div class="row">
+                <div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div>
+                <div class="col-5 text-end text-success fs-5">${{ invoice.total_margin|floatformat:2 }}</div>
+              </div>
+              <div class="row mb-1">
+                <div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div>
+                <div class="col-5 text-end text-success fs-5">${{ invoice.total_invoice|floatformat:2 }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado de la factura -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="form-group">
+              <label for="status" class="form-label fw-bold">Estado de la factura:</label>
+              <select name="status" id="status" class="form-select">
+                {% for value, label in status_choices %}
+                  <option value="{{ value }}" {% if invoice.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Botones de acción -->
+        <div class="row">
+          <div class="col d-flex justify-content-end gap-3">
+            <button type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
+              Guardar cambios
+            </button>
+            <a href="{% url 'invoice_detail' invoice.id %}" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+              Cancelar
+            </a>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

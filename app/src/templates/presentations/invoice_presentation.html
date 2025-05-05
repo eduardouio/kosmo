@@ -15,7 +15,7 @@
          </span>
         </div>
       </div>
-      
+    
       <div class="row mb-4 align-items-center">
         <div class="col-9">
           <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
@@ -86,51 +86,69 @@
                 <tr class="text-center small">
                   <th>CANT</th>
                   <th>MODELO</th>
-                  <th>Variedad</th>
-                  <th>Largo CM</th>
-                  <th>Tallos</th>
-                  <th>Costo</th>
-                  <th>Margen</th>
-                  <th>Total U</th>
+                  <th>VARIEDAD</th>
+                  <th>LARGO CM</th>
+                  <th>TALLOS</th>
+                  <th>COSTO</th>
+                  <th>MARGEN</th>
+                  <th>VENTA</th>
                   <th>TOTAL</th>
                 </tr>
               </thead>
               <tbody>
                 {% for item in invoice_items %}
                 <tr>
-                  <td>{{ item.quantity }}</td>
-                  <td>{{ item.box_model }}</td>
+                  <td rowspan="{{ item.box_items_count|default:'1' }}" class="text-center">{{ item.quantity }}</td>
+                  <td rowspan="{{ item.box_items_count|default:'1' }}" class="text-center">{{ item.box_model }}</td>
                   <td>
                     {% for box_item in box_items %}
                     {% if box_item.invoice_item.id == item.id %}
-                    {{ box_item.product.variety }}{% if not forloop.last %}, {% endif %}
+                    <p>{{ box_item.product.variety }}</p>
                     {% endif %}
                     {% endfor %}
                   </td>
-                  <td>
+                  <td class="text-end">
                     {% for box_item in box_items %}
                     {% if box_item.invoice_item.id == item.id %}
-                    {{ box_item.length }}{% if not forloop.last %}, {% endif %}
+                    <p>{{ box_item.length }}</p>
                     {% endif %}
                     {% endfor %}
                   </td>
-                  <td>{{ item.tot_stem_flower }}</td>
-                  <td>
+                  <td class="text-end">
                     {% for box_item in box_items %}
                     {% if box_item.invoice_item.id == item.id %}
-                    {{ box_item.stem_cost_price }}{% if not forloop.last %}, {% endif %}
+                    <p>{{ box_item.qty_stem_flower }}</p>
                     {% endif %}
                     {% endfor %}
                   </td>
-                  <td>
+                  <td class="text-end">
                     {% for box_item in box_items %}
                     {% if box_item.invoice_item.id == item.id %}
-                    {{ box_item.profit_margin }}{% if not forloop.last %}, {% endif %}
+                    <p>{{ box_item.stem_cost_price }}</p>
                     {% endif %}
                     {% endfor %}
                   </td>
-                  <td>{{ item.line_price|floatformat:2 }}</td>
-                  <td>{{ item.line_total|floatformat:2 }}</td>
+                  <td class="text-end">
+                    {% for box_item in box_items %}
+                    {% if box_item.invoice_item.id == item.id %}
+                    <p>{{ box_item.profit_margin }}</p>
+                    {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td class="text-end">
+                    {% for box_item in box_items %}
+                    {% if box_item.invoice_item.id == item.id %}
+                    <p>{{ box_item.unit_price }}</p>
+                    {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td class="text-end">
+                    {% for box_item in box_items %}
+                    {% if box_item.invoice_item.id == item.id %}
+                    <p>{{ box_item.calculated_total|floatformat:2 }}</p>
+                    {% endif %}
+                    {% endfor %}
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>
