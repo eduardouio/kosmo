@@ -1,4 +1,5 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
+from django.http import Http404
 from django.views import View
 from django.contrib import messages
 from trade.models import Invoice, InvoiceItems, InvoiceBoxItems, STATUS_CHOICES
@@ -8,8 +9,11 @@ from common.AppLoger import loggin_event
 class InvoiceFormView(View):
     template_name = 'forms/invoice_form.html'
 
-    def get(self, request, invoice_id):
-        invoice = get_object_or_404(Invoice, id=invoice_id)
+    def get(self, request, pk):
+        invoice = Invoice.get_by_id(pk)
+        if not invoice:
+            raise Http404("La factura no existe")
+
         invoice_items = InvoiceItems.get_invoice_items(invoice)
 
         # Contar los items de la caja para cada elemento de factura
@@ -39,8 +43,8 @@ class InvoiceFormView(View):
         }
         return render(request, self.template_name, context)
 
-    def post(self, request, invoice_id):
-        invoice = get_object_or_404(Invoice, id=invoice_id)
+    def post(self, request, pk):
+        invoice = get_object_or_404(Invoice, id=pk)
 
         try:
             # Actualizar campos de la cabecera
