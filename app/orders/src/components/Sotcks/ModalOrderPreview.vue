@@ -82,8 +82,8 @@ const totalMargin = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
     let items = item.box_items.map(item => item)
-    total += items.reduce((acc, item) => {
-      return acc + parseFloat(item.margin * parseFloat(item.qty_stem_flower));
+    total += items.reduce((acc, itm) => {
+      return acc + parseFloat(itm.margin * parseFloat(itm.qty_stem_flower));
     }, 0) * parseFloat(item.quantity);
   });
   return total.toFixed(2);
@@ -120,7 +120,7 @@ const totalBoxesHB = computed(() => {
 const totalStems = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
-    total += item.tot_stem_flower;
+    total += (item.tot_stem_flower * item.quantity);
   });
   return total;
 });
@@ -182,13 +182,13 @@ const totalStems = computed(() => {
           <div class="row bg-light text-center py-2 rounded-1 bg-gray-300 border-gray-400">
             <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-white">Cant</div>
             <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-white">Mdl</div>
-            <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-white">Tl/Cj</div>
+            <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-white">Tl</div>
             <div class="col-2 fw-bold fs-6 border-end bg-kosmo-green text-white">Proveedor</div>
             <div class="col-6 fw-bold fs-6 border-end bg-sky-500 text-white">
               <span class="d-flex justify-content-between">
                 <span class="w-50 border-end text-center">Variedad</span>
                 <span class="w-10 border-end text-center">CM</span>
-                <span class="w-10 border-end text-center">Tallos</span>
+                <span class="w-10 border-end text-center">Tall/C</span>
                 <span class="w-10 border-end text-center">Cos</span>
                 <span class="w-10">Margen</span>
               </span>
@@ -223,7 +223,7 @@ const totalStems = computed(() => {
               <IconSitemap size="20" stroke="1.5" @click="ordersStore.splitHB(item)" v-if="item.box_model === 'HB'"/>
               <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'"/>
             </div>
-            <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">{{ item.tot_stem_flower }}</div>
+            <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">{{ item.tot_stem_flower * item.quantity}}</div>
             <div class="col-2 d-flex align-items-end">
               <small>
                 {{ item.partner.name }}

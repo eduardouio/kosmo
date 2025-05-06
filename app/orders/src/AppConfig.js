@@ -1,4 +1,4 @@
-const idStockDay = window.djangoConfig?.stockId ?? 1;
+const idStockDay = window.djangoConfig?.stockId ?? 23;
 const apiBaseUrl = window.djangoConfig?.baseUrl ?? "http://localhost:8000";
 const apiBaseUrlTest = apiBaseUrl;
 const csrfToken = window.djangoConfig?.csrfToken ?? "";

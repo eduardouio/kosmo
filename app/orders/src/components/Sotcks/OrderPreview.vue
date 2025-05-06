@@ -26,9 +26,9 @@ const router = useRouter();
 const calcTotalByItem = (item)=>{ 
   let total = 0;
   let items = item.box_items.map(item => item)
-  total = items.reduce((acc, item) => {
-    return acc + ((item.stem_cost_price + parseFloat(item.margin)) * parseFloat(item.qty_stem_flower));
-  }, 0);
+  total = items.reduce((acc, itm) => {
+    return acc + ((itm.stem_cost_price + parseFloat(itm.margin)) * parseFloat(itm.qty_stem_flower));
+  }, 0) * parseFloat(item.quantity);
   return total.toFixed(2);
 };
 
@@ -114,9 +114,9 @@ const totalOrder = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
     let items = item.box_items.map(item => item)
-    total += items.reduce((acc, item) => {
-      return acc + ((item.stem_cost_price + parseFloat(item.margin)) * parseFloat(item.qty_stem_flower));
-    }, 0);
+    total += items.reduce((acc, itm) => {
+      return acc + ((itm.stem_cost_price + parseFloat(itm.margin)) * parseFloat(itm.qty_stem_flower));
+    }, 0) * item.quantity;
   });
   return total.toFixed(2);
 });
@@ -125,9 +125,9 @@ const totalMargin = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
     let items = item.box_items.map(item => item)
-    total += items.reduce((acc, item) => {
-      return acc + parseFloat(item.margin * parseFloat(item.qty_stem_flower));
-    }, 0);
+    total += items.reduce((acc, itm) => {
+      return acc + parseFloat(itm.margin * parseFloat(itm.qty_stem_flower));
+    }, 0) * item.quantity;
   });
   return total.toFixed(2);
 });
@@ -136,9 +136,9 @@ const totalCost = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
     let items = item.box_items.map(item => item)
-    total += items.reduce((acc, item) => {
-      return acc + (item.stem_cost_price * parseFloat(item.qty_stem_flower));
-    }, 0);
+    total += items.reduce((acc, itm) => {
+      return acc + (itm.stem_cost_price * parseFloat(itm.qty_stem_flower));
+    }, 0) * item.quantity;
   });
   return total.toFixed(2);
 });
@@ -162,7 +162,7 @@ const totalBoxesHB = computed(() => {
 const totalStems = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
-    total += item.tot_stem_flower;
+    total += item.tot_stem_flower * item.quantity;
   });
   return total;
 });
@@ -302,7 +302,9 @@ const orderHaveCeroItem = computed(() => {
         <IconSitemap size="20" stroke="1.5" @click="ordersStore.splitHB(item)" v-if="item.box_model === 'HB'" />
         <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'" />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">{{ item.tot_stem_flower }}</div>
+      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
+        {{ item.tot_stem_flower * item.quantity }}
+      </div>
       <div class="col-2 d-flex align-items-end">
         <small>
           {{ item.partner.name }}

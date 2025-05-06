@@ -96,9 +96,7 @@
                                     {% endfor %}
                                 </td>
                                 <td class="border border-gray-700 px-4 py-2">
-                                    {% for bxs in item.box_items %}
-                                    <p>{{ bxs.qty_stem_flower }}</p>
-                                    {% endfor %}
+                                    <p>{{ item.item.tot_stem_flower }}</p>
                                 </td>
                                 <td class="border border-gray-700 px-4 py-2">
                                     {% for bxs in item.box_items %}
@@ -107,7 +105,7 @@
                                 </td>
                                 <td class="border border-gray-700 px-4 py-2">
                                     {% for bxs in item.box_items %}
-                                    <p>{{ bxs.stem_cost_total_sale }}</p>
+                                    <p>{{ bxs.stem_cost_total_sale_with_quantity }}</p>
                                     {% endfor %}
                                 </td>
                             </tr>

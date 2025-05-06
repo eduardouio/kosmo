@@ -89,9 +89,8 @@
                   <th>VARIEDAD</th>
                   <th>LARGO CM</th>
                   <th>TALLOS</th>
-                  <th>COSTO</th>
-                  <th>MARGEN</th>
-                  <th>VENTA</th>
+                  <th>BNCHES</th>
+                  <th>Costo</th>
                   <th>TOTAL</th>
                 </tr>
               </thead>
@@ -118,20 +117,6 @@
                     {% for box_item in box_items %}
                     {% if box_item.invoice_item.id == item.id %}
                     <p>{{ box_item.qty_stem_flower }}</p>
-                    {% endif %}
-                    {% endfor %}
-                  </td>
-                  <td class="text-end">
-                    {% for box_item in box_items %}
-                    {% if box_item.invoice_item.id == item.id %}
-                    <p>{{ box_item.stem_cost_price }}</p>
-                    {% endif %}
-                    {% endfor %}
-                  </td>
-                  <td class="text-end">
-                    {% for box_item in box_items %}
-                    {% if box_item.invoice_item.id == item.id %}
-                    <p>{{ box_item.profit_margin }}</p>
                     {% endif %}
                     {% endfor %}
                   </td>
