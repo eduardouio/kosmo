@@ -14,7 +14,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
         order = self.object
 
         context['title_section'] = f"Orden {order.num_order}"
-        context['title_page'] = f"Orden {order.num_order}"
+        context['title_page'] = f"Orden {order.serie}-{str(order.consecutive).zfill(6)}"
         
         # Obtener el cliente y proveedor
         customer = order.partner
@@ -87,7 +87,9 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                     "stem_cost_price": str(box.stem_cost_price),
                     "profit_margin": str(box.profit_margin),
                     "total_stem_flower": box.qty_stem_flower * line.quantity,
-                    "total": str(box.stem_cost_price)
+                    "total": str(box.stem_cost_price),
+                    "stem_cost_total": str(box.stem_cost_total),
+                    "stem_cost_total_sale": str(box.stem_cost_total_sale)
                 }
 
                 order_box_items_data.append(box_item_data)
