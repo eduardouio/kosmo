@@ -230,7 +230,7 @@ const isTwoQBSelected = computed(() => {
 
 const totalStemFlowerOrderItem = (order_item)=>{
   let total_stems = order_item.box_items.reduce((acc, item) => {
-    return acc + parseInt(item.qty_stem_flower);
+    return acc + parseInt(item.qty_stem_flower) * parseInt(order_item.quantity) ;
   }, 0);
   order_item.tot_stem_flower = total_stems;
   return total_stems;
@@ -572,13 +572,13 @@ watch(() => orderStore.selectedOrder,
         <button class="btn btn-default btn-sm">
           <a :href="getUrlReportCusOrder(orderStore.selectedOrder.order.id)">
             <IconPrinter size="20" stroke="1.5" />
-            Imprimir OC
+            Imprimir Ord Venta
           </a>
         </button>
         <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_invoiced">
           <a :href="getUrlReportinvoice(orderStore.selectedOrder.id_invoice)">
           <IconPrinter size="20" stroke="1.5" />
-          Imprimir FC
+          Imprimir Factura
           </a>
         </button>
         <button 

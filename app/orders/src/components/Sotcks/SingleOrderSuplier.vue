@@ -572,7 +572,7 @@ watch(() => purchaseStore.selectedPurchase,
               <button class="btn btn-sm btn-default">
                 <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)">
                   <IconPrinter size="20" stroke="1.5" />
-                  Imprimir OC
+                  Imprimir Ord Compra
                 </a>
               </button>
               <button class="btn btn-sm btn-default" v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
