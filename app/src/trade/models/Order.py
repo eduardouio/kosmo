@@ -211,9 +211,13 @@ class Order(BaseModel):
 
     @classmethod
     def get_next_purchase_consecutive(cls):
-        return cls.objects.filter(
+        consecutive = cls.objects.filter(
             type_document='ORD_COMPRA',
-        ).order_by('-id').first().consecutive + 1
+        ).order_by('-id').first().consecutive
+
+        if consecutive is None:
+            return 1
+        return consecutive + 1
 
     @classmethod
     def get_by_parent_order(cls, sale_order):
