@@ -163,8 +163,8 @@ AUTHENTICATION_BACKENDS = [
 LOGIN = '/accounts/login/'
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://54.91.246.31',
-    'https://54.91.246.31',
+    'https://146.190.56.181',
+    'http://146.190.56.181',
     'http://localhost',
     'http://127.0.0.1',
     'http://localhost:8000',
