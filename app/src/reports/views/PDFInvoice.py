@@ -16,7 +16,6 @@ class PDFInvoice(View):
             page.goto(url)
 
             page.wait_for_load_state("networkidle")
-            page.wait_for_timeout(300)  # Tiempo extra para aplicar estilos
             page.pdf(
                 path=output_path,
                 format="A4",
