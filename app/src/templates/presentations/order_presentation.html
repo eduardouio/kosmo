@@ -10,8 +10,11 @@
           DETALLE DE ORDEN DE {% if response_data.order.type_document == "ORD_VENTA" %}VENTA{% else %}COMPRA{% endif %}
         </div>
         <div class="row">
-         <span class="text-secondary fs-6">
-           Orden de {% if response_data.order.type_document == "ORD_VENTA" %}Venta{% else %}Compra{% endif %}  {{ order.status }}
+         <span class="text-cyan-700 fs-6 upper">
+           Orden de {% if response_data.order.type_document == "ORD_VENTA" %}Venta{% else %}Compra{% endif %} 
+           <strong>
+             {{ response_data.order.status }}
+           </strong>
          </span>
 
         </div>
@@ -191,7 +194,7 @@
             </a>
             {% endif %}
             {% if order.type_document == 'ORD_VENTA'  and order.is_invoiced == true %}
-            <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" url 'confirm_order' order.id %}" data-confirm-text="Confirmar Operación">
+            <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" url 'aprove_purchase_order' order.id %}" data-confirm-text="Confirmar Operación">
               <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.25"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-truck-delivery"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M5 17h-2v-4m-1 -8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5" /><path d="M3 9l4 0" /></svg>
               <span class="btn-text">Ordenes de Compra</span>
            </a>
@@ -202,10 +205,16 @@
                <span class="btn-text">Generar Factura</span>
             </a>
             {% endif %}
-            {% if not order.is_invoiced and order.type_document == 'ORD_COMPRA' %}
-           <a href="#" class="btn btn-default btn-sm action-btn needs-confirmation" data-action-url=" url 'confirm_order' order.id %}" data-confirm-text="Confirmar Operación">
+            {% if not order.is_invoiced and order.type_document == 'ORD_COMPRA' and order.status != 'CONFIRMADO' %}
+           <a href="#" class="btn btn-default btn-sm action-btn needs-confirmation" data-action-url="{% url 'aprove_purchase_order' order.id %}" data-confirm-text="Confirmar Operación">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 6a3.667 3.667 0 0 1 3.667 3.667v8.666a3.667 3.667 0 0 1 -3.667 3.667h-8.666a3.667 3.667 0 0 1 -3.667 -3.667v-8.666a3.667 3.667 0 0 1 3.667 -3.667zm-3.333 -4c1.094 0 1.828 .533 2.374 1.514a1 1 0 1 1 -1.748 .972c-.221 -.398 -.342 -.486 -.626 -.486h-10c-.548 0 -1 .452 -1 1v9.998c0 .32 .154 .618 .407 .805l.1 .065a1 1 0 1 1 -.99 1.738a3 3 0 0 1 -1.517 -2.606v-10c0 -1.652 1.348 -3 3 -3zm1.293 9.293l-3.293 3.292l-1.293 -1.292a1 1 0 0 0 -1.414 1.414l2 2a1 1 0 0 0 1.414 0l4 -4a1 1 0 0 0 -1.414 -1.414" /></svg>
             <span class="btn-text">Confirmar</span> Compra</span>
+         </a>
+            {% endif %}
+            {% if order.is_invoiced == false and order.type_document == 'ORD_VENTA' and order.status != 'CONFIRMADO' %}
+           <a href="#" class="btn btn-default btn-sm action-btn needs-confirmation api-confirm" data-order-id="{{ order.id }}" data-confirm-text="Confirmar Venta">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 6a3.667 3.667 0 0 1 3.667 3.667v8.666a3.667 3.667 0 0 1 -3.667 3.667h-8.666a3.667 3.667 0 0 1 -3.667 -3.667v-8.666a3.667 3.667 0 0 1 3.667 -3.667zm-3.333 -4c1.094 0 1.828 .533 2.374 1.514a1 1 0 1 1 -1.748 .972c-.221 -.398 -.342 -.486 -.626 -.486h-10c-.548 0 -1 .452 -1 1v9.998c0 .32 .154 .618 .407 .805l.1 .065a1 1 0 1 1 -.99 1.738a3 3 0 0 1 -1.517 -2.606v-10c0 -1.652 1.348 -3 3 -3zm1.293 9.293l-3.293 3.292l-1.293 -1.292a1 1 0 0 0 -1.414 1.414l2 2a1 1 0 0 0 1.414 0l4 -4a1 1 0 0 0 -1.414 -1.414" /></svg>
+            <span class="btn-text">Confirmar Venta</span>
          </a>
             {% endif %}
             {% if order.is_invoiced  and order.type_document == 'ORD_VENTA' %}
@@ -234,13 +243,62 @@
     </div>
   </div>
 </div>
-
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const confirmButtons = document.querySelectorAll('.action-btn.needs-confirmation');
     const directActionButtons = document.querySelectorAll('.action-btn:not(.needs-confirmation)');
+    const apiConfirmButtons = document.querySelectorAll('.action-btn.api-confirm');
     
-    // Configurar botones que requieren confirmación
+    // Configurar botones de confirmación API
+    apiConfirmButtons.forEach(btn => {
+      let isConfirmState = false;
+      const originalText = btn.querySelector('.btn-text').textContent;
+      const confirmText = btn.getAttribute('data-confirm-text');
+      const orderId = btn.getAttribute('data-order-id');
+      
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        if (!isConfirmState) {
+          // Primer clic: cambiar a estado de confirmación
+          btn.querySelector('.btn-text').textContent = confirmText;
+          isConfirmState = true;
+          
+          // Establecer un temporizador para volver al estado original después de 3 segundos
+          setTimeout(() => {
+            if (isConfirmState) {
+              btn.querySelector('.btn-text').textContent = originalText;
+              isConfirmState = false;
+            }
+          }, 3000);
+        } else {
+          // Segundo clic: llamar a la API
+          fetch('/api/confirm-purchase-order/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(orderId)
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'ok') {
+              // Recargar la página después de una confirmación exitosa
+              window.location.reload();
+            } else {
+              alert('Error al confirmar la orden');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('Error al confirmar la orden');
+          });
+        }
+      });
+    });
+    
+    // Configurar botones que requieren confirmación existentes
     confirmButtons.forEach(btn => {
       let isConfirmState = false;
       const originalText = btn.querySelector('.btn-text').textContent;
@@ -278,6 +336,22 @@
         });
       }
     });
+    
+    // Función para obtener cookies (para CSRF token)
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
   });
 </script>
 {% endblock %}

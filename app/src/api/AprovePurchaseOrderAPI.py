@@ -5,7 +5,7 @@ from trade.models import Order
 from common.AppLoger import loggin_event
 
 
-class AproveOrderAPI(View):
+class AprovePurchaseOrderAPI(View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         loggin_event(f'AproveOrderAPI confirmado orden de compra {data}')
