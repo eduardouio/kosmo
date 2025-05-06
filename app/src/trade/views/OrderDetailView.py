@@ -57,9 +57,12 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             "total_stem_flower": order.total_stem_flower,
             "is_invoiced": order.is_invoiced,
             "id_invoice": order.id_invoice,
-            "num_invoice": order.num_invoice
+            "num_invoice": order.num_invoice,
+            "total_order": float(order.total_order)
         }
 
+        if order.type_document == 'ORD_COMPRA':
+            order_data["total_order"] = float(order.total_purchase_price)
         # Obtener líneas de pedido
         order_lines = OrderItems.get_by_order(order)
         order_lines_data = []
@@ -89,7 +92,8 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                     "total_stem_flower": box.qty_stem_flower * line.quantity,
                     "total": str(box.stem_cost_price),
                     "stem_cost_total": str(box.stem_cost_total),
-                    "stem_cost_total_sale": str(box.stem_cost_total_sale)
+                    "stem_cost_total_sale": str(box.stem_cost_total_sale),
+                    "stem_cost_total_price": str(box.stem_cost_total_price)
                 }
 
                 order_box_items_data.append(box_item_data)
