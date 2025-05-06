@@ -26,7 +26,7 @@
             <div class="border border-2 border-warning p-2 rounded">
               <div class="d-flex justify-content-end align-items-center mb-1">
                 <span class="small fw-bold me-2">FACTURA:</span>
-                <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive }}</span>
+                <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive | stringformat:'06d' }}</span>
               </div>
               <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
                 <span class="small fw-bold me-2">FECHA:</span>
@@ -40,7 +40,7 @@
           </div>
         </div>
 
-        <!-- Información del cliente y proveedor (solo lectura) -->
+        <!-- Información del cliente y proveedor -->
         <div class="row mb-4">
           <div class="col-6">
             <div class="border border-2 border-warning p-3 rounded h-100">
@@ -64,47 +64,14 @@
               <div class="form-control bg-light mb-2">
                 Información de Transporte
               </div>
-              <div class="row mb-2">
-                <div class="col-4"><strong>MAWB:</strong></div>
-                <div class="col-8">
-                  <input type="text" name="awb" class="form-control form-control-sm" value="{{ invoice.awb|default:'' }}">
-                </div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-4"><strong>HAWB:</strong></div>
-                <div class="col-8">
-                  <input type="text" name="hawb" class="form-control form-control-sm" value="{{ invoice.hawb|default:'' }}">
-                </div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-4"><strong>DAE Exportación:</strong></div>
-                <div class="col-8">
-                  <input type="text" name="dae_export" class="form-control form-control-sm" value="{{ invoice.dae_export|default:'' }}">
-                </div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-4"><strong>Agencia de Carga:</strong></div>
-                <div class="col-8">
-                  <input type="text" name="cargo_agency" class="form-control form-control-sm" value="{{ invoice.cargo_agency|default:'' }}">
-                </div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-4"><strong>Fecha de Entrega:</strong></div>
-                <div class="col-8">
-                  <input type="date" name="delivery_date" class="form-control form-control-sm" value="{{ invoice.delivery_date|date:'Y-m-d'|default:'' }}">
-                </div>
-              </div>
-              <div class="row mb-2">
-                <div class="col-4"><strong>Peso (KG):</strong></div>
-                <div class="col-8">
-                  <input type="number" name="weight" step="0.01" class="form-control form-control-sm" value="{{ invoice.weight|default:'' }}">
-                </div>
-              </div>
-              <div class="row mb-1">
-                <div class="col-4"><strong># Orden:</strong></div>
-                <div class="col-8">
-                  <span class="form-control-plaintext">{{ invoice.order.serie }}-{{ invoice.order.consecutive }}</span>
-                </div>
+              <div>
+                <p class="small mb-1"><strong>MAWB:</strong> <input type="text" name="awb" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.awb|default:'' }}"></p>
+                <p class="small mb-1"><strong>HAWB:</strong> <input type="text" name="hawb" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.hawb|default:'' }}"></p>
+                <p class="small mb-1"><strong>DAE Exportación:</strong> <input type="text" name="dae_export" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.dae_export|default:'' }}"></p>
+                <p class="small mb-1"><strong>Agencia de Carga:</strong> <input type="text" name="cargo_agency" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.cargo_agency|default:'' }}"></p>
+                <p class="small mb-1"><strong>Fecha de Entrega:</strong> <input type="date" name="delivery_date" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.delivery_date|date:'Y-m-d'|default:'' }}"></p>
+                <p class="small mb-1"><strong>Peso (KG):</strong> <input type="number" name="weight" step="0.01" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.weight|default:'' }}"></p>
+                <p class="small mb-1"><strong># Orden:</strong> {{ invoice.order.serie }}-{{ invoice.order.consecutive }}</p>
               </div>
             </div>
           </div>
@@ -233,8 +200,8 @@
         <!-- Estado de la factura -->
         <div class="row mb-4">
           <div class="col-12">
-            <div class="form-group">
-              <label for="status" class="form-label fw-bold">Estado de la factura:</label>
+            <div class="alert {% if invoice.status == 'PENDIENTE' %}alert-warning{% elif invoice.status == 'PAGADO' %}alert-success{% else %}alert-danger{% endif %} text-center">
+              <h5>Estado:</h5>
               <select name="status" id="status" class="form-select">
                 {% for value, label in status_choices %}
                   <option value="{{ value }}" {% if invoice.status == value %}selected{% endif %}>{{ label }}</option>
@@ -247,13 +214,13 @@
         <!-- Botones de acción -->
         <div class="row">
           <div class="col d-flex justify-content-end gap-3">
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-default btn-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
-              Guardar cambios
+              <span class="btn-text">Guardar cambios</span>
             </button>
-            <a href=" 'invoice_detail' invoice.id %}" class="btn btn-secondary">
+            <a href=" 'invoice_detail' invoice.id %}" class="btn btn-default btn-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
-              Cancelar
+              <span class="btn-text">Cancelar</span>
             </a>
           </div>
         </div>

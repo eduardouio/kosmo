@@ -13,6 +13,7 @@ from partners.models import Partner
 import json
 from decimal import Decimal
 
+
 class CollectFormView(LoginRequiredMixin, View):
     template_name = 'forms/collect_form.html'
     

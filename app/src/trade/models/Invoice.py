@@ -3,6 +3,7 @@ from common import BaseModel
 from trade.models import Order
 from products.models import Product
 from common.AppLoger import loggin_event
+from datetime import datetime
 
 
 STATUS_CHOICES = (
@@ -23,8 +24,8 @@ BOX_CHOICES = (
 )
 
 SERIES = (
-    ('100', 'FAC-VENTA'),
-    ('200', 'FAC-COMPRA'),
+    ('100', '100'),
+    ('200', '200'),
 )
 
 
@@ -182,6 +183,12 @@ class Invoice(BaseModel):
         if self.due_date:
             return (self.due_date - self.date).days
         return None
+
+    @property
+    def is_dued(self):
+        if self.due_date:
+            return self.due_date < datetime.now()
+        return False
 
     @classmethod
     def get_next_invoice_number(cls):

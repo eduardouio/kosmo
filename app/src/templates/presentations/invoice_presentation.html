@@ -24,7 +24,7 @@
           <div class="border border-2 border-warning p-2 rounded">
             <div class="d-flex justify-content-end align-items-center mb-1">
               <span class="small fw-bold me-2">FACTURA:</span>
-              <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive }}</span>
+              <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive | stringformat:'06d'}}</span>
             </div>
             <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
               <span class="small fw-bold me-2">FECHA:</span>
@@ -227,69 +227,25 @@
       <!-- Botones de acción -->
       <div class="row">
          <div class="col d-flex justify-content-end gap-3">
-            <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" 'delete_invoice' invoice.id %}" data-confirm-text="Confirmar Eliminación">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>   
-               <span class="btn-text">Eliminar</span>
-            </a>
             <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" 'edit_invoice' invoice.id %}" data-confirm-text="Confirmar Modificación">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pencil"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
                <span class="btn-text">Modificar</span>
             </a>
             <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" 'mark_paid_invoice' invoice.id %}" data-confirm-text="Confirmar Pago">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 9m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /><path d="M14 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 9v-2a2 2 0 0 0 -2 -2h-10a2 2 0 0 0 -2 2v6a2 2 0 0 0 2 2h2" /></svg>
-               <span class="btn-text">Marcar como Pagada</span>
+               <span class="btn-text">Ingresar Cobro</span>
             </a>
             <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" 'cancel_invoice' invoice.id %}" data-confirm-text="Confirmar Anulación">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ban"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M5.7 5.7l12.6 12.6" /></svg>
                <span class="btn-text">Anular Factura</span>
             </a>
-            <a href="#" class="btn btn-default btn-sm action-btn print-btn" data-confirm-text="Confirmar Impresión">
+            <a href="{% url 'report_invoice' invoice.id %}" class="btn btn-default btn-sm action-btn print-btn">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
-               <span class="btn-text">Imprimir</span>
+               <span class="btn-text">PDF Factura</span>
             </a>
          </div>
       </div>
     </div>
   </div>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const actionButtons = document.querySelectorAll('.action-btn');
-    
-    actionButtons.forEach(btn => {
-      let isConfirmState = false;
-      const originalText = btn.querySelector('.btn-text').textContent;
-      const confirmText = btn.getAttribute('data-confirm-text');
-      const actionUrl = btn.getAttribute('data-action-url');
-      
-      btn.addEventListener('click', function(e) {
-        if (!isConfirmState) {
-          // Primer clic: cambiar a estado de confirmación
-          e.preventDefault();
-          btn.querySelector('.btn-text').textContent = confirmText;
-          isConfirmState = true;
-          
-          // Establecer un temporizador para volver al estado original después de 3 segundos
-          setTimeout(() => {
-            if (isConfirmState) {
-              btn.querySelector('.btn-text').textContent = originalText;
-              isConfirmState = false;
-            }
-          }, 3000);
-        } else {
-          // Segundo clic: ir a la URL de acción
-          if (btn.classList.contains('print-btn')) {
-            e.preventDefault();
-            window.print();
-            btn.querySelector('.btn-text').textContent = originalText;
-            isConfirmState = false;
-          } else {
-            btn.href = actionUrl;
-          }
-        }
-      });
-    });
-  });
-</script>
 {% endblock %}
