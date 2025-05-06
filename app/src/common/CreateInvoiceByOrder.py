@@ -90,7 +90,10 @@ class CreateInvoiceByOrder:
             dae_export=dae.dae if dae else None,
             awb=dae.awb if dae else None,
             hawb=dae.hawb if dae else None,
-            cargo_agency=dae.cargo_agency if dae else None
+            cargo_agency=dae.cargo_agency if dae else None,
+            serie='001',
+            consecutive=Invoice.get_next_sale_consecutive()
+            
         )
         # cargamos los items de la orden a la factura
         for oi in OrderItems.get_by_order(order.id):
@@ -151,6 +154,8 @@ class CreateInvoiceByOrder:
             date=datetime.now(),
             due_date=due_date,
             status='PENDIENTE',
+            serie='200',
+            consecutive=Invoice.get_next_purchase_consecutive()
         )
         # cargamos los items de la orden a la factura
         for oi in OrderItems.get_by_order(order.id):

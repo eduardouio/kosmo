@@ -18,6 +18,7 @@ from .InvoiceDetailView import InvoiceDetailView
 from .OrderDetailView import OrderDetailView
 from .InvoiceFormView import InvoiceFormView
 from .AprovePurchaseOrder import AprovePurchaseOrderView
+from .CreateInvoiceByOrder import CreateInvoiceByOrder
 
 __all__ = [
     'StockDayListView',
@@ -33,5 +34,6 @@ __all__ = [
     'InvoiceDetailView',
     'OrderDetailView',
     'InvoiceFormView',
-    'AprovePurchaseOrderView'
+    'AprovePurchaseOrderView',
+    'CreateInvoiceByOrder',
 ]

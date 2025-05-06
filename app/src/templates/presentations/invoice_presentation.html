@@ -10,7 +10,7 @@
           DETALLE DE FACTURA DE {% if invoice.type_document == "FAC_VENTA" %}VENTA{% else %}COMPRA{% endif %}
         </div>
         <div class="row">
-         <span class="text-secondary fs-6">
+         <span class="text-blue-700 fs-6 upper">
            Factura de {% if invoice.type_document == "FAC_VENTA" %}Venta{% else %}Compra{% endif %} {{ invoice.status }}
          </span>
         </div>
@@ -89,8 +89,9 @@
                   <th>VARIEDAD</th>
                   <th>LARGO CM</th>
                   <th>TALLOS</th>
-                  <th>BNCHES</th>
-                  <th>Costo</th>
+                  <th>BUNCHES</th>
+                  <th>TALL/BUNC</th>
+                  <th>COSTO</th>
                   <th>TOTAL</th>
                 </tr>
               </thead>
@@ -120,6 +121,8 @@
                     {% endif %}
                     {% endfor %}
                   </td>
+                  <td>XXX</td>
+                  <td>XXX</td>
                   <td class="text-end">
                     {% for box_item in box_items %}
                     {% if box_item.invoice_item.id == item.id %}

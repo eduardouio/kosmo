@@ -199,6 +199,28 @@ class Invoice(BaseModel):
         return 1
 
     @classmethod
+    def get_next_sale_consecutive(cls):
+        last_purchase = cls.objects.filter(
+            type_document='FAC_VENTA',
+        ).order_by('-id').first()
+
+        if last_purchase is None or last_purchase.consecutive is None:
+            return 1
+
+        return last_purchase.consecutive + 1
+
+    @classmethod
+    def get_next_purchase_consecutive(cls):
+        last_bill = cls.objects.filter(
+            type_document='FAC_COMPRA',
+        ).order_by('-id').first()
+
+        if last_bill is None or last_bill.consecutive is None:
+            return 1
+
+        return last_bill.consecutive + 1
+
+    @classmethod
     def get_by_type(cls, type_document):
         return cls.objects.filter(type_document=type_document)
 
