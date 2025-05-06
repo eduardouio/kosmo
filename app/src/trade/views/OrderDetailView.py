@@ -93,7 +93,9 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                     "total": str(box.stem_cost_price),
                     "stem_cost_total": str(box.stem_cost_total),
                     "stem_cost_total_sale": str(box.stem_cost_total_sale),
-                    "stem_cost_total_price": str(box.stem_cost_total_price)
+                    "stem_cost_total_price": str(box.stem_cost_total_price),
+                    "stem_cost_total_sale_with_quantity": str(box.stem_cost_total_sale_with_quantity),
+                    "stem_cost_total_price_with_quantity": str(box.stem_cost_total_price_with_quantity)
                 }
 
                 order_box_items_data.append(box_item_data)

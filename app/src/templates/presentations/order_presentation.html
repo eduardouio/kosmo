@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 
-{% block content %}
+  {% block content %}
 <div class="container">
   <div class="bg-light py-4">
     <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
@@ -107,10 +107,10 @@
                     <td class="text-end">{{ box_item.profit_margin }}</td>
                     <td class="text-end">{{ box_item.stem_cost_total }}</td>
                     {% if response_data.order.type_document == 'ORD_VENTA' %}
-                    <td class="text-end">{{ box_item.stem_cost_total_sale }}</td>
+                    <td class="text-end">{{ box_item.stem_cost_total_sale_with_quantity }}</td>
                     {% else %}
-                    <td class="text-end">{{ box_item.stem_cost_total_price }}</td>
-                    {% endif %}
+                    <td class="text-end">{{ box_item.stem_cost_total_price_with_quantity }}</td>
+                    {% endif %}                   
                   </tr>
                   {% endfor %}
                 {% endfor %}
