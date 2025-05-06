@@ -174,6 +174,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
         context['order_lines'] = order_lines_data
         context['delivery_date'] = order.delivery_date
         context['status'] = order.status
+        context['order'] = order
         context['total_price'] = order.total_price
         context['total_margin'] = order.total_margin
         context['total_invoice'] = order.total_price + order.total_margin
