@@ -23,7 +23,7 @@ class HomeTV(LoginRequiredMixin, TemplateView):
     def get_stats(self):
         last_stock = StockDay.objects.filter(
             is_active=True
-        ).order_by('-date').first()        
+        ).order_by('-date').first()       
 
         total_orders = Order.objects.filter(
             type_document='ORD_VENTA',
@@ -56,7 +56,7 @@ class HomeTV(LoginRequiredMixin, TemplateView):
 
         return {
             'total_stock': StockDay.objects.filter().count(),
-            'last_stock': last_stock,
+            'last_stock': last_stock if last_stock else 0,
             'total_stems': sum(i.tot_stem_flower for i in total_stems),
             'total_orders': len(total_orders),
             'total_orders_stems': sum(i.total_stem_flower for i in total_orders),
