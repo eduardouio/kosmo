@@ -13,7 +13,7 @@ from .AllOrderDetailAPI import AllOrderDetailAPI
 from .UpdateSupplierOrderAPI import UpdateSupplierOrderAPI
 from .CancelCustomerOrderAPI import CancelCustomerOrderAPI
 from .CancelSupplierOrderAPI import CancelSupplierOrderAPI
-from .AproveOrderAPI import AproveOrderAPI
+from .AprovePurchaseOrderAPI import AprovePurchaseOrderAPI
 from .CreateInvoiceAPI import CreateInvoiceAPI
 from .OrderDetailAPI import OrderDetailAPI
 from .CreateFutureOrderAPI import CreateFutureOrderAPI
@@ -37,7 +37,7 @@ __all__ = [
     'UpdateSupplierOrderAPI',
     'CancelCustomerOrderAPI',
     'CancelSupplierOrderAPI',
-    'AproveOrderAPI',
+    'AprovePurchaseOrderAPI',
     'CreateInvoiceAPI',
     'OrderDetailAPI',
     'CreateFutureOrderAPI',
