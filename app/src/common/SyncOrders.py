@@ -252,7 +252,9 @@ class SyncOrders:
                 stock_day=customer_order.stock_day,
                 type_document='ORD_COMPRA',
                 status='PENDIENTE',
-                parent_order=customer_order
+                parent_order=customer_order,
+                serie='200',
+                consecutive=Order.get_next_purchase_consecutive()
             )
             for ord in supplier['order_items']:
                 ord_item = OrderItems.objects.create(
