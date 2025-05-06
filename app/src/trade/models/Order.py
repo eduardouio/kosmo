@@ -200,24 +200,25 @@ class Order(BaseModel):
 
     @classmethod
     def get_next_sale_consecutive(cls):
-        consecutive = cls.objects.filter(
+        last_order = cls.objects.filter(
             type_document='ORD_VENTA',
-        ).order_by('-id').first().consecutive
+        ).order_by('-id').first()
 
-        if consecutive is None:
+        if last_order is None or last_order.consecutive is None:
             return 1
 
-        return consecutive + 1
+        return last_order.consecutive + 1
 
     @classmethod
     def get_next_purchase_consecutive(cls):
-        consecutive = cls.objects.filter(
+        last_purchase = cls.objects.filter(
             type_document='ORD_COMPRA',
-        ).order_by('-id').first().consecutive
+        ).order_by('-id').first()
 
-        if consecutive is None:
+        if last_purchase is None or last_purchase.consecutive is None:
             return 1
-        return consecutive + 1
+
+        return last_purchase.consecutive + 1
 
     @classmethod
     def get_by_parent_order(cls, sale_order):
