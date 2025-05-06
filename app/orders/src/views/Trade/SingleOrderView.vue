@@ -184,7 +184,7 @@ async function saveOrder() {
   )
   
   if (result.success) {
-    window.location.href =  `${appConfig.apiBaseUrlTest}/#/order/${result.data.order_id}/`
+    window.location.href =  `${appConfig.apiBaseUrlTest}/trade/order/61/`
   } else {
     alert(result.message)
   }
@@ -202,7 +202,7 @@ const validateInterval = setInterval(validateData, 2000);
         <!-- Encabezado -->
          <div class="row">
           <div class="col text-center fs-2 text-kosmo-secondary">
-            ORDEN DE VENTA
+            PROMESA DE VENTA
           </div>
          </div>
         <div class="row mb-4 align-items-center">
@@ -370,7 +370,7 @@ const validateInterval = setInterval(validateData, 2000);
           <div class="col-12 text-end" v-else>
             <button class="btn btn-default" @click="saveOrder">
               <IconDeviceFloppy size="20" stroke="1.5" class="text-primary"/> 
-              Guardar Orden De Compra
+              Guardar Promesa
             </button>
           </div>
         </div>

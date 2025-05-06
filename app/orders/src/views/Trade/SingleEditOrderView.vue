@@ -180,7 +180,7 @@ async function updateOrder() {
   )
   
   if (result.success) {
-    alert(result.message)
+    window.location.href =  `${appConfig.apiBaseUrlTest}/trade/order/${orderStore.order.id}/`
   } else {
     alert(result.message)
   }
