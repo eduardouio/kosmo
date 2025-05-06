@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useBaseStore } from '@/stores/baseStore.js'
 import { useSingleOrderStore } from '@/stores/trade/singleOrderStore.js'
 
+import { appConfig } from '@/AppConfig'
 import AutocompleteSupplier from '@/components/common/AutocompleteSupplier.vue'
 import GenericProductModal from '@/components/common/GenericProductModal.vue'
 import Loader from '@/components/Sotcks/Loader.vue'
@@ -178,9 +179,8 @@ async function updateOrder() {
     baseStore.selectedCustomer, 
     baseStore.selectedSupplier
   )
-  
   if (result.success) {
-    window.location.href =  `${appConfig.apiBaseUrlTest}/trade/order/${orderStore.order.id}/`
+    window.location.href =  `${appConfig.apiBaseUrlTest}/trade/order/${orderId.value}/`
   } else {
     alert(result.message)
   }

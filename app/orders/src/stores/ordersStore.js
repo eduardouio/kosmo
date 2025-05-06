@@ -73,7 +73,6 @@ export const useOrdersStore = defineStore("ordersStore", {
                 const response = await axios.get(appConfig.urlOrdersByStock + '?type=purchase')
                 this.orders = response.data
                 baseStore.stagesLoaded++;
-                return true;
             } catch (error) {
                 console.error('Error al cargar los pedidos:', error)
                 alert(`Hubo un error al cargar los pedidos: ${error.message}`)
@@ -173,8 +172,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         async updateOrder(){
             console.log('Actualizando pedido:', this.selectedOrder)
             try {
-                const response = await axios.post(appConfig.urlUpdateOrder,
-                     this.selectedOrder, {
+                const response = await axios.post(appConfig.urlUpdateOrder,this.selectedOrder, {
                     headers: appConfig.headers
                 })
                 console.log('Pedido actualizado:', response.data)

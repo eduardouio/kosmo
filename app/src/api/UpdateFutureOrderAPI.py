@@ -1,7 +1,8 @@
+import json
 from decimal import Decimal
 from django.db import transaction
 from django.http import JsonResponse
-from rest_framework.views import APIView
+from django.views import View
 from rest_framework import status
 from common import SyncOrders
 
@@ -11,7 +12,7 @@ from products.models import Product
 from common.AppLoger import loggin_event
 
 
-class UpdateFutureOrderAPI(APIView):
+class UpdateFutureOrderAPI(View):
     def __init__(self):
         super().__init__()
 
@@ -19,7 +20,7 @@ class UpdateFutureOrderAPI(APIView):
     def post(self, request):
         loggin_event('Recibiendo Datos por Post')
         # Obtener datos del request
-        data = request.data
+        data = json.loads(request.body)
 
         order_id = data.get('order_id')
         order_data = data.get('order')
