@@ -29,7 +29,7 @@ class CreateOrderAPI(View):
             type_document='ORD_VENTA',
             status='PENDIENTE',
             serie='100',
-            consecutive=Order.get_next_consecutive()
+            consecutive=Order.get_next_sale_consecutive()
         )
 
         for new_order_item in order_data['order_detail']:
