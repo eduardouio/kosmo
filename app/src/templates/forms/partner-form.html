@@ -57,6 +57,14 @@
                     {{ form.short_name }}
                 </div>
                 <div class="col-md-3">
+                    <label for="type_partner" class="text-muted">Tipo de Socio:</label>
+                    {{ form.type_partner }}
+                </div>
+                <div class="col-md-3" id="seller_field" style="{% if form.instance.type_partner != 'CLIENTE' and form.instance.id %}display: none;{% endif %}">
+                    <label for="seller" class="text-muted">Vendedor:</label>
+                    {{ form.seller }}
+                </div>
+                <div class="col-md-3">
                     <label for="email" class="text-muted">Correo Electrónico:</label>
                     {{ form.email }}
                 </div>
@@ -194,4 +202,22 @@
         </div>
     </div>
 </div>
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typePartnerSelect = document.getElementById('id_type_partner');
+        const sellerField = document.getElementById('seller_field');
+        
+        if (typePartnerSelect && sellerField) {
+            typePartnerSelect.addEventListener('change', function() {
+                if (this.value === 'CLIENTE') {
+                    sellerField.style.display = 'block';
+                } else {
+                    sellerField.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
 {% endblock %}

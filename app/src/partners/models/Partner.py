@@ -175,6 +175,13 @@ class Partner(BaseModel):
         'Verificado',
         default=False
     )
+    seller = models.CharField(
+        'Vendedor',
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text="Vendedor asignado al cliente"
+    )
 
     @classmethod
     def get_customers(cls):
