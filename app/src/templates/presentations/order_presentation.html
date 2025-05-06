@@ -38,7 +38,7 @@
       <div class="row mb-4">
         <div class="col-6">
           <div class="border border-2 border-warning p-3 rounded h-100">
-            <h6 class="fw-bold mb-3">Información del Cliente</h6>
+            <h6 class="fw-bold mb-3">Información del {% if response_data.order.type_document == 'ORD_VENTA' %} Cliente{% else %} Proveedor{% endif %}</h6>
             <div class="form-control bg-light">
               {{ response_data.customer.name }}
             </div>
@@ -53,6 +53,7 @@
           </div>
         </div>
         <div class="col-6">
+          {% if response_data.order.type_document == 'ORD_VENTA' %}
           <div class="border border-2 border-warning p-3 rounded h-100">
             <h6 class="fw-bold mb-3">Información del Proveedor</h6>
             <div class="form-control bg-light">
@@ -67,6 +68,7 @@
               </div>
             </div>
           </div>
+          {% endif %}
         </div>
       </div>
 
@@ -81,11 +83,8 @@
                   <th class="bg-gray-200">MODELO</th>
                   <th class="bg-gray-200">VARIEDAD</th>
                   <th class="bg-gray-200">LARGO CM</th>
-                  <th class="bg-gray-200">TALLOS/BUNCH</th>
-                  <th class="bg-gray-200">TOTAL BUNCH</th>
                   <th class="bg-gray-200">TOTAL TALLOS</th>
                   <th class="bg-gray-200">COSTO U</th>
-                  <th class="bg-gray-200">MARGEN</th>
                   <th class="bg-gray-200">PRECIO</th>
                   <th class="bg-gray-200">TOTAL</th>
                 </tr>
@@ -100,11 +99,8 @@
                     {% endif %}
                     <td>{{ box_item.product.variety }}</td>
                     <td class="text-end">{{ box_item.length }}</td>
-                    <td class="text-end">{{ box_item.stems_bunch }}</td>
-                    <td class="text-end">{{ box_item.total_bunches }}</td>
-                    <td class="text-end">{{ box_item.qty_stem_flower }}</td>
+                    <td class="text-end">{{ line.tot_stem_flower }}</td>
                     <td class="text-end">{{ box_item.stem_cost_price }}</td>
-                    <td class="text-end">{{ box_item.profit_margin }}</td>
                     <td class="text-end">{{ box_item.stem_cost_total }}</td>
                     {% if response_data.order.type_document == 'ORD_VENTA' %}
                     <td class="text-end">{{ box_item.stem_cost_total_sale_with_quantity }}</td>
@@ -117,7 +113,7 @@
               </tbody>
               <tfoot>
                 <tr class="bg-warning bg-opacity-10">
-                  <td colspan="10" class="text-end fw-bold">TOTAL GENERAL:</td>
+                  <td colspan="7" class="text-end fw-bold">TOTAL GENERAL:</td>
                   {% if response_data.order.type_document == 'ORD_VENTA' %}
                   <td class="text-end text-success fw-bold">${{ response_data.order.total_order }}</td>
                   {%else%}
@@ -205,35 +201,27 @@
                <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-receipt-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" /><path d="M14.8 8a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" /><path d="M12 6v10" /></svg>
                <span class="btn-text">Generar Factura</span>
             </a>
-            {% else %}
+            {% endif %}
+            {% if not order.is_invoiced and order.type_document == 'ORD_COMPRA' %}
            <a href="#" class="btn btn-default btn-sm action-btn needs-confirmation" data-action-url=" url 'confirm_order' order.id %}" data-confirm-text="Confirmar Operación">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 6a3.667 3.667 0 0 1 3.667 3.667v8.666a3.667 3.667 0 0 1 -3.667 3.667h-8.666a3.667 3.667 0 0 1 -3.667 -3.667v-8.666a3.667 3.667 0 0 1 3.667 -3.667zm-3.333 -4c1.094 0 1.828 .533 2.374 1.514a1 1 0 1 1 -1.748 .972c-.221 -.398 -.342 -.486 -.626 -.486h-10c-.548 0 -1 .452 -1 1v9.998c0 .32 .154 .618 .407 .805l.1 .065a1 1 0 1 1 -.99 1.738a3 3 0 0 1 -1.517 -2.606v-10c0 -1.652 1.348 -3 3 -3zm1.293 9.293l-3.293 3.292l-1.293 -1.292a1 1 0 0 0 -1.414 1.414l2 2a1 1 0 0 0 1.414 0l4 -4a1 1 0 0 0 -1.414 -1.414" /></svg>
-            <span class="btn-text">Confirmar</span>
+            <span class="btn-text">Confirmar</span> Compra</span>
          </a>
             {% endif %}
-            {% if order.is_invoiced == true and order.type_document == 'ORD_VENTA' %}
-            <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" url 'confirm_order' order.id %}" data-confirm-text="Confirmar Operación">
-              <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 6a3.667 3.667 0 0 1 3.667 3.667v8.666a3.667 3.667 0 0 1 -3.667 3.667h-8.666a3.667 3.667 0 0 1 -3.667 -3.667v-8.666a3.667 3.667 0 0 1 3.667 -3.667zm-3.333 -4c1.094 0 1.828 .533 2.374 1.514a1 1 0 1 1 -1.748 .972c-.221 -.398 -.342 -.486 -.626 -.486h-10c-.548 0 -1 .452 -1 1v9.998c0 .32 .154 .618 .407 .805l.1 .065a1 1 0 1 1 -.99 1.738a3 3 0 0 1 -1.517 -2.606v-10c0 -1.652 1.348 -3 3 -3zm1.293 9.293l-3.293 3.292l-1.293 -1.292a1 1 0 0 0 -1.414 1.414l2 2a1 1 0 0 0 1.414 0l4 -4a1 1 0 0 0 -1.414 -1.414" /></svg>
+            {% if order.is_invoiced  and order.type_document == 'ORD_VENTA' %}
+            <a href="{% url 'invoice_detail_presentation' order.id_invoice %}" class="btn btn-default btn-sm action-btn">
+              <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
               <span class="btn-text">Ver Factura</span>
            </a>
-           <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" url 'confirm_order' order.id %}" data-confirm-text="Confirmar Operación">
+           <a href="{% url 'report_invoice' order.id_invoice %}" class="btn btn-default btn-sm action-btn">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 6a3.667 3.667 0 0 1 3.667 3.667v8.666a3.667 3.667 0 0 1 -3.667 3.667h-8.666a3.667 3.667 0 0 1 -3.667 -3.667v-8.666a3.667 3.667 0 0 1 3.667 -3.667zm-3.333 -4c1.094 0 1.828 .533 2.374 1.514a1 1 0 1 1 -1.748 .972c-.221 -.398 -.342 -.486 -.626 -.486h-10c-.548 0 -1 .452 -1 1v9.998c0 .32 .154 .618 .407 .805l.1 .065a1 1 0 1 1 -.99 1.738a3 3 0 0 1 -1.517 -2.606v-10c0 -1.652 1.348 -3 3 -3zm1.293 9.293l-3.293 3.292l-1.293 -1.292a1 1 0 0 0 -1.414 1.414l2 2a1 1 0 0 0 1.414 0l4 -4a1 1 0 0 0 -1.414 -1.414" /></svg>
             <span class="btn-text">Imprimir Factura</span>
          </a>
          {%endif%}
-         {% if order.is_invoiced == false and order.type_document == 'ORD_VENTA' %}
-         <a href="#" class="btn btn-default btn-sm action-btn needs-confirmation" data-action-url=" url 'cancel_order' order.id %}" data-confirm-text="¿Confirmar Cancelación?">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
-          <span class="btn-text">Cancelar</span>
-          <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" url 'confirm_order' order.id %}" data-confirm-text="Confirmar Operación">
-            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 6a3.667 3.667 0 0 1 3.667 3.667v8.666a3.667 3.667 0 0 1 -3.667 3.667h-8.666a3.667 3.667 0 0 1 -3.667 -3.667v-8.666a3.667 3.667 0 0 1 3.667 -3.667zm-3.333 -4c1.094 0 1.828 .533 2.374 1.514a1 1 0 1 1 -1.748 .972c-.221 -.398 -.342 -.486 -.626 -.486h-10c-.548 0 -1 .452 -1 1v9.998c0 .32 .154 .618 .407 .805l.1 .065a1 1 0 1 1 -.99 1.738a3 3 0 0 1 -1.517 -2.606v-10c0 -1.652 1.348 -3 3 -3zm1.293 9.293l-3.293 3.292l-1.293 -1.292a1 1 0 0 0 -1.414 1.414l2 2a1 1 0 0 0 1.414 0l4 -4a1 1 0 0 0 -1.414 -1.414" /></svg>
-            <span class="btn-text">Imprimir Factura</span>
-       </a>
-            {% endif %}
             {% if order.type_document == 'ORD_VENTA' %}
             <a href="{% url 'report_customer_order' order.id %}" class="btn btn-default btn-sm action-btn print-btn">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
-               <span class="btn-text">PDf Orden Venta</span>
+               <span class="btn-text">PDF Orden Venta</span>
             </a>
             {% else %}
             <a href="{% url 'report_supplier_order' order.id %}" class="btn btn-default btn-sm action-btn print-btn">

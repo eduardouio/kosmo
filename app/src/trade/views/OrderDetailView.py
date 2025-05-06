@@ -15,7 +15,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
         context['title_section'] = f"Orden {order.num_order}"
         context['title_page'] = f"Orden {order.serie}-{str(order.consecutive).zfill(6)}"
-        
+
         # Obtener el cliente y proveedor
         customer = order.partner
         supplier = None
