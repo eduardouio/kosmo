@@ -50,7 +50,7 @@ class Command(BaseCommand):
         # self.generate_sales_invoices(faker)
         # print('Generando pagos')
         # self.generate_payments(faker)
-        self.load_test_data()
+        # self.load_test_data()
 
     def createSuperUser(self):
         user = CustomUserModel.get('eduardouio7@gmail.com')
