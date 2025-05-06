@@ -14,7 +14,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
       parent_order: null,
       num_order: '',
       delivery_date: '',
-      status: 'PENDIENTE',
+      status: 'PROMESA',
       discount: 0,
       total_price: 0,
       total_margin: 0,
