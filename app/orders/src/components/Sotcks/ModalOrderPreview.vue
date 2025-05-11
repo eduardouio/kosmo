@@ -3,13 +3,9 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/ordersStore.js';
 import { useBaseStore } from '@/stores/baseStore.js';
-import AutocompleteCustomer from '@/components/Sotcks/AutocompleteCustomer.vue';
 import { 
-  IconTrash,
   IconCheckbox,
   IconX,
-  IconSitemap,
-  IconLayersIntersect2 
 } from '@tabler/icons-vue';
 
 const ordersStore = useOrdersStore();
@@ -45,27 +41,11 @@ const selectText = (event) => {
     event.target.select();
 }
 
-const deleteOrderItem = (item) => {
-  if (item.confirm_delete) {
-    ordersStore.newOrder = ordersStore.newOrder.filter(i => i.stock_detail_id !== item.stock_detail_id);
-  } else {
-    conmfirmDelete.value = true;
-    item.confirm_delete = true;
-  }
-}
-
 const createOrder = () => {
   baseStore.stagesLoaded = 0;
   router.push('/customer-orders/');
 
 } 
-
-// computed Properties
-const isTwoQBSelected = computed(() => {
-  let qb = ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
-  return qb.length === 2;
-});
-
 
 const totalOrder = computed(() => {
   let total = 0;
@@ -138,10 +118,7 @@ const totalStems = computed(() => {
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="row p-1 mb-3">
-            <div class="col-12">
-                  <AutocompleteCustomer/>
-            </div>
+          <div class="row p-1 mb-1">
             <div class="col-12 bg-gray-200 bg-gradient rounded-1 shadow-sm p-2" v-if="ordersStore.selectedCustomer">
               <div class="row">
                 <div class="col-1 text-end">ID:</div>
@@ -169,14 +146,6 @@ const totalStems = computed(() => {
                      {{ ordersStore.selectedCustomer.consolidate ? 'Si' : 'No' }}
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="row pb-2 pt-2 text-end">
-            <div class="col">
-              <button class="btn btn-sm btn-default" v-if="isTwoQBSelected" @click="ordersStore.mergeQB">
-                <IconLayersIntersect2 size="20" stroke="1.5"/>
-                Unificar a HB
-              </button>
             </div>
           </div>
           <div class="row bg-light text-center py-2 rounded-1 bg-gray-300 border-gray-400">
@@ -207,7 +176,6 @@ const totalStems = computed(() => {
           </div>
           <div v-for="item,idx in ordersStore.newOrder" :key="item.id" class="row mb-1 border my-hover-2" :class="{'bg-gray': idx % 2 === 0}">
             <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
-              <IconTrash size="30" stroke="1.5"  :class="item.confirm_delete ? 'text-danger' : 'text-dark'" @click="deleteOrderItem(item)"/> 
               <input 
                 type="number"
                 step="1"
@@ -217,13 +185,10 @@ const totalStems = computed(() => {
                 @focus="selectText"
                 />
             </div>
-            <div class="col-1 text-end border-end d-flex align-items-end gap-2 ">
+            <div class="col-1 text-center border-end d-flex align-items-center">
               {{ item.box_model }}
-              <span>/</span>
-              <IconSitemap size="20" stroke="1.5" @click="ordersStore.splitHB(item)" v-if="item.box_model === 'HB'"/>
-              <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'"/>
             </div>
-            <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">{{ item.tot_stem_flower * item.quantity}}</div>
+            <div class="col-1 text-end border-end d-flex align-items-center justify-content-end">{{ item.tot_stem_flower * item.quantity}}</div>
             <div class="col-2 d-flex align-items-end">
               <small>
                 {{ item.partner.name }}
@@ -231,13 +196,13 @@ const totalStems = computed(() => {
             </div>
             <div class="col-6">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-                <span class="border-end text-end w-50 pe-2">
+                <span class="border-end text-end w-50 pe-2 d-flex align-items-center">
                   {{ product.product_name }} {{ product.product_variety }}
                 </span>
-                <span class="border-end text-end w-10 pe-2">
+                <span class="border-end text-end w-10 pe-2 d-flex align-items-center">
                   {{ product.length }} cm
                 </span>
-                <span class="border-end text-end w-10 pe-2">
+                <span class="border-end text-end w-10 pe-2 d-flex align-items-center">
                   {{ product.qty_stem_flower }}
                 </span>
                 <span class="border-end text-end w-10 pe-2">
