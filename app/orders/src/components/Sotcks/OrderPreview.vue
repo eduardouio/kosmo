@@ -56,7 +56,11 @@ const selectText = (event) => {
 
 const deleteOrderItem = (item) => {
   if (item.confirm_delete) {
-    ordersStore.newOrder = ordersStore.newOrder.filter(i => i.stock_detail_id !== item.stock_detail_id);
+    // Buscar el índice del item en el array y eliminarlo por índice
+    const index = ordersStore.newOrder.findIndex(i => i === item);
+    if (index !== -1) {
+      ordersStore.newOrder.splice(index, 1);
+    }
   } else {
     confirmDelete.value = true;
     item.confirm_delete = true;

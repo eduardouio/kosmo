@@ -83,41 +83,46 @@ export const useOrdersStore = defineStore("ordersStore", {
             this.limitsNewOrder = orderDetail
         },
         splitHB(item) {
-            const newOrder = this.newOrder.filter(o => o.stock_detail_id !== item.stock_detail_id);
+            const newOrder = this.newOrder.filter(o => o !== item); // Filtrar por referencia del objeto en lugar de stock_detail_id
             const stem_flower = item.box_items.map(i => i.qty_stem_flower);
             const id = item.stock_detail_id;
 
+            // Crear dos nuevos objetos QB completamente independientes
+            const qb1 = JSON.parse(JSON.stringify({
+                ...item,
+                box_model: 'QB',
+                is_selected: false
+            }));
+            
+            const qb2 = JSON.parse(JSON.stringify({
+                ...item,
+                box_model: 'QB',
+                is_selected: false
+            }));
+
+            // Ajustar las cantidades según si es par o impar
             if ((item.tot_stem_flower % 2) === 0) {
-                newOrder.push({
-                    ...item,
-                    tot_stem_flower: item.tot_stem_flower / 2,
-                    box_model: 'QB',
-                });
-                newOrder.push({
-                    ...item,
-                    tot_stem_flower: item.tot_stem_flower / 2,
-                    box_model: 'QB',
-                });
-            }else{
-                newOrder.push({
-                    ...item,
-                    tot_stem_flower: (item.tot_stem_flower - 1) / 2,
-                    box_model: 'QB',
-                });
-                newOrder.push({
-                    ...item,
-                    tot_stem_flower: (item.tot_stem_flower + 1) / 2,
-                    box_model: 'QB',
-                });
+                qb1.tot_stem_flower = item.tot_stem_flower / 2;
+                qb2.tot_stem_flower = item.tot_stem_flower / 2;
+            } else {
+                qb1.tot_stem_flower = Math.floor(item.tot_stem_flower / 2);
+                qb2.tot_stem_flower = Math.ceil(item.tot_stem_flower / 2);
             }
-            newOrder.forEach((itm) => {
-                if (itm.stock_detail_id === id) {
-                    itm.box_items.forEach((i, index) => {
-                        i.qty_stem_flower = stem_flower[index] / 2;
-                    });
-                }
+
+            // Ajustar las cantidades de tallos en los box_items
+            qb1.box_items.forEach((i, index) => {
+                i.qty_stem_flower = Math.floor(stem_flower[index] / 2);
             });
-            this.newOrder = newOrder.map(i => ({ ...i }));
+            
+            qb2.box_items.forEach((i, index) => {
+                i.qty_stem_flower = Math.ceil(stem_flower[index] / 2);
+            });
+
+            // Agregar los nuevos QBs al array de pedidos
+            newOrder.push(qb1);
+            newOrder.push(qb2);
+
+            this.newOrder = newOrder;
         },
         mergeQB() {
             const selectedQBs = this.newOrder.filter(i => i.is_selected);
