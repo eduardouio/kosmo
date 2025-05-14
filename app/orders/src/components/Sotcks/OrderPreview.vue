@@ -42,7 +42,9 @@ const cancelOrder = () => {
 const delimitedNumber = (event, item) => {
   exceedLimit.value = false;
   let value = parseInt(event.target.value);
-  let maxValue = ordersStore.limitsNewOrder.filter(i=>i.stock_detail_id === item.stock_detail_id).map(i=>i.quantity);
+  let maxValue = ordersStore.limitsNewOrder.filter(
+    i=>i.stock_detail_id === item.stock_detail_id).map(i=>i.quantity
+    );
   if (value > maxValue || value == 0) {
     item.quantity = maxValue;
     exceedLimitMessage.value = `La cantidad máxima permitida para este item es de ${maxValue}`;
@@ -110,8 +112,18 @@ const formatInteger = (event, box = null) => {
 
 // computed Properties
 const isTwoQBSelected = computed(() => {
-  let qb = ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
-  return qb.length === 2;
+  // Caso 1: Dos QBs están seleccionados
+  const selectedQBs = ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
+  if (selectedQBs.length === 2) {
+    return true;
+  }
+  
+  // Caso 2: Un QB está seleccionado con cantidad par
+  if (selectedQBs.length === 1 && selectedQBs[0].quantity >= 2 && selectedQBs[0].quantity % 2 === 0) {
+    return true;
+  }
+  
+  return false;
 });
 
 const totalOrder = computed(() => {
@@ -202,7 +214,6 @@ const orderHaveCeroItem = computed(() => {
   exceedLimit.value = false;
   return false;
 });
-
 </script>
 
 <template>
@@ -223,7 +234,7 @@ const orderHaveCeroItem = computed(() => {
         </span>
       </div>
     </div>
-      <div class="row">  
+    <div class="row">  
       <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white" v-if="ordersStore.selectedCustomer">
         <div class="row">
           <div class="col text-center">
@@ -264,11 +275,15 @@ const orderHaveCeroItem = computed(() => {
       <div class="col">
         <button class="btn btn-sm btn-default" v-if="isTwoQBSelected" @click="ordersStore.mergeQB">
           <IconLayersIntersect2 size="20" stroke="1.5" />
-          Unificar a HB
+          {{ 
+            ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected).length === 1 
+            ? 'Convertir QB a HB' 
+            : 'Unificar QBs a HB' 
+          }}
         </button>
       </div>
     </div>
-    <div class="row p-1 text-white ">
+    <div class="row p-1 text-white">
       <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Cant</div>
       <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Mdl</div>
       <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Tl/Cj</div>
@@ -300,7 +315,7 @@ const orderHaveCeroItem = computed(() => {
           @change="(event) => delimitedNumber(event, item)" @focus="selectText"
           @keydown="event => handleKeydown(event, '.form-control-sm')" />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end gap-2 ">
+      <div class="col-1 text-end border-end d-flex align-items-end gap-2">
         {{ item.box_model }}
         <span>/</span>
         <IconSitemap size="20" stroke="1.5" @click="ordersStore.splitHB(item)" v-if="item.box_model === 'HB'" />
@@ -381,6 +396,7 @@ const orderHaveCeroItem = computed(() => {
     </div>
   </div>
 </template>
+
 <style scoped>
 input[type="checkbox"] {
   width: 15px;
@@ -394,5 +410,4 @@ input[type="checkbox"] {
   border-radius: 2px;
   text-align: right;
 }
-
-</style>@/stores/baseStore@/stores/ordersStore@/stores/stockStore
+</style>
