@@ -47,6 +47,13 @@ class Invoice(BaseModel):
         null=True,
         default=None
     )
+    marking = models.CharField(
+        'Marcación',
+        max_length=50,
+        blank=True,
+        null=True,
+        default=None
+    )
     order = models.ForeignKey(
         Order,
         on_delete=models.RESTRICT

@@ -55,6 +55,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             "hb_total": order.hb_total,
             "fb_total": float(order.fb_total) if order.fb_total else 0,
             "total_stem_flower": order.total_stem_flower,
+            "total_bunches": order.total_bunches,  # Agregar total_bunches
             "is_invoiced": order.is_invoiced,
             "id_invoice": order.id_invoice,
             "num_invoice": order.num_invoice,
@@ -84,8 +85,8 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                         "default_profit_margin": str(product.default_profit_margin)
                     },
                     "length": box.length,
-                    "stems_bunch": box.stems_bunch,
-                    "total_bunches": box.total_bunches,
+                    "stems_bunch": box.stems_bunch,  # Agregar stems_bunch
+                    "total_bunches": box.total_bunches,  # Agregar total_bunches
                     "qty_stem_flower": box.qty_stem_flower,
                     "stem_cost_price": str(box.stem_cost_price),
                     "profit_margin": str(box.profit_margin),
@@ -182,6 +183,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
         context['qb_total'] = order.qb_total
         context['fb_total'] = order.fb_total
         context['total_stem_flower'] = order.total_stem_flower
+        context['total_bunches'] = order.total_bunches  # Agregar al contexto
         
         # Mensajes de acción
         context['action'] = self.request.GET.get('action')
