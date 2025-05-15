@@ -124,6 +124,12 @@ class Invoice(BaseModel):
         null=True,
         default=0,
     )
+    total_bunches = models.IntegerField(
+        'Total de ramos',
+        blank=True,
+        null=True,
+        default=0
+    )
     awb = models.CharField(
         'MAWB',
         max_length=50,
@@ -296,6 +302,12 @@ class InvoiceItems(BaseModel):
         'Cantidad Tallos',
         default=0
     )
+    total_bunches = models.IntegerField(
+        'Total de ramos',
+        blank=True,
+        null=True,
+        default=0
+    )
     line_price = models.DecimalField(
         'Precio Linea',
         max_digits=10,
@@ -341,11 +353,13 @@ class InvoiceItems(BaseModel):
         line_price = 0
         line_margin = 0
         tot_stem_flower = 0
+        total_bunches = 0
 
         for oitm in InvoiceBoxItems.get_box_items(invoice_item):
             line_price += oitm.qty_stem_flower * oitm.stem_cost_price
             line_margin += oitm.profit_margin * oitm.qty_stem_flower
             tot_stem_flower += oitm.qty_stem_flower
+            total_bunches += oitm.total_bunches
 
         invoice_item.line_price = line_price * invoice_item.quantity
         invoice_item.line_margin = line_margin * invoice_item.quantity
@@ -354,6 +368,7 @@ class InvoiceItems(BaseModel):
             + (line_margin * invoice_item.quantity)
         )
         invoice_item.tot_stem_flower = tot_stem_flower
+        invoice_item.total_bunches = total_bunches
         invoice_item.save()
 
     def __str__(self):

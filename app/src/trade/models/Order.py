@@ -113,6 +113,12 @@ class Order(BaseModel):
         decimal_places=2,
         default=0
     )
+    total_bunches = models.IntegerField(
+        'Total de ramos',
+        blank=True,
+        null=True,
+        default=0
+    )
     comision_seler = models.DecimalField(
         'Comisión Vendedor',
         max_digits=10,
@@ -264,6 +270,7 @@ class Order(BaseModel):
         total_order = 0
         qb_total = 0
         hb_total = 0
+        total_bunches = 0
         total_stem_flower = 0
 
         for order_item in OrderItems.get_by_order(order):
@@ -274,6 +281,7 @@ class Order(BaseModel):
             total_margin += order_item.line_margin
             total_order += order_item.line_total
             total_stem_flower += order_item.tot_stem_flower
+            total_bunches += order_item.total_bunches
 
             if order_item.box_model == 'QB':
                 qb_total += (order_item.quantity)
@@ -287,6 +295,7 @@ class Order(BaseModel):
         order.total_stem_flower = total_stem_flower
         order.total_price = total_price
         order.total_margin = total_margin
+        order.total_bunches = total_bunches
         order.save()
 
 
@@ -337,6 +346,12 @@ class OrderItems(BaseModel):
         'Unds Tallos',
         default=0,
         help_text='Cantidad de tallos de flor'
+    )
+    total_bunches = models.IntegerField(
+        'Total de ramos',
+        blank=True,
+        null=True,
+        default=0
     )
     box_model = models.CharField(
         'Tipo de caja',
@@ -442,11 +457,13 @@ class OrderItems(BaseModel):
         total_stem_flower = 0
         total_price = 0
         total_margin = 0
+        total_bunches = 0
 
         for box in OrderBoxItems.get_box_items(order_item):
             total_stem_flower += box.qty_stem_flower * order_item.quantity
             total_price += (box.stem_cost_price * box.qty_stem_flower)
             total_margin += (box.profit_margin * box.qty_stem_flower)
+            total_bunches += box.total_bunches
 
         order_item.tot_stem_flower = total_stem_flower
         order_item.line_price = total_price * order_item.quantity
