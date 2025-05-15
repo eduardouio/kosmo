@@ -233,9 +233,11 @@ export const useStockStore = defineStore('stockStore', {
                             line_text += ` ${subItem.product_variety}`;
                             currentVariety = subItem.product_variety;
                         }
-
+                        
                         line_text += ` ${subItem.length}X${subItem.qty_stem_flower}`;
-                        costText += ` $${cost}`;
+                        if (subItem.stem_cost_price){
+                            costText += ` $${cost}`;
+                        }
                     });
 
                     line_text += costText;
