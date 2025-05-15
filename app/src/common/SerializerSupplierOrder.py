@@ -38,6 +38,8 @@ class SerializerSupplierOrder():
                 'qty_stem_flower': box.qty_stem_flower,
                 'stem_cost_price': cost_product,
                 'margin': float(box.profit_margin),
+                'total_bunches': box.total_bunches,
+                'stems_bunch': box.stems_bunch,
                 'is_active': box.is_active
             }
             item['box_items'].append(item_box)

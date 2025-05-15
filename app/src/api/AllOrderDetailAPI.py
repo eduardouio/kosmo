@@ -62,6 +62,7 @@ class AllOrderDetailAPI(View):
                     'qb_total': order.qb_total,
                     'hb_total': order.hb_total,
                     'total_stem_flower': order.total_stem_flower,
+                    'total_bunches': order.total_bunches,
                     'num_invoice': order.num_invoice,
                     'is_invoiced': order.is_invoiced,
                     'id_invoice': order.id_invoice,
