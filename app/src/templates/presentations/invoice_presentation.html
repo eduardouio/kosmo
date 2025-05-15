@@ -55,6 +55,7 @@
                 <p class="small mb-1"><strong>Email:</strong> {{ invoice.partner.email|default:'No disponible' }}</p>
                 <p class="small mb-1"><strong>Crédito:</strong> {{ invoice.partner.credit_term|default:'No disponible' }}</p>
               </div>
+              <p class="small mb-1"><strong>Marcación:</strong> {{ invoice.marking|default:'No disponible' }}</p>
             </div>
           </div>
         </div>
@@ -89,8 +90,8 @@
                   <th>VARIEDAD</th>
                   <th>LARGO CM</th>
                   <th>TALLOS</th>
-                  <th>BUNCHES</th>
                   <th>TALL/BUNC</th>
+                  <th>BUNCHES</th>
                   <th>COSTO</th>
                   <th>TOTAL</th>
                 </tr>
@@ -121,8 +122,20 @@
                     {% endif %}
                     {% endfor %}
                   </td>
-                  <td>XXX</td>
-                  <td>XXX</td>
+                  <td class="text-end">
+                    {% for box_item in box_items %}
+                    {% if box_item.invoice_item.id == item.id %}
+                    <p>{{ box_item.stems_bunch }}</p>
+                    {% endif %}
+                    {% endfor %}
+                  </td>
+                  <td class="text-end">
+                    {% for box_item in box_items %}
+                    {% if box_item.invoice_item.id == item.id %}
+                    <p>{{ box_item.total_bunches }}</p>
+                    {% endif %}
+                    {% endfor %}
+                  </td>
                   <td class="text-end">
                     {% for box_item in box_items %}
                     {% if box_item.invoice_item.id == item.id %}

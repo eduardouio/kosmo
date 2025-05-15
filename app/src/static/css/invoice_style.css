@@ -143,21 +143,21 @@ body {
   margin-bottom: 0.05rem;
   display: flex;
   flex-wrap: nowrap;
-  align-items: flex-start;
+  align-items: center;
   border-bottom: 1px dotted #e5e7eb;
   padding: 2px 0;
+  width: 100%;
 }
 
 .label-col {
-  width: 35%;
   text-align: left;
-  padding-right: 10px;
+  padding-right: 5px;
   font-weight: bold;
 }
 
 .value-col {
-  width: 65%;
   text-align: left;
+  padding-right: 10px;
 }
 
 .info-row-flex {
@@ -273,4 +273,45 @@ table td {
 
 .border-bottom {
   border-bottom: 1px dotted  #cdcdcd;
+}
+
+.w-1/4 {
+  width: 25%;
+}
+
+.w-1/6 {
+  width: 16.666667%;
+}
+
+.w-3/4 {
+  width: 75%;
+}
+
+.email-credit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.email-value {
+  flex-grow: 1;
+  margin-right: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.credit-container {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  min-width: 100px;
+  margin-left: auto;
+}
+
+.credit-container .label-col,
+.credit-container .value-col {
+  width: auto;
+  padding: 0 5px;
 }
