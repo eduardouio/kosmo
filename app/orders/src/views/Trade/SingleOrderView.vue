@@ -273,8 +273,10 @@ const validateInterval = setInterval(validateData, 2000);
                     <th class="">CANT</th>
                     <th class="">MODELO</th>
                     <th class="d-flex gap-1">
-                      <span style="width: 50%;">Variedad</span>
+                      <span style="width: 40%;">Variedad</span>
                       <span class="" style="width: 8%;">Largo CM</span>
+                      <span class="" style="width: 8%;">T/B</span>
+                      <span class="" style="width: 8%;">Bunches</span>
                       <span class="" style="width: 8%;">Tallos</span>
                       <span class="" style="width: 10%;">Costo</span>
                       <span class="" style="width: 10%;">Margen</span>
@@ -329,6 +331,10 @@ const validateInterval = setInterval(validateData, 2000);
               <div class="row">
                 <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div>
                 <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.total_stem_flower }}</div>
+              </div>
+              <div class="row">
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL BUNCHES:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.total_bunches }}</div>
               </div>
             </div>
           </div>
