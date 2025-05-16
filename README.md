@@ -75,7 +75,7 @@ python manage.py sowseed
 
 ## reiniciar servicio
 ```bash
-sudo systemctl daemon-reload&&
+sudo systemctl daemon-reload &&
 sudo systemctl restart kosmo.service &&
 sudo systemctl restart nginx.service
 ```

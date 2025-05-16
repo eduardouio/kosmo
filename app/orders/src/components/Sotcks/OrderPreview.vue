@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted } from 'vue'; // Added onMounted
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/ordersStore.js';
 import { useStockStore } from '@/stores/stockStore.js';
@@ -17,11 +17,25 @@ import {
 const ordersStore = useOrdersStore();
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
-const confirmDelete = ref(false);
-const exceedLimit = ref(false);
-const deleteMessage = ref('El item marcado será elimnado del pedido, click nuevamente para confirmar');
-const exceedLimitMessage = ref();
 const router = useRouter();
+
+// Eliminamos las variables locales de alerta y usamos las del baseStore
+// const alertMessage = ref('');
+// const alertType = ref('info');
+// const defaultInfoMessage = '...';
+// const setAlert = (message, type = 'info') => {...};
+// const updateGlobalAlertStatus = () => {...};
+
+// Ya no necesitamos inicializar alertas aquí, lo hace OrdersView
+
+onMounted(() => {
+  // Solo actualizamos las alertas si hay elementos en el carrito
+  if (ordersStore.newOrder.length > 0) {
+    baseStore.updateGlobalAlertStatus(ordersStore);
+  }
+});
+
+// Ya no necesitamos los watchers aquí, los movimos a OrdersView
 
 const calcTotalByItem = (item)=>{ 
   let total = 0;
@@ -40,15 +54,24 @@ const cancelOrder = () => {
 };  
 
 const delimitedNumber = (event, item) => {
-  exceedLimit.value = false;
   let value = parseInt(event.target.value);
-  let maxValue = ordersStore.limitsNewOrder.filter(
-    i=>i.stock_detail_id === item.stock_detail_id).map(i=>i.quantity
-    );
-  if (value > maxValue || value == 0) {
-    item.quantity = maxValue;
-    exceedLimitMessage.value = `La cantidad máxima permitida para este item es de ${maxValue}`;
-    exceedLimit.value = true;
+  const stockItemDetails = ordersStore.limitsNewOrder.find(
+    i => i.stock_detail_id === item.stock_detail_id
+  );
+  const maxQty = stockItemDetails ? stockItemDetails.quantity : Infinity;
+  
+  const itemNameForAlert = item.box_items[0]?.product_name || 'este item';
+  const quantityErrorMessageBase = `La cantidad para ${itemNameForAlert} debe estar entre 1 y ${maxQty === Infinity ? 'el máximo disponible' : maxQty}.`;
+
+  if (value > maxQty || value <= 0) {
+    item.quantity = (maxQty > 0 && maxQty !== Infinity) ? maxQty : 1;
+    baseStore.setAlert(`${quantityErrorMessageBase} Se ajustó a ${item.quantity}.`, 'error');
+  } else {
+    // Si la cantidad es válida y la alerta actual era sobre la cantidad de ESTE artículo, la limpiamos
+    if (baseStore.alertType === 'error' && baseStore.alertMessage.startsWith(quantityErrorMessageBase)) {
+      baseStore.setAlert(baseStore.defaultInfoMessage, 'info'); // Limpiar temporalmente el error específico
+      // El watch sobre newOrder en OrdersView activará updateGlobalAlertStatus
+    }
   }
 };
 
@@ -57,15 +80,21 @@ const selectText = (event) => {
 }
 
 const deleteOrderItem = (item) => {
+  // Reset confirm_delete for other items
+  ordersStore.newOrder.forEach(i => {
+    if (i !== item && i.confirm_delete) {
+      i.confirm_delete = false;
+    }
+  });
+
   if (item.confirm_delete) {
-    // Buscar el índice del item en el array y eliminarlo por índice
     const index = ordersStore.newOrder.findIndex(i => i === item);
     if (index !== -1) {
-      ordersStore.newOrder.splice(index, 1);
+      ordersStore.newOrder.splice(index, 1); // This will trigger the watch for newOrder in OrdersView
     }
   } else {
-    confirmDelete.value = true;
     item.confirm_delete = true;
+    baseStore.setAlert('El item marcado será eliminado del pedido, click nuevamente para confirmar.', 'warning');
   }
 }
 
@@ -75,6 +104,7 @@ const createOrder = async() => {
   );
   if (newOrderId) {
     baseStore.stagesLoaded = 0;
+    // updateGlobalAlertStatus(); // Not strictly needed
     router.push(`/order-detail/${newOrderId}/`);
   }
 }
@@ -184,35 +214,8 @@ const totalStems = computed(() => {
 });
 
 const orderHaveCeroItem = computed(() => {
-  for (const order of ordersStore.newOrder) {
-    let ceroBunches = order.box_items.filter(
-      i => i.total_bunches === 0 || i.stems_bunch === 0
-    );
-
-    let ceroBoxesCost = order.box_items.filter(
-      i => i.stem_cost_price === 0
-    );
-
-    if (ceroBunches.length > 0 || ceroBoxesCost.length > 0) {
-      exceedLimitMessage.value = 'No se permiten items con bunches 0, tallos por bunch 0, o costo 0';
-      exceedLimit.value = true;
-      return true;
-    }
-
-    if (ordersStore.selectedCustomer === null) {
-      exceedLimitMessage.value = 'Debe seleccionar un cliente';
-      exceedLimit.value = true;
-      return true;
-    }
-
-    exceedLimitMessage.value = '';
-    exceedLimit.value = false;
-    return false;
-  }
-
-  exceedLimitMessage.value = '';
-  exceedLimit.value = false;
-  return false;
+  // The button should be disabled if there's any error or warning active.
+  return baseStore.alertType === 'error' || baseStore.alertType === 'warning';
 });
 
 // Función para calcular qty_stem_flower basado en total_bunches y stems_bunch
@@ -245,17 +248,6 @@ const updateQtyStemFlower = (product) => {
     <div class="row p-0 mb-0">
       <div class="col-12">
         <AutocompleteCustomer />
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-12 text-center fs-4 fw-semibold text-danger" v-if="exceedLimit || confirmDelete">
-        <IconAlertTriangle size="20" stroke="1.5" /> &nbsp;
-        <span v-if="confirmDelete">
-          {{ deleteMessage }}
-        </span>
-        <span v-if="exceedLimit">
-          {{ exceedLimitMessage }}
-        </span>
       </div>
     </div>
     <div class="row">  
@@ -314,20 +306,23 @@ const updateQtyStemFlower = (product) => {
       <div class="col-2 fw-bold fs-6 border-end bg-gray-400 text-center">Proveedor</div>
       <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
         <div class="d-flex">
-          <div class="flex-grow-1" style="flex: 0 0 40%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 30%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 15%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
             Bunches
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 15%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
             Tallos/Bunch
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 15%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
             Costo
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 15%; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
             Margen
+          </div>
+          <div class="flex-grow-1" style="flex: 0 0 14%; text-align: center;">
+            PVP
           </div>
         </div>
       </div>
@@ -358,36 +353,41 @@ const updateQtyStemFlower = (product) => {
       </div>
       <div class="col-6">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <span class="border-end text-end w-40 pe-2">
+          <span class="border-end text-end w-30 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
           </span>
-          <span class="border-end text-end w-15 pe-2">
+          <span class="border-end text-end w-14 pe-2">
             <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
               v-model="product.total_bunches" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-4')" 
               @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
           </span>
-          <span class="border-end text-end w-15 pe-2">
+          <span class="border-end text-end w-14 pe-2">
             <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
               v-model="product.stems_bunch" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-5')" 
               @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
           </span>
-          <span class="border-end text-end w-15 pe-2">
+          <span class="border-end text-end w-14 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-2"
               v-model="product.stem_cost_price" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-2')" @change="formatNumber"
               :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.00 }" />
           </span>
-          <span class="border-end text-end w-15 pe-2">
+          <span class="border-end text-end w-14 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
               v-model="product.margin" @focus="selectText" @keydown="event => handleKeydown(event, '.my-input-3')"
               @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }" />
           </span>
+          <span class="text-end w-14 pe-2 form-control form-control-sm">
+            {{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
+          </span>
         </div>
       </div>
       <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
-        {{ calcTotalByItem(item) }}
+        <span class="form-control form-control-sm text-end my-input-2">
+          {{ calcTotalByItem(item) }}
+        </span>
       </div>
     </div>
     <div class="row">
@@ -443,10 +443,13 @@ input[type="checkbox"] {
   text-align: right;
 }
 
+.w-30 {
+  width: 30% !important;
+}
+.w-14 {
+  width: 14% !important;
+}
 .w-40 {
   width: 40% !important;
-}
-.w-55 {
-  width: 55% !important;
 }
 </style>

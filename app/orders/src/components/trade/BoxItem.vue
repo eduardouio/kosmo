@@ -17,8 +17,8 @@ const props = defineProps({
             profit_margin: '0.00',
             commission: '0.00',
             total_bunches: 0,
-            total: '0.00',
-            stems_bunch: 0
+            stems_bunch: 0,
+            total: '0.00'
         })
     }
 })
@@ -211,6 +211,28 @@ const productInitialValue = computed(() => {
                         @focus="onFocusField('profit_margin')"
                         @blur="onBlurField('profit_margin', true)"
                         />
+                </div>
+                <div style="width:10%" class="text-end">
+                    <input 
+                        type="number"
+                        v-model="newboxItem.stems_bunch"
+                        class="border w-100 text-end" 
+                        step="1"
+                        @focus="onFocusField('stems_bunch')"
+                        @blur="onBlurField('stems_bunch')"
+                        placeholder="T/B"
+                    />
+                </div>
+                <div style="width:10%" class="text-end">
+                    <input 
+                        type="number"
+                        v-model="newboxItem.total_bunches"
+                        class="border w-100 text-end" 
+                        step="1"
+                        @focus="onFocusField('total_bunches')"
+                        @blur="onBlurField('total_bunches')"
+                        placeholder="Bunches"
+                    />
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted, watchEffect, computed, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, watchEffect, computed, nextTick, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBaseStore } from '@/stores/baseStore.js';
 import { useOrdersStore } from '@/stores/ordersStore.js';
@@ -16,6 +16,7 @@ import {
     IconHexagonMinus,
     IconFolderOpen,
     IconPrinter,
+    IconAlertTriangle,
 } from '@tabler/icons-vue';
 
 
@@ -50,6 +51,25 @@ onMounted(() => {
     }else{
         baseStore.stagesLoaded++;
     }
+    
+    // Para inicializar el mensaje por defecto
+    if (ordersStore.newOrder && ordersStore.newOrder.length > 0) {
+        baseStore.updateGlobalAlertStatus(ordersStore);
+    }
+});
+
+// Vigilar cambios en el pedido para actualizar alertas
+watch(() => ordersStore.newOrder, () => {
+    if (ordersStore.newOrder && ordersStore.newOrder.length > 0) {
+        baseStore.updateGlobalAlertStatus(ordersStore);
+    }
+}, { deep: true });
+
+// Vigilar cambios en el cliente seleccionado
+watch(() => ordersStore.selectedCustomer, () => {
+    if (ordersStore.newOrder && ordersStore.newOrder.length > 0) {
+        baseStore.updateGlobalAlertStatus(ordersStore);
+    }
 });
 </script>
 
@@ -60,6 +80,22 @@ onMounted(() => {
             <SideBar />
         </div>
     <div class="col pe-3">
+        <!-- Barra de alertas centralizada -->
+        <div class="row mb-2" v-if="baseStore.alertMessage && ordersStore.newOrder.length > 0">
+            <div class="col-11 fs-6 p-2 mx-auto rounded-1"
+                :class="{
+                    'bg-cyan-600 text-light': baseStore.alertType === 'info',
+                    'bg-warning text-dark': baseStore.alertType === 'warning',
+                    'bg-danger text-white': baseStore.alertType === 'error'
+                }">
+                <IconAlertTriangle size="20" stroke="1.5" v-if="baseStore.alertType === 'error' || baseStore.alertType === 'warning'" />
+                <IconAlertCircle size="25" stroke="1.5" v-else />
+                <span class="fw-semibold ms-2">
+                    {{ baseStore.alertMessage }}
+                </span>
+            </div>
+        </div>
+        
         <div class="row" v-if="!isAllLoaded">
             <div class="col text-center">
                 <Loader />
@@ -120,15 +156,6 @@ onMounted(() => {
                     </div>
                 </div>
                 <div class="row pt-4" v-if="ordersStore.newOrder.length">
-                    <div class="col-11 fs-6 p-2 bg-cyan-600 text-light mx-auto rounded-1">
-                        <IconAlertCircle size="25" stroke="1.5" />
-                        <span class="fw-semibold">
-                            Vista previa de pedido
-                        </span>
-                        <span>
-                            confirme detalles y proceda a guardar para generar las ordenes de compra a los proveedores
-                        </span>
-                    </div>
                     <div class="col-12">
                         <OrderPreview />
                     </div>

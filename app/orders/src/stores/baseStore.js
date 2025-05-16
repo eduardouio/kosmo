@@ -34,6 +34,11 @@ export const useBaseStore = defineStore("baseStore", {
           'VERDE' : 'bg-green-500 text-white',
           'OTRO' : 'bg-gray-500 text-white',
         },
+        // Nueva sección de alertas
+        alertMessage: '',
+        alertType: 'info', // 'info', 'warning', 'error'
+        defaultInfoMessage: 'Revise los detalles del pedido y proceda a guardar para generar las órdenes de compra a los proveedores.',
+        
         suppliers:[],
         products:[],
         customers:[],
@@ -45,6 +50,48 @@ export const useBaseStore = defineStore("baseStore", {
         selectedSupplier: null,
     }),
     actions: {
+      // Nueva funcionalidad de alertas
+      setAlert(message, type = 'info') {
+        this.alertMessage = message;
+        this.alertType = type;
+      },
+      
+      updateGlobalAlertStatus(ordersStore) {
+        // Priority 1: Pending delete confirmation
+        const itemPendingDelete = ordersStore.newOrder.find(item => item.confirm_delete);
+        if (itemPendingDelete) {
+          this.setAlert('El item marcado será eliminado del pedido, click nuevamente para confirmar.', 'warning');
+          return;
+        }
+
+        // Priority 2: Zero data errors in items
+        for (const order of ordersStore.newOrder) {
+          if (order.box_items.some(p => parseInt(p.total_bunches) === 0 || parseInt(p.stems_bunch) === 0 || parseFloat(p.stem_cost_price) <= 0)) {
+            this.setAlert('No se permiten items con bunches 0, tallos por bunch 0, o costo <= 0.', 'error');
+            return;
+          }
+        }
+
+        // Priority 3: Customer not selected (only if there are items in the order)
+        if (ordersStore.newOrder.length > 0 && !ordersStore.selectedCustomer) {
+          this.setAlert('Debe seleccionar un cliente.', 'error');
+          return;
+        }
+        
+        // Priority 4: If current alert is an error not covered above (e.g. quantity error), keep it.
+        const isKnownGlobalError = 
+          (this.alertMessage.startsWith('No se permiten items con bunches 0')) ||
+          (this.alertMessage.startsWith('Debe seleccionar un cliente'));
+
+        if (this.alertType === 'error' && !isKnownGlobalError) {
+          // This is likely a quantity error set by delimitedNumber, keep it until resolved there.
+          return;
+        }
+
+        // If no active warnings or errors, show default info message.
+        this.setAlert(this.defaultInfoMessage, 'info');
+      },
+      
       async loadSuppliers(all=false){
         if (this.suppliers.length > 0) {
           this.stagesLoaded++;
