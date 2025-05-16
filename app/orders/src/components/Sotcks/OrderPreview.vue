@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/ordersStore.js';
 import { useStockStore } from '@/stores/stockStore.js';
@@ -185,16 +185,16 @@ const totalStems = computed(() => {
 
 const orderHaveCeroItem = computed(() => {
   for (const order of ordersStore.newOrder) {
-    let ceroBoxesStem = order.box_items.filter(
-      i => i.qty_stem_flower === 0
+    let ceroBunches = order.box_items.filter(
+      i => i.total_bunches === 0 || i.stems_bunch === 0
     );
 
     let ceroBoxesCost = order.box_items.filter(
       i => i.stem_cost_price === 0
     );
 
-    if (ceroBoxesStem.length > 0 || ceroBoxesCost.length > 0) {
-      exceedLimitMessage.value = 'No se permiten items con cantidad 0 o costo 0';
+    if (ceroBunches.length > 0 || ceroBoxesCost.length > 0) {
+      exceedLimitMessage.value = 'No se permiten items con bunches 0, tallos por bunch 0, o costo 0';
       exceedLimit.value = true;
       return true;
     }
@@ -214,6 +214,30 @@ const orderHaveCeroItem = computed(() => {
   exceedLimit.value = false;
   return false;
 });
+
+// Función para calcular qty_stem_flower basado en total_bunches y stems_bunch
+const calculateQtyStemFlower = (product) => {
+  const totalBunches = parseInt(product.total_bunches) || 0;
+  const stemsBunch = parseInt(product.stems_bunch) || 0;
+  product.qty_stem_flower = totalBunches * stemsBunch;
+};
+
+// Agregar watch para todos los productos en box_items de cada pedido
+watch(() => ordersStore.newOrder, (orders) => {
+  if (!orders) return;
+  
+  orders.forEach(order => {
+    order.box_items.forEach(product => {
+      calculateQtyStemFlower(product);
+    });
+  });
+}, { deep: true });
+
+// Actualizar qty_stem_flower cuando cambie total_bunches o stems_bunch
+const updateQtyStemFlower = (product) => {
+  calculateQtyStemFlower(product);
+};
+
 </script>
 
 <template>
@@ -284,22 +308,25 @@ const orderHaveCeroItem = computed(() => {
       </div>
     </div>
     <div class="row p-1 text-white">
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Cant</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-kosmo-green text-center">Tl/Cj</div>
-      <div class="col-2 fw-bold fs-6 border-end bg-kosmo-green text-center">Proveedor</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Cant</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Mdl</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Tl/Cj</div>
+      <div class="col-2 fw-bold fs-6 border-end bg-gray-400 text-center">Proveedor</div>
       <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
         <div class="d-flex">
-          <div class="flex-grow-1" style="flex: 0 0 50%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 40%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.666%; border-right: 1px solid #ddd; text-align: center;">
-            Tallos
+          <div class="flex-grow-1" style="flex: 0 0 15%; border-right: 1px solid #ddd; text-align: center;">
+            Bunches
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.666%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 15%; border-right: 1px solid #ddd; text-align: center;">
+            Tallos/Bunch
+          </div>
+          <div class="flex-grow-1" style="flex: 0 0 15%; border-right: 1px solid #ddd; text-align: center;">
             Costo
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.666%; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 15%; text-align: center;">
             Margen
           </div>
         </div>
@@ -331,25 +358,28 @@ const orderHaveCeroItem = computed(() => {
       </div>
       <div class="col-6">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <span class="border-end text-end w-50 pe-2">
+          <span class="border-end text-end w-40 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
           </span>
-          <span class="border-end text-end w-10 pe-2">
-            {{ product.length }} cm
+          <span class="border-end text-end w-15 pe-2">
+            <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
+              v-model="product.total_bunches" @focus="selectText"
+              @keydown="event => handleKeydown(event, '.my-input-4')" 
+              @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
           </span>
-          <span class="border-end text-end w-20 pe-2">
-            <input type="number" step="1" class="form-control form-control-sm text-end my-input"
-              v-model="product.qty_stem_flower" @focus="selectText"
-              @keydown="event => handleKeydown(event, '.my-input')" @change="formatInteger"
-              :class="{ 'bg-red-200': parseInt(product.qty_stem_flower) <= 0 }" />
+          <span class="border-end text-end w-15 pe-2">
+            <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
+              v-model="product.stems_bunch" @focus="selectText"
+              @keydown="event => handleKeydown(event, '.my-input-5')" 
+              @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
           </span>
-          <span class="border-end text-end w-20 pe-2">
+          <span class="border-end text-end w-15 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-2"
               v-model="product.stem_cost_price" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-2')" @change="formatNumber"
               :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.00 }" />
           </span>
-          <span class="border-end text-end w-20 pe-2">
+          <span class="border-end text-end w-15 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
               v-model="product.margin" @focus="selectText" @keydown="event => handleKeydown(event, '.my-input-3')"
               @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }" />
@@ -405,9 +435,18 @@ input[type="checkbox"] {
 
 .my-input,
 .my-input-2,
-.my-input-3 {
+.my-input-3,
+.my-input-4,
+.my-input-5 {
   border: 1px solid #ccc;
   border-radius: 2px;
   text-align: right;
+}
+
+.w-40 {
+  width: 40% !important;
+}
+.w-55 {
+  width: 55% !important;
 }
 </style>
