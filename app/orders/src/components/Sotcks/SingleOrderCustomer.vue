@@ -438,11 +438,11 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
     <div class="row p-1 text-white border-teal-500">
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Cant</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Tallos</div>
-      <div class="col-2 fw-bold fs-6 border-end bg-gray-400 text-center">Proveedor</div>
-      <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
+      <div class="col-1 border-end bg-gray-400 text-center">Cant</div>
+      <div class="col-1 border-end bg-gray-400 text-center">Mdl</div>
+      <div class="col-1 border-end bg-gray-400 text-center">Tallos</div>
+      <div class="col-2 border-end bg-gray-400 text-center">Proveedor</div>
+      <div class="col-6 border-end bg-sky-500">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 30%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -464,10 +464,10 @@ watch(() => orderStore.selectedOrder,
           </div>
         </div>
       </div>
-      <div class="col-1 fw-bold fs-6 bg-kosmo-green text-center">C/USD</div>
+      <div class="col-1 bg-kosmo-green text-center">C/USD</div>
     </div>
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2 d-flex align-items-center"
-      :class="{ 'bg-gray': idx % 2 === 0 }" style="font-size: 1rem;">
+      :class="{ 'bg-gray': idx % 2 === 0 }">
       <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
         <IconTrash 
           size="30"
@@ -497,7 +497,7 @@ watch(() => orderStore.selectedOrder,
         </span>
       </div>
       <div class="col-6">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between" style="font-size: 1rem;">
+        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
           <span class="border-end text-end w-30 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
           </span>
@@ -537,7 +537,7 @@ watch(() => orderStore.selectedOrder,
           </span>
         </div>
       </div>
-      <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
+      <div class="col-1 d-flex align-items-end justify-content-end">
         <span class="form-control form-control-sm text-end my-input-6">
           {{ calcTotalByItem(item) }}
         </span>
@@ -546,21 +546,21 @@ watch(() => orderStore.selectedOrder,
     <div class="row">
       <div class="col-3">
         <div class="row shadow-sm p-2 border-teal-500 rounded-1 bg-transparent">
-          <div class="col-9 fs-5  text-teal-700 text-start text-end">{{ totalBoxesHB }}</div>
-          <div class="col-3 fs-5  text-teal-700 text-end">HB's:</div>
-          <div class="col-9 fs-5  text-teal-700 text-start text-end">{{ totalBoxesQB }}</div>
-          <div class="col-3 fs-5  text-teal-700 text-end">QB's:</div>
-          <div class="col-9 fs-5  text-teal-700 text-start text-end">{{ totalStems }}</div>
-          <div class="col-3 fs-5  text-teal-700 text-end">Tallos:</div>
+          <div class="col-9 text-teal-700 fs-5 text-start text-end">{{ totalBoxesHB }}</div>
+          <div class="col-3 text-teal-700 fs-5 text-end">HB's:</div>
+          <div class="col-9 text-teal-700 fs-5 text-start text-end">{{ totalBoxesQB }}</div>
+          <div class="col-3 text-teal-700 fs-5 text-end">QB's:</div>
+          <div class="col-9 text-teal-700 fs-5 text-start text-end">{{ totalStems }}</div>
+          <div class="col-3 text-teal-700 fs-5 text-end">Tallos:</div>
         </div>
       </div>
       <div class="col-4 offset-5">
         <div class="row bg-transparent-200 border-teal-500 rounded-1 shadow-sm p-2">
-          <div class="col-7 text-end border-end fs-5 text-teal-700">Costo:</div>
+          <div class="col-7 fs-5 text-end border-end text-teal-700">Costo:</div>
           <div class="col-5 fs-5 text-teal-700 text-end">{{orderStore.formatNumber(totalCost) }}</div>
-          <div class="col-7 text-end border-end fs-5 text-teal-700">Margen:</div>
+          <div class="col-7 fs-5 text-end border-end text-teal-700">Margen:</div>
           <div class="col-5 fs-5 text-teal-700 text-end">{{ orderStore.formatNumber(totalMargin) }}</div>
-          <div class="col-7 text-end border-end fs-5 text-teal-700">Total Pedido:</div>
+          <div class="col-7 fs-5 text-end border-end text-teal-700">Total Pedido:</div>
           <div class="col-5 fs-5 text-teal-700 text-end">
             {{  orderStore.formatNumber(parseFloat(totalMargin) + parseFloat(totalCost)) }}
           </div>
@@ -631,5 +631,17 @@ watch(() => orderStore.selectedOrder,
 }
 .w-14 {
   width: 14% !important;
+}
+
+/* Estilos predeterminados para el checkbox */
+input[type="checkbox"] {
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
 }
 </style>

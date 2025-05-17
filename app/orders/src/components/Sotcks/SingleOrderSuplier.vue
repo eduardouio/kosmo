@@ -76,6 +76,10 @@ const delimitedNumber = (event, item) => {
       exceedLimit.value = true;
     }
   }
+  
+  // Recalcular totales cuando cambia la cantidad
+  calcTotalStemFlower(item);
+  calcTotalByItem(item);
 };
 
 const selectText = (event) => {
@@ -380,13 +384,13 @@ watch(() => purchaseStore.selectedPurchase,
           <div class="row">
             <div class="col-12 rounded-1 shadow-sm p-2 bg-orange-700 border-gray-300 text-white">
               <div class="row">
-                <div class="col-4 fs-4">
+                <div class="col-5 fs-4">
                   {{ purchaseStore.selectedPurchase.order.partner.name }}
                 </div>
-                <div class="col-4 text-center fs-5 upper">
+                <div class="col-2 text-center fs-5 upper">
                   <span>Orden De Compra</span>
                 </div>
-                <div class="col-4 text-end fs-6">
+                <div class="col-5 text-end fs-6">
                   <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
                     Pedido {{ purchaseStore.selectedPurchase.order.serie }}-{{ String(purchaseStore.selectedPurchase.order.consecutive).padStart(6, '0') }}
                   </strong>
@@ -448,29 +452,31 @@ watch(() => purchaseStore.selectedPurchase,
             <div class="col-1 border-end bg-gray-400 text-center">Cant</div>
             <div class="col-1 border-end bg-gray-400 text-center">Mdl</div>
             <div class="col-1 border-end bg-gray-400 text-center">Tallos</div>
-            <div class="col-6 border-end bg-sky-500">
+            <div class="col-7 border-end bg-sky-500">
               <div class="d-flex">
-                <div class="flex-grow-1" style="flex: 0 0 30%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 26%; border-right: 1px solid #ddd; text-align: center;">
                   Variedad
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 12%; border-right: 1px solid #ddd; text-align: center;">
                   Bunches
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 12%; border-right: 1px solid #ddd; text-align: center;">
                   Tallos/Bunch
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 12%; border-right: 1px solid #ddd; text-align: center;">
                   Costo
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 12%; border-right: 1px solid #ddd; text-align: center;">
                   Margen
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 14%; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 12%; text-align: center;">
                   PVP
+                </div>
+                <div class="flex-grow-1" style="flex: 0 0 14%; text-align: center;">
+                  Total
                 </div>
               </div>
             </div>
-            <div class="col-1 bg-kosmo-green text-center">C/USD</div>
             <div class="col-1 border-end bg-gray-400 text-center">T Compra</div>
             <div class="col-1 border-end bg-gray-400 text-center">T Venta</div>
           </div>
@@ -497,12 +503,12 @@ watch(() => purchaseStore.selectedPurchase,
             <div class="col-1 text-end border-end d-flex align-items-center justify-content-end">
               {{ calcTotalStemFlower(item) }}
             </div>
-            <div class="col-6">
+            <div class="col-7">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-                <span class="border-end text-end w-30 pe-2">
+                <span class="border-end text-end" style="width: 26%; padding-right: 0.5rem;">
                   {{ product.product_name }} {{ product.product_variety }}
                 </span>
-                <span class="border-end text-end w-14 pe-2">
+                <span class="border-end text-end" style="width: 12%; padding-right: 0.5rem;">
                   <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
                     v-model="product.total_bunches" @focus="selectText"
                     @keydown="event => handleKeydown(event, '.my-input-4')" 
@@ -510,7 +516,7 @@ watch(() => purchaseStore.selectedPurchase,
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
-                <span class="border-end text-end w-14 pe-2">
+                <span class="border-end text-end" style="width: 12%; padding-right: 0.5rem;">
                   <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
                     v-model="product.stems_bunch" @focus="selectText"
                     @keydown="event => handleKeydown(event, '.my-input-5')" 
@@ -518,36 +524,34 @@ watch(() => purchaseStore.selectedPurchase,
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
-                <span class="border-end text-end w-14 pe-2">
+                <span class="border-end text-end" style="width: 12%; padding-right: 0.5rem;">
                   <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-2"
                     v-model="product.stem_cost_price" @focus="selectText"
-                    @keydown="event => handleKeydown(event, '.my-input-2')" @change="formatNumber"
+                    @keydown="event => handleKeydown(event, '.my-input-2')" 
+                    @change="(event) => { formatNumber(event); handlePriceOrMarginChange(event, item); }"
                     :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.0 }"
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
-                <span class="border-end text-end w-14 pe-2">
+                <span class="border-end text-end" style="width: 12%; padding-right: 0.5rem;">
                   <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
                     v-model="product.margin" @focus="selectText"
-                    @keydown="event => handleKeydown(event, '.my-input-3')" @change="formatNumber"
+                    @keydown="event => handleKeydown(event, '.my-input-3')" 
+                    @change="(event) => { formatNumber(event); handlePriceOrMarginChange(event, item); }"
                     :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.0 }"
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
-                <span class="text-end w-14 pe-2 form-control form-control-sm">
-                  {{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
+                <span class="text-end" style="width: 12%; padding-right: 0.5rem;">
+                  <span class="form-control form-control-sm">
+                    {{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
+                  </span>
                 </span>
-              </div>
-            </div>
-            <div class="col-1 d-flex align-items-end justify-content-end">
-              <span class="form-control form-control-sm text-end my-input-6">
-                {{ calcTotalByItem(item) }}
-              </span>
-            </div>
-            <div class="col-1">
-              <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-                <input type="text" class="form-control form-control-sm text-end"
-                  :value="product.stem_cost_price + product.margin" readonly />
+                <span class="text-end" style="width: 14%; padding-right: 0.5rem;">
+                  <span class="form-control form-control-sm text-end my-input-6">
+                    {{ calcTotalByItem(item) }}
+                  </span>
+                </span>
               </div>
             </div>
             <div class="col-1">
@@ -559,7 +563,7 @@ watch(() => purchaseStore.selectedPurchase,
             <div class="col-1">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
                 <input type="text" readonly class="form-control form-control-sm text-end"
-                  :value="purchaseStore.formatNumber((parseFloat(product.stem_cost_price) + parseFloat(product.margin)) * calcAndGetProductQtyStemFlower(product))" />
+                  :value="purchaseStore.formatNumber((product.stem_cost_price + product.margin) * calcAndGetProductQtyStemFlower(product))" />
               </div>
             </div>
           </div>
@@ -651,3 +655,4 @@ watch(() => purchaseStore.selectedPurchase,
   width: 14% !important;
 }
 </style>
+@/stores/purcharsesStore
