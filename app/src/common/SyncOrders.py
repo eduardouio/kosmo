@@ -100,7 +100,6 @@ class SyncOrders:
                     new_item['order_items'].append(item['order_item'])
             order_customer_by_supplier.append(new_item)
 
-        # agrupamos ordenes de compra anteriores
         for sup_order in old_supplier_orders:
             if sup_order.status not in ['CANCELADO']:
                 old_complete_supplier_orders.append({
@@ -203,7 +202,9 @@ class SyncOrders:
                 length=box_item.length,
                 qty_stem_flower=box_item.qty_stem_flower,
                 stem_cost_price=box_item.stem_cost_price,
-                profit_margin=box_item.profit_margin
+                profit_margin=box_item.profit_margin,
+                total_bunches=box_item.total_bunches,  # Agregando campo total_bunches
+                stems_bunch=box_item.stems_bunch       # Agregando campo stems_bunch
             )
 
     def _update_supplier_order(self, new_sup_order, old_sup_order):
