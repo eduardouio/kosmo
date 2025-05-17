@@ -438,11 +438,11 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
     <div class="row p-1 text-white border-teal-500">
-      <div class="col-1 border-end bg-gray-400 text-center">Cant</div>
-      <div class="col-1 border-end bg-gray-400 text-center">Mdl</div>
-      <div class="col-1 border-end bg-gray-400 text-center">Tallos</div>
-      <div class="col-2 border-end bg-gray-400 text-center">Proveedor</div>
-      <div class="col-6 border-end bg-sky-500">
+      <div class="col-1 col-narrow-custom border-end bg-gray-400 text-center">Cant</div>
+      <div class="col-1 col-narrow-custom border-end bg-gray-400 text-center">Mdl</div>
+      <div class="col-1 col-narrow-custom border-end bg-gray-400 text-center">Tallos</div>
+      <div class="col-3 col-wide-custom border-end bg-gray-400 text-center">Proveedor</div>
+      <div class="col-5 border-end bg-sky-500">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 30%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -466,11 +466,12 @@ watch(() => orderStore.selectedOrder,
       </div>
       <div class="col-1 bg-kosmo-green text-center">C/USD</div>
     </div>
+
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2 d-flex align-items-center"
       :class="{ 'bg-gray': idx % 2 === 0 }">
-      <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
+      <div class="col-1 col-narrow-custom border-end d-flex gap-1 justify-content-between align-items-center">
         <IconTrash 
-          size="30"
+          size="24"
           stroke="1.5"
           :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
           @click="deleteOrderItem(item)"
@@ -482,21 +483,21 @@ watch(() => orderStore.selectedOrder,
           :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
            />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end gap-2">
+      <div class="col-1 col-narrow-custom text-end border-end d-flex align-items-center gap-1">
         {{ item.box_model }}
         <span v-if="!orderStore.selectedOrder.is_invoiced">/</span>
-        <IconSitemap size="20" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB' && !orderStore.selectedOrder.is_invoiced" />
+        <IconSitemap size="18" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB' && !orderStore.selectedOrder.is_invoiced" />
         <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB' && !orderStore.selectedOrder.is_invoiced" />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
+      <div class="col-1 col-narrow-custom text-end border-end d-flex align-items-center justify-content-end px-1">
         {{ totalStemFlowerOrderItem(item) }}
       </div>
-      <div class="col-2 d-flex align-items-end">
-        <span>
+      <div class="col-3 col-wide-custom d-flex align-items-center text-truncate px-2">
+        <span class="text-truncate">
           {{ item.partner.partner.name }}
         </span>
       </div>
-      <div class="col-6">
+      <div class="col-5">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
           <span class="border-end text-end w-30 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
@@ -644,4 +645,5 @@ input[type="checkbox"] {
   border: none;
   box-shadow: none;
 }
+
 </style>
