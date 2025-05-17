@@ -47,6 +47,8 @@ class OrderPurchaseByOrderSale(View):
                     'id': order.id,
                     'stock_day': order.stock_day.id,
                     'date': order.date.isoformat(),
+                    'serie': order.serie,
+                    'consecutive': order.consecutive,
                     'status': order.status,
                     'type_document': order.type_document,
                     'total_price': float(order.total_price),

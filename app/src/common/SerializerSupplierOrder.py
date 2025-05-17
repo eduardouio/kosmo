@@ -14,6 +14,7 @@ class SerializerSupplierOrder():
             'line_total': float(order_item.line_total),
             'tot_stem_flower': order_item.tot_stem_flower,
             'is_active': order_item.is_active,
+            'total_bunches': order_item.total_bunches,
             'is_visible': True,
             'is_selected': False,
             'box_items': [],

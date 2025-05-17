@@ -56,6 +56,8 @@ class AllOrderDetailAPI(View):
                     'stock_day': order.stock_day.id,
                     'date': order.date.isoformat(),
                     'status': order.status,
+                    'serie': order.serie,
+                    'consecutive': order.consecutive,
                     'type_document': order.type_document,
                     'parent_order': parent_order,
                     'total_price': float(order.total_price),

@@ -48,7 +48,9 @@ class CreateOrderAPI(View):
                     length=box_item['length'],
                     qty_stem_flower=box_item['qty_stem_flower'],
                     stem_cost_price=box_item['stem_cost_price'],
-                    profit_margin=float(box_item['margin'])
+                    profit_margin=float(box_item['margin']),
+                    total_bunches=box_item['total_bunches'],
+                    stems_bunch=box_item['stems_bunch'],
                 )
 
         Order.rebuild_totals(order)

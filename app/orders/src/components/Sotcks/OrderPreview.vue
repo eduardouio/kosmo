@@ -104,7 +104,6 @@ const createOrder = async() => {
   );
   if (newOrderId) {
     baseStore.stagesLoaded = 0;
-    // updateGlobalAlertStatus(); // Not strictly needed
     router.push(`/order-detail/${newOrderId}/`);
   }
 }
@@ -208,7 +207,7 @@ const totalBoxesHB = computed(() => {
 const totalStems = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
-    total += item.tot_stem_flower * item.quantity;
+    total += calculateTotalStemsForItem(item);
   });
   return total;
 });
@@ -221,7 +220,13 @@ const orderHaveCeroItem = computed(() => {
 // Función para calcular qty_stem_flower basado en total_bunches y stems_bunch
 const calculateQtyStemFlower = (product) => {
   const totalBunches = parseInt(product.total_bunches) || 0;
-  const stemsBunch = parseInt(product.stems_bunch) || 0;
+  
+  // Usar un valor predeterminado de 25 si stems_bunch es 0 o nulo
+  if (!product.stems_bunch || parseInt(product.stems_bunch) === 0) {
+    product.stems_bunch = 25;
+  }
+  
+  const stemsBunch = parseInt(product.stems_bunch);
   product.qty_stem_flower = totalBunches * stemsBunch;
 };
 
@@ -239,6 +244,19 @@ watch(() => ordersStore.newOrder, (orders) => {
 // Actualizar qty_stem_flower cuando cambie total_bunches o stems_bunch
 const updateQtyStemFlower = (product) => {
   calculateQtyStemFlower(product);
+};
+
+// Agregar un método computado para calcular el total de tallos por ítem
+const calculateTotalStemsForItem = (item) => {
+  // Suma todos los tallos de todos los productos en la caja
+  const totalStems = item.box_items.reduce((sum, product) => {
+    const bunches = parseInt(product.total_bunches) || 0;
+    const stemsPerBunch = parseInt(product.stems_bunch) || 25; // Usa 25 como valor predeterminado
+    return sum + (bunches * stemsPerBunch);
+  }, 0);
+  
+  // Multiplica por la cantidad de cajas
+  return totalStems * parseInt(item.quantity);
 };
 
 </script>
@@ -302,7 +320,7 @@ const updateQtyStemFlower = (product) => {
     <div class="row p-1 text-white">
       <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Cant</div>
       <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Tl/Cj</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Tallos</div>
       <div class="col-2 fw-bold fs-6 border-end bg-gray-400 text-center">Proveedor</div>
       <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
         <div class="d-flex">
@@ -344,7 +362,7 @@ const updateQtyStemFlower = (product) => {
         <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'" />
       </div>
       <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
-        {{ item.tot_stem_flower * item.quantity }}
+        {{ calculateTotalStemsForItem(item) }}
       </div>
       <div class="col-2 d-flex align-items-end">
         <small>
@@ -385,7 +403,7 @@ const updateQtyStemFlower = (product) => {
         </div>
       </div>
       <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
-        <span class="form-control form-control-sm text-end my-input-2">
+        <span class="form-control form-control-sm text-end my-input-6">
           {{ calcTotalByItem(item) }}
         </span>
       </div>
@@ -437,7 +455,8 @@ input[type="checkbox"] {
 .my-input-2,
 .my-input-3,
 .my-input-4,
-.my-input-5 {
+.my-input-5,
+.my-input-6 {
   border: 1px solid #ccc;
   border-radius: 2px;
   text-align: right;

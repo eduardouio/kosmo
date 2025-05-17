@@ -5,7 +5,7 @@ import axios from 'axios';
 export const useOrdersStore = defineStore("ordersStore", {
     state: () => ({
         customers: [],
-        orders: [],
+        orders: [], 
         selectedCustomer: null,
         selectedOrder: null,
         limitsNewOrder: [],

@@ -229,9 +229,13 @@ const isTwoQBSelected = computed(() => {
 
 
 const totalStemFlowerOrderItem = (order_item)=>{
+  // Calcula los tallos igual que en OrderPreview
   let total_stems = order_item.box_items.reduce((acc, item) => {
-    return acc + parseInt(item.qty_stem_flower) * parseInt(order_item.quantity) ;
+    const bunches = parseInt(item.total_bunches) || 0;
+    const stemsPerBunch = parseInt(item.stems_bunch) || 25;
+    return acc + (bunches * stemsPerBunch);
   }, 0);
+  total_stems = total_stems * parseInt(order_item.quantity);
   order_item.tot_stem_flower = total_stems;
   return total_stems;
 }
@@ -352,7 +356,9 @@ watch(() => orderStore.selectedOrder,
           <span>PEDIDO DE CLIENTE</span>  
           </div>
           <div class="col-4 text-end fs-6">
-              <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">Pedido {{ orderStore.selectedOrder.order.id }} </strong>
+              <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
+                Pedido {{ orderStore.selectedOrder.order.serie }}-{{ String(orderStore.selectedOrder.order.consecutive).padStart(6, '0') }}
+              </strong>
               <span class="pe-1 ps-1"></span>
               <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2" 
               :class="{
@@ -406,34 +412,36 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
     <div class="row p-1 text-white border-teal-500">
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Cant</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-500 text-center">Tll/Cja</div>
-      <div class="col-2 fw-bold fs-6 border-end bg-gray-500 text-center">Proveedor</div>  
-      <div class="col-5 fw-bold fs-6 border-end bg-gray-500">
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Cant</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Mdl</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Tallos</div>
+      <div class="col-2 fw-bold fs-6 border-end bg-gray-400 text-center">Proveedor</div>
+      <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
         <div class="d-flex">
-          <div class="flex-grow-1" style="flex: 0 0 35%; border-right: 1px solid #ddd; text-align: center;">
+          <div class="flex-grow-1" style="flex: 0 0 30%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.25%; text-align: right;">
-            Tallos
+          <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
+            Bunches
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.25%; text-align: right;">
+          <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
+            Tallos/Bunch
+          </div>
+          <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
             Costo
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.25%; text-align: right;">
+          <div class="flex-grow-1" style="flex: 0 0 14%; border-right: 1px solid #ddd; text-align: center;">
             Margen
           </div>
-          <div class="flex-grow-1" style="flex: 0 0 16.25%; text-align: right;">
-            C Tallo
+          <div class="flex-grow-1" style="flex: 0 0 14%; text-align: center;">
+            PVP
           </div>
         </div>
       </div>
-      <div class="col-1 fw-bold fs-6 bg-gray-500 text-center">T Compra</div>
-      <div class="col-1 fw-bold fs-6 bg-gray-500 text-center">T Venta</div>
+      <div class="col-1 fw-bold fs-6 bg-kosmo-green text-center">C/USD</div>
     </div>
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2 d-flex align-items-center"
-      :class="{ 'bg-gray': idx % 2 === 0 }">
+      :class="{ 'bg-gray': idx % 2 === 0 }" style="font-size: 1rem;">
       <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
         <IconTrash 
           size="30"
@@ -448,13 +456,13 @@ watch(() => orderStore.selectedOrder,
           :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
            />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end gap-2 fs-5 ">
+      <div class="col-1 text-end border-end d-flex align-items-end gap-2">
         {{ item.box_model }}
         <span v-if="!orderStore.selectedOrder.is_invoiced">/</span>
         <IconSitemap size="20" stroke="1.5" @click="splitHB(item)" v-if="item.box_model === 'HB' && !orderStore.selectedOrder.is_invoiced" />
         <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB' && !orderStore.selectedOrder.is_invoiced" />
       </div>
-      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end fs-5">
+      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
         {{ totalStemFlowerOrderItem(item) }}
       </div>
       <div class="col-2 d-flex align-items-end">
@@ -462,64 +470,51 @@ watch(() => orderStore.selectedOrder,
           {{ item.partner.partner.name }}
         </span>
       </div>
-      <div class="col-5">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <span class="border-end text-end w-50 pe-2">
+      <div class="col-6">
+        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between" style="font-size: 1rem;">
+          <span class="border-end text-end w-30 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
           </span>
-          <span class="border-end text-end w-10 pe-2">
-            {{ product.length }} cm
-          </span>
-          <span class="border-end text-end w-20 pe-2">
-            <input type="number" step="1" class="form-control form-control-sm text-end my-input"
-              v-model="product.qty_stem_flower" @focus="selectText"
-              @keydown="event => handleKeydown(event, '.my-input')" @change="formatInteger"
-              :class="{ 'bg-red-200': parseInt(product.qty_stem_flower) <= 0 }" 
+          <span class="border-end text-end w-14 pe-2">
+            <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
+              v-model="product.total_bunches" @focus="selectText"
+              @keydown="event => handleKeydown(event, '.my-input-4')" 
+              @change="formatInteger" 
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
-              />
+            />
           </span>
-          <span class="border-end text-end w-20 pe-2">
+          <span class="border-end text-end w-14 pe-2">
+            <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
+              v-model="product.stems_bunch" @focus="selectText"
+              @keydown="event => handleKeydown(event, '.my-input-5')" 
+              @change="formatInteger"
+              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
+            />
+          </span>
+          <span class="border-end text-end w-14 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-2"
               v-model="product.stem_cost_price" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-2')" @change="formatNumber"
               :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.00 }"
-              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
+              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
+            />
           </span>
-          <span class="border-end text-end w-20 pe-2">
+          <span class="border-end text-end w-14 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
               v-model="product.margin" @focus="selectText" @keydown="event => handleKeydown(event, '.my-input-3')"
-              @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }" 
-              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"/>
+              @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }"
+              :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
+            />
           </span>
-          <span class="border-end text-end w-20 pe-2">
-            <input 
-              type="text" 
-              readonly
-              class="form-control form-control-sm text-end my-input-3" 
-              :value="orderStore.formatNumber(product.stem_cost_price + product.margin)"
-              />
+          <span class="text-end w-14 pe-2 form-control form-control-sm">
+            {{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
           </span>
         </div>
       </div>
-      <div class="col-1 fw-semibold">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <input
-            type="text"
-            readonly
-            class="form-control form-control-sm text-end"
-            :value="orderStore.formatNumber(product.stem_cost_price * product.qty_stem_flower)"
-            />
-        </div>  
-      </div>
-      <div class="col-1 fw-semibold">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <input
-            type="text"
-            readonly
-            class="form-control form-control-sm text-end"
-            :value="orderStore.formatNumber((product.stem_cost_price + product.margin  ) * product.qty_stem_flower)"
-            />
-        </div>  
+      <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
+        <span class="form-control form-control-sm text-end my-input-6">
+          {{ calcTotalByItem(item) }}
+        </span>
       </div>
     </div>
     <div class="row">
@@ -593,13 +588,22 @@ watch(() => orderStore.selectedOrder,
     </div>
   </div>
 </template>
+
 <style scoped>
 .my-input,
 .my-input-2,
-.my-input-3 {
+.my-input-3,
+.my-input-4,
+.my-input-5,
+.my-input-6 {
   border: 1px solid #ccc;
   border-radius: 2px;
   text-align: right;
 }
-
+.w-30 {
+  width: 30% !important;
+}
+.w-14 {
+  width: 14% !important;
+}
 </style>@/stores/ordersStore
