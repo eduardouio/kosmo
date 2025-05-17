@@ -452,7 +452,7 @@ watch(() => purchaseStore.selectedPurchase,
             <div class="col-1 border-end bg-gray-400 text-center">Cant</div>
             <div class="col-1 border-end bg-gray-400 text-center">Mdl</div>
             <div class="col-1 border-end bg-gray-400 text-center">Tallos</div>
-            <div class="col-7 border-end bg-sky-500">
+            <div class="col-8 border-end bg-sky-500">
               <div class="d-flex">
                 <div class="flex-grow-1" style="flex: 0 0 26%; border-right: 1px solid #ddd; text-align: center;">
                   Variedad
@@ -478,7 +478,6 @@ watch(() => purchaseStore.selectedPurchase,
               </div>
             </div>
             <div class="col-1 border-end bg-gray-400 text-center">T Compra</div>
-            <div class="col-1 border-end bg-gray-400 text-center">T Venta</div>
           </div>
           <div v-for="(item, idx) in purchaseStore.selectedPurchase.order_details" :key="item.order_item_id"
             class="row mb-1 border my-hover-2" :class="{ 'bg-gray': idx % 2 === 0 }">
@@ -503,7 +502,7 @@ watch(() => purchaseStore.selectedPurchase,
             <div class="col-1 text-end border-end d-flex align-items-center justify-content-end">
               {{ calcTotalStemFlower(item) }}
             </div>
-            <div class="col-7">
+            <div class="col-8">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
                 <span class="border-end text-end" style="width: 26%; padding-right: 0.5rem;">
                   {{ product.product_name }} {{ product.product_variety }}
@@ -560,12 +559,6 @@ watch(() => purchaseStore.selectedPurchase,
                   :value="purchaseStore.formatNumber(product.stem_cost_price * calcAndGetProductQtyStemFlower(product))" />
               </div>
             </div>
-            <div class="col-1">
-              <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-                <input type="text" readonly class="form-control form-control-sm text-end"
-                  :value="purchaseStore.formatNumber((product.stem_cost_price + product.margin) * calcAndGetProductQtyStemFlower(product))" />
-              </div>
-            </div>
           </div>
           <div class="row">
             <div class="col-3">
@@ -579,14 +572,10 @@ watch(() => purchaseStore.selectedPurchase,
               </div>
             </div>
             <div class="col-4 offset-5">
-              <div class="row bg-trasparent  border-orange-700 rounded-1 shadow-sm p-2">
-                <div class="col-7 text-end border-end fs-5 text-lime-600">Costo:</div>
-                <div class="col-5 fs-5 text-lime-600 text-end">{{ totalCost }}</div>
-                <div class="col-7 text-end border-end fs-5 text-lime-600">Margen:</div>
-                <div class="col-5 fs-5 text-lime-600 text-end">{{ totalMargin }}</div>
-                <div class="col-7 text-end border-end fs-5 text-lime-600">Total Pedido:</div>
-                <div class="col-5 fs-5 text-lime-600 text-end">
-                  {{ purchaseStore.formatNumber(totalCost + totalMargin) }}
+              <div class="row bg-trasparent border-orange-700 rounded-1 shadow-sm px-2" style="padding-top: 2.375rem; padding-bottom: 2.375rem;">
+                <div class="col-7 text-end border-end fs-5 text-lime-600 align-self-center">Total Pedido:</div>
+                <div class="col-5 fs-5 text-lime-600 text-end align-self-center">
+                  {{ purchaseStore.formatNumber(totalCost) }}
                 </div>
               </div>
             </div>
@@ -655,4 +644,3 @@ watch(() => purchaseStore.selectedPurchase,
   width: 14% !important;
 }
 </style>
-@/stores/purcharsesStore
