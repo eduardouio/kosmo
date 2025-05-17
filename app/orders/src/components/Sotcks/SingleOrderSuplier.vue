@@ -425,10 +425,10 @@ watch(() => purchaseStore.selectedPurchase,
             </div>
           </div>
           <div class="row p-1 text-white border-orange-700">
-            <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Cant</div>
-            <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Mdl</div>
-            <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Tallos</div>
-            <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
+            <div class="col-1 border-end bg-gray-400 text-center">Cant</div>
+            <div class="col-1 border-end bg-gray-400 text-center">Mdl</div>
+            <div class="col-1 border-end bg-gray-400 text-center">Tallos</div>
+            <div class="col-6 border-end bg-sky-500">
               <div class="d-flex">
                 <div class="flex-grow-1" style="flex: 0 0 30%; border-right: 1px solid #ddd; text-align: center;">
                   Variedad
@@ -450,12 +450,12 @@ watch(() => purchaseStore.selectedPurchase,
                 </div>
               </div>
             </div>
-            <div class="col-1 fw-bold fs-6 bg-kosmo-green text-center">C/USD</div>
-            <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">T Compra</div>
-            <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">T Venta</div>
+            <div class="col-1 bg-kosmo-green text-center">C/USD</div>
+            <div class="col-1 border-end bg-gray-400 text-center">T Compra</div>
+            <div class="col-1 border-end bg-gray-400 text-center">T Venta</div>
           </div>
           <div v-for="(item, idx) in purchaseStore.selectedPurchase.order_details" :key="item.order_item_id"
-            class="row mb-1 border my-hover-2" :class="{ 'bg-gray': idx % 2 === 0 }" style="font-size: 1rem;">
+            class="row mb-1 border my-hover-2" :class="{ 'bg-gray': idx % 2 === 0 }">
             <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
               <IconTrash size="30" stroke="1.5" :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
                 @click="deleteOrderItem(item)"
@@ -478,7 +478,7 @@ watch(() => purchaseStore.selectedPurchase,
               {{ calcTotalStemFlower(item) }}
             </div>
             <div class="col-6">
-              <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between" style="font-size: 1rem;">
+              <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
                 <span class="border-end text-end w-30 pe-2">
                   {{ product.product_name }} {{ product.product_variety }}
                 </span>
@@ -519,25 +519,25 @@ watch(() => purchaseStore.selectedPurchase,
                 </span>
               </div>
             </div>
-            <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
+            <div class="col-1 d-flex align-items-end justify-content-end">
               <span class="form-control form-control-sm text-end my-input-6">
                 {{ calcTotalByItem(item) }}
               </span>
             </div>
-            <div class="col-1 fw-semibold">
+            <div class="col-1">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
                 <input type="text" class="form-control form-control-sm text-end"
                   :value="product.stem_cost_price + product.margin" readonly />
               </div>
             </div>
 
-            <div class="col-1 fw-semibold">
+            <div class="col-1">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
                 <input type="text" readonly class="form-control form-control-sm text-end"
                   :value="purchaseStore.formatNumber(product.stem_cost_price * product.qty_stem_flower)" />
               </div>
             </div>
-            <div class="col-1 fw-semibold">
+            <div class="col-1">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
                 <input type="text" readonly class="form-control form-control-sm text-end"
                   :value="purchaseStore.formatNumber((product.stem_cost_price + product.margin) * product.qty_stem_flower)" />

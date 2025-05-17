@@ -412,11 +412,11 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
     <div class="row p-1 text-white border-teal-500">
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Cant</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Tallos</div>
-      <div class="col-2 fw-bold fs-6 border-end bg-gray-400 text-center">Proveedor</div>
-      <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
+      <div class="col-1 border-end bg-gray-400 text-center">Cant</div>
+      <div class="col-1 border-end bg-gray-400 text-center">Mdl</div>
+      <div class="col-1 border-end bg-gray-400 text-center">Tallos</div>
+      <div class="col-2 border-end bg-gray-400 text-center">Proveedor</div>
+      <div class="col-6 border-end bg-sky-500">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 30%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -438,10 +438,10 @@ watch(() => orderStore.selectedOrder,
           </div>
         </div>
       </div>
-      <div class="col-1 fw-bold fs-6 bg-kosmo-green text-center">C/USD</div>
+      <div class="col-1 bg-kosmo-green text-center">C/USD</div>
     </div>
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2 d-flex align-items-center"
-      :class="{ 'bg-gray': idx % 2 === 0 }" style="font-size: 1rem;">
+      :class="{ 'bg-gray': idx % 2 === 0 }">
       <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
         <IconTrash 
           size="30"
@@ -471,7 +471,7 @@ watch(() => orderStore.selectedOrder,
         </span>
       </div>
       <div class="col-6">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between" style="font-size: 1rem;">
+        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
           <span class="border-end text-end w-30 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
           </span>
@@ -511,7 +511,7 @@ watch(() => orderStore.selectedOrder,
           </span>
         </div>
       </div>
-      <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
+      <div class="col-1 d-flex align-items-end justify-content-end">
         <span class="form-control form-control-sm text-end my-input-6">
           {{ calcTotalByItem(item) }}
         </span>
