@@ -92,17 +92,17 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
 </nav>
 <div class="tab-content" id="nav-tabContent">
   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-  <SingleOrderCustomer v-if="isAllLoaded" :key="route.params.id"/>
+    <SingleOrderCustomer v-if="isAllLoaded" :key="route.params.id"/>
   </div>
   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-      <div class="d-flex">
-        <div class="bg-transparent pt-5" style="width: 300px;">
-          <PurchaseOrdersList/>  
-        </div>
-        <div>
-          <SingleOrderSuplier v-if="isPurchOrderSelected" :key="purchaseStore.selectedPurchase"/>
-        </div>
+    <div class="d-flex">
+      <div class="bg-transparent pt-5 flex-shrink-0">
+        <PurchaseOrdersList/>  
       </div>
+      <div class="flex-grow-1 ps-2">
+        <SingleOrderSuplier v-if="isPurchOrderSelected" :key="purchaseStore.selectedPurchase"/>
+      </div>
+    </div>
   </div>
 </div>
     </div>

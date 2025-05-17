@@ -27,31 +27,37 @@ const exceedLimitMessage = ref('');
 const isModified = ref(false);
 
 // Métodos
+
+const calcAndGetProductQtyStemFlower = (product) => {
+  const bunches = parseInt(product.total_bunches) || 0;
+  const stemsPerBunch = parseInt(product.stems_bunch) || 25; // Default 25 si no está definido o es 0
+  return bunches * stemsPerBunch;
+};
+
 const calcTotalByItem = (item) => {
-  let total = 0;
-  let items = item.box_items.map((i) => i);
-  total = items.reduce((acc, boxItem) => {
-    return (
-      acc + (
-        boxItem.stem_cost_price + parseFloat(boxItem.margin))
-      * parseFloat(boxItem.qty_stem_flower
-      )
-    );
-  }, 0) * item.quantity;
-  item.line_total = total;
+  let totalValue = 0;
+  if (item.box_items) {
+    totalValue = item.box_items.reduce((acc, boxItem) => {
+      const qty_stem_flower = calcAndGetProductQtyStemFlower(boxItem);
+      const cost_price = parseFloat(boxItem.stem_cost_price) || 0;
+      const margin = parseFloat(boxItem.margin) || 0;
+      return acc + (cost_price + margin) * qty_stem_flower;
+    }, 0);
+  }
+  const total = totalValue * (parseInt(item.quantity) || 0);
+  item.line_total = parseFloat(total.toFixed(2));
   return total.toFixed(2);
 };
 
 const calcTotalStemFlower = (item) => {
-  // Igual que en OrderPreview
-  let total = 0;
-  let items = item.box_items.map((i) => i);
-  total = items.reduce((acc, product) => {
-    const bunches = parseInt(product.total_bunches) || 0;
-    const stemsPerBunch = parseInt(product.stems_bunch) || 25;
-    return acc + (bunches * stemsPerBunch);
-  }, 0);
-  total = total * parseInt(item.quantity);
+  let totalStemsInItem = 0;
+  if (item.box_items) {
+    item.box_items.forEach(product => {
+      totalStemsInItem += calcAndGetProductQtyStemFlower(product);
+    });
+  }
+  const total = totalStemsInItem * (parseInt(item.quantity) || 0);
+  item.tot_stem_flower = total;
   return total;
 };
 
@@ -118,6 +124,13 @@ const formatInteger = (event) => {
     return;
   }
   event.target.value = parseInt(value);
+};
+
+const handleBunchOrStemChange = (event, item) => { // item es order_detail
+  formatInteger(event); // Formatea el input actual
+  // Recalcular los totales del item. Las funciones internas usarán los nuevos valores de bunches/stems_bunch.
+  calcTotalStemFlower(item); // Actualiza item.tot_stem_flower
+  calcTotalByItem(item);   // Actualiza item.line_total
 };
 
 // Métodos para dividir y unificar
@@ -337,7 +350,14 @@ watch(() => purchaseStore.selectedPurchase,
   (newValue) => {
     console.log('selectedPurchase', newValue);
     isModified.value = true;
-  }, { deep: true }
+    // Inicializar/recalcular totales al cargar una nueva orden
+    if (newValue && newValue.order_details) {
+      newValue.order_details.forEach(item_detail => {
+        calcTotalStemFlower(item_detail);
+        calcTotalByItem(item_detail);
+      });
+    }
+  }, { deep: true, immediate: true }
 );
 </script>
 
@@ -486,7 +506,7 @@ watch(() => purchaseStore.selectedPurchase,
                   <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
                     v-model="product.total_bunches" @focus="selectText"
                     @keydown="event => handleKeydown(event, '.my-input-4')" 
-                    @change="formatInteger"
+                    @change="handleBunchOrStemChange($event, item)"
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
@@ -494,7 +514,7 @@ watch(() => purchaseStore.selectedPurchase,
                   <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
                     v-model="product.stems_bunch" @focus="selectText"
                     @keydown="event => handleKeydown(event, '.my-input-5')" 
-                    @change="formatInteger"
+                    @change="handleBunchOrStemChange($event, item)"
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
@@ -530,17 +550,16 @@ watch(() => purchaseStore.selectedPurchase,
                   :value="product.stem_cost_price + product.margin" readonly />
               </div>
             </div>
-
             <div class="col-1">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
                 <input type="text" readonly class="form-control form-control-sm text-end"
-                  :value="purchaseStore.formatNumber(product.stem_cost_price * product.qty_stem_flower)" />
+                  :value="purchaseStore.formatNumber(product.stem_cost_price * calcAndGetProductQtyStemFlower(product))" />
               </div>
             </div>
             <div class="col-1">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
                 <input type="text" readonly class="form-control form-control-sm text-end"
-                  :value="purchaseStore.formatNumber((product.stem_cost_price + product.margin) * product.qty_stem_flower)" />
+                  :value="purchaseStore.formatNumber((parseFloat(product.stem_cost_price) + parseFloat(product.margin)) * calcAndGetProductQtyStemFlower(product))" />
               </div>
             </div>
           </div>
@@ -632,4 +651,3 @@ watch(() => purchaseStore.selectedPurchase,
   width: 14% !important;
 }
 </style>
-@/stores/purcharsesStore

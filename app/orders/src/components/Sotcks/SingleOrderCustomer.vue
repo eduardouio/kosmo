@@ -22,16 +22,27 @@ const isModified = ref(false);
 
 // Methods
 
+const calcAndGetProductQtyStemFlower = (product) => {
+  const bunches = parseInt(product.total_bunches) || 0;
+  const stemsPerBunch = parseInt(product.stems_bunch) || 25; // Default 25 si no está definido o es 0
+  return bunches * stemsPerBunch;
+};
+
 const calcTotalByItem = (item)=>{ 
   let total = 0;
-  let items = item.box_items.map(item => item)
-  total = items.reduce((acc, item) => {
-    return acc + ((item.stem_cost_price + parseFloat(item.margin)) * parseFloat(item.qty_stem_flower));
-  }, 0) * item.quantity;
+  if (item.box_items) {
+    total = item.box_items.reduce((acc, boxItem) => {
+      const qty_stem_flower = calcAndGetProductQtyStemFlower(boxItem);
+      boxItem.qty_stem_flower = qty_stem_flower; // Actualizar la propiedad qty_stem_flower
+      const cost_price = parseFloat(boxItem.stem_cost_price) || 0;
+      const margin = parseFloat(boxItem.margin) || 0;
+      return acc + ((cost_price + margin) * qty_stem_flower);
+    }, 0) * item.quantity;
+  }
   item.line_total = total.toFixed(2);
 
-  item.line_price = items.reduce((acc, item) => {
-    return acc + (item.stem_cost_price * parseFloat(item.qty_stem_flower));
+  item.line_price = item.box_items.reduce((acc, boxItem) => {
+    return acc + (boxItem.stem_cost_price * parseFloat(boxItem.qty_stem_flower));
   }, 0);
   return total.toFixed(2);
 };
@@ -102,6 +113,12 @@ const formatInteger = (event, box = null) => {
     event.target.value = parseInt(value);
 }
 
+const handleBunchOrStemChange = (event, item) => { // item es order_detail
+  formatInteger(event); // Formatea el input actual
+  // Recalcular los totales del item. Las funciones internas usarán los nuevos valores de bunches/stems_bunch.
+  totalStemFlowerOrderItem(item); // Actualiza item.tot_stem_flower
+  calcTotalByItem(item);   // Actualiza item.line_total
+};
 
 // Methods for splitting and merging boxes
 const splitHB = (item) => {
@@ -233,7 +250,9 @@ const totalStemFlowerOrderItem = (order_item)=>{
   let total_stems = order_item.box_items.reduce((acc, item) => {
     const bunches = parseInt(item.total_bunches) || 0;
     const stemsPerBunch = parseInt(item.stems_bunch) || 25;
-    return acc + (bunches * stemsPerBunch);
+    const stems = bunches * stemsPerBunch;
+    item.qty_stem_flower = stems; // Actualizar la propiedad qty_stem_flower
+    return acc + stems;
   }, 0);
   total_stems = total_stems * parseInt(order_item.quantity);
   order_item.tot_stem_flower = total_stems;
@@ -326,8 +345,15 @@ const getUrlReportinvoice = (id) => {
 watch(() => orderStore.selectedOrder, 
   (newValue) => {
     isModified.value = true;
+    // Inicializar/recalcular totales al cargar una nueva orden
+    if (newValue && newValue.order_details) {
+      newValue.order_details.forEach(item_detail => {
+        totalStemFlowerOrderItem(item_detail);
+        calcTotalByItem(item_detail);
+      });
+    }
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 
 
@@ -412,11 +438,11 @@ watch(() => orderStore.selectedOrder,
       </div>
     </div>
     <div class="row p-1 text-white border-teal-500">
-      <div class="col-1 border-end bg-gray-400 text-center">Cant</div>
-      <div class="col-1 border-end bg-gray-400 text-center">Mdl</div>
-      <div class="col-1 border-end bg-gray-400 text-center">Tallos</div>
-      <div class="col-2 border-end bg-gray-400 text-center">Proveedor</div>
-      <div class="col-6 border-end bg-sky-500">
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Cant</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Mdl</div>
+      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Tallos</div>
+      <div class="col-2 fw-bold fs-6 border-end bg-gray-400 text-center">Proveedor</div>
+      <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
         <div class="d-flex">
           <div class="flex-grow-1" style="flex: 0 0 30%; border-right: 1px solid #ddd; text-align: center;">
             Variedad
@@ -438,10 +464,10 @@ watch(() => orderStore.selectedOrder,
           </div>
         </div>
       </div>
-      <div class="col-1 bg-kosmo-green text-center">C/USD</div>
+      <div class="col-1 fw-bold fs-6 bg-kosmo-green text-center">C/USD</div>
     </div>
     <div v-for="item, idx in orderStore.selectedOrder.order_details" :key="item" class="row mb-1 border my-hover-2 d-flex align-items-center"
-      :class="{ 'bg-gray': idx % 2 === 0 }">
+      :class="{ 'bg-gray': idx % 2 === 0 }" style="font-size: 1rem;">
       <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
         <IconTrash 
           size="30"
@@ -471,7 +497,7 @@ watch(() => orderStore.selectedOrder,
         </span>
       </div>
       <div class="col-6">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
+        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between" style="font-size: 1rem;">
           <span class="border-end text-end w-30 pe-2">
             {{ product.product_name }} {{ product.product_variety }}
           </span>
@@ -479,7 +505,7 @@ watch(() => orderStore.selectedOrder,
             <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
               v-model="product.total_bunches" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-4')" 
-              @change="formatInteger" 
+              @change="handleBunchOrStemChange($event, item)"
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
             />
           </span>
@@ -487,7 +513,7 @@ watch(() => orderStore.selectedOrder,
             <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
               v-model="product.stems_bunch" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-5')" 
-              @change="formatInteger"
+              @change="handleBunchOrStemChange($event, item)"
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
             />
           </span>
@@ -511,7 +537,7 @@ watch(() => orderStore.selectedOrder,
           </span>
         </div>
       </div>
-      <div class="col-1 d-flex align-items-end justify-content-end">
+      <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
         <span class="form-control form-control-sm text-end my-input-6">
           {{ calcTotalByItem(item) }}
         </span>
@@ -606,4 +632,4 @@ watch(() => orderStore.selectedOrder,
 .w-14 {
   width: 14% !important;
 }
-</style>@/stores/ordersStore
+</style>

@@ -40,15 +40,6 @@ onMounted(() => {
                 <div class="d-flex align-items-center gap-2">
                     <IconFolderOpen size="20" class="text-sky-600" stroke="1.5" v-if="purchase.is_selected" />
                     <IconFolder size="20" stroke="1.5" v-else />
-                    <span class="badge border" :class="{
-                        'text-success': purchase.order.status === 'CONFIRMADO',
-                        'text-warning': purchase.order.status === 'PENDIENTE',
-                        'text-danger': purchase.order.status === 'CANCELADO',
-                        'text-orange': purchase.order.status === 'MODIFICADO',
-                        'text-primary': purchase.order.status === 'FACTURADO',
-                    }">
-                        {{ purchase.order.status }}
-                    </span>
                 </div>
             </li>
         </ul>
