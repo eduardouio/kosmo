@@ -193,9 +193,50 @@ async function saveOrder() {
 // Inicializar un validador recurrente para verificar datos
 const validateInterval = setInterval(validateData, 2000);
 
+const handleKeydown = (event) => {
+    const targetElement = event.target;
+
+    // Solo actuar si el target es un input/select de nuestra clase y no es readonly/disabled
+    if (!targetElement.matches('.trade-nav-input:not([readonly]):not([disabled])')) {
+        return;
+    }
+
+    // Obtener todos los inputs/selects navegables que están actualmente visibles y no deshabilitados
+    // Asegurarse de que el querySelectorAll se ejecute en el contexto del documento
+    const allNavigableInputs = Array.from(document.querySelectorAll('.trade-nav-input:not([readonly]):not([disabled])'));
+    const visibleNavigableInputs = allNavigableInputs.filter(input => {
+        const style = window.getComputedStyle(input);
+        return style.display !== 'none' && style.visibility !== 'hidden' && input.tabIndex !== -1;
+    });
+
+    const currentIndex = visibleNavigableInputs.indexOf(targetElement);
+
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Prevenir comportamiento por defecto (ej. submit en formularios)
+        
+        let nextIndex;
+        if (event.shiftKey) { // Shift + Enter: Moverse al anterior
+            nextIndex = currentIndex - 1;
+        } else { // Enter: Moverse al siguiente
+            nextIndex = currentIndex + 1;
+        }
+
+        if (nextIndex >= 0 && nextIndex < visibleNavigableInputs.length) {
+            const nextInput = visibleNavigableInputs[nextIndex];
+            nextInput.focus();
+            if (typeof nextInput.select === 'function') {
+                nextInput.select(); // Seleccionar texto si es un input de texto/número
+            }
+        }
+    }
+};
+
 </script>
 <template>
   <div class="container-fluid">
+    <div class="row">
+      <div class="col-1"></div>
+      <div class="col-10">
     <Loader :show="isLoading" />
     <div v-if="!isLoading" class="bg-light py-4">
       <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
@@ -267,23 +308,22 @@ const validateInterval = setInterval(validateData, 2000);
         <div class="row mb-4">
           <div class="col-12">
             <div class="table-responsive">
-              <table class="table table-bordered table-sm">
+              <table class="table table-bordered table-sm" @keydown="handleKeydown">
                 <thead class="bg-warning bg-opacity-25">
-                  <tr class="text-center small">
-                    <th class="">CANT</th>
-                    <th class="">MODELO</th>
-                    <th class="d-flex gap-1">
-                      <span style="width: 40%;">Variedad</span>
+                  <tr class="text-center">
+                    <th class="bg-gray-200 bg-gradient">Cant</th>
+                    <th class="bg-gray-200 bg-gradient">Mod</th>
+                    <th class="d-flex gap-1 bg-gray-200 bg-gradient">
+                      <span style="width: 45%;">Variedad</span>
                       <span class="" style="width: 8%;">Largo CM</span>
-                      <span class="" style="width: 8%;">T/B</span>
                       <span class="" style="width: 8%;">Bunches</span>
-                      <span class="" style="width: 8%;">Tallos</span>
+                      <span class="" style="width: 8%;">T/B</span>
                       <span class="" style="width: 10%;">Costo</span>
                       <span class="" style="width: 10%;">Margen</span>
                       <span class="" style="width: 10%;">Total U</span>
                     </th>
-                    <th>TOTAL</th>
-                    <th><IconSettings size="15" stroke="1.5"/> </th>
+                    <th class="bg-gray-200 bg-gradient">Total</th>
+                    <th class="bg-red-400 bg-gradient"><IconSettings size="15" stroke="1.5"/> </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -384,4 +424,7 @@ const validateInterval = setInterval(validateData, 2000);
     </div>
     <GenericProductModal :product="selectedProduct"/>
   </div>
+   </div>
+      <div class="col-1"></div>
+    </div>
 </template>
