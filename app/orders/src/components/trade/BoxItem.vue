@@ -179,44 +179,28 @@ const productInitialValue = computed(() => {
                     <input 
                         type="number"
                         v-model="newboxItem.length"
-                        class="border w-100 text-end" 
+                        class="border w-100 text-end trade-nav-input" 
                         step="1" 
                         @focus="onFocusField('length')"
                         @blur="onBlurField('length')"
                     />
                 </div>
-                <div style="width:10%" class="text-end">
+                 <div style="width:10%" class="text-end">
                     <input 
                         type="number"
-                        v-model="newboxItem.qty_stem_flower"
-                        class="border w-100 text-end" 
+                        v-model="newboxItem.total_bunches"
+                        class="border w-100 text-end trade-nav-input" 
                         step="1"
-                        @focus="onFocusField('qty_stem_flower')"
-                        @blur="onBlurField('qty_stem_flower')"
+                        @focus="onFocusField('total_bunches')"
+                        @blur="onBlurField('total_bunches')"
+                        placeholder="Bunches"
                     />
-                </div>
-                <div style="width:10%" class="text-end">
-                    <input 
-                        type="text"
-                        v-model="newboxItem.stem_cost_price"
-                        class="border w-100 text-end"
-                        @focus="onFocusField('stem_cost_price')"
-                        @blur="onBlurField('stem_cost_price', true)" />
-                </div>
-                <div style="width:10%" class="text-end">
-                    <input 
-                        type="text"
-                        v-model="newboxItem.profit_margin"
-                        class="border w-100 text-end" 
-                        @focus="onFocusField('profit_margin')"
-                        @blur="onBlurField('profit_margin', true)"
-                        />
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 
                         type="number"
                         v-model="newboxItem.stems_bunch"
-                        class="border w-100 text-end" 
+                        class="border w-100 text-end trade-nav-input" 
                         step="1"
                         @focus="onFocusField('stems_bunch')"
                         @blur="onBlurField('stems_bunch')"
@@ -225,14 +209,20 @@ const productInitialValue = computed(() => {
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 
-                        type="number"
-                        v-model="newboxItem.total_bunches"
-                        class="border w-100 text-end" 
-                        step="1"
-                        @focus="onFocusField('total_bunches')"
-                        @blur="onBlurField('total_bunches')"
-                        placeholder="Bunches"
-                    />
+                        type="text"
+                        v-model="newboxItem.stem_cost_price"
+                        class="border w-100 text-end trade-nav-input"
+                        @focus="onFocusField('stem_cost_price')"
+                        @blur="onBlurField('stem_cost_price', true)" />
+                </div>
+                <div style="width:10%" class="text-end">
+                    <input 
+                        type="text"
+                        v-model="newboxItem.profit_margin"
+                        class="border w-100 text-end trade-nav-input" 
+                        @focus="onFocusField('profit_margin')"
+                        @blur="onBlurField('profit_margin', true)"
+                        />
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 

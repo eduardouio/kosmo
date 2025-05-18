@@ -113,10 +113,21 @@ const formatInteger = (event, box = null) => {
     event.target.value = parseInt(value);
 }
 
-const handleBunchOrStemChange = (event, item) => { // item es order_detail
-  formatInteger(event); // Formatea el input actual
-  // Recalcular los totales del item. Las funciones internas usarán los nuevos valores de bunches/stems_bunch.
-  totalStemFlowerOrderItem(item); // Actualiza item.tot_stem_flower
+const handleBunchOrStemChange = (event, item, product, fieldName) => { // item es order_detail
+  formatInteger(event); // Formatea el input actual (product[fieldName])
+
+  if (fieldName === 'total_bunches') {
+    const bunches = parseInt(product.total_bunches) || 0;
+    const stemsValue = product.stems_bunch; // Puede ser string, number, null, undefined
+    // Si bunches > 0 y stems_bunch es undefined, null, vacío o 0, autocompletar a 25.
+    if (bunches > 0 && (stemsValue === undefined || stemsValue === null || stemsValue === '' || parseInt(stemsValue) === 0)) {
+      product.stems_bunch = 25;
+    }
+  }
+  // Si fieldName es 'stems_bunch', formatInteger ya lo manejó.
+
+  // Recalcular los totales del item.
+  totalStemFlowerOrderItem(item); // Actualiza item.tot_stem_flower y product.qty_stem_flower
   calcTotalByItem(item);   // Actualiza item.line_total
 };
 
@@ -348,6 +359,14 @@ watch(() => orderStore.selectedOrder,
     // Inicializar/recalcular totales al cargar una nueva orden
     if (newValue && newValue.order_details) {
       newValue.order_details.forEach(item_detail => {
+        // Inicializar stems_bunch si es undefined o null
+        if (item_detail.box_items) {
+          item_detail.box_items.forEach(product => {
+            if (product.stems_bunch === undefined || product.stems_bunch === null) {
+              product.stems_bunch = 25;
+            }
+          });
+        }
         totalStemFlowerOrderItem(item_detail);
         calcTotalByItem(item_detail);
       });
@@ -383,7 +402,7 @@ watch(() => orderStore.selectedOrder,
           </div>
           <div class="col-4 text-end fs-6">
               <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
-                Pedido {{ orderStore.selectedOrder.order.serie }}-{{ String(orderStore.selectedOrder.order.consecutive).padStart(6, '0') }}
+                Pedido {{ orderStore.selectedOrder.order.serie }}-{{ orderStore.selectedOrder.order.consecutive ? String(orderStore.selectedOrder.order.consecutive).padStart(6, '0') : 'N/A' }}
               </strong>
               <span class="pe-1 ps-1"></span>
               <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2" 
@@ -506,7 +525,7 @@ watch(() => orderStore.selectedOrder,
             <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
               v-model="product.total_bunches" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-4')" 
-              @change="handleBunchOrStemChange($event, item)"
+              @change="handleBunchOrStemChange($event, item, product, 'total_bunches')"
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
             />
           </span>
@@ -514,7 +533,7 @@ watch(() => orderStore.selectedOrder,
             <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
               v-model="product.stems_bunch" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-5')" 
-              @change="handleBunchOrStemChange($event, item)"
+              @change="handleBunchOrStemChange($event, item, product, 'stems_bunch')"
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
             />
           </span>

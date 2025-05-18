@@ -97,14 +97,14 @@ const removeLine = () => {
     <td class="w-10">
       <input 
         type="number"
-        class="border w-100 text-center"
+        class="border w-100 text-center trade-nav-input"
         min="1"
         step="1"
         v-model="localQuantity"
       >
     </td>
     <td class="w-10">
-      <select class="border w-100" v-model="localBoxModel">
+      <select class="border w-100 trade-nav-input" v-model="localBoxModel">
         <option>QB</option>
         <option>HB</option>
         <option>FB</option>
@@ -120,7 +120,7 @@ const removeLine = () => {
     <td class="text-end">
       {{ line_total.toFixed(2) }}
     </td> 
-    <td class="text-center" style="width: 20px;">
+    <td class="text-center bg-red-400 bg-gradient" style="width: 20px;">
         <IconTrash
           size="15"
           stroke="1.5"
