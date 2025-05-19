@@ -114,7 +114,8 @@ const formatInteger = (event, box = null) => {
 }
 
 const handleBunchOrStemChange = (event, item, product, fieldName) => { // item es order_detail
-  formatInteger(event); // Formatea el input actual (product[fieldName])
+  // No formatear durante cambios, solo al final
+  // formatInteger(event); // Eliminamos esto para evitar interferencias durante la edición
 
   if (fieldName === 'total_bunches') {
     const bunches = parseInt(product.total_bunches) || 0;
@@ -525,7 +526,7 @@ watch(() => orderStore.selectedOrder,
             <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
               v-model="product.total_bunches" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-4')" 
-              @change="handleBunchOrStemChange($event, item, product, 'total_bunches')"
+              @blur="event => handleBunchOrStemChange(event, item, product, 'total_bunches')"
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
             />
           </span>
@@ -533,22 +534,25 @@ watch(() => orderStore.selectedOrder,
             <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
               v-model="product.stems_bunch" @focus="selectText"
               @keydown="event => handleKeydown(event, '.my-input-5')" 
-              @change="handleBunchOrStemChange($event, item, product, 'stems_bunch')"
+              @blur="event => handleBunchOrStemChange(event, item, product, 'stems_bunch')"
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
             />
           </span>
           <span class="border-end text-end w-14 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-2"
               v-model="product.stem_cost_price" @focus="selectText"
-              @keydown="event => handleKeydown(event, '.my-input-2')" @change="formatNumber"
+              @keydown="event => handleKeydown(event, '.my-input-2')" 
+              @blur="formatNumber"
               :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.00 }"
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
             />
           </span>
           <span class="border-end text-end w-14 pe-2">
             <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
-              v-model="product.margin" @focus="selectText" @keydown="event => handleKeydown(event, '.my-input-3')"
-              @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }"
+              v-model="product.margin" @focus="selectText" 
+              @keydown="event => handleKeydown(event, '.my-input-3')"
+              @blur="formatNumber" 
+              :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }"
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
             />
           </span>

@@ -74,19 +74,28 @@ const selectProduct = ($event) => {
     updating.value = true;
     const productValue = $event;
     
-    // Crear un nuevo objeto para evitar referencias mutables, asegurando valores por defecto
+    // Asegurarse de que el producto no se pierda durante la actualización
+    // Creamos una copia profunda para evitar problemas de referencia
+    const productCopy = JSON.parse(JSON.stringify(productValue));
+    
+    // Crear un nuevo objeto con una copia completa para evitar referencias mutables
     newboxItem.value = {
         ...newboxItem.value,
-        product: productValue,
+        product: productCopy,
         stem_cost_price: newboxItem.value.stem_cost_price || '0.00',
         profit_margin: newboxItem.value.profit_margin || '0.00',
         qty_stem_flower: newboxItem.value.qty_stem_flower || 0,
         total: newboxItem.value.total || '0.00'
     };
     
-    setTimeout(() => {
-        updating.value = false;
-    }, 10);
+    // Emitir el evento update:modelValue fuera del watcher para asegurar la actualización inmediata
+    // sin depender del ciclo reactivo normal
+    nextTick(() => {
+        emit('update:modelValue', JSON.parse(JSON.stringify(newboxItem.value)));
+        setTimeout(() => {
+            updating.value = false;
+        }, 50); // Aumentar el tiempo para asegurar que otras actualizaciones se completen
+    });
 }
 
 // Modificada para preparar el campo para edición - guarda el valor anterior y elimina formato
@@ -100,9 +109,61 @@ const onFocusField = (field) => {
     }
 };
 
-// Compute the total safely with null checks
+const onBlurField = (field, format = false) => {
+    // Eliminamos el console.log
+    if (newboxItem.value[field] === '' || newboxItem.value[field] === null) {
+        newboxItem.value[field] = previousValues.value[field];
+    } else if (format) {
+        // Clean the input and format it properly
+        const cleanValue = newboxItem.value[field].toString().replace(/,/g, '');
+        const numValue = parseFloat(cleanValue);
+        if (!isNaN(numValue)) {
+            // Guardamos el valor antes de formatear
+            const formattedValue = baseStore.formatInputNumber(numValue.toFixed(2));
+            // Solo actualizamos si realmente hay un cambio
+            if (formattedValue !== newboxItem.value[field]) {
+                newboxItem.value[field] = formattedValue;
+            }
+        }
+    }
+    
+    // Si el campo es total_bunches y tiene un valor mayor que 0,
+    // verificar si stems_bunch está vacío o es 0, y en ese caso asignar 25
+    if (field === 'total_bunches') {
+        const bunches = parseInt(newboxItem.value.total_bunches) || 0;
+        if (bunches > 0) {
+            const stemsBunch = parseInt(newboxItem.value.stems_bunch) || 0;
+            if (stemsBunch === 0) {
+                newboxItem.value.stems_bunch = 25;
+            }
+            // Actualizar la cantidad de tallos (qty_stem_flower) basada en bunches y stemsBunch
+            newboxItem.value.qty_stem_flower = bunches * (stemsBunch || 25);
+        }
+    }
+    
+    // Si el campo es stems_bunch, actualizar qty_stem_flower
+    if (field === 'stems_bunch') {
+        const bunches = parseInt(newboxItem.value.total_bunches) || 0;
+        const stemsBunch = parseInt(newboxItem.value.stems_bunch) || 0;
+        if (bunches > 0) {
+            newboxItem.value.qty_stem_flower = bunches * stemsBunch;
+        }
+    }
+    
+    // Actualizar inmediatamente el total después de salir del campo
+    if (field === 'stem_cost_price' || field === 'profit_margin') {
+        // Evitamos actualizar si no hay cambio real
+        const currentTotal = newboxItem.value.total;
+        const newTotal = calculateTotal.value;
+        if (currentTotal !== newTotal) {
+            newboxItem.value.total = newTotal;
+        }
+    }
+};
+
+// Compute the total safely with null checks - Eliminamos console.log
 const calculateTotal = computed(() => {
-    console.log('Propiesdad conputada caculateTotal');
+    // Eliminamos el console.log que genera spam
     const priceStr = newboxItem.value?.stem_cost_price?.toString() || '0';
     const marginStr = newboxItem.value?.profit_margin?.toString() || '0';
     
@@ -113,46 +174,44 @@ const calculateTotal = computed(() => {
     return baseStore.formatInputNumber(total.toFixed(2));
 });
 
-const onBlurField = (field, format = false) => {
-    console.log('Propiesdad al avandonart el input');
-    if (newboxItem.value[field] === '' || newboxItem.value[field] === null) {
-        newboxItem.value[field] = previousValues.value[field];
-    } else if (format) {
-        // Clean the input and format it properly
-        const cleanValue = newboxItem.value[field].toString().replace(/,/g, '');
-        const numValue = parseFloat(cleanValue);
-        if (!isNaN(numValue)) {
-            newboxItem.value[field] = baseStore.formatInputNumber(numValue.toFixed(2));
-        }
-    }
-    
-    // Actualizar inmediatamente el total después de salir del campo
-    if (field === 'stem_cost_price' || field === 'profit_margin') {
-        newboxItem.value.total = calculateTotal.value;
-    }  
-};
-
-// Watch for changes in calculation fields and update total - with additional safety checks
 watch([
     () => newboxItem.value?.stem_cost_price,
     () => newboxItem.value?.qty_stem_flower,
     () => newboxItem.value?.profit_margin
 ], () => {
+    // Reducimos la frecuencia usando un debounce implícito
+    if (updating.value) return;
+    
     // Solo actualizar si newboxItem existe y tiene todas las propiedades necesarias
     if (newboxItem.value && 
         newboxItem.value.stem_cost_price !== undefined && 
         newboxItem.value.profit_margin !== undefined) {
-        newboxItem.value.total = calculateTotal.value;
+        
+        const currentTotal = newboxItem.value.total;
+        const newTotal = calculateTotal.value;
+        
+        // Evitar actualizaciones innecesarias que podrían causar ciclos
+        if (currentTotal !== newTotal) {
+            newboxItem.value.total = newTotal;
+        }
     }
 }, { deep: true });
 
 // Calcular el nombre del producto para mostrar en el autocomplete
 const productInitialValue = computed(() => {
-    if (newboxItem.value.product) {
-        return `${newboxItem.value.product.name} ${newboxItem.value.product.variety}`.trim();
+    if (newboxItem.value.product && newboxItem.value.product.name) {
+        return `${newboxItem.value.product.name} ${newboxItem.value.product.variety || ''}`.trim();
     }
     return '';
 });
+
+// Agregar un watcher específico para el producto para asegurar que se mantenga
+watch(() => props.modelValue?.product, (newProduct) => {
+    if (newProduct && !updating.value) {
+        // Asegurarse de que newboxItem.product se actualice correctamente
+        newboxItem.value.product = JSON.parse(JSON.stringify(newProduct));
+    }
+}, { deep: true });
 </script>
 <template>
     <div class="container-fluid">
