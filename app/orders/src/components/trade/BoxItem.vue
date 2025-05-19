@@ -57,13 +57,6 @@ watch(newboxItem, (val) => {
     }
 }, { deep: true })
 
-const previousValues = ref({
-    length: '',
-    qty_stem_flower: '',
-    stem_cost_price: '',
-    profit_margin: ''
-});
-
 const showProductModal = (product)=>{
     console.log('Activamos el modal del ', product)
     emit('showProductModal', product)
@@ -98,34 +91,24 @@ const selectProduct = ($event) => {
     });
 }
 
-// Simplificar la función onFocusField para eliminar el manejo de eventos
-const onFocusField = (field) => {
-    // Guardamos el valor actual antes de cualquier modificación
-    previousValues.value[field] = newboxItem.value[field];
-    
-    // Si es un campo numérico con formato, eliminar el formato al entrar
-    if (field === 'stem_cost_price' || field === 'profit_margin') {
-        const cleanValue = newboxItem.value[field].toString().replace(/,/g, '');
-        newboxItem.value[field] = cleanValue;
-    }
-};
-
 const onBlurField = (field, format = false) => {
+    // Verificar que newboxItem.value existe y no es null
+    if (!newboxItem.value) {
+        return;
+    }
+    
     // Si el campo está vacío y es stems_bunch, verificamos si bunches tiene valor
     if ((newboxItem.value[field] === '' || newboxItem.value[field] === null) && field === 'stems_bunch') {
         // Si bunches tiene valor, forzar el valor por defecto 25
         const bunches = parseInt(newboxItem.value.total_bunches) || 0;
         if (bunches > 0) {
-            newboxItem.value[field] = 25;
+            newboxItem.value[field] = 25; // Valor predeterminado fijo
         } else {
-            // Si no tiene bunches, recuperar el valor anterior
-            newboxItem.value[field] = previousValues.value[field];
+            // Si no hay bunches, usar valor 0
+            newboxItem.value[field] = 0;
         }
-    } 
-    // Para los demás campos, comportamiento normal
-    else if (newboxItem.value[field] === '' || newboxItem.value[field] === null) {
-        newboxItem.value[field] = previousValues.value[field];
-    }    
+    }     
+    
     // Cuando total_bunches tiene un valor > 0 pero stems_bunch es 0, asignar 25
     if (field === 'total_bunches') {
         const bunches = parseInt(newboxItem.value.total_bunches) || 0;
@@ -163,8 +146,32 @@ const onBlurField = (field, format = false) => {
         }
     }
     
+    // Para campos numéricos con formato, aplicar el formato al salir
+    if (format && (field === 'stem_cost_price' || field === 'profit_margin')) {
+        // Protección contra valores undefined o null
+        if (newboxItem.value[field] === undefined || newboxItem.value[field] === null) {
+            newboxItem.value[field] = '0.00';
+            return;
+        }
+        
+        // Usar String() en lugar de toString() para mayor seguridad
+        const cleanValue = String(newboxItem.value[field]).replace(/,/g, '');
+        const numValue = parseFloat(cleanValue);
+        if (!isNaN(numValue)) {
+            const formattedValue = baseStore.formatInputNumber(numValue.toFixed(2));
+            if (formattedValue !== newboxItem.value[field]) {
+                newboxItem.value[field] = formattedValue;
+            }
+        }
+    }
+    
     // Actualizar el total después de salir del campo
     if (field === 'stem_cost_price' || field === 'profit_margin') {
+        // Protección contra componente desmontado
+        if (!newboxItem.value || !calculateTotal.value) {
+            return;
+        }
+        
         const currentTotal = newboxItem.value.total;
         const newTotal = calculateTotal.value;
         if (currentTotal !== newTotal) {
@@ -175,7 +182,11 @@ const onBlurField = (field, format = false) => {
 
 // Compute the total safely with null checks - Eliminamos console.log
 const calculateTotal = computed(() => {
-    // Eliminamos el console.log que genera spam
+    // Verificar que newboxItem.value existe
+    if (!newboxItem.value) {
+        return '0.00';
+    }
+    
     const priceStr = newboxItem.value?.stem_cost_price?.toString() || '0';
     const marginStr = newboxItem.value?.profit_margin?.toString() || '0';
     
@@ -186,28 +197,24 @@ const calculateTotal = computed(() => {
     return baseStore.formatInputNumber(total.toFixed(2));
 });
 
-watch([
-    () => newboxItem.value?.stem_cost_price,
-    () => newboxItem.value?.qty_stem_flower,
-    () => newboxItem.value?.profit_margin
-], () => {
-    // Reducimos la frecuencia usando un debounce implícito
-    if (updating.value) return;
+// Mejora: Agregar watchers individuales para actualización inmediata del total
+watch(() => newboxItem.value?.stem_cost_price, (newValue) => {
+    if (updating.value || !newboxItem.value) return;
     
-    // Solo actualizar si newboxItem existe y tiene todas las propiedades necesarias
-    if (newboxItem.value && 
-        newboxItem.value.stem_cost_price !== undefined && 
-        newboxItem.value.profit_margin !== undefined) {
-        
-        const currentTotal = newboxItem.value.total;
-        const newTotal = calculateTotal.value;
-        
-        // Evitar actualizaciones innecesarias que podrían causar ciclos
-        if (currentTotal !== newTotal) {
-            newboxItem.value.total = newTotal;
-        }
+    const newTotal = calculateTotal.value;
+    if (newboxItem.value.total !== newTotal) {
+        newboxItem.value.total = newTotal;
     }
-}, { deep: true });
+}, { immediate: true });
+
+watch(() => newboxItem.value?.profit_margin, (newValue) => {
+    if (updating.value || !newboxItem.value) return;
+    
+    const newTotal = calculateTotal.value;
+    if (newboxItem.value.total !== newTotal) {
+        newboxItem.value.total = newTotal;
+    }
+}, { immediate: true });
 
 // Calcular el nombre del producto para mostrar en el autocomplete
 const productInitialValue = computed(() => {
@@ -276,20 +283,21 @@ watch(() => props.modelValue?.product, (newProduct) => {
                         type="text"
                         v-model="newboxItem.stem_cost_price"
                         class="border w-100 text-end trade-nav-input"
-                        @blur="onBlurField('stem_cost_price', true)" />
+                        @input="newboxItem.total = calculateTotal"
+                        />
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 
                         type="text"
                         v-model="newboxItem.profit_margin"
                         class="border w-100 text-end trade-nav-input" 
-                        @blur="onBlurField('profit_margin', true)"
+                        @input="newboxItem.total = calculateTotal"
                         />
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 
                         type="text"
-                        v-model="newboxItem.total"
+                        :value="calculateTotal"
                         class="border w-100 text-end" 
                         readonly
                         tabindex="-1"

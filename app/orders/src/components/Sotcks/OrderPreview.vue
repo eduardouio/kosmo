@@ -19,23 +19,12 @@ const stockStore = useStockStore();
 const baseStore = useBaseStore();
 const router = useRouter();
 
-// Eliminamos las variables locales de alerta y usamos las del baseStore
-// const alertMessage = ref('');
-// const alertType = ref('info');
-// const defaultInfoMessage = '...';
-// const setAlert = (message, type = 'info') => {...};
-// const updateGlobalAlertStatus = () => {...};
-
-// Ya no necesitamos inicializar alertas aquí, lo hace OrdersView
-
 onMounted(() => {
-  // Solo actualizamos las alertas si hay elementos en el carrito
   if (ordersStore.newOrder.length > 0) {
     baseStore.updateGlobalAlertStatus(ordersStore);
   }
 });
-
-// Ya no necesitamos los watchers aquí, los movimos a OrdersView
+  
 
 const calcTotalByItem = (item)=>{ 
   let total = 0;

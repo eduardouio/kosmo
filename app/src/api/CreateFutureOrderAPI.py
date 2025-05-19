@@ -6,20 +6,20 @@ from products.models import Product
 from partners.models import Partner
 from datetime import datetime
 from common.AppLoger import loggin_event
-from common import SyncOrders
 
 
 class CreateFutureOrderAPI(View):
 
     def post(self, request):
         data = json.loads(request.body)
-        loggin_event('Recibiendo solicitud de creaciond e orden Futura')
+        loggin_event('Recibiendo solicitud de creacion de orden Futura')
 
         order_data = data.get('order', {})
         order_lines = data.get('orderLines', [])
         customer_data = data.get('customer', {})
         supplier_data = data.get('supplier', {})
 
+        # Crear orden de cliente (customer)
         order = Order()
         order.serie = order_data.get('serie', '200')
         order.consecutive = Order.get_next_sale_consecutive()
@@ -44,9 +44,12 @@ class CreateFutureOrderAPI(View):
         order.hb_total = order_data.get('hb_total', 0)
         order.fb_total = order_data.get('fb_total', 0)
         order.total_stem_flower = order_data.get('total_stem_flower', 0)
+        order.total_bunches = order_data.get('total_bunches', 0)
         order.save()
         loggin_event(f'Orden futura creada con éxito {order.id}')
 
+        # Crear líneas de la orden de cliente
+        created_orders_items = []
         for line_data in order_lines:
             order_item = OrderItems()
             order_item.order = order
@@ -58,7 +61,15 @@ class CreateFutureOrderAPI(View):
             order_item.tot_stem_flower = line_data.get('tot_stem_flower', 0)
             order_item.box_model = line_data.get('box_model', 'QB')
             order_item.quantity = line_data.get('quantity', 1)
+
+            # Calcular total de ramos para este ítem
+            total_bunches_item = 0
+            for box_item_data in line_data.get('order_box_items', []):
+                total_bunches_item += box_item_data.get('total_bunches', 0)
+
+            order_item.total_bunches = total_bunches_item
             order_item.save()
+            created_orders_items.append(order_item)
 
             for box_item_data in line_data.get('order_box_items', []):
                 product_data = box_item_data.get('product', {})
@@ -82,28 +93,69 @@ class CreateFutureOrderAPI(View):
 
         Order.rebuild_totals(order)
 
-        if supplier_data.get('business_tax_id', '9999999999') != '9999999999':
-            self.create_purchase_order(
-                customer_order=order, is_partner=supplier_data.get('id')
-            )
+        # Crear orden de compra para el proveedor directamente
+        if supplier_data.get('id'):
+            # Obtener el proveedor por ID
+            supplier = Partner.get_by_id(supplier_data.get('id'))
+
+            if supplier:
+                # Crear la orden de compra
+                purchase_order = Order()
+                purchase_order.serie = '200'
+                purchase_order.consecutive = Order.get_next_purchase_consecutive()
+                purchase_order.date = datetime.now()
+                purchase_order.type_document = 'ORD_COMPRA'
+                purchase_order.partner = supplier  # Proveedor
+                purchase_order.num_order = order.num_order
+                purchase_order.status = 'PENDIENTE'
+                purchase_order.parent_order = order  # Referencia a la orden del cliente
+                purchase_order.save()
+
+                loggin_event(
+                    f'Orden de compra creada con éxito {purchase_order.id} para proveedor {supplier.name}')
+
+                # Copiar los ítems de la orden del cliente a la orden de compra
+                for customer_order_item in created_orders_items:
+                    # Crear item de orden de compra
+                    purchase_order_item = OrderItems()
+                    purchase_order_item.order = purchase_order
+                    purchase_order_item.id_stock_detail = customer_order_item.id_stock_detail
+                    purchase_order_item.box_model = customer_order_item.box_model
+                    purchase_order_item.quantity = customer_order_item.quantity
+                    purchase_order_item.tot_stem_flower = customer_order_item.tot_stem_flower
+                    purchase_order_item.total_bunches = customer_order_item.total_bunches
+                    # Para la orden de compra solo interesa el precio de costo (no el margen)
+                    purchase_order_item.line_price = customer_order_item.line_price
+                    purchase_order_item.line_total = customer_order_item.line_price
+                    purchase_order_item.save()
+
+                    # Copiar los ítems de cajas
+                    customer_box_items = OrderBoxItems.get_by_order_item(
+                        customer_order_item)
+                    for customer_box_item in customer_box_items:
+                        purchase_box_item = OrderBoxItems()
+                        purchase_box_item.order_item = purchase_order_item
+                        purchase_box_item.product = customer_box_item.product
+                        purchase_box_item.length = customer_box_item.length
+                        purchase_box_item.qty_stem_flower = customer_box_item.qty_stem_flower
+                        purchase_box_item.stem_cost_price = customer_box_item.stem_cost_price
+                        purchase_box_item.total_bunches = customer_box_item.total_bunches
+                        purchase_box_item.stems_bunch = customer_box_item.stems_bunch
+                        # No copiar el profit_margin ya que es solo para la orden del cliente
+                        purchase_box_item.profit_margin = 0
+                        purchase_box_item.save()
+
+                        loggin_event(
+                            f'Item de caja de orden de compra guardado con éxito {purchase_box_item.id}')
+
+                # Actualizar totales de la orden de compra
+                Order.rebuild_totals(purchase_order)
+                loggin_event(f'Totales de orden de compra recalculados')
+            else:
+                loggin_event(
+                    f'No se pudo encontrar el proveedor con ID {supplier_data.get("id")}', error=True)
 
         return JsonResponse({
             'message': 'Orden Futura Creada', 'order_id': order.id
         }, status=201
         )
-
-    def create_purchase_order(self, customer_order, is_partner):
-        loggin_event(
-            f'Creando Orden de Compra parapedido {customer_order.id} '
-            f'con proveedor {is_partner}'
-        )
-        purchase_order = Order()
-        purchase_order.serie = '200'
-        purchase_order.consecutive = Order.get_next_purchase_consecutive()
-        purchase_order.date = datetime.now()
-        purchase_order.type_document = 'ORD_COMPRA'
-        purchase_order.partner = customer_order.partner
-        purchase_order.num_order = customer_order.num_order
-        purchase_order.status = 'PENDIENTE'
-        purchase_order.save()
-

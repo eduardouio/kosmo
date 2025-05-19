@@ -142,42 +142,61 @@ function updateOrderLineTotal(idx, tempLine) {
 }
 
 function validateData(){
-  // validamos datos sminimos de orden de venta
+  // Reiniciar estado de error
   hasError.value = false;
   errorMessage.value = '';
 
+  // Validar que haya cliente y proveedor seleccionados
   if (!baseStore.selectedCustomer || !baseStore.selectedSupplier) {
     errorMessage.value = 'Debe seleccionar un cliente y un proveedor.';
     hasError.value = true;
     return false;
   }
+  
+  // Validar que haya al menos una línea de pedido
   if (orderStore.orderLines.length === 0) {
     errorMessage.value = 'Debe agregar al menos una línea de pedido.';
     hasError.value = true;
     return false;
   }
 
-  // Usar bucle for tradicional en lugar de forEach para poder retornar correctamente
+  // Validar que cada línea tenga un producto y un total mayor a cero
   for (let i = 0; i < orderStore.orderLines.length; i++) {
     const line = orderStore.orderLines[i];
-    if (!line.quantity) {
-      errorMessage.value = 'Cada línea debe tener cantidad y modelo de caja.';
+    
+    // Verificar que la línea tenga cantidad
+    if (!line.quantity || line.quantity <= 0) {
+      errorMessage.value = `La línea ${i+1} debe tener cantidad.`;
       hasError.value = true;
       return false;
     }
     
-    if (Array.isArray(line.order_box_items)) {
-      for (let j = 0; j < line.order_box_items.length; j++) {
-        const itm = line.order_box_items[j];
-        // Verificar si product es un objeto válido y tiene la propiedad variety
-        if (!itm.qty_stem_flower || !itm.product || !itm.stem_cost_price || !itm.profit_margin ) {
-          errorMessage.value = 'Cada item debe tener cantidad y producto.';
-          hasError.value = true;
-          return false;
-        }
+    // Verificar que el total de la línea no sea cero
+    const lineTotal = orderStore.calculateOrderLineTotal(line);
+    if (lineTotal <= 0) {
+      errorMessage.value = `La línea ${i+1} debe tener un total mayor a cero.`;
+      hasError.value = true;
+      return false;
+    }
+    
+    // Verificar que haya al menos un producto seleccionado en la línea
+    if (!Array.isArray(line.order_box_items) || line.order_box_items.length === 0) {
+      errorMessage.value = `La línea ${i+1} debe tener al menos un producto.`;
+      hasError.value = true;
+      return false;
+    }
+    
+    // Verificar que cada producto en la línea tenga un valor seleccionado
+    for (let j = 0; j < line.order_box_items.length; j++) {
+      const item = line.order_box_items[j];
+      if (!item.product) {
+        errorMessage.value = `La línea ${i+1} contiene un producto sin seleccionar.`;
+        hasError.value = true;
+        return false;
       }
     }
   }
+  
   return true;
 }
 
@@ -188,13 +207,13 @@ async function saveOrder() {
   )
   
   if (result.success) {
-    window.location.href =  `${appConfig.apiBaseUrlTest}/trade/order/61/`
+    window.location.href =  `${appConfig.apiBaseUrlTest}/trade/order/${result.data.order_id}/`
   } else {
     alert(result.message)
   }
 }
 
-// Inicializar un validador recurrente para verificar datos
+// Este intervalo podría reemplazarse por validaciones puntuales o watchers
 const validateInterval = setInterval(validateData, 2000);
 
 const handleKeydown = (event) => {

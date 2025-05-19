@@ -4,7 +4,6 @@ const apiBaseUrlTest = apiBaseUrl;
 const csrfToken = window.djangoConfig?.csrfToken ?? "";
 
 
-
 export const appConfig = {
     "apiBaseUrl": apiBaseUrl,
     "apiBaseUrlTest": apiBaseUrlTest,
