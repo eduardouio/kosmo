@@ -61,6 +61,7 @@ function calculateOrderTotals() {
   let total_stem_flower = 0
   let total_price = 0
   let total_margin = 0
+  let total_bunches = 0  // Añadimos esta variable para calcular el total de bunches
 
   const lines = orderStore.orderLines.slice()
   lines.forEach(line => {
@@ -75,10 +76,12 @@ function calculateOrderTotals() {
         const qtyStems = parseFloat(String(item.qty_stem_flower || '0').replace(/,/g, '')) || 0;
         const costPrice = parseFloat(String(item.stem_cost_price || '0.00').replace(/,/g, '')) || 0;
         const profitMargin = parseFloat(String(item.profit_margin || '0.00').replace(/,/g, '')) || 0;
+        const bunches = parseInt(String(item.total_bunches || '0')) || 0; // Calcular bunches
 
         total_stem_flower += qtyStems;
         total_price += costPrice * qtyStems;
         total_margin += profitMargin * qtyStems;
+        total_bunches += bunches * quantity; // Multiplicar por la cantidad del item
       })
     }
   })
@@ -93,7 +96,8 @@ function calculateOrderTotals() {
     fb_total: parseFloat(fb_total.toFixed(2)),
     total_stem_flower: parseFloat(total_stem_flower.toFixed(2)),
     total_price: parseFloat(total_price.toFixed(2)),
-    total_margin: parseFloat(total_margin.toFixed(2))
+    total_margin: parseFloat(total_margin.toFixed(2)),
+    total_bunches: parseInt(total_bunches) // Añadir total_bunches al objeto que actualiza el store
   })
 }
 
