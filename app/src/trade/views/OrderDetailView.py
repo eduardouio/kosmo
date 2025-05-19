@@ -17,16 +17,17 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
         context['title_page'] = f"Orden {order.serie}-{str(order.consecutive).zfill(6)}"
 
         # Obtener el cliente y proveedor
-        customer = order.partner
-        supplier = None
+        customer = order.partner # Para OV, es el cliente. Para OC, es el proveedor.
+        supplier = None # Para OV, será el proveedor de la primera OC hija o default.
 
         # Si es una orden de venta, buscar la orden de compra relacionada para obtener proveedor
-        if order.type_document == 'ORD_VENTA' and Order.get_by_parent_order(order):
-            supplier_orders = Order.get_by_parent_order(order)
-            if supplier_orders:
-                supplier = supplier_orders[0].partner
+        supplier_orders_qs = []
+        if order.type_document == 'ORD_VENTA':
+            supplier_orders_qs = Order.get_by_parent_order(order)
+            if supplier_orders_qs:
+                supplier = supplier_orders_qs[0].partner
 
-        # Si no se encontró proveedor, usar uno por defecto
+        # Si no se encontró proveedor (o es una OC directa sin padre explícito para esta lógica), usar uno por defecto
         if not supplier:
             supplier = Partner.get_partner_by_taxi_id('9999999999')
             if supplier is None:
@@ -64,6 +65,16 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
         if order.type_document == 'ORD_COMPRA':
             order_data["total_order"] = float(order.total_purchase_price)
+            # Si es una OC, el 'customer' (order.partner) es en realidad el proveedor.
+            # El cliente real sería el partner de la parent_order si existe.
+            if order.parent_order:
+                actual_customer_of_oc = order.parent_order.partner
+                # Actualizar customer_data para reflejar el cliente de la OV padre si es necesario
+                # o añadir una nueva entrada en context si se quiere mostrar ambos.
+                # Por ahora, la lógica existente de 'customer' para OC se refiere al proveedor.
+                pass
+
+
         # Obtener líneas de pedido
         order_lines = OrderItems.get_by_order(order)
         order_lines_data = []
@@ -136,35 +147,128 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
         }
 
         # Construir respuesta JSON para el proveedor
-        supplier_data = {
-            "id": supplier.id,
-            "name": supplier.name,
-            "short_name": getattr(supplier, 'short_name', supplier.name),
-            "business_tax_id": supplier.business_tax_id,
-            "address": supplier.address,
-            "city": getattr(supplier, 'city', ""),
-            "website": supplier.website,
-            "credit_term": supplier.credit_term,
-            "is_profit_margin_included": getattr(supplier, 'is_profit_margin_included', False),
-            "default_profit_margin": getattr(supplier, 'default_profit_margin', "0.06"),
-            "consolidate": supplier.consolidate,
-            "skype": supplier.skype,
-            "email": supplier.email,
-            "phone": supplier.phone,
-            "is_active": supplier.is_active,
-            "contact": getattr(supplier, 'contact', {}),
-            "is_selected": False,
-            "have_stock": getattr(supplier, 'have_stock', False),
-            "related_partners": getattr(supplier, 'related_partners', [])
-        }
+        # Este 'supplier' es el general para la OV, o el partner de la OC si se ve una OC.
+        # Si order es OC, customer_data es el proveedor. supplier_data podría ser None o default.
+        # Para evitar confusión si la orden principal es OC:
+        current_supplier_for_main_order_view = supplier
+        if order.type_document == 'ORD_COMPRA':
+            current_supplier_for_main_order_view = customer # que es order.partner (el proveedor de la OC)
+        
+        supplier_data = {}
+        if current_supplier_for_main_order_view:
+            supplier_data = {
+                "id": current_supplier_for_main_order_view.id,
+                "name": current_supplier_for_main_order_view.name,
+                "short_name": getattr(current_supplier_for_main_order_view, 'short_name', current_supplier_for_main_order_view.name),
+                "business_tax_id": current_supplier_for_main_order_view.business_tax_id,
+                "address": current_supplier_for_main_order_view.address,
+                "country": getattr(current_supplier_for_main_order_view, 'country', ""),
+                "city": getattr(current_supplier_for_main_order_view, 'city', ""),
+                "website": current_supplier_for_main_order_view.website,
+                "credit_term": current_supplier_for_main_order_view.credit_term,
+                "is_profit_margin_included": getattr(current_supplier_for_main_order_view, 'is_profit_margin_included', False),
+                "default_profit_margin": getattr(current_supplier_for_main_order_view, 'default_profit_margin', "0.06"),
+                "consolidate": current_supplier_for_main_order_view.consolidate,
+                "skype": current_supplier_for_main_order_view.skype,
+                "email": current_supplier_for_main_order_view.email,
+                "phone": current_supplier_for_main_order_view.phone,
+                "is_active": current_supplier_for_main_order_view.is_active,
+                "contact": getattr(current_supplier_for_main_order_view, 'contact', {}),
+                "is_selected": False,
+                "have_stock": getattr(current_supplier_for_main_order_view, 'have_stock', False),
+                "related_partners": getattr(current_supplier_for_main_order_view, 'related_partners', [])
+            }
 
         # Construir respuesta JSON completa y añadirla al contexto
         response_data = {
             "order": order_data,
             "orderLines": order_lines_data,
-            "customer": customer_data,
-            "supplier": supplier_data
+            "customer": customer_data, # Si OV: cliente. Si OC: proveedor.
+            "supplier": supplier_data  # Si OV: proveedor principal. Si OC: el mismo que customer_data si es el proveedor.
         }
+
+        # Detalles de las órdenes de compra hijas (si la orden principal es ORD_VENTA)
+        purchase_orders_details = []
+        if order.type_document == 'ORD_VENTA' and supplier_orders_qs:
+            for sup_order_instance in supplier_orders_qs:
+                sup_order_partner = sup_order_instance.partner
+                sup_order_partner_data = {
+                    "id": sup_order_partner.id,
+                    "name": sup_order_partner.name,
+                    "short_name": getattr(sup_order_partner, 'short_name', sup_order_partner.name),
+                    "business_tax_id": sup_order_partner.business_tax_id,
+                    "address": sup_order_partner.address,
+                    "country": getattr(sup_order_partner, 'country', ""),
+                    "city": getattr(sup_order_partner, 'city', ""),
+                    "website": sup_order_partner.website,
+                    "credit_term": sup_order_partner.credit_term,
+                    "email": sup_order_partner.email,
+                    "phone": sup_order_partner.phone,
+                    "contact": getattr(sup_order_partner, 'contact', {}),
+                    "consolidate": sup_order_partner.consolidate,
+                    "skype": sup_order_partner.skype,
+                }
+
+                sup_order_data_item = {
+                    "id": sup_order_instance.id,
+                    "serie": sup_order_instance.serie,
+                    "serie_name": "ORD-COMPRA",
+                    "consecutive": sup_order_instance.consecutive or "000000",
+                    "date": sup_order_instance.date.strftime("%d/%m/%Y %H:%M") if sup_order_instance.date else "",
+                    "num_order": sup_order_instance.num_order,
+                    "delivery_date": sup_order_instance.delivery_date.strftime("%Y-%m-%d") if sup_order_instance.delivery_date else "",
+                    "status": sup_order_instance.status,
+                    "total_price": float(sup_order_instance.total_price),
+                    "total_order": float(sup_order_instance.total_purchase_price),
+                    "qb_total": sup_order_instance.qb_total,
+                    "hb_total": sup_order_instance.hb_total,
+                    "fb_total": float(sup_order_instance.fb_total) if sup_order_instance.fb_total else 0,
+                    "total_stem_flower": sup_order_instance.total_stem_flower,
+                    "total_bunches": sup_order_instance.total_bunches,
+                    "partner": sup_order_partner_data, # Proveedor de esta OC
+                }
+
+                sup_order_lines_qs = OrderItems.get_by_order(sup_order_instance)
+                sup_order_lines_data_list = []
+                for line in sup_order_lines_qs:
+                    box_items_qs = OrderBoxItems.get_box_items(line)
+                    sup_order_box_items_data_list = []
+                    for box in box_items_qs:
+                        product = box.product
+                        sup_box_item_data = {
+                            "product": {
+                                "id": product.id,
+                                "name": product.name,
+                                "variety": product.variety,
+                                "image": product.image.url if product.image else "",
+                                "colors": product.colors,
+                            },
+                            "length": box.length,
+                            "stems_bunch": box.stems_bunch,
+                            "total_bunches": box.total_bunches,
+                            "qty_stem_flower": box.qty_stem_flower,
+                            "stem_cost_price": str(box.stem_cost_price),
+                            "profit_margin": str(box.profit_margin), # Generalmente 0 para OC directa
+                            "stem_cost_total": str(box.stem_cost_total), # PVP para proveedor
+                            "stem_cost_total_price_with_quantity": str(box.stem_cost_total_price_with_quantity),
+                        }
+                        sup_order_box_items_data_list.append(sup_box_item_data)
+                    
+                    sup_line_data = {
+                        "id_stock_detail": line.id_stock_detail,
+                        "line_price": float(line.line_price), # Costo para la OC
+                        "line_total": float(line.line_price), # Total costo para la OC
+                        "tot_stem_flower": line.tot_stem_flower,
+                        "box_model": line.box_model,
+                        "quantity": line.quantity,
+                        "order_box_items": sup_order_box_items_data_list
+                    }
+                    sup_order_lines_data_list.append(sup_line_data)
+                
+                sup_order_data_item["orderLines"] = sup_order_lines_data_list
+                purchase_orders_details.append(sup_order_data_item)
+        
+        response_data["purchase_orders_details"] = purchase_orders_details
         
         # Añadir la estructura de datos completa al contexto
         context['response_data'] = response_data
