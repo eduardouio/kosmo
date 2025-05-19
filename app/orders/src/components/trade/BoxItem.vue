@@ -11,14 +11,14 @@ const props = defineProps({
         type: Object,
         default: () => ({
             product: null,
-            length: '0',
+            length: 0,
             qty_stem_flower: 0,
-            stem_cost_price: '0.00',
-            profit_margin: '0.00',
-            commission: '0.00',
+            stem_cost_price: 0,
+            profit_margin: 0,
+            commission: 0,
             total_bunches: 0,
             stems_bunch: 0,
-            total: '0.00'
+            total: 0
         })
     }
 })
@@ -98,8 +98,9 @@ const selectProduct = ($event) => {
     });
 }
 
-// Modificada para preparar el campo para edición - guarda el valor anterior y elimina formato
+// Simplificar la función onFocusField para eliminar el manejo de eventos
 const onFocusField = (field) => {
+    // Guardamos el valor actual antes de cualquier modificación
     previousValues.value[field] = newboxItem.value[field];
     
     // Si es un campo numérico con formato, eliminar el formato al entrar
@@ -110,49 +111,60 @@ const onFocusField = (field) => {
 };
 
 const onBlurField = (field, format = false) => {
-    // Eliminamos el console.log
-    if (newboxItem.value[field] === '' || newboxItem.value[field] === null) {
-        newboxItem.value[field] = previousValues.value[field];
-    } else if (format) {
-        // Clean the input and format it properly
-        const cleanValue = newboxItem.value[field].toString().replace(/,/g, '');
-        const numValue = parseFloat(cleanValue);
-        if (!isNaN(numValue)) {
-            // Guardamos el valor antes de formatear
-            const formattedValue = baseStore.formatInputNumber(numValue.toFixed(2));
-            // Solo actualizamos si realmente hay un cambio
-            if (formattedValue !== newboxItem.value[field]) {
-                newboxItem.value[field] = formattedValue;
-            }
+    // Si el campo está vacío y es stems_bunch, verificamos si bunches tiene valor
+    if ((newboxItem.value[field] === '' || newboxItem.value[field] === null) && field === 'stems_bunch') {
+        // Si bunches tiene valor, forzar el valor por defecto 25
+        const bunches = parseInt(newboxItem.value.total_bunches) || 0;
+        if (bunches > 0) {
+            newboxItem.value[field] = 25;
+        } else {
+            // Si no tiene bunches, recuperar el valor anterior
+            newboxItem.value[field] = previousValues.value[field];
         }
-    }
-    
-    // Si el campo es total_bunches y tiene un valor mayor que 0,
-    // verificar si stems_bunch está vacío o es 0, y en ese caso asignar 25
+    } 
+    // Para los demás campos, comportamiento normal
+    else if (newboxItem.value[field] === '' || newboxItem.value[field] === null) {
+        newboxItem.value[field] = previousValues.value[field];
+    }    
+    // Cuando total_bunches tiene un valor > 0 pero stems_bunch es 0, asignar 25
     if (field === 'total_bunches') {
         const bunches = parseInt(newboxItem.value.total_bunches) || 0;
         if (bunches > 0) {
             const stemsBunch = parseInt(newboxItem.value.stems_bunch) || 0;
             if (stemsBunch === 0) {
                 newboxItem.value.stems_bunch = 25;
+                // Forzar la actualización inmediatamente para evitar problemas de sincronización
+                nextTick(() => {
+                    // Asegurar que el valor se mantenga
+                    if (parseInt(newboxItem.value.stems_bunch) === 0) {
+                        newboxItem.value.stems_bunch = 25;
+                    }
+                });
             }
-            // Actualizar la cantidad de tallos (qty_stem_flower) basada en bunches y stemsBunch
+            // Actualizar la cantidad de tallos (qty_stem_flower)
             newboxItem.value.qty_stem_flower = bunches * (stemsBunch || 25);
         }
     }
     
-    // Si el campo es stems_bunch, actualizar qty_stem_flower
+    // Asegurar stems_bunch > 0 cuando bunches > 0
     if (field === 'stems_bunch') {
         const bunches = parseInt(newboxItem.value.total_bunches) || 0;
-        const stemsBunch = parseInt(newboxItem.value.stems_bunch) || 0;
-        if (bunches > 0) {
+        let stemsBunch = parseInt(newboxItem.value.stems_bunch) || 0;
+        
+        // Si bunches tiene valor pero stems_bunch es 0, forzar el valor por defecto
+        if (bunches > 0 && stemsBunch === 0) {
+            stemsBunch = 25;
+            newboxItem.value.stems_bunch = stemsBunch;
+        }
+        
+        // Actualizar qty_stem_flower solo si ambos tienen valores
+        if (bunches > 0 && stemsBunch > 0) {
             newboxItem.value.qty_stem_flower = bunches * stemsBunch;
         }
     }
     
-    // Actualizar inmediatamente el total después de salir del campo
+    // Actualizar el total después de salir del campo
     if (field === 'stem_cost_price' || field === 'profit_margin') {
-        // Evitamos actualizar si no hay cambio real
         const currentTotal = newboxItem.value.total;
         const newTotal = calculateTotal.value;
         if (currentTotal !== newTotal) {
@@ -240,8 +252,6 @@ watch(() => props.modelValue?.product, (newProduct) => {
                         v-model="newboxItem.length"
                         class="border w-100 text-end trade-nav-input" 
                         step="1" 
-                        @focus="onFocusField('length')"
-                        @blur="onBlurField('length')"
                     />
                 </div>
                  <div style="width:10%" class="text-end">
@@ -250,9 +260,7 @@ watch(() => props.modelValue?.product, (newProduct) => {
                         v-model="newboxItem.total_bunches"
                         class="border w-100 text-end trade-nav-input" 
                         step="1"
-                        @focus="onFocusField('total_bunches')"
                         @blur="onBlurField('total_bunches')"
-                        placeholder="Bunches"
                     />
                 </div>
                 <div style="width:10%" class="text-end">
@@ -261,9 +269,6 @@ watch(() => props.modelValue?.product, (newProduct) => {
                         v-model="newboxItem.stems_bunch"
                         class="border w-100 text-end trade-nav-input" 
                         step="1"
-                        @focus="onFocusField('stems_bunch')"
-                        @blur="onBlurField('stems_bunch')"
-                        placeholder="T/B"
                     />
                 </div>
                 <div style="width:10%" class="text-end">
@@ -271,7 +276,6 @@ watch(() => props.modelValue?.product, (newProduct) => {
                         type="text"
                         v-model="newboxItem.stem_cost_price"
                         class="border w-100 text-end trade-nav-input"
-                        @focus="onFocusField('stem_cost_price')"
                         @blur="onBlurField('stem_cost_price', true)" />
                 </div>
                 <div style="width:10%" class="text-end">
@@ -279,7 +283,6 @@ watch(() => props.modelValue?.product, (newProduct) => {
                         type="text"
                         v-model="newboxItem.profit_margin"
                         class="border w-100 text-end trade-nav-input" 
-                        @focus="onFocusField('profit_margin')"
                         @blur="onBlurField('profit_margin', true)"
                         />
                 </div>

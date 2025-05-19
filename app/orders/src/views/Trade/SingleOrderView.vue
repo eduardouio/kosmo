@@ -228,6 +228,7 @@ const handleKeydown = (event) => {
         if (nextIndex >= 0 && nextIndex < visibleNavigableInputs.length) {
             const nextInput = visibleNavigableInputs[nextIndex];
             nextInput.focus();
+            // Siempre seleccionar todo el texto al navegar
             if (typeof nextInput.select === 'function') {
                 nextInput.select(); // Seleccionar texto si es un input de texto/número
             }
