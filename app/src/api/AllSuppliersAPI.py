@@ -12,12 +12,16 @@ class AllSuppliersAPI(View):
 
         id_stock = request.GET.get('id_stock', None)
         if id_stock is None:
-            return JsonResponse({'error': 'ID de stock no proporcionado'}, status=400)
+            return JsonResponse(
+                {'error': 'ID de stock no proporcionado'}, status=400
+            )
 
         suppliers = Partner.get_suppliers()
-       
+
         if not suppliers:
-            return JsonResponse({'error': 'No se encontraron proveedores'}, status=404)
+            return JsonResponse(
+                {'error': 'No se encontraron proveedores'}, status=404
+            )
 
         include_stock = id_stock != '0'
         if include_stock:
@@ -56,7 +60,8 @@ class AllSuppliersAPI(View):
 
             have_stock = False
             if include_stock:
-                have_stock = len(StockDetail.get_stock_day_partner(stock_day, supplier)) > 0
+                have_stock = len(StockDetail.get_stock_day_partner(
+                    stock_day, supplier)) > 0
 
             item = {
                 'id': supplier.id,
@@ -67,8 +72,8 @@ class AllSuppliersAPI(View):
                 'city': supplier.city,
                 'website': supplier.website,
                 'credit_term': supplier.credit_term,
-                'is_profit_margin_included': supplier.is_profit_margin_included,
-                'default_profit_margin': supplier.default_profit_margin,
+                'is_profit_margin_included': False,
+                'default_profit_margin': 0.05,
                 'consolidate': supplier.consolidate,
                 'skype': supplier.skype,
                 'email': supplier.email,
