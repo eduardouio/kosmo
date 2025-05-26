@@ -10,17 +10,17 @@ from django.views.generic import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 from partners.models import Partner
+from accounts.models import CustomUserModel
 
 
 class PartnerForm(forms.ModelForm):
     class Meta:
         model = Partner
         fields = [
-            'business_tax_id', 'name', 'country', 'city', 'zip_code',
+            'business_tax_id', 'name', 'status', 'date_aproved', 'country', 'city', 'zip_code',
             'address', 'phone', 'email', 'type_partner', 'credit_term',
             'website', 'skype', 'dispatch_address', 'dispatch_days',
             'cargo_reference', 'consolidate', 'is_active', 'notes',
-            'default_profit_margin', 'is_profit_margin_included',
             'email_payment','reference_1', 'contact_reference_1',
             'reference_2','area_code','phone_reference_1', 'phone_reference_2',
             'contact_reference_2', 'short_name', 'is_verified', 'seller'
@@ -44,8 +44,6 @@ class PartnerForm(forms.ModelForm):
             'consolidate': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'notes': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
-            'default_profit_margin': forms.NumberInput(attrs={'class': 'form-control form-control-sm'}),
-            'is_profit_margin_included': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'email_payment': forms.EmailInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
             'reference_1': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
@@ -56,10 +54,18 @@ class PartnerForm(forms.ModelForm):
             'phone_reference_1': forms.TextInput(attrs={'maxlength': '20', 'class': 'form-control form-control-sm'}),
             'phone_reference_2': forms.TextInput(attrs={'maxlength': '20', 'class': 'form-control form-control-sm'}),
             'short_name': forms.TextInput(attrs={'maxlength': '50', 'class': 'form-control form-control-sm'}),
-            'seller': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
+            'seller': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
+            'status': forms.Select(attrs={'class': 'form-control form-control-sm'}),
+            'date_aproved': forms.DateInput(attrs={'class': 'form-control form-control-sm', 'type': 'date'}),
             
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        sellers = CustomUserModel.get_sellers()
+        seller_choices = [(seller.get_full_name() if seller.get_full_name() else seller.email, seller.get_full_name() if seller.get_full_name() else seller.email) for seller in sellers]
+        self.fields['seller'].choices = [('', '---------')] + seller_choices
+        
 
 class PartnerCreateView(LoginRequiredMixin, CreateView):
     model = Partner
@@ -75,6 +81,11 @@ class PartnerCreateView(LoginRequiredMixin, CreateView):
         url = reverse_lazy('partner_detail', kwargs={'pk': self.object.id})
         url += '?action=created'
         return url
+
+    def form_valid(self, form):
+        # Establecer valores por defecto para nuevo socio
+        form.instance.status = 'APROBADO'
+        return super().form_valid(form)
 
 
 class PartnerUpdateParent(LoginRequiredMixin, View):
