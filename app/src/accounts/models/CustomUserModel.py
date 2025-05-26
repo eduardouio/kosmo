@@ -11,7 +11,7 @@ from accounts.managers import CustomUserManager
 
 ROLE_CHOICES = (
     ('ADMINISTRADOR', 'ADMINISTRADOR'),
-    ('VENTAS', 'VENTAS'),
+    ('VENDEDOR', 'VENDEDOR'),
 )
 
 
@@ -20,6 +20,13 @@ class CustomUserModel(AbstractUser):
     email = models.EmailField(
         'correo electrónico',
         unique=True
+    )
+    phone = models.CharField(
+        'teléfono',
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text='Número de teléfono del usuario.'
     )
     picture = models.ImageField(
         'imagen de perfil',
@@ -46,6 +53,10 @@ class CustomUserModel(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
+
+    @classmethod
+    def get_sellers(cls):
+        return cls.objects.filter(roles='VENDEDOR')
 
     @classmethod
     def get(cls, email):

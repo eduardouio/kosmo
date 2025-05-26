@@ -22,7 +22,8 @@ from api import (
     CustomerOrderDetailAPI,
     UpdateFutureOrderAPI,
     PaymentsListAPI,
-    CollectionsListAPI
+    CollectionsListAPI,
+    SellersListAPI,
 )
 
 urlpatterns = [
@@ -50,4 +51,5 @@ urlpatterns = [
     path('api/orders/update-future-order/', UpdateFutureOrderAPI.as_view(), name='update_future_order'),
     path('api/payments/list/', PaymentsListAPI.as_view(), name='payments_list_api'),
     path('api/collections/list/', CollectionsListAPI.as_view(), name='collections_list_api'),
+    path('api/users/sellers/', SellersListAPI.as_view(), name='sellers_list_api'),
 ]

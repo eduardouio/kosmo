@@ -21,6 +21,7 @@ from .CustomerOrderDetailAPI import CustomerOrderDetailAPI
 from .UpdateFutureOrderAPI import UpdateFutureOrderAPI
 from .PaymentsListAPI import PaymentsListAPI
 from .CollectionsListAPI import CollectionsListAPI
+from .users.SellersListAPI import SellersListAPI
 
 
 __all__ = [
@@ -46,5 +47,6 @@ __all__ = [
     'CustomerOrderDetailAPI',
     'UpdateFutureOrderAPI',
     'PaymentsListAPI',
-    'CollectionsListAPI'
+    'CollectionsListAPI',
+    'SellersListAPI',
 ]
