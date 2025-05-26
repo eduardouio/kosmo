@@ -7,6 +7,12 @@ PARTNER_TYPE_CHOICES = [
     ('PROVEEDOR', 'PROVEEDOR'),
 ]
 
+STATUS = (
+    ('APROBADO', 'APROBADO'),
+    ('RECHAZADO', 'RECHAZADO'),
+    ('PENDIENTE', 'PENDIENTE'),
+)
+
 
 # el cliente solo recibe las disponibilidades de los productos de ciertas
 # fincas o proveedor de kosmo
@@ -26,6 +32,18 @@ class Partner(BaseModel):
     name = models.CharField(
         'Nombre',
         max_length=255
+    )
+    status = models.CharField(
+        'Estado',
+        max_length=20,
+        choices=STATUS,
+        default='APROBADO',
+    )
+    date_aproved = models.DateField(
+        'Fecha de Aprobación',
+        blank=True,
+        null=True,
+        help_text="Fecha en que el socio fue aprobado para operar"
     )
     short_name = models.CharField(
         'Nombre Corto',
@@ -64,16 +82,6 @@ class Partner(BaseModel):
         blank=True,
         null=True
     )
-    is_profit_margin_included = models.BooleanField(
-        'Margen Incluido',
-        default=False
-    )
-    default_profit_margin = models.DecimalField(
-        'Rendimiento por defecto',
-        max_digits=5,
-        decimal_places=2,
-        default=0.06
-    )
     credit_term = models.IntegerField(
         'Plazo de crédito',
         help_text="Tiempo de crédito en días, cero para prepago",
@@ -86,7 +94,7 @@ class Partner(BaseModel):
         null=True
     )
     skype = models.CharField(
-        'Skype',
+        'Teams',
         max_length=50,
         blank=True,
         null=True
@@ -181,6 +189,19 @@ class Partner(BaseModel):
         blank=True,
         null=True,
         help_text="Vendedor asignado al cliente"
+    )
+    id_seller = models.PositiveSmallIntegerField(
+        "Usuario Asociado",
+        default=0,
+        blank=True,
+        null=True,
+    )
+    years_in_market = models.PositiveIntegerField(
+        'Años en el mercado',
+        blank=True,
+        null=True,
+        default=0,
+        help_text="Años que el socio ha estado en el mercado"
     )
 
     @classmethod

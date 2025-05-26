@@ -6,6 +6,7 @@ COTACT_TYPE_CHOICES = (
     ('COMERCIAL', 'COMERCIAL'),
     ('FINANCIERO', 'FINANCIERO'),
     ('LOGISTICA', 'LOGÍSTICO'),
+    ('GERENCIA', 'GERENCIA'),
     ('OTRO', 'OTRO'),
 )
 
