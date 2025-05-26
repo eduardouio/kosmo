@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib import messages
-from ..models import Partner, Contact
+from partners.models import Partner, Contact, Bank
 
 
 class PartnerAutoRegister(TemplateView):
@@ -15,7 +15,13 @@ class PartnerAutoRegister(TemplateView):
 
     def post(self, request, *args, **kwargs):
         try:
-            # Crear Partner
+            # Procesamos los campos numéricos para manejar cadenas vacías
+            dispatch_days = request.POST.get('dispatch_days')
+            dispatch_days = int(dispatch_days) if dispatch_days and dispatch_days.strip() else None
+
+            credit_term = request.POST.get('credit_term')
+            credit_term = int(credit_term) if credit_term and credit_term.strip() else 0
+
             partner_data = {
                 'name': request.POST.get('name'),
                 'city': request.POST.get('city'),
@@ -25,9 +31,9 @@ class PartnerAutoRegister(TemplateView):
                 'skype': request.POST.get('skype'),
                 'website': request.POST.get('website'),
                 'business_tax_id': request.POST.get('business_tax_id'),
-                'businnes_start': request.POST.get('businnes_start'),
+                'credit_term': credit_term,  # Valor procesado
                 'consolidate': request.POST.get('consolidated') == 'on',
-                'dispatch_days': request.POST.get('dispatch_days'),
+                'dispatch_days': dispatch_days,  # Valor procesado
                 'cargo_reference': request.POST.get('cargo_reference'),
                 'reference_1': request.POST.get('reference_1'),
                 'contact_reference_1': request.POST.get('contact_reference_1'),
@@ -38,17 +44,29 @@ class PartnerAutoRegister(TemplateView):
                 'type_partner': 'CLIENTE' if request.POST.get('tipo_socio') == '2' else 'PROVEEDOR',
                 'phone': request.POST.get('contact_phone'),
                 'email_payment': request.POST.get('email_payment'),
+                'status': 'PENDIENTE',
+                'is_verified': False,
             }
 
-            partner = Partner.objects.create(
-                **{k: v for k, v in partner_data.items() if v})
+            # Procesamos los años en el negocio
+            if request.POST.get('businnes_start'):
+                try:
+                    years = int(request.POST.get('businnes_start'))
+                    partner_data['years_in_market'] = years
+                except ValueError:
+                    # Si hay error de conversión, lo dejamos como None
+                    pass
 
-            # Crear contactos
+            # Filtramos los valores None para permitir los valores por defecto de la base de datos
+            filtered_data = {k: v for k, v in partner_data.items() if v is not None}
+            partner = Partner.objects.create(**filtered_data)
+
             contacts_data = [
                 {
                     'name': request.POST.get('contact_manager'),
                     'email': request.POST.get('email_manager'),
-                    'contact_type': 'GERENCIA'
+                    'contact_type': 'GERENCIA',
+                    'is_principal': True
                 },
                 {
                     'name': request.POST.get('contact_sales'),
@@ -68,15 +86,19 @@ class PartnerAutoRegister(TemplateView):
             ]
 
             for contact_data in contacts_data:
-                if contact_data['name']:
+                if contact_data.get('name'):
                     Contact.objects.create(
                         partner=partner,
-                        **{k: v for k, v in contact_data.items() if v and k != 'name'},
-                        name=contact_data['name']
+                        **{k: v for k, v in contact_data.items() if v is not None}
                     )
 
-            messages.success(request, 'Registro creado exitosamente')
-            return redirect('partner_detail', pk=partner.pk)
+            messages.success(
+                request, 'Registro creado exitosamente. Su solicitud será revisada por nuestro equipo.')
+
+            return render(request, 'presentations/success_register_partner.html', {
+                'partner': partner,
+                'type_partner': partner.type_partner
+            })
 
         except Exception as e:
             messages.error(request, f'Error al crear el registro: {str(e)}')

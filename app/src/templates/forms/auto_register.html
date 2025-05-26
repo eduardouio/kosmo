@@ -9,10 +9,27 @@
    <link href="/static/css/libs/bootstrap.min.css" rel="stylesheet">
    <link href="/static/css/libs/customicer.css" rel="stylesheet">
    <script src="/static/js/libs/vue@3.js"></script>
+   <style>
+      .error-message {
+         color: #dc3545;
+         font-size: 0.85rem;
+         margin-top: 0.25rem;
+         margin-bottom: 0;
+      }
+      .is-invalid {
+         border-color: #dc3545;
+      }
+      .invalid-feedback {
+         display: block;
+      }
+      [v-cloak] {
+         display: none;
+      }
+   </style>
 </head>
 
 <body class="bg-light">
-   <div class="my-3">
+   <div class="my-3" id="app" v-cloak>
       <div class="container-md">
          <div class="row">
             <div class="col-8 mx-auto border-kosmo-primary p-0 rounded-2">
@@ -24,46 +41,51 @@
                      <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg"
                         alt="Kosmo Flowers" class="img-fluid" style="max-width: 200px;">
                   </div>
-                  <form method="post">
+                  <form method="post" @submit.prevent="validateForm" id="registerForm">
                      {% csrf_token %}
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
-                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Tipo de Socio: </label>
+                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Tipo de Socio: <span class="text-danger">*</span></label>
                         </div>
                         <div class="col-6">
-                           <select name="tipo_socio" class="form-select" name="type_partner">
+                           <select name="tipo_socio" class="form-select" v-model="formData.tipo_socio" :class="{'is-invalid': errors.tipo_socio}" @change="validateField('tipo_socio')">
                               <option value="1">PROVEEDOR</option>
                               <option value="2">CLIENTE</option>
                            </select>
+                           <div class="error-message" v-if="errors.tipo_socio">${ errors.tipo_socio }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
-                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Nombre del Cliente:
+                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Nombre del Cliente: <span class="text-danger">*</span>
                            </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="name">
+                           <input type="text" class="form-control" name="name" v-model="formData.name" :class="{'is-invalid': errors.name}" @blur="validateField('name')" maxlength="255">
+                           <div class="error-message" v-if="errors.name">${ errors.name }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
-                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Ciudad: </label></div>
+                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Ciudad: <span class="text-danger">*</span></label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="city">
+                           <input type="text" class="form-control" name="city" v-model="formData.city" :class="{'is-invalid': errors.city}" @blur="validateField('city')" maxlength="50">
+                           <div class="error-message" v-if="errors.city">${ errors.city }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
-                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">País: </label></div>
+                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">País: <span class="text-danger">*</span></label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="country">
+                           <input type="text" class="form-control" name="country" v-model="formData.country" :class="{'is-invalid': errors.country}" @blur="validateField('country')" maxlength="50">
+                           <div class="error-message" v-if="errors.country">${ errors.country }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
-                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Dirección: </label></div>
+                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Dirección: <span class="text-danger">*</span></label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="address">
+                           <input type="text" class="form-control" name="address" v-model="formData.address" :class="{'is-invalid': errors.address}" @blur="validateField('address')" maxlength="255">
+                           <div class="error-message" v-if="errors.address">${ errors.address }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -71,21 +93,25 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Código de Área: </label>
                         </div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="area_code">
+                           <input type="text" class="form-control" name="area_code" v-model="formData.area_code" :class="{'is-invalid': errors.area_code}" @blur="validateField('area_code')" maxlength="10">
+                           <div class="error-message" v-if="errors.area_code">${ errors.area_code }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Tiempo de Pago: </label>
                         </div>
-                        <div class="col-6"><input type="text" class="form-control"></div>
+                        <div class="col-6">
+                           <input type="number" class="form-control" name="credit_term" v-model="formData.credit_term" min="0" max="365">
+                        </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
-                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Contacto Gerencia:
+                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Contacto Gerencia: <span class="text-danger">*</span>
                            </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="contact_manager">
+                           <input type="text" class="form-control" name="contact_manager" v-model="formData.contact_manager" :class="{'is-invalid': errors.contact_manager}" @blur="validateField('contact_manager')" maxlength="255">
+                           <div class="error-message" v-if="errors.contact_manager">${ errors.contact_manager }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -93,7 +119,7 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Contacto Ventas: </label>
                         </div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="contact_sales">
+                           <input type="text" class="form-control" name="contact_sales" v-model="formData.contact_sales" maxlength="255">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -101,7 +127,7 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Contacto de Pagos:
                            </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="contact_payment">
+                           <input type="text" class="form-control" name="contact_payment" v-model="formData.contact_payment" maxlength="255">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -109,7 +135,8 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">E-mail de Gerencia:
                            </label></div>
                         <div class="col-6">
-                           <input type="email" class="form-control" name="email_manager">
+                           <input type="email" class="form-control" name="email_manager" v-model="formData.email_manager" :class="{'is-invalid': errors.email_manager}" @blur="validateField('email_manager')" maxlength="255">
+                           <div class="error-message" v-if="errors.email_manager">${ errors.email_manager }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -117,7 +144,8 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">E-mail de Ventas:
                            </label></div>
                         <div class="col-6">
-                           <input type="email" class="form-control" name="email_sales">
+                           <input type="email" class="form-control" name="email_sales" v-model="formData.email_sales" :class="{'is-invalid': errors.email_sales}" @blur="validateField('email_sales')" maxlength="255">
+                           <div class="error-message" v-if="errors.email_sales">${ errors.email_sales }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -125,29 +153,32 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">E-mail de Pagos: </label>
                         </div>
                         <div class="col-6">
-                           <input type="email" class="form-control" name="email_payment">
+                           <input type="email" class="form-control" name="email_payment" v-model="formData.email_payment" :class="{'is-invalid': errors.email_payment}" @blur="validateField('email_payment')" maxlength="255">
+                           <div class="error-message" v-if="errors.email_payment">${ errors.email_payment }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Teams: </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="skype">
+                           <input type="text" class="form-control" name="skype" v-model="formData.skype" maxlength="50">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Web: </label></div>
                         <div class="col-6">
-                           <input type="url" class="form-control" name="website">
+                           <input type="url" class="form-control" name="website" v-model="formData.website" :class="{'is-invalid': errors.website}" @blur="validateField('website')" maxlength="255">
+                           <div class="error-message" v-if="errors.website">${ errors.website }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
-                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">ID / DNI / TAX ID / RUC.:
+                        <div class="col-3 text-end me-1"><label class="form-label fw-semibold">ID / DNI / TAX ID / RUC.: <span class="text-danger">*</span>
                            </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="business_tax_id">
+                           <input type="text" class="form-control" name="business_tax_id" v-model="formData.business_tax_id" :class="{'is-invalid': errors.business_tax_id}" @blur="validateField('business_tax_id')" maxlength="15">
+                           <div class="error-message" v-if="errors.business_tax_id">${ errors.business_tax_id }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -155,7 +186,7 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Años en el Negocio:
                            </label></div>
                         <div class="col-6">
-                           <input type="number" class="form-control" name="businnes_start">
+                           <input type="number" class="form-control" name="businnes_start" v-model="formData.businnes_start" min="0" max="200">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -163,7 +194,7 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Consolidado: </label>
                         </div>
                         <div class="col-6">
-                           <input type="checkbox" class="form-check-input" name="consolidated">
+                           <input type="checkbox" class="form-check-input" name="consolidated" v-model="formData.consolidated">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -171,7 +202,7 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Días de Despacho:
                            </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="dispatch_days">
+                           <input type="text" class="form-control" name="dispatch_days" v-model="formData.dispatch_days">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -179,21 +210,22 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Referencia Carguera:
                            </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="cargo_reference">
+                           <input type="text" class="form-control" name="cargo_reference" v-model="formData.cargo_reference" maxlength="255">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Contacto: </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="contact">
+                           <input type="text" class="form-control" name="contact" v-model="formData.contact" maxlength="255">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Teléfono: </label></div>
                         <div class="col-6">
-                           <input type="tel" class="form-control" name="contact_phone">
+                           <input type="tel" class="form-control" name="contact_phone" v-model="formData.contact_phone" :class="{'is-invalid': errors.contact_phone}" @blur="validateField('contact_phone')" maxlength="20">
+                           <div class="error-message" v-if="errors.contact_phone">${ errors.contact_phone }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -201,21 +233,22 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Referencias Finca 1:
                            </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="reference_1">
+                           <input type="text" class="form-control" name="reference_1" v-model="formData.reference_1" maxlength="255">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Contacto: </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="contact_reference_1">
+                           <input type="text" class="form-control" name="contact_reference_1" v-model="formData.contact_reference_1" maxlength="255">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Teléfono: </label></div>
                         <div class="col-6">
-                           <input type="tel" class="form-control" name="phone_reference_1">
+                           <input type="tel" class="form-control" name="phone_reference_1" v-model="formData.phone_reference_1" :class="{'is-invalid': errors.phone_reference_1}" @blur="validateField('phone_reference_1')" maxlength="20">
+                           <div class="error-message" v-if="errors.phone_reference_1">${ errors.phone_reference_1 }</div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
@@ -223,21 +256,22 @@
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Referencias Finca 2:
                            </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="reference_2">
+                           <input type="text" class="form-control" name="reference_2" v-model="formData.reference_2" maxlength="255">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Contacto: </label></div>
                         <div class="col-6">
-                           <input type="text" class="form-control" name="contact_reference_2">
+                           <input type="text" class="form-control" name="contact_reference_2" v-model="formData.contact_reference_2" maxlength="255">
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="col-1"></div>
                         <div class="col-3 text-end me-1"><label class="form-label fw-semibold">Teléfono: </label></div>
                         <div class="col-6">
-                           <input type="tel" class="form-control" name="phone_reference_2">
+                           <input type="tel" class="form-control" name="phone_reference_2" v-model="formData.phone_reference_2" :class="{'is-invalid': errors.phone_reference_2}" @blur="validateField('phone_reference_2')" maxlength="20">
+                           <div class="error-message" v-if="errors.phone_reference_2">${ errors.phone_reference_2 }</div>
                         </div>
                      </div>
                      <div class="text-center mt-3 bg-kosmo-primary bg-gradient text-white p-2">
@@ -246,23 +280,39 @@
                      <div class="row g-1 mb-2">
                         <div class="mt-2 p-3 d-flex justify-content-start gap-3">
                            <div class="">
-                              <input type="checkbox" class="form-check-input" id="terms">
+                              <input type="checkbox" class="form-check-input" id="terms" v-model="formData.terms" :class="{'is-invalid': errors.terms}">
                            </div>
                            <div class="">
-                              <small class="text-muted">
+                              <small class="text-muted" :class="{'text-danger': errors.terms}">
                                  Autorizo a Kosmo Flowers a verificar todas las referencias que
                                  hemos entregado y que puedan ser requeridas para determinar nuestras capacidades de
                                  crédito
                                  y solicitar información relevante de las agencias de informes de crédito.
                               </small>
+                              <div class="error-message" v-if="errors.terms">${ errors.terms }</div>
                            </div>
                         </div>
                      </div>
                      <div class="row g-1 mb-2">
                         <div class="text-center mt-2">
-                           <button type="submit" class="btn btn-primary btn-lg">
-                              <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-send"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 14l11 -11" /><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" /></svg>
-                              ENVIAR INFORMACIÓN
+                           <div class="alert alert-danger" v-if="formError">
+                              ${ formError }
+                              <div v-if="errorFields.length > 0">
+                                 <strong>Campos con errores:</strong>
+                                 <ul class="mb-0 text-start">
+                                    <li v-for="field in errorFields">${ getFieldLabel(field) }</li>
+                                 </ul>
+                              </div>
+                           </div>
+                           <button type="submit" class="btn btn-primary btn-lg" :disabled="isSubmitting || !formData.terms">
+                              <span v-if="isSubmitting">
+                                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                 Enviando...
+                              </span>
+                              <span v-else>
+                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-send"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 14l11 -11" /><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" /></svg>
+                                 ENVIAR INFORMACIÓN
+                              </span>
                            </button>
                         </div>
                      </div>
@@ -272,6 +322,242 @@
          </div>
       </div>
    </div>
-</body>
 
+   <script>
+      const { createApp, ref } = Vue;
+      
+      createApp({
+         delimiters: ['${', '}'],
+         data() {
+            return {
+               formData: {
+                  tipo_socio: "1", // Por defecto PROVEEDOR
+                  name: "",
+                  city: "",
+                  country: "",
+                  address: "",
+                  area_code: "",
+                  credit_term: "",
+                  contact_manager: "",
+                  contact_sales: "",
+                  contact_payment: "",
+                  email_manager: "",
+                  email_sales: "",
+                  email_payment: "",
+                  skype: "",
+                  website: "",
+                  business_tax_id: "",
+                  businnes_start: "",
+                  consolidated: false,
+                  dispatch_days: "",
+                  cargo_reference: "",
+                  contact: "",
+                  contact_phone: "",
+                  reference_1: "",
+                  contact_reference_1: "",
+                  phone_reference_1: "",
+                  reference_2: "",
+                  contact_reference_2: "",
+                  phone_reference_2: "",
+                  terms: false
+               },
+               errors: {},
+               formError: "",
+               isSubmitting: false,
+               errorFields: [], // Para guardar la lista de campos con error
+               fieldLabels: {
+                  name: "Nombre del Cliente",
+                  city: "Ciudad",
+                  country: "País",
+                  address: "Dirección",
+                  business_tax_id: "RUC/ID fiscal",
+                  contact_manager: "Contacto de Gerencia",
+                  terms: "Términos y condiciones",
+                  email_manager: "Email de Gerencia",
+                  email_sales: "Email de Ventas",
+                  email_payment: "Email de Pagos",
+                  website: "Sitio Web",
+                  contact_phone: "Teléfono de contacto"
+               }
+            }
+         },
+         methods: {
+            // Método para obtener la etiqueta de un campo
+            getFieldLabel(fieldName) {
+               return this.fieldLabels[fieldName] || fieldName;
+            },
+            
+            validateField(field) {
+               // Limpiamos el error previo del campo
+               this.errors[field] = "";
+               
+               // Validaciones específicas para cada campo
+               switch (field) {
+                  case 'name':
+                     if (!this.formData.name) {
+                        this.errors.name = "El nombre es obligatorio";
+                     } else if (this.formData.name.length > 255) {
+                        this.errors.name = "El nombre no puede exceder los 255 caracteres";
+                     }
+                     break;
+                  case 'business_tax_id':
+                     if (!this.formData.business_tax_id) {
+                        this.errors.business_tax_id = "El RUC/ID fiscal es obligatorio";
+                     } else if (this.formData.business_tax_id.length > 15) {
+                        this.errors.business_tax_id = "El RUC/ID fiscal no puede exceder los 15 caracteres";
+                     }
+                     break;
+                  case 'city':
+                     if (!this.formData.city) {
+                        this.errors.city = "La ciudad es obligatoria";
+                     } else if (this.formData.city.length > 50) {
+                        this.errors.city = "La ciudad no puede exceder los 50 caracteres";
+                     }
+                     break;
+                  case 'country':
+                     if (!this.formData.country) {
+                        this.errors.country = "El país es obligatorio";
+                     } else if (this.formData.country.length > 50) {
+                        this.errors.country = "El país no puede exceder los 50 caracteres";
+                     }
+                     break;
+                  case 'address':
+                     if (!this.formData.address) {
+                        this.errors.address = "La dirección es obligatoria";
+                     } else if (this.formData.address.length > 255) {
+                        this.errors.address = "La dirección no puede exceder los 255 caracteres";
+                     }
+                     break;
+                  case 'area_code':
+                     if (this.formData.area_code && this.formData.area_code.length > 10) {
+                        this.errors.area_code = "El código de área no puede exceder los 10 caracteres";
+                     }
+                     break;
+                  case 'contact_manager':
+                     if (!this.formData.contact_manager) {
+                        this.errors.contact_manager = "El contacto de gerencia es obligatorio";
+                     } else if (this.formData.contact_manager.length > 255) {
+                        this.errors.contact_manager = "El contacto no puede exceder los 255 caracteres";
+                     }
+                     break;
+                  case 'email_manager':
+                     if (this.formData.email_manager && !this.isValidEmail(this.formData.email_manager)) {
+                        this.errors.email_manager = "Por favor ingrese un email válido";
+                     }
+                     break;
+                  case 'email_sales':
+                     if (this.formData.email_sales && !this.isValidEmail(this.formData.email_sales)) {
+                        this.errors.email_sales = "Por favor ingrese un email válido";
+                     }
+                     break;
+                  case 'email_payment':
+                     if (this.formData.email_payment && !this.isValidEmail(this.formData.email_payment)) {
+                        this.errors.email_payment = "Por favor ingrese un email válido";
+                     }
+                     break;
+                  case 'website':
+                     if (this.formData.website && !this.isValidUrl(this.formData.website)) {
+                        this.errors.website = "Por favor ingrese una URL válida";
+                     }
+                     break;
+                  case 'contact_phone':
+                     if (this.formData.contact_phone && !this.isValidPhone(this.formData.contact_phone)) {
+                        this.errors.contact_phone = "Por favor ingrese un número de teléfono válido";
+                     }
+                     break;
+                  case 'terms':
+                     if (!this.formData.terms) {
+                        this.errors.terms = "Debe aceptar los términos";
+                     }
+                     break;
+               }
+            },
+            isValidEmail(email) {
+               const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+               return re.test(email);
+            },
+            isValidUrl(url) {
+               try {
+                  new URL(url);
+                  return true;
+               } catch (e) {
+                  return false;
+               }
+            },
+            isValidPhone(phone) {
+               // Acepta números, espacios, guiones, paréntesis y el signo +
+               const re = /^[0-9\s\-\(\)\+]+$/;
+               return re.test(phone);
+            },
+            validateForm() {
+               // Reiniciamos errores
+               this.errors = {};
+               this.formError = "";
+               this.errorFields = [];
+               
+               // Validamos todos los campos requeridos
+               this.validateField('name');
+               this.validateField('business_tax_id');
+               this.validateField('city');
+               this.validateField('country');
+               this.validateField('address');
+               this.validateField('contact_manager');
+               this.validateField('terms');
+               
+               // Validamos los campos opcionales con formato
+               if (this.formData.email_manager) this.validateField('email_manager');
+               if (this.formData.email_sales) this.validateField('email_sales');
+               if (this.formData.email_payment) this.validateField('email_payment');
+               if (this.formData.website) this.validateField('website');
+               if (this.formData.contact_phone) this.validateField('contact_phone');
+               
+               // Recopilamos los campos con errores
+               for (const field in this.errors) {
+                  if (this.errors[field]) {
+                     this.errorFields.push(field);
+                  }
+               }
+               
+               // Añadimos diagnóstico
+               console.log("Campos con errores:", this.errorFields);
+               console.log("Detalles de errores:", this.errors);
+               console.log("Datos del formulario:", this.formData);
+               
+               // Verificamos si hay errores
+               if (this.errorFields.length > 0) {
+                  this.formError = "Por favor corrija los errores antes de enviar el formulario.";
+                  window.scrollTo(0, 0);
+                  return;
+               }
+               
+               // Verificación adicional para términos
+               if (!this.formData.terms) {
+                  this.errors.terms = "Debe aceptar los términos";
+                  this.errorFields.push('terms');
+                  this.formError = "Debe aceptar los términos y condiciones para continuar.";
+                  window.scrollTo(0, 0);
+                  return;
+               }
+               
+               // Si todo está validado, enviamos el formulario
+               this.isSubmitting = true;
+               
+               // Pequeña demora para asegurar que el estado isSubmitting se refleje visualmente
+               setTimeout(() => {
+                  document.getElementById('registerForm').submit();
+               }, 100);
+            }
+         },
+         mounted() {
+            // Para darle un valor por defecto al tipo de socio
+            if ("{{ type_partner }}" === "CLIENTE") {
+               this.formData.tipo_socio = "2";
+            }
+            
+            // Agregar mensaje de ayuda para depuración
+            console.log("Formulario inicializado. Utilice la consola del navegador para ver detalles de validación.");
+         }
+      }).mount('#app');
+   </script>
+</body>
 </html>
