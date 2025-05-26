@@ -1,140 +1,112 @@
 {% extends 'base/base.html' %}
 {% block content %}
 <div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
-    <div class="d-flex justify-content-end gap-4">
-        <div class="fw-bold">
-            <span>Total Pagos:</span>
-            <span class="text-primary"> {{ stats.total_payments }} </span>
-        </div>
-        <div class="fw-bold">
-            <span>Pagos del Mes:</span>
-            <span class="text-primary"> {{ stats.payments_this_month }} </span>
-        </div>
-        <div class="fw-bold">
-            <span>Monto Total del Mes:</span>
-            <span class="text-success">{{ stats.amount_this_month }}</span>
-        </div>
-        <div class="fw-bold">
-            <span>Monto Total Histórico:</span>
-            <span class="text-orange-600">{{ stats.total_amount }}</span>
-        </div>
+    <div class="d-flex justify-content-between">
         {% if action %}
         <span class="bg-peisol-secondary bg-gradient p-2 rounded">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                 <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                 <path d="M9 12l2 2l4 -4" />
-              </svg>
+            </svg>
             {{ message }}
         </span>
         {% endif %}
+        <a href=" url 'payment_create' %}" class="btn btn-sm btn-default">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+            </svg>
+            Nuevo Pago
+        </a>
+        <div class="d-flex justify-content-end gap-4">
+            <div class="fw-bold">
+                <span>Vencidos:</span>
+                <span class="text-danger"> $ {{ vencidos|floatformat:2 }} </span>
+            </div>
+            <div class="fw-bold">
+                <span>FC Pagadas:</span>
+                <span class="text-success">$ {{ fc_pagadas|floatformat:2 }}</span>
+            </div>
+            <div class="fw-bold">
+                <span>FC Por Pagar:</span>
+                <span class="text-orange-600"> {{ fc_por_pagar }} Facturas</span>
+            </div>
+            <div class="fw-bold">
+                <span>Pagos Mes:</span>
+                <span class="text-success"> $ {{ pagos_mes|floatformat:2 }} </span>
+            </div>        
+        </div>
     </div>
 </div>
 <div class="container-fluid mx-auto">
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header bg-light">
-                    <h5 class="card-title mb-0">Resumen de métodos de pago</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-2 text-center">
-                            <div class="fw-bold">Transferencias</div>
-                            <div class="fs-4 text-primary">{{ stats.payments_by_transfer }}</div>
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <div class="fw-bold">Cheques</div>
-                            <div class="fs-4 text-primary">{{ stats.payments_by_check }}</div>
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <div class="fw-bold">Efectivo</div>
-                            <div class="fs-4 text-primary">{{ stats.payments_by_cash }}</div>
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <div class="fw-bold">Tarjeta de Crédito</div>
-                            <div class="fs-4 text-primary">{{ stats.payments_by_credit_card }}</div>
-                        </div>
-                        <div class="col-md-2 text-center">
-                            <div class="fw-bold">Nota de Crédito</div>
-                            <div class="fs-4 text-primary">{{ stats.payments_by_credit_note }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <table class="table table-bordered table-striped" id="myTable">
         <thead>
-        <tr>
-            <th class="bg-secondary bg-opacity-25 text-center">#</th>
-            <th class="bg-secondary bg-opacity-25 text-center">ID Pago</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Fecha</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Monto</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Método</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Banco</th>
-            <th class="bg-secondary bg-opacity-25 text-center"># Operación</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Facturas</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Acciones</th>
-        </tr>
+            <tr>
+                <th class="bg-secondary bg-opacity-25">#</th>
+                <th class="bg-secondary bg-opacity-25">Número</th>
+                <th class="bg-secondary bg-opacity-25">Fecha</th>
+                <th class="bg-secondary bg-opacity-25">Vencimiento</th>                
+                <th class="bg-secondary bg-opacity-25">Monto</th>
+                <th class="bg-secondary bg-opacity-25">Método</th>
+                <th class="bg-secondary bg-opacity-25">Estado</th>
+                <th class="bg-secondary bg-opacity-25">Facturas</th>
+            </tr>
         </thead>
         <tbody>
-            {% for payment in payments %}
+            {% for item in object_list %}
             <tr>
-                <td class="p-0 text-center">{{ forloop.counter }}</td>
-                <td class="p-0 text-end">{{ payment.id }}</td>
-                <td class="p-0 text-end">{{ payment.date|date:"d/m/Y" }}</td>
-                <td class="p-0 text-end">{{ payment.amount }}</td>
-                <td class="p-0 text-center">
-                    {% if payment.method == 'TRANSF' %}
-                        <span class="badge bg-primary">Transferencia</span>
-                    {% elif payment.method == 'CHEQUE' %}
-                        <span class="badge bg-success">Cheque</span>
-                    {% elif payment.method == 'EFECTIVO' %}
-                        <span class="badge bg-warning">Efectivo</span>
-                    {% elif payment.method == 'TC' %}
-                        <span class="badge bg-info">Tarjeta de Crédito</span>
-                    {% elif payment.method == 'NC' %}
-                        <span class="badge bg-secondary">Nota de Crédito</span>
-                    {% else %}
-                        <span class="badge bg-dark">Otro</span>
-                    {% endif %}
-                </td>
-                <td class="p-0">{{ payment.bank|default:"-" }}</td>
-                <td class="p-0">{{ payment.nro_operation|default:"-" }}</td>
-                <td class="p-0 text-center">
-                    {% if payment.invoice_count > 0 %}
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ payment.id }}" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ payment.invoice_count }} Facturas
-                            </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ payment.id }}">
-                                {% for invoice in payment.related_invoices %}
-                                <li><a class="dropdown-item" href="{% url 'report_invoice' invoice.id %}">{{ invoice.num_invoice }}</a></li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    {% else %}
-                        <span>Sin facturas</span>
-                    {% endif %}
-                </td>
-                <td class="p-0 text-center">
-                    <a href="#" class="text-primary" title="Ver detalles">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
+                <td class="p-0 d-flex justify-content-start gap-3">
+                    <a href="{% url 'payment_detail' item.id %}" class="text-primary d-flex justify-content-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crosshair" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                            <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                            <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+                            <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+                            <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+                            <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
+                            <path d="M9 12l6 0" />
+                            <path d="M12 9l0 6" />
                         </svg>
-                    </a>
-                    <a href="#" class="ms-2 text-primary" title="Imprimir comprobante">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" />
-                            <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" />
-                            <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
-                        </svg>
+                        {{ item.id }}
                     </a>
                 </td>
+                <td class="p-0">{{ item.payment_number|default:"-" }}</td>
+                <td class="p-0">{{ item.date|date:"d/m/Y" }}</td>
+                <td class="p-0">
+                    {% if item.due_date %}
+                        <span class="{% if item.is_overdue %}text-danger fw-bold{% endif %}">
+                            {{ item.due_date|date:"d/m/Y" }}
+                        </span>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td class="p-0 text-end text-danger">$ {{ item.amount|floatformat:2 }}</td>
+                <td class="p-0">{{ item.get_method_display }}</td>
+                <td class="p-0">
+                    <span class="badge 
+                        {% if item.status == 'CONFIRMADO' %}bg-success
+                        {% elif item.status == 'PENDIENTE' %}bg-warning
+                        {% elif item.status == 'RECHAZADO' %}bg-danger
+                        {% elif item.status == 'ANULADO' %}bg-secondary
+                        {% endif %}">
+                        {{ item.get_status_display }}
+                    </span>
+                </td>
+                <td class="p-0">
+                    <small>
+                        {% for invoice in item.invoices.all %}
+                            {{ invoice.invoice_number }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            Sin facturas
+                        {% endfor %}
+                    </small>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center">No hay pagos registrados</td>
             </tr>
             {% endfor %}
         </tbody>

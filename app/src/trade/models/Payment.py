@@ -1,7 +1,6 @@
 from common import BaseModel
 from django.db import models
 from django.core.exceptions import ValidationError
-from decimal import Decimal
 from trade.models import Invoice
 
 

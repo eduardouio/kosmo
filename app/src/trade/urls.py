@@ -15,6 +15,8 @@ from trade.views import (
     InvoiceFormView,
     AprovePurchaseOrderView,
     CreateInvoiceByOrder,
+    CollectionsList,
+    PaymentsList,
 )
 
 urlpatterns = [
@@ -33,4 +35,6 @@ urlpatterns = [
     path('trade/order/<int:pk>/', OrderDetailView.as_view(), name='order_detail_presentation'),
     path('trade/order/aprove/<int:pk>/', AprovePurchaseOrderView.as_view(), name='aprove_purchase_order'),
     path('trade/order/generate-invoice/<int:pk>/', CreateInvoiceByOrder.as_view(), name='generate_invoice_by_order'),
+    path('cobros/', CollectionsList.as_view(), name='collections-list'),
+    path('pagos/', PaymentsList.as_view(), name="payments-list")
 ]

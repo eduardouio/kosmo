@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lista de Pagos{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Lista de Pagos</h3>
+                    <div class="card-tools">
+                        <a href="{% url 'payment_create' %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus"></i> Nuevo Pago
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table id="paymentsTable" class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Fecha</th>
+                                <th>Vencimiento</th>
+                                <th>Monto</th>
+                                <th>Método</th>
+                                <th>Estado</th>
+                                <th>Banco</th>
+                                <th>Facturas</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td>{{ payment.payment_number|default:payment.id }}</td>
+                                <td>{{ payment.date|date:"d/m/Y" }}</td>
+                                <td>
+                                    {% if payment.due_date %}
+                                        <span class="{% if payment.is_overdue %}text-danger{% endif %}">
+                                            {{ payment.due_date|date:"d/m/Y" }}
+                                        </span>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td class="text-right">${{ payment.amount|floatformat:2 }}</td>
+                                <td>{{ payment.get_method_display }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if payment.status == 'CONFIRMADO' %}badge-success
+                                        {% elif payment.status == 'PENDIENTE' %}badge-warning
+                                        {% elif payment.status == 'RECHAZADO' %}badge-danger
+                                        {% elif payment.status == 'ANULADO' %}badge-secondary
+                                        {% endif %}">
+                                        {{ payment.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ payment.bank|default:"-" }}</td>
+                                <td>
+                                    <small>
+                                        {% for invoice in payment.invoices.all %}
+                                            {{ invoice.invoice_number }}{% if not forloop.last %}, {% endif %}
+                                        {% empty %}
+                                            Sin facturas
+                                        {% endfor %}
+                                    </small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'payment_detail' payment.pk %}" class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'payment_update' payment.pk %}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'payment_delete' payment.pk %}" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center">No hay pagos registrados</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#paymentsTable').DataTable({
+        "responsive": true,
+        "lengthChange": false,
+        "autoWidth": false,
+        "order": [[ 1, "desc" ]],
+        "language": {
+            "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+        }
+    });
+});
+</script>
+{% endblock %}
