@@ -142,6 +142,24 @@
                               <span class="text-muted">Nombre:</span>
                               <span class="ps-2">{{ partner.name }}{% if partner.short_name %} / <span class="fw-bold"> {{ partner.short_name }} </span>{% endif %}</span>
                            </section>
+                           <section>
+                              <span class="text-muted">Estado:</span>
+                              <span class="ps-2">
+                                 {% if partner.status == 'APROBADO' %}
+                                    <span class="badge bg-success">{{ partner.status }}</span>
+                                 {% elif partner.status == 'PENDIENTE' %}
+                                    <span class="badge bg-warning">{{ partner.status }}</span>
+                                 {% else %}
+                                    <span class="badge bg-danger">{{ partner.status }}</span>
+                                 {% endif %}
+                              </span>
+                           </section>
+                           {% if partner.date_aproved %}
+                           <section>
+                              <span class="text-muted">Fecha de Aprobación:</span>
+                              <span class="ps-2">{{ partner.date_aproved|date:"d/m/Y" }}</span>
+                           </section>
+                           {% endif %}
                            {% if partner.type_partner == 'CLIENTE' %}
                            <section>
                               <span class="text-muted">Vendedor:</span>
@@ -187,10 +205,6 @@
                               <span class="ps-2">{{ partner.consolidate |yesno:'Si,No' }}</span>
                            </section>
                            {% if partner.type_partner == 'PROVEEDOR' %}
-                           <section>
-                              <span class="text-muted">Margen:</span>
-                              <span class="ps-2">{{ partner.default_profit_margin }}</span>
-                           </section>
                            {% endif %}
                            <section>
                               <span class="text-muted">Referencia 1:</span>
@@ -295,20 +309,6 @@
                               {% endif %}
                            </section>
                            {% if partner.type_partner == 'PROVEEDOR' %}
-                           <section>
-                              <span class="text-muted">Margen Incluido en Costo:</span>
-                              <span class="ps-2">
-                                    {% if  partner.is_profit_margin_included %}
-                                    <span class="badge border bg-warning" title="El margen esta incluido en el costo de compra">
-                                       SI
-                                    </span>
-                                    {% else %}
-                                    <span class="badge border bg-secondary" title="El margen no esta incluido en el costo de compra">
-                                    NO
-                                    </span>
-                                    {% endif %}
-                              </span>
-                           </section>
                            {% endif %}
                            <section>
                               <span class="text-muted">Contacto Ref1:</span>
@@ -496,7 +496,7 @@
                               <td class="p-0">[[ item.name ]]</td>
                               <td class="text-start p-0">
                                  <span v-if="item.selected" @click="changeItemStatus(item)" class="text-success">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square-check"><path stroke="none" d="M0 0h24V0H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M9 12l2 2l4 -4" /></svg>
+                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-square-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" /><path d="M9 12l2 2l4 -4" /></svg>
                                     SI
                                  </span>
                                  <span v-else @click="changeItemStatus(item)" class="text-primary">
@@ -539,7 +539,7 @@
    </div>
 </div>
 {% endblock %}
-{% if partner.type_partner == 'CLIENTE' %}
+
 {% block script %}
 <script>
     function openPopup(url) {
@@ -565,5 +565,5 @@
 {% block script_app %}
 <script src="/static/js/app/partner-app.js" ></script>
 {% endblock %}
-{% endif %}
+{% endif %
 
