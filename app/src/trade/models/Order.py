@@ -230,14 +230,24 @@ class Order(BaseModel):
     def get_by_parent_order(cls, sale_order):
         sup_orders = cls.objects.filter(
             parent_order=sale_order,
+            type_document='ORD_COMPRA',
             is_active=True
         )
-        if len(sup_orders):
+        if sup_orders.exists():
             return sup_orders
 
         loggin_event(
             f"La orden {sale_order.pk} no tiene ordenes de proveedor", True)
         return None
+
+    @classmethod
+    def get_purchase_orders_by_sale_order(cls, sale_order):
+        """Obtener todas las órdenes de compra relacionadas con una orden de venta"""
+        return cls.objects.filter(
+            parent_order=sale_order,
+            type_document='ORD_COMPRA',
+            is_active=True
+        )
 
     @property
     def total_purchase_price(self):
@@ -281,7 +291,10 @@ class Order(BaseModel):
             total_margin += order_item.line_margin
             total_order += order_item.line_total
             total_stem_flower += order_item.tot_stem_flower
-            total_bunches += order_item.total_bunches
+            
+            # Calcular total_bunches desde los box items
+            for box_item in OrderBoxItems.get_box_items(order_item):
+                total_bunches += box_item.total_bunches * order_item.quantity
 
             if order_item.box_model == 'QB':
                 qb_total += (order_item.quantity)
@@ -469,6 +482,7 @@ class OrderItems(BaseModel):
         order_item.line_price = total_price * order_item.quantity
         order_item.line_margin = total_margin * order_item.quantity
         order_item.line_total = order_item.line_price + order_item.line_margin
+        order_item.total_bunches = total_bunches * order_item.quantity
         order_item.save()
 
 # -----------------------------------------------------------------------------
@@ -570,16 +584,17 @@ class OrderBoxItems(BaseModel):
         line_t_stem_flower = 0
         line_cost_price = 0
         line_margin = 0
-        for box in cls.get_box_items(order_item):
+        total_bunches = 0
+        
+        for box in OrderBoxItems.get_box_items(order_item):
             line_t_stem_flower += box.qty_stem_flower
             line_cost_price += box.stem_cost_price * box.qty_stem_flower
             line_margin += box.profit_margin * box.qty_stem_flower
+            total_bunches += box.total_bunches
 
         order_item.tot_stem_flower = line_t_stem_flower * order_item.quantity
         order_item.line_price = line_cost_price * order_item.quantity
         order_item.line_margin = line_margin * order_item.quantity
-        order_item.line_total = (
-            (order_item.line_price * order_item.quantity)
-            + (order_item.line_margin * order_item.quantity)
-        )
+        order_item.line_total = order_item.line_price + order_item.line_margin
+        order_item.total_bunches = total_bunches * order_item.quantity
         order_item.save()

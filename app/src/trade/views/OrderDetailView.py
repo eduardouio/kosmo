@@ -208,6 +208,8 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                     "fb_total": float(sup_order_instance.fb_total) if sup_order_instance.fb_total else 0,
                     "total_stem_flower": sup_order_instance.total_stem_flower,
                     "total_bunches": sup_order_instance.total_bunches,
+                    "is_invoiced": sup_order_instance.is_invoiced,
+                    "id_invoice": sup_order_instance.id_invoice,
                     "partner": sup_order_partner_data,
                 }
 
@@ -281,11 +283,16 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                 message = 'La orden ha sido creada con éxito.'
             elif context['action'] == 'updated':
                 message = 'La orden ha sido actualizada con éxito.'
+            elif context['action'] == 'confirmed':
+                message = 'La orden ha sido confirmada con éxito.'
             elif context['action'] == 'delete':
                 message = 'Esta acción es irreversible. ¿Desea continuar?.'
             elif context['action'] == 'deleted_related':
                 message = 'El registro ha sido eliminado exitosamente.'
 
             context['message'] = message
+
+        # Agregar información sobre si la orden puede ser confirmada
+        context['can_confirm'] = order.status in ['PENDIENTE', 'MODIFICADO'] and not order.is_invoiced
 
         return context

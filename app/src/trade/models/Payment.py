@@ -26,12 +26,6 @@ STATUS_CHOICES = (
     ('ANULADO', 'ANULADO')
 )
 
-CURRENCY_CHOICES = (
-    ('USD', 'Dólares'),
-    ('EUR', 'Euros'),
-    ('COP', 'Pesos Colombianos'),
-)
-
 
 class Payment(BaseModel):
     id = models.AutoField(
@@ -140,21 +134,24 @@ class Payment(BaseModel):
     def clean(self):
         """Validaciones personalizadas"""
         super().clean()
-        
+
         # Validar que el monto sea positivo
         if self.amount <= 0:
             raise ValidationError('El monto debe ser mayor a cero')
-        
+
         # Validar campos requeridos según el método de pago
         if self.method in ['TRANSF', 'TC', 'TD']:
             if not self.bank:
-                raise ValidationError('El banco es requerido para este método de pago')
+                raise ValidationError(
+                    'El banco es requerido para este método de pago')
             if not self.nro_operation:
-                raise ValidationError('El número de operación es requerido para este método de pago')
-        
+                raise ValidationError(
+                    'El número de operación es requerido para este método de pago')
+
         # Validar que la fecha de vencimiento sea posterior a la fecha de pago
         if self.due_date and self.due_date < self.date:
-            raise ValidationError('La fecha de vencimiento no puede ser anterior a la fecha de pago')
+            raise ValidationError(
+                'La fecha de vencimiento no puede ser anterior a la fecha de pago')
 
     @classmethod
     def get_by_status(cls, status):
@@ -195,16 +192,16 @@ class Payment(BaseModel):
         last_payment = cls.objects.filter(
             payment_number__isnull=False
         ).order_by('-id').first()
-        
+
         if last_payment and last_payment.payment_number:
             try:
                 last_number = int(last_payment.payment_number.split('-')[-1])
                 return f"PAY-{last_number + 1:06d}"
             except (ValueError, IndexError):
                 pass
-        
+
         return "PAY-000001"
-    
+
     @classmethod
     def get_net_collection_number(cls):
         """Genera el siguiente número de recaudación neta"""
@@ -214,7 +211,8 @@ class Payment(BaseModel):
 
         if last_collection and last_collection.net_collection_number:
             try:
-                last_number = int(last_collection.net_collection_number.split('-')[-1])
+                last_number = int(
+                    last_collection.net_collection_number.split('-')[-1])
                 return f"COL-{last_number + 1:06d}"
             except (ValueError, IndexError):
                 pass
