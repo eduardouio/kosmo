@@ -218,7 +218,7 @@
       {% if action %}
       <div class="row mt-4">
         <div class="col-12">
-          <div class="alert {% if action == 'delete' %}alert-danger{% else %}alert-success{% endif %} text-center">
+          <div class="alert {% if action == 'delete' %}alert-danger{% elif action == 'deleted_related' %}alert-warning{% else %}alert-success{% endif %} text-center">
             {{ message }}
           </div>
         </div>
@@ -233,14 +233,11 @@
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pencil"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
                <span class="btn-text">Modificar</span>
             </a>
-            <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" 'mark_paid_invoice' invoice.id %}" data-confirm-text="Confirmar Pago">
-               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-cash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 9m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /><path d="M14 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 9v-2a2 2 0 0 0 -2 -2h-10a2 2 0 0 0 -2 2v6a2 2 0 0 0 2 2h2" /></svg>
-               <span class="btn-text">Ingresar Cobro</span>
-            </a>
-
-            <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" 'cancel_invoice' invoice.id %}" data-confirm-text="Confirmar Anulación">
+            <a href="#" class="btn btn-default btn-sm action-btn delete-invoice-btn" 
+               data-delete-url="{% url 'delete_invoice' invoice.id %}" 
+               data-confirm-text="Esta acción es irreversible, ¿está seguro de continuar?">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ban"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M5.7 5.7l12.6 12.6" /></svg>
-               <span class="btn-text">Elimar Factura</span>
+               <span class="btn-text">Eliminar Factura</span>
             </a>
           {% else %}
           <a href="#" class="btn btn-default btn-sm action-btn" data-action-url=" 'cancel_invoice' invoice.id %}" data-confirm-text="Confirmar Anulación">
@@ -249,7 +246,7 @@
             </a>
           {% endif %}
             <a href="{% url 'report_invoice' invoice.id %}" class="btn btn-default btn-sm action-btn print-btn">
-               <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-box"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
+               <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-box"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
                <span class="btn-text">Ficha Pedido</span>
             </a>
             <a href="{% url 'report_invoice' invoice.id %}" class="btn btn-default btn-sm action-btn print-btn">
@@ -261,4 +258,29 @@
     </div>
   </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteBtn = document.querySelector('.delete-invoice-btn');
+    let confirmClicked = false;
+
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (!confirmClicked) {
+                const confirmText = this.getAttribute('data-confirm-text');
+                if (confirm(confirmText)) {
+                    confirmClicked = true;
+                    this.querySelector('.btn-text').textContent = 'Confirmar Eliminación';
+                    this.classList.remove('btn-default');
+                    this.classList.add('btn-danger');
+                }
+            } else {
+                const deleteUrl = this.getAttribute('data-delete-url');
+                window.location.href = deleteUrl;
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
