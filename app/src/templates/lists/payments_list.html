@@ -41,6 +41,7 @@
     </div>
 </div>
 <div class="mx-auto" style="width: 90%;">
+    {% if object_list %}
     <table class="table table-bordered table-striped" id="myTable">
         <thead>
             <tr>
@@ -111,5 +112,10 @@
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <div class="alert alert-warning text-center">
+        No hay pagos registrados
+    </div>
+    {% endif %}
 </div>
 {% endblock %}
