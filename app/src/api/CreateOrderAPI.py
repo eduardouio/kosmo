@@ -9,6 +9,35 @@ from common.AppLoger import loggin_event
 
 
 class CreateOrderAPI(View):
+    def calculate_bunches_and_stems(self, qty_stem_flower):
+        """
+        Calcula total_bunches y stems_bunch basándose en qty_stem_flower
+        Reglas:
+        - Divide qty_stem_flower entre 25 para obtener bunches base
+        - Si el resultado es entero, usa 25 stems_bunch
+        - Si no es entero y el residuo >= 20, crea un bunch adicional
+        - Si no es entero y el residuo < 20, ajusta stems_bunch para que cuadre
+        """
+        if qty_stem_flower <= 0:
+            return 1, 25
+
+        bunches_base = qty_stem_flower // 25
+        residuo = qty_stem_flower % 25
+
+        if residuo == 0:
+
+            return bunches_base, 25
+        elif residuo >= 20:
+
+            return bunches_base + 1, qty_stem_flower // (bunches_base + 1)
+        else:
+
+            if bunches_base > 0:
+                return bunches_base, qty_stem_flower // bunches_base
+            else:
+
+                return 1, qty_stem_flower
+
     def post(self, request):
         loggin_event('Creando orden de cliente')
         order_data = json.loads(request.body)
@@ -28,8 +57,8 @@ class CreateOrderAPI(View):
             stock_day=stock_day,
             type_document='ORD_VENTA',
             status='PENDIENTE',
-            serie='100',  # Serie correcta para orden de venta
-            consecutive=Order.get_next_sale_consecutive()  # Consecutivo correcto
+            serie='100',
+            consecutive=Order.get_next_sale_consecutive()
         )
 
         for new_order_item in order_data['order_detail']:
@@ -42,15 +71,20 @@ class CreateOrderAPI(View):
 
             for box_item in new_order_item['box_items']:
                 product = Product.get_by_id(box_item['product_id'])
+
+                qty_stem_flower = box_item['qty_stem_flower']
+                total_bunches, stems_bunch = self.calculate_bunches_and_stems(
+                    qty_stem_flower)
+
                 OrderBoxItems.objects.create(
                     order_item=order_item,
                     product=product,
                     length=box_item['length'],
-                    qty_stem_flower=box_item['qty_stem_flower'],
+                    qty_stem_flower=qty_stem_flower,
                     stem_cost_price=box_item['stem_cost_price'],
                     profit_margin=float(box_item['margin']),
-                    total_bunches=box_item['total_bunches'],
-                    stems_bunch=box_item['stems_bunch'],
+                    total_bunches=total_bunches,
+                    stems_bunch=stems_bunch,
                 )
 
         Order.rebuild_totals(order)
@@ -78,8 +112,8 @@ class CreateOrderAPI(View):
         result = {
             'order': {
                 'id': order.id,
-                'serie': order.serie,  # Incluir serie en la respuesta
-                'consecutive': order.consecutive,  # Incluir consecutivo en la respuesta
+                'serie': order.serie,
+                'consecutive': order.consecutive,
                 'stock_day': order.stock_day.id,
                 'date': order.date.isoformat(),
                 'status': order.status,
