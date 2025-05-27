@@ -200,8 +200,14 @@ class Invoice(BaseModel):
     @property
     def is_dued(self):
         if self.due_date:
-            return self.due_date < datetime.now()
+            return self.due_date.date() < datetime.now().date()
         return False
+
+    @property
+    def days_overdue(self):
+        if self.due_date and self.is_dued:
+            return (datetime.now().date() - self.due_date.date()).days
+        return 0
 
     @classmethod
     def get_next_invoice_number(cls):
@@ -254,6 +260,7 @@ class Invoice(BaseModel):
         qb_total = 0
         hb_total = 0
         total_stem_flower = 0
+        total_bunches = 0  # Agregar total_bunches
 
         for invoice_item in InvoiceItems.get_invoice_items(invoice):
             InvoiceItems.rebuild_invoice_item(invoice_item)
@@ -262,6 +269,7 @@ class Invoice(BaseModel):
             total_price += invoice_item.line_price * invoice_item.quantity
             total_margin += invoice_item.line_margin * invoice_item.quantity
             total_stem_flower += invoice_item.tot_stem_flower
+            total_bunches += invoice_item.total_bunches  # Agregar total_bunches
 
             if invoice_item.box_model == 'QB':
                 qb_total += invoice_item.quantity
@@ -270,11 +278,11 @@ class Invoice(BaseModel):
 
         invoice.qb_total = qb_total
         invoice.hb_total = hb_total
-        invoice_item.line_price
         invoice.total_margin = total_margin
         invoice.tot_stem_flower = total_stem_flower
         invoice.fb_total = ((qb_total / 2) + hb_total) / 2
         invoice.total_price = total_price
+        invoice.total_bunches = total_bunches  # Agregar total_bunches
 
         invoice.save()
 
@@ -374,8 +382,8 @@ class InvoiceItems(BaseModel):
             (line_price * invoice_item.quantity)
             + (line_margin * invoice_item.quantity)
         )
-        invoice_item.tot_stem_flower = tot_stem_flower
-        invoice_item.total_bunches = total_bunches
+        invoice_item.tot_stem_flower = tot_stem_flower * invoice_item.quantity  # Multiplicar por quantity
+        invoice_item.total_bunches = total_bunches * invoice_item.quantity  # Multiplicar por quantity
         invoice_item.save()
 
     def __str__(self):

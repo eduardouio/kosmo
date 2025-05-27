@@ -44,40 +44,24 @@ class InvoiceFormView(View):
         return render(request, self.template_name, context)
 
     def post(self, request, pk):
-        invoice = get_object_or_404(Invoice, id=pk)
+        invoice = Invoice.get_by_id(pk)
+        # Actualizar campos de la cabecera
+        invoice.date = request.POST.get('date')
+        due_date = request.POST.get('due_date')
+        invoice.due_date = due_date if due_date else None
+        invoice.marking = request.POST.get('marking')
+        invoice.awb = request.POST.get('awb')
+        invoice.hawb = request.POST.get('hawb')
+        invoice.dae_export = request.POST.get('dae_export')
+        invoice.cargo_agency = request.POST.get('cargo_agency')
+        delivery_date = request.POST.get('delivery_date')
+        invoice.delivery_date = delivery_date if delivery_date else None
+        weight = request.POST.get('weight')
+        invoice.weight = weight if weight else None
+        invoice.save()
 
-        try:
-            # Actualizar campos de la cabecera
-            invoice.date = request.POST.get('date')
+        loggin_event(
+            f"Factura {invoice.id} actualizada por {request.user.username}")
+        messages.success(request, "Factura actualizada con éxito")
 
-            due_date = request.POST.get('due_date')
-            invoice.due_date = due_date if due_date else None
-
-            invoice.awb = request.POST.get('awb')
-            invoice.hawb = request.POST.get('hawb')
-            invoice.dae_export = request.POST.get('dae_export')
-            invoice.cargo_agency = request.POST.get('cargo_agency')
-
-            delivery_date = request.POST.get('delivery_date')
-            invoice.delivery_date = delivery_date if delivery_date else None
-
-            weight = request.POST.get('weight')
-            invoice.weight = weight if weight else None
-
-            invoice.status = request.POST.get('status')
-
-            invoice.save()
-
-            loggin_event(
-                f"Factura {invoice.id} actualizada por {request.user.username}")
-            messages.success(request, "Factura actualizada con éxito")
-
-            return redirect('invoice_detail', invoice_id=invoice.id)
-
-        except Exception as e:
-            loggin_event(f"Error al actualizar factura {invoice.id}: {str(e)}")
-            messages.error(
-                request, f"Error al actualizar la factura: {str(e)}")
-
-            # Volver a cargar el formulario con los datos actuales
-            return self.get(request, invoice_id)
+        return redirect('invoice_detail_presentation', pk=invoice.id)
