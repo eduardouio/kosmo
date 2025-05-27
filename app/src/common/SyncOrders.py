@@ -36,7 +36,6 @@ class SyncOrders:
                 f"La orden de venta {cus_order.id} no se puede modificar"
             )
 
-        
         for sup_item in sup_order_items:
             new_order_item = OrderItems.objects.create(
                 order=cus_order,
@@ -45,7 +44,7 @@ class SyncOrders:
                 line_margin=sup_item.line_margin,
                 line_total=sup_item.line_total,
                 tot_stem_flower=sup_item.tot_stem_flower,
-                total_bunches=sup_item.total_bunches,  
+                total_bunches=sup_item.total_bunches,
                 box_model=sup_item.box_model,
                 quantity=sup_item.quantity
             )
@@ -58,8 +57,8 @@ class SyncOrders:
                     qty_stem_flower=box.qty_stem_flower,
                     stem_cost_price=box.stem_cost_price,
                     profit_margin=box.profit_margin,
-                    total_bunches=box.total_bunches,  
-                    stems_bunch=box.stems_bunch       
+                    total_bunches=box.total_bunches,
+                    stems_bunch=box.stems_bunch
                 )
 
         cus_order.status = 'MODIFICADO'
@@ -76,7 +75,6 @@ class SyncOrders:
         order_customer_by_supplier = []
         all_suppliers = []
 
-        
         for order_item in customer_order_items:
             stock_detail = StockDetail.get_by_id(
                 order_item.id_stock_detail
@@ -88,11 +86,9 @@ class SyncOrders:
                 'box_items': OrderBoxItems.get_by_order_item(order_item)
             })
 
-            
             if stock_detail.partner not in all_suppliers:
                 all_suppliers.append(stock_detail.partner)
 
-        
         for supplier in all_suppliers:
             new_item = {
                 'supplier': supplier,
@@ -123,7 +119,6 @@ class SyncOrders:
             all_suppliers):
         loggin_event("Comparando ordenes de compra existentes con nuevas")
 
-        
         orders_to_remove = []
         for sup_order in old_complete_supplier_orders:
             if sup_order['supplier'] not in all_suppliers:
@@ -191,7 +186,7 @@ class SyncOrders:
                 box_model=new_item.box_model,
                 quantity=new_item.quantity,
                 tot_stem_flower=new_item.tot_stem_flower,
-                total_bunches=new_item.total_bunches,  
+                total_bunches=new_item.total_bunches,
                 line_margin=new_item.line_margin,
                 line_price=new_item.line_price,
                 line_total=new_item.line_total
@@ -207,8 +202,8 @@ class SyncOrders:
                 qty_stem_flower=box_item.qty_stem_flower,
                 stem_cost_price=box_item.stem_cost_price,
                 profit_margin=box_item.profit_margin,
-                total_bunches=box_item.total_bunches,  
-                stems_bunch=box_item.stems_bunch       
+                total_bunches=box_item.total_bunches,
+                stems_bunch=box_item.stems_bunch
             )
 
     def _update_supplier_order(self, new_sup_order, old_sup_order):
@@ -225,8 +220,8 @@ class SyncOrders:
                 id_stock_detail=new_order_item.id_stock_detail,
                 box_model=new_order_item.box_model,
                 quantity=new_order_item.quantity,
-                tot_stem_flower=new_order_item.tot_stem_flower,  
-                total_bunches=new_order_item.total_bunches       
+                tot_stem_flower=new_order_item.tot_stem_flower,
+                total_bunches=new_order_item.total_bunches
             )
             self._create_order_box_items(new_order_item, my_order_item)
         Order.rebuild_totals(current_order)
@@ -260,10 +255,10 @@ class SyncOrders:
                 type_document='ORD_COMPRA',
                 status='PENDIENTE',
                 parent_order=customer_order,
-                serie='200',  
-                consecutive=Order.get_next_purchase_consecutive(),  
-                delivery_date=customer_order.delivery_date,  
-                num_order=customer_order.num_order  
+                serie='200',
+                consecutive=Order.get_next_purchase_consecutive(),
+                delivery_date=customer_order.delivery_date,
+                num_order=customer_order.num_order
             )
             for ord in supplier['order_items']:
                 ord_item = OrderItems.objects.create(
@@ -271,12 +266,13 @@ class SyncOrders:
                     id_stock_detail=ord.id_stock_detail,
                     box_model=ord.box_model,
                     quantity=ord.quantity,
-                    tot_stem_flower=ord.tot_stem_flower,  
-                    total_bunches=ord.total_bunches       
+                    tot_stem_flower=ord.tot_stem_flower,
+                    total_bunches=ord.total_bunches
                 )
                 self._create_order_box_items(ord, ord_item)
             Order.rebuild_totals(sup_order)
-            loggin_event(f"Orden de compra {sup_order.id} creada con éxito - Serie: {sup_order.serie}, Consecutivo: {sup_order.consecutive}")
+            loggin_event(
+                f"Orden de compra {sup_order.id} creada con éxito - Serie: {sup_order.serie}, Consecutivo: {sup_order.consecutive}")
 
     def cancell_supplier_orders(self, order):
         loggin_event(f"Cancelando orden de compra {order.id}")
