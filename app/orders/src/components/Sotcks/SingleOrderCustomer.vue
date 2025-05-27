@@ -22,11 +22,9 @@ const deleteMessage = ref('El item marcado será elimnado del pedido, click nuev
 const exceedLimitMessage = ref();
 const isModified = ref(false);
 
-// Methods
-
 const calcAndGetProductQtyStemFlower = (product) => {
   const bunches = parseInt(product.total_bunches) || 0;
-  const stemsPerBunch = parseInt(product.stems_bunch) || 25; // Default 25 si no está definido o es 0
+  const stemsPerBunch = parseInt(product.stems_bunch) || 25;
   return bunches * stemsPerBunch;
 };
 
@@ -37,25 +35,6 @@ const calcTotalByProduct = (product) => {
   const margin = parseFloat(product.margin) || 0;
   
   return (totalBunches * stemsBunch * (cost + margin)).toFixed(2);
-};
-
-const calcTotalByItem = (item)=>{ 
-  let total = 0;
-  if (item.box_items) {
-    total = item.box_items.reduce((acc, boxItem) => {
-      const qty_stem_flower = calcAndGetProductQtyStemFlower(boxItem);
-      boxItem.qty_stem_flower = qty_stem_flower; // Actualizar la propiedad qty_stem_flower
-      const cost_price = parseFloat(boxItem.stem_cost_price) || 0;
-      const margin = parseFloat(boxItem.margin) || 0;
-      return acc + ((cost_price + margin) * qty_stem_flower);
-    }, 0) * item.quantity;
-  }
-  item.line_total = total.toFixed(2);
-
-  item.line_price = item.box_items.reduce((acc, boxItem) => {
-    return acc + (boxItem.stem_cost_price * parseFloat(boxItem.qty_stem_flower));
-  }, 0);
-  return total.toFixed(2);
 };
 
 const delimitedNumber = (event, item) => {
@@ -114,7 +93,7 @@ const formatNumber = (event) => {
   event.target.value = parseFloat(value).toFixed(2);
 };
 
-const formatInteger = (event, box = null) => {
+const formatInteger = (event) => {
     let value = event.target.value;
     value = value.replace(',', '.');
     if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
@@ -124,26 +103,18 @@ const formatInteger = (event, box = null) => {
     event.target.value = parseInt(value);
 }
 
-const handleBunchOrStemChange = (event, item, product, fieldName) => { // item es order_detail
-  // No formatear durante cambios, solo al final
-  // formatInteger(event); // Eliminamos esto para evitar interferencias durante la edición
-
+const handleBunchOrStemChange = (event, item, product, fieldName) => {
   if (fieldName === 'total_bunches') {
     const bunches = parseInt(product.total_bunches) || 0;
-    const stemsValue = product.stems_bunch; // Puede ser string, number, null, undefined
-    // Si bunches > 0 y stems_bunch es undefined, null, vacío o 0, autocompletar a 25.
+    const stemsValue = product.stems_bunch;
     if (bunches > 0 && (stemsValue === undefined || stemsValue === null || stemsValue === '' || parseInt(stemsValue) === 0)) {
       product.stems_bunch = 25;
     }
   }
-  // Si fieldName es 'stems_bunch', formatInteger ya lo manejó.
 
-  // Recalcular los totales del item.
-  totalStemFlowerOrderItem(item); // Actualiza item.tot_stem_flower y product.qty_stem_flower
-  calcTotalByItem(item);   // Actualiza item.line_total
+  totalStemFlowerOrderItem(item);
 };
 
-// Methods for splitting and merging boxes
 const splitHB = (item) => {
   const newDetails = orderStore.selectedOrder.order_details.filter(i => i.order_item_id !== item.order_item_id);
   const stem_flower = item.box_items.map(i => i.qty_stem_flower);
@@ -261,7 +232,6 @@ const updateOrder = async (action) => {
 }
 
 
-// computed Properties
 const isTwoQBSelected = computed(() => {
   let qb = orderStore.selectedOrder.order_details.filter(i => i.box_model === 'QB' && i.is_selected);
   return qb.length === 2;
@@ -269,12 +239,11 @@ const isTwoQBSelected = computed(() => {
 
 
 const totalStemFlowerOrderItem = (order_item)=>{
-  // Calcula los tallos igual que en OrderPreview
   let total_stems = order_item.box_items.reduce((acc, item) => {
     const bunches = parseInt(item.total_bunches) || 0;
     const stemsPerBunch = parseInt(item.stems_bunch) || 25;
     const stems = bunches * stemsPerBunch;
-    item.qty_stem_flower = stems; // Actualizar la propiedad qty_stem_flower
+    item.qty_stem_flower = stems;
     return acc + stems;
   }, 0);
   total_stems = total_stems * parseInt(order_item.quantity);
@@ -364,14 +333,11 @@ const getUrlReportinvoice = (id) => {
     return urlInvoiceReport;
 };
 
-//watchers
 watch(() => orderStore.selectedOrder, 
   (newValue) => {
     isModified.value = true;
-    // Inicializar/recalcular totales al cargar una nueva orden
     if (newValue && newValue.order_details) {
       newValue.order_details.forEach(item_detail => {
-        // Inicializar stems_bunch si es undefined o null
         if (item_detail.box_items) {
           item_detail.box_items.forEach(product => {
             if (product.stems_bunch === undefined || product.stems_bunch === null) {
@@ -380,7 +346,6 @@ watch(() => orderStore.selectedOrder,
           });
         }
         totalStemFlowerOrderItem(item_detail);
-        calcTotalByItem(item_detail);
       });
     }
   },
