@@ -80,6 +80,10 @@
               <div class="value-col">{{ invoice.date | date:'Y-m-d' }}</div>
             </div>
             <div class="info-row">
+              <div class="label-col">Marking:</div>
+              <div class="value-col">{{ invoice.marking|default:'N/A' }}</div>
+            </div>
+            <div class="info-row">
               <div class="label-col">Cargo Agency:</div>
               <div class="value-col">{{ invoice.cargo_agency }}</div>
             </div>
