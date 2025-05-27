@@ -1,5 +1,6 @@
 from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
 from trade.models import Invoice, InvoiceItems, InvoiceBoxItems
 
 
@@ -7,6 +8,12 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
     model = Invoice
     template_name = 'presentations/invoice_presentation.html'
     context_object_name = 'invoice'
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if not obj.is_active:
+            raise Http404("La factura no existe o ha sido eliminada")
+        return obj
 
     def get_context_data(self, **kwargs):
         context = super(InvoiceDetailView, self).get_context_data(**kwargs)
