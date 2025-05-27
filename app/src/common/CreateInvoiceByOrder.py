@@ -143,6 +143,9 @@ class CreateInvoiceByOrder:
         days = order.partner.credit_term
         due_date = datetime.now() + timedelta(days=days)
 
+        # Crear número de factura con formato SinFact-{serie-consecutivo}
+        num_invoice = f"SinFact-{order.serie or '200'}-{str(order.consecutive or 0).zfill(6)}"
+
         invoice = Invoice.objects.create(
             order=order,
             partner=order.partner,
@@ -150,8 +153,9 @@ class CreateInvoiceByOrder:
             date=datetime.now(),
             due_date=due_date,
             status='PENDIENTE',
-            serie='200',
-            consecutive=Invoice.get_next_purchase_consecutive()
+            num_invoice=num_invoice,
+            serie='',  # Serie en blanco
+            consecutive=None  # Consecutivo en blanco
         )
         # cargamos los items de la orden a la factura
         for oi in OrderItems.get_by_order(order.id):

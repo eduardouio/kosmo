@@ -36,6 +36,10 @@ class CreateInvoiceAPI(View):
 
         invoice = CreateInvoiceByOrder().generate_invoice(order)
 
+        # Si es una orden de venta, crear facturas de compra automáticamente
+        if order.type_document == 'ORD_VENTA':
+            self.create_purchase_invoices(order)
+
         response_data = {
             'invoice_id': invoice.id,
             'order_id': order.id,
@@ -48,3 +52,97 @@ class CreateInvoiceAPI(View):
         }
 
         return JsonResponse(response_data, status=201)
+
+    def create_purchase_invoices(self, sale_order):
+        """Crear facturas de compra para todas las órdenes de compra relacionadas"""
+        from trade.models import Invoice, InvoiceItems, InvoiceBoxItems, OrderItems, OrderBoxItems
+        from datetime import datetime, timedelta
+        
+        loggin_event(f'Creando facturas de compra para orden de venta {sale_order.id}')
+        
+        # Obtener órdenes de compra relacionadas
+        purchase_orders = Order.get_by_parent_order(sale_order)
+        
+        if not purchase_orders:
+            loggin_event('No hay órdenes de compra para facturar')
+            return
+        
+        for purchase_order in purchase_orders:
+            if purchase_order.is_invoiced:
+                loggin_event(f'Orden de compra {purchase_order.id} ya está facturada')
+                continue
+                
+            loggin_event(f'Creando factura para orden de compra {purchase_order.id}')
+            
+            # Calcular fecha de vencimiento
+            days = purchase_order.partner.credit_term if purchase_order.partner.credit_term else 30
+            due_date = datetime.now() + timedelta(days=days)
+            
+            # Crear número de factura con formato SinFact-{serie-consecutivo}
+            num_invoice = f"SinFact-{purchase_order.serie or '200'}-{str(purchase_order.consecutive or 0).zfill(6)}"
+            
+            # Crear factura de compra
+            purchase_invoice = Invoice.objects.create(
+                order=purchase_order,
+                partner=purchase_order.partner,
+                type_document='FAC_COMPRA',
+                date=datetime.now(),
+                due_date=due_date,
+                status='PENDIENTE',
+                num_invoice=num_invoice,
+                serie='',  # Serie en blanco como solicitado
+                consecutive=None,  # Consecutivo en blanco como solicitado
+                total_price=purchase_order.total_price,
+                total_margin=0,  # Sin margen en factura de compra
+                qb_total=purchase_order.qb_total,
+                hb_total=purchase_order.hb_total,
+                fb_total=purchase_order.fb_total,
+                tot_stem_flower=purchase_order.total_stem_flower,
+                total_bunches=purchase_order.total_bunches
+            )
+            
+            # Copiar items de la orden a la factura
+            self.copy_order_items_to_invoice(purchase_order, purchase_invoice)
+            
+            # Actualizar orden de compra
+            purchase_order.status = 'FACTURADO'
+            purchase_order.is_invoiced = True
+            purchase_order.id_invoice = purchase_invoice.id
+            purchase_order.num_invoice = purchase_invoice.num_invoice
+            purchase_order.save()
+            
+            loggin_event(f'Factura de compra creada: {purchase_invoice.num_invoice}')
+
+    def copy_order_items_to_invoice(self, order, invoice):
+        """Copiar items de la orden a la factura"""
+        from trade.models import InvoiceItems, InvoiceBoxItems, OrderItems, OrderBoxItems
+        
+        order_items = OrderItems.get_by_order(order)
+        
+        for order_item in order_items:
+            # Crear item de factura
+            invoice_item = InvoiceItems.objects.create(
+                invoice=invoice,
+                id_order_item=order_item.id,
+                box_model=order_item.box_model,
+                quantity=order_item.quantity,
+                tot_stem_flower=order_item.tot_stem_flower,
+                line_price=order_item.line_price,
+                line_margin=0,  # Sin margen en factura de compra
+                line_total=order_item.line_price,
+                total_bunches=order_item.total_bunches
+            )
+            
+            # Copiar box items
+            box_items = OrderBoxItems.get_box_items(order_item)
+            for box_item in box_items:
+                InvoiceBoxItems.objects.create(
+                    invoice_item=invoice_item,
+                    product=box_item.product,
+                    length=box_item.length,
+                    qty_stem_flower=box_item.qty_stem_flower,
+                    stem_cost_price=box_item.stem_cost_price,
+                    profit_margin=0,  # Sin margen en factura de compra
+                    total_bunches=box_item.total_bunches,
+                    stems_bunch=box_item.stems_bunch
+                )

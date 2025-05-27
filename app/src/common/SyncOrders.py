@@ -254,8 +254,10 @@ class SyncOrders:
                 type_document='ORD_COMPRA',
                 status='PENDIENTE',
                 parent_order=customer_order,
-                serie='200',
-                consecutive=Order.get_next_purchase_consecutive()
+                serie='200',  # Serie correcta para orden de compra
+                consecutive=Order.get_next_purchase_consecutive(),  # Consecutivo correcto
+                delivery_date=customer_order.delivery_date,  # Copiar fecha de entrega
+                num_order=customer_order.num_order  # Copiar número de orden del cliente
             )
             for ord in supplier['order_items']:
                 ord_item = OrderItems.objects.create(
@@ -266,7 +268,7 @@ class SyncOrders:
                 )
                 self._create_order_box_items(ord, ord_item)
             Order.rebuild_totals(sup_order)
-            loggin_event(f"Orden de compra {sup_order.id} creada con exito")
+            loggin_event(f"Orden de compra {sup_order.id} creada con éxito - Serie: {sup_order.serie}, Consecutivo: {sup_order.consecutive}")
 
     def cancell_supplier_orders(self, order):
         loggin_event(f"Cancelando orden de compra {order.id}")

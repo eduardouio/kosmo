@@ -28,8 +28,8 @@ class CreateOrderAPI(View):
             stock_day=stock_day,
             type_document='ORD_VENTA',
             status='PENDIENTE',
-            serie='100',
-            consecutive=Order.get_next_sale_consecutive()
+            serie='100',  # Serie correcta para orden de venta
+            consecutive=Order.get_next_sale_consecutive()  # Consecutivo correcto
         )
 
         for new_order_item in order_data['order_detail']:
@@ -78,6 +78,8 @@ class CreateOrderAPI(View):
         result = {
             'order': {
                 'id': order.id,
+                'serie': order.serie,  # Incluir serie en la respuesta
+                'consecutive': order.consecutive,  # Incluir consecutivo en la respuesta
                 'stock_day': order.stock_day.id,
                 'date': order.date.isoformat(),
                 'status': order.status,
