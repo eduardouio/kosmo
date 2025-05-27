@@ -186,21 +186,26 @@ const calculateTotal = computed(() => {
     if (!newboxItem.value) {
         return '0.00';
     }
-    
-    const priceStr = newboxItem.value?.stem_cost_price?.toString() || '0';
-    const marginStr = newboxItem.value?.profit_margin?.toString() || '0';
-    
-    const price = parseFloat(priceStr.replace(/,/g, '')) || 0;
-    const margin = parseFloat(marginStr.replace(/,/g, '')) || 0;
-    
-    const total = price + margin;
-    return baseStore.formatInputNumber(total.toFixed(2));
+    const priceStr = parseFloat(newboxItem.value?.stem_cost_price?.toString() || '0');
+    const marginStr = parseFloat(newboxItem.value?.profit_margin?.toString() || '0');    
+    return baseStore.formatInputNumber((priceStr + marginStr).toFixed(2));
+});
+
+const calculateTotalBoxItem = computed(() => {
+    if (!newboxItem.value) {
+        return '0.00';
+    }
+    const priceStr = parseFloat(newboxItem.value?.stem_cost_price?.toString() || '0');
+    const marginStr = parseFloat(newboxItem.value?.profit_margin?.toString() || '0');
+    const totalBunches = parseFloat(newboxItem.value?.total_bunches?.toString() || '0');
+    const stemsBunch = parseFloat(newboxItem.value?.stems_bunch?.toString() || '0');
+    return baseStore.formatInputNumber(((priceStr + marginStr) * totalBunches * stemsBunch).toFixed(2));
 });
 
 // Mejora: Agregar watchers individuales para actualización inmediata del total
 watch(() => newboxItem.value?.stem_cost_price, (newValue) => {
     if (updating.value || !newboxItem.value) return;
-    
+
     const newTotal = calculateTotal.value;
     if (newboxItem.value.total !== newTotal) {
         newboxItem.value.total = newTotal;
@@ -298,6 +303,15 @@ watch(() => props.modelValue?.product, (newProduct) => {
                     <input 
                         type="text"
                         :value="calculateTotal"
+                        class="border w-100 text-end" 
+                        readonly
+                        tabindex="-1"
+                        />
+                </div>
+                 <div style="width:10%" class="text-end">
+                    <input 
+                        type="text"
+                        :value="calculateTotalBoxItem"
                         class="border w-100 text-end" 
                         readonly
                         tabindex="-1"

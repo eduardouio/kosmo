@@ -4,13 +4,12 @@ import BoxItem from '@/components/trade/BoxItem.vue'
 import { IconTrash, IconPlus, IconMinus } from '@tabler/icons-vue'
 import { useSingleOrderStore } from '@/stores/trade/singleOrderStore'
 
-const emit = defineEmits(['showProductModal', 'update:quantity', 'update:box_model', 'update:boxItems', 'remove', 'updateLineTotal'])
+const emit = defineEmits(['showProductModal', 'update:quantity', 'update:box_model', 'update:boxItems', 'remove'])
 
 const props = defineProps({
   quantity: { type: [Number, String], default: 1 },
   box_model: { type: String, default: 'QB' },
   boxItems: { type: Array, default: () => [{}] },
-  line_total: { type: Number, default: 0 }
 })
 
 const { quantity, box_model, boxItems } = toRefs(props)
@@ -62,20 +61,6 @@ watch(localBoxItems, val => {
 
 const orderStore = useSingleOrderStore()
 
-// Optimizar la actualización del total de la línea
-const updateLineDebounce = ref(null);
-watch([localQuantity, localBoxModel, localBoxItems], () => {
-  clearTimeout(updateLineDebounce.value);
-  updateLineDebounce.value = setTimeout(() => {
-    const tempLine = {
-      quantity: localQuantity.value,
-      box_model: localBoxModel.value,
-      order_box_items: localBoxItems.value
-    }
-    emit('updateLineTotal', tempLine);
-  }, 100);
-}, { deep: true })
-
 const showProductModal = ($event) => {
   emit('showProductModal', $event)
 }
@@ -117,9 +102,6 @@ const removeLine = () => {
         <IconMinus stroke="1.5" size="20" class="text-danger border-red-500" @click="removeBoxItem(idx)"/>
       </div>
     </td>
-    <td class="text-end">
-      {{ line_total.toFixed(2) }}
-    </td> 
     <td class="text-center bg-red-400 bg-gradient" style="width: 20px;">
         <IconTrash
           size="15"

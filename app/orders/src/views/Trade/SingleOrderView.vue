@@ -116,31 +116,6 @@ function removeOrderLine(index) {
   orderStore.removeOrderLine(index)
 }
 
-// Mejorar la función updateOrderLineTotal para evitar recursión
-function updateOrderLineTotal(idx, tempLine) {
-  if (idx >= 0 && idx < orderStore.orderLines.length) {
-    // Crear un nuevo objeto para asegurar la reactividad
-    const updatedLine = {
-      ...orderStore.orderLines[idx], // Mantener propiedades existentes
-      quantity: tempLine.quantity,
-      box_model: tempLine.box_model,
-      // Asegurar una copia profunda de los items para la reactividad
-      order_box_items: JSON.parse(JSON.stringify(tempLine.order_box_items))
-    };
-
-    // Actualizar el store directamente con el objeto nuevo
-    // Usar Vue.set o similar si splice no es reactivo, pero en Pinia/Vue 3 debería serlo.
-    orderStore.orderLines.splice(idx, 1, updatedLine);
-
-    // Llamar directamente a calculateOrderTotals después de la actualización
-    // Usar nextTick para asegurar que el DOM se actualice antes de calcular si fuera necesario,
-    // pero aquí calculamos sobre los datos del store, así que puede ser inmediato o con pequeño delay.
-    setTimeout(calculateOrderTotals, 10); // Pequeño delay por si acaso
-  } else {
-    console.error("Índice inválido para updateOrderLineTotal:", idx);
-  }
-}
-
 function validateData(){
   // Reiniciar estado de error
   hasError.value = false;
@@ -345,8 +320,8 @@ const handleKeydown = (event) => {
                       <span class="" style="width: 10%;">Costo</span>
                       <span class="" style="width: 10%;">Margen</span>
                       <span class="" style="width: 10%;">Total U</span>
+                      <span class="" style="width: 10%;">Total</span>
                     </th>
-                    <th class="bg-gray-200 bg-gradient">Total</th>
                     <th class="bg-red-400 bg-gradient"><IconSettings size="15" stroke="1.5"/> </th>
                   </tr>
                 </thead>
@@ -356,19 +331,18 @@ const handleKeydown = (event) => {
                       v-model:quantity="line.quantity"
                       v-model:box_model="line.box_model"
                       v-model:boxItems="line.order_box_items"
-                      :line_total="orderStore.calculateOrderLineTotal(line)"
                       @showProductModal="showProductModal"
                       @remove="removeOrderLine(idx)"
-                      @updateLineTotal="tempLine => updateOrderLineTotal(idx, tempLine)"
                     />
                   </template>
                   <tr>
-                    <td colspan="5" class="text-end">
+                    <td colspan="4" class="text-end"> <!-- Ajustado colspan -->
                       <button class="btn btn-primary btn-sm" @click="addOrderLine">
                         <IconPlus size="15" stroke="1.5" class="text-white"/>
                         Agregar
                       </button>
                     </td>
+                     <td></td> <!-- Celda vacía para alinear con la columna de eliminar -->
                   </tr>
                 </tbody>
               </table>
