@@ -45,6 +45,7 @@ urlpatterns = [
     path('api/orders/cancel-order/', CancelCustomerOrderAPI.as_view(), name='cancel_order'),
     path('api/orders/cancel-supplier-order/', CancelSupplierOrderAPI.as_view(), name='cancel_supplier_order'),
     path('api/orders/confirm-order/', AprovePurchaseOrderAPI.as_view(), name='confirm_purchase_order'),
+    path('api/orders/approve-purchase-order/<int:order_id>/', AprovePurchaseOrderAPI.as_view(), name='approve_purchase_order_view'),
     path('api/orders/detail/<int:order_id>/', OrderDetailAPI.as_view(), name='order_detail'),
     path('api/invoice/create-by-order/', CreateInvoiceAPI.as_view(), name='create_invoice_by_order'),
     path('api/orders/customer-order-detail/<int:order_id>/', CustomerOrderDetailAPI.as_view(), name='customer-order-detail'),
