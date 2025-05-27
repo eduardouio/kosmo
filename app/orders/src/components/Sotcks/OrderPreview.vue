@@ -26,6 +26,15 @@ onMounted(() => {
 });
   
 
+const calcTotalByProduct = (product) => {
+  const totalBunches = parseInt(product.total_bunches) || 0;
+  const stemsBunch = parseInt(product.stems_bunch) || 25;
+  const cost = parseFloat(product.stem_cost_price) || 0;
+  const margin = parseFloat(product.margin) || 0;
+  
+  return (totalBunches * stemsBunch * (cost + margin)).toFixed(2);
+};
+
 const calcTotalByItem = (item)=>{ 
   let total = 0;
   let items = item.box_items.map(item => item)
@@ -391,10 +400,12 @@ const calculateTotalStemsForItem = (item) => {
           </span>
         </div>
       </div>
-      <div class="col-1 fw-semibold d-flex align-items-end justify-content-end">
-        <span class="form-control form-control-sm text-end my-input-6">
-          {{ calcTotalByItem(item) }}
-        </span>
+      <div class="col-1 fw-semibold">
+        <div v-for="product in item.box_items" :key="product.id" class="d-flex align-items-center justify-content-end mb-1">
+          <span class="form-control form-control-sm text-end my-input-6">
+            {{ calcTotalByProduct(product) }}
+          </span>
+        </div>
       </div>
     </div>
     <div class="row">
