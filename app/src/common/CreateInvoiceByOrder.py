@@ -76,6 +76,10 @@ class CreateInvoiceByOrder:
         due_date = datetime.now() + timedelta(days=days)
         dae = DAE.get_last_by_partner(order.partner)
 
+        # Obtener el consecutivo y generar el número de factura con formato
+        consecutive = Invoice.get_next_sale_consecutive()
+        num_invoice = f"100-{str(consecutive).zfill(6)}"
+
         invoice = Invoice.objects.create(
             order=order,
             partner=order.partner,
@@ -87,9 +91,9 @@ class CreateInvoiceByOrder:
             awb=dae.awb if dae else None,
             hawb=dae.hawb if dae else None,
             cargo_agency=dae.cargo_agency if dae else None,
-            serie='001',
-            consecutive=Invoice.get_next_sale_consecutive()
-            
+            serie='100',
+            consecutive=consecutive,
+            num_invoice=num_invoice
         )
         # cargamos los items de la orden a la factura
         for oi in OrderItems.get_by_order(order.id):
