@@ -10,8 +10,7 @@ import {
   IconCheckbox,
   IconSitemap,
   IconBan,
-  IconLayersIntersect2, 
-  IconAlertTriangle
+  IconLayersIntersect2
 } from '@tabler/icons-vue';
 
 const ordersStore = useOrdersStore();
@@ -33,15 +32,6 @@ const calcTotalByProduct = (product) => {
   const margin = parseFloat(product.margin) || 0;
   
   return (totalBunches * stemsBunch * (cost + margin)).toFixed(2);
-};
-
-const calcTotalByItem = (item)=>{ 
-  let total = 0;
-  let items = item.box_items.map(item => item)
-  total = items.reduce((acc, itm) => {
-    return acc + ((itm.stem_cost_price + parseFloat(itm.margin)) * parseFloat(itm.qty_stem_flower));
-  }, 0) * parseFloat(item.quantity);
-  return total.toFixed(2);
 };
 
 const cancelOrder = () => {
@@ -126,16 +116,6 @@ const formatNumber = (event) => {
   }
   event.target.value = parseFloat(value).toFixed(2);
 };
-
-const formatInteger = (event, box = null) => {
-    let value = event.target.value;
-    value = value.replace(',', '.');
-    if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
-        event.target.value = '0';
-        return;
-    }
-    event.target.value = parseInt(value);
-}
 
 // computed Properties
 const isTwoQBSelected = computed(() => {
@@ -238,11 +218,6 @@ watch(() => ordersStore.newOrder, (orders) => {
     });
   });
 }, { deep: true });
-
-// Actualizar qty_stem_flower cuando cambie total_bunches o stems_bunch
-const updateQtyStemFlower = (product) => {
-  calculateQtyStemFlower(product);
-};
 
 // Agregar un método computado para calcular el total de tallos por ítem
 const calculateTotalStemsForItem = (item) => {
