@@ -5,6 +5,7 @@ from django.urls import reverse
 from trade.models import Order
 from common.AppLoger import loggin_event
 from django.conf import settings
+import os
 
 
 # http://localhost:8000/reports/order-customer/12/
@@ -17,7 +18,7 @@ class PDFReportCusOrder(View):
             page.goto(url)
 
             page.wait_for_load_state("networkidle")
-            page.wait_for_timeout(200)  # Tiempo extra para aplicar estilos
+            page.wait_for_timeout(200)
             page.pdf(
                 path=output_path,
                 format="A4",
@@ -42,10 +43,21 @@ class PDFReportCusOrder(View):
 
         loggin_event(f'Generando PDF de la orden {id_order} {target_url}')
         order = Order.objects.get(id=id_order)
-        output_pdf = f"SO-{id_order}-{order.partner.short_name}.pdf"
+        output_pdf = f"OrdVenta-{order.partner} {order.serie}-{order.consecutive:06d}.pdf"
         self.render_and_capture_pdf(target_url, output_pdf)
-        return FileResponse(
+        
+        response = FileResponse(
             open(output_pdf, "rb"),
             content_type="application/pdf",
             as_attachment=True
         )
+        
+        # Clean up the temporary file after sending response
+        def cleanup():
+            try:
+                os.remove(output_pdf)
+            except OSError:
+                pass
+        
+        response.file_to_stream.close = cleanup
+        return response
