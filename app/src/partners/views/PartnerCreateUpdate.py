@@ -22,6 +22,7 @@ class PartnerForm(forms.ModelForm):
             'website', 'skype', 'dispatch_address', 'dispatch_days',
             'cargo_reference', 'consolidate', 'is_active', 'notes',
             'email_payment','reference_1', 'contact_reference_1',
+            'default_profit_margin', 'is_profit_margin_included',
             'reference_2','area_code','phone_reference_1', 'phone_reference_2',
             'contact_reference_2', 'short_name', 'is_verified', 'seller'
         ]
@@ -45,6 +46,8 @@ class PartnerForm(forms.ModelForm):
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'notes': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 3}),
             'is_verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'default_profit_margin': forms.NumberInput(attrs={'class': 'form-control form-control-sm'}),
+            'is_profit_margin_included': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'email_payment': forms.EmailInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
             'reference_1': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),
             'contact_reference_1': forms.TextInput(attrs={'maxlength': '255', 'class': 'form-control form-control-sm'}),

@@ -204,7 +204,11 @@
                               <span class="text-muted">Consolidado:</span>
                               <span class="ps-2">{{ partner.consolidate |yesno:'Si,No' }}</span>
                            </section>
-                           {% if partner.type_partner == 'PROVEEDOR' %}
+                        {% if partner.type_partner == 'PROVEEDOR' %}
+                           <section>
+                              <span class="text-muted">Margen:</span>
+                              <span class="ps-2">{{ partner.default_profit_margin }}</span>
+                           </section>
                            {% endif %}
                            <section>
                               <span class="text-muted">Referencia 1:</span>
