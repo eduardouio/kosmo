@@ -23,6 +23,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
       hb_total: 0,
       fb_total: 0,
       total_stem_flower: 0,
+      total_bunches: 0, // Añadir el campo total_bunches
       is_invoiced: false,
       id_invoice: 0,
       num_invoice: null
@@ -101,6 +102,26 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
       }
     },
     
+    formatDateForAPI(dateStr) {
+      // Convertir fecha de DD/MM/YYYY a YYYY-MM-DD
+      if (!dateStr || dateStr.trim() === '') {
+        return ''
+      }
+      
+      try {
+        if (dateStr.includes('/')) {
+          const parts = dateStr.split(' ')[0].split('/')
+          if (parts.length === 3) {
+            const [day, month, year] = parts
+            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+          }
+        }
+        return dateStr
+      } catch {
+        return ''
+      }
+    },
+    
     async updateOrder(orderId, customer, supplier) {
       try {
         if (!customer || !supplier) {
@@ -110,13 +131,20 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
           }
         }
         
+        // Formatear las fechas antes de enviar
+        const formattedOrder = {
+          ...this.order,
+          delivery_date: this.formatDateForAPI(this.order.delivery_date)
+        }
+        
         const orderData = {
           order_id: orderId,
-          order: this.order,
-          customer: customer,  // Se mantiene por compatibilidad con la API
+          order: formattedOrder,
+          customer: customer,
           supplier: supplier,
           orderLines: this.orderLines
         }
+        
         const response = await axios.post(
           appConfig.urlUpdateCustomerOrder, 
           orderData, 
@@ -185,6 +213,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
           hb_total: data.order.hb_total || 0, 
           fb_total: data.order.fb_total || 0,
           total_stem_flower: data.order.total_stem_flower || 0,
+          total_bunches: data.order.total_bunches || 0,
           is_invoiced: data.order.is_invoiced || false,
           id_invoice: data.order.id_invoice || 0,
           num_invoice: data.order.num_invoice || null

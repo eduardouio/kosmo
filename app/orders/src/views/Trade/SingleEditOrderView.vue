@@ -82,17 +82,27 @@ function calculateOrderTotals() {
   let total_stem_flower = 0
   let total_price = 0
   let total_margin = 0
+  let total_bunches = 0  // Añadimos esta variable para calcular el total de bunches
 
   const lines = orderStore.orderLines.slice()
   lines.forEach(line => {
-    if (line.box_model === 'HB') hb_total += Number(line.quantity) || 0
-    if (line.box_model === 'QB') qb_total += Number(line.quantity) || 0
+    // Asegurarse que quantity es un número
+    const quantity = Number(line.quantity) || 0;
+    if (line.box_model === 'HB') hb_total += quantity;
+    if (line.box_model === 'QB') qb_total += quantity;
 
     if (Array.isArray(line.order_box_items)) {
       line.order_box_items.forEach(item => {
-        total_stem_flower += Number(item.qty_stem_flower) || 0
-        total_price += (Number(item.stem_cost_price) || 0) * (Number(item.qty_stem_flower) || 0)
-        total_margin += (Number(item.profit_margin) || 0) * (Number(item.qty_stem_flower) || 0)
+        // Asegurarnos de limpiar cualquier formato y convertir a número
+        const qtyStems = parseFloat(String(item.qty_stem_flower || '0').replace(/,/g, '')) || 0;
+        const costPrice = parseFloat(String(item.stem_cost_price || '0.00').replace(/,/g, '')) || 0;
+        const profitMargin = parseFloat(String(item.profit_margin || '0.00').replace(/,/g, '')) || 0;
+        const bunches = parseInt(String(item.total_bunches || '0')) || 0; // Calcular bunches
+
+        total_stem_flower += qtyStems;
+        total_price += costPrice * qtyStems;
+        total_margin += profitMargin * qtyStems;
+        total_bunches += bunches * quantity; // Multiplicar por la cantidad del item
       })
     }
   })
@@ -100,20 +110,24 @@ function calculateOrderTotals() {
   // FB = (HB/2) + (QB/4)
   fb_total = (hb_total / 2) + (qb_total / 4)
 
-  // Asignar los resultados al final para evitar recursividad, con dos decimales
-  orderStore.order = {
-    ...orderStore.order,
-    hb_total: Number(hb_total.toFixed(2)),
-    qb_total: Number(qb_total.toFixed(2)),
-    fb_total: Number(fb_total.toFixed(2)),
-    total_stem_flower: Number(total_stem_flower.toFixed(2)),
-    total_price: Number(total_price.toFixed(2)),
-    total_margin: Number(total_margin.toFixed(2))
-  }
+  // Asegurarnos que los valores son números válidos antes de asignarlos
+  orderStore.updateOrderTotals({
+    hb_total: parseFloat(hb_total.toFixed(2)),
+    qb_total: parseFloat(qb_total.toFixed(2)),
+    fb_total: parseFloat(fb_total.toFixed(2)),
+    total_stem_flower: parseFloat(total_stem_flower.toFixed(2)),
+    total_price: parseFloat(total_price.toFixed(2)),
+    total_margin: parseFloat(total_margin.toFixed(2)),
+    total_bunches: parseInt(total_bunches) // Añadir total_bunches al objeto que actualiza el store
+  })
 }
 
-// Recalcular totales cuando cambian las líneas
-watch(() => orderStore.orderLines, calculateOrderTotals, { deep: true })
+// Recalcular totales cuando cambian las líneas - versión mejorada
+let totalCalculationTimeout = null;
+watch(() => orderStore.orderLines, () => {
+  clearTimeout(totalCalculationTimeout);
+  totalCalculationTimeout = setTimeout(calculateOrderTotals, 200);
+}, { deep: true })
 
 function addOrderLine() {
   orderStore.addOrderLine()
@@ -197,9 +211,50 @@ onMounted(async () => {
   }, 2000)
 })
 
+// Agregar función de navegación por teclado
+const handleKeydown = (event) => {
+    const targetElement = event.target;
+
+    // Solo actuar si el target es un input/select de nuestra clase y no es readonly/disabled
+    if (!targetElement.matches('.trade-nav-input:not([readonly]):not([disabled])')) {
+        return;
+    }
+
+    // Obtener todos los inputs/selects navegables que están actualmente visibles y no deshabilitados
+    const allNavigableInputs = Array.from(document.querySelectorAll('.trade-nav-input:not([readonly]):not([disabled])'));
+    const visibleNavigableInputs = allNavigableInputs.filter(input => {
+        const style = window.getComputedStyle(input);
+        return style.display !== 'none' && style.visibility !== 'hidden' && input.tabIndex !== -1;
+    });
+
+    const currentIndex = visibleNavigableInputs.indexOf(targetElement);
+
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Prevenir comportamiento por defecto
+        
+        let nextIndex;
+        if (event.shiftKey) { // Shift + Enter: Moverse al anterior
+            nextIndex = currentIndex - 1;
+        } else { // Enter: Moverse al siguiente
+            nextIndex = currentIndex + 1;
+        }
+
+        if (nextIndex >= 0 && nextIndex < visibleNavigableInputs.length) {
+            const nextInput = visibleNavigableInputs[nextIndex];
+            nextInput.focus();
+            // Siempre seleccionar todo el texto al navegar
+            if (typeof nextInput.select === 'function') {
+                nextInput.select(); // Seleccionar texto si es un input de texto/número
+            }
+        }
+    }
+};
 </script>
 <template>
   <div class="container-fluid">
+    <div class="row">
+      <div class="col-1"></div>
+      <div class="col-10">
     <Loader :show="formLoading || isLoading" />
     <div v-if="!formLoading && !isLoading" class="bg-light py-4">
       <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
@@ -276,21 +331,22 @@ onMounted(async () => {
         <div class="row mb-4">
           <div class="col-12">
             <div class="table-responsive">
-              <table class="table table-bordered table-sm">
+              <table class="table table-bordered table-sm" @keydown="handleKeydown">
                 <thead class="bg-warning bg-opacity-25">
-                  <tr class="text-center small">
-                    <th class="">CANT</th>
-                    <th class="">MODELO</th>
-                    <th class="d-flex gap-1">
-                      <span style="width: 50%;">Variedad</span>
+                  <tr class="text-center">
+                    <th class="bg-gray-200 bg-gradient">Cant</th>
+                    <th class="bg-gray-200 bg-gradient">Mod</th>
+                    <th class="d-flex gap-1 bg-gray-200 bg-gradient">
+                      <span style="width: 45%;">Variedad</span>
                       <span class="" style="width: 8%;">Largo CM</span>
-                      <span class="" style="width: 8%;">Tallos</span>
+                      <span class="" style="width: 8%;">Bunches</span>
+                      <span class="" style="width: 8%;">T/B</span>
                       <span class="" style="width: 10%;">Costo</span>
                       <span class="" style="width: 10%;">Margen</span>
                       <span class="" style="width: 10%;">Total U</span>
+                      <span class="" style="width: 10%;">Total</span>
                     </th>
-                    <th>TOTAL</th>
-                    <th><IconSettings size="15" stroke="1.5"/> </th>
+                    <th class="bg-red-400 bg-gradient"><IconSettings size="15" stroke="1.5"/> </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -299,19 +355,18 @@ onMounted(async () => {
                       v-model:quantity="line.quantity"
                       v-model:box_model="line.box_model"
                       v-model:boxItems="line.order_box_items"
-                      :line_total="orderStore.calculateOrderLineTotal(line)"
                       @showProductModal="showProductModal"
                       @remove="removeOrderLine(idx)"
-                      @updateLineTotal="tempLine => updateOrderLineTotal(idx, tempLine)"
                     />
                   </template>
                   <tr>
-                    <td colspan="5" class="text-end">
+                    <td colspan="4" class="text-end">
                       <button class="btn btn-primary btn-sm" @click="addOrderLine">
                         <IconPlus size="15" stroke="1.5" class="text-white"/>
                         Agregar
                       </button>
                     </td>
+                     <td></td> <!-- Celda vacía para alinear con la columna de eliminar -->
                   </tr>
                 </tbody>
               </table>
@@ -339,21 +394,34 @@ onMounted(async () => {
                 <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div>
                 <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.total_stem_flower }}</div>
               </div>
+              <div class="row">
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL BUNCHES:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.total_bunches }}</div>
+              </div>
             </div>
           </div>
           <div class="col-6">
             <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
               <div class="row mt-4">
                 <div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div>
-                <div class="col-5 text-end text-success fs-5">${{ orderStore.order.total_price.toFixed(2) }}</div>
+                <div class="col-5 text-end text-success fs-5">
+                  ${{ typeof orderStore.order.total_price === 'number' ? orderStore.order.total_price.toFixed(2) : '0.00' }}
+                </div>
               </div>
               <div class="row">
                 <div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div>
-                <div class="col-5 text-end text-success fs-5">${{ orderStore.order.total_margin.toFixed(2) }}</div>
+                <div class="col-5 text-end text-success fs-5">
+                  ${{ typeof orderStore.order.total_margin === 'number' ? orderStore.order.total_margin.toFixed(2) : '0.00' }}
+                </div>
               </div>
               <div class="row mb-1">
                 <div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div>
-                <div class="col-5 text-end text-success fs-5">${{ (orderStore.order.total_margin + orderStore.order.total_price).toFixed(2) }}</div>
+                <div class="col-5 text-end text-success fs-5">
+                  ${{
+                    ((typeof orderStore.order.total_margin === 'number' ? orderStore.order.total_margin : 0) +
+                     (typeof orderStore.order.total_price === 'number' ? orderStore.order.total_price : 0)).toFixed(2)
+                  }}
+                </div>
               </div>
             </div>
           </div>
@@ -378,4 +446,7 @@ onMounted(async () => {
     </div>
     <GenericProductModal :product="selectedProduct"/>
   </div>
+   </div>
+      <div class="col-1"></div>
+    </div>
 </template>
