@@ -15,9 +15,16 @@ class TemplateReportOrderSupView(TemplateView):
         order_items = OrderItems.get_by_order(order)
         order_items_det = []
         for item in order_items:
+            box_items = OrderBoxItems.get_by_order_item(item)
+            box_items_with_totals = []
+            for box_item in box_items:
+                box_items_with_totals.append({
+                    'box_item': box_item,
+                    'total_stems': box_item.qty_stem_flower * item.quantity
+                })
             order_items_det.append({
                 'item': item,
-                'box_items': OrderBoxItems.get_by_order_item(item)
+                'box_items': box_items_with_totals
             })
         context['order'] = order
         context['order_items'] = order_items_det
