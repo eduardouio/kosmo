@@ -22,7 +22,7 @@ class SerializerStock():
                 'business_tax_id': stock.partner.business_tax_id,
                 'address': stock.partner.address,
                 'city': stock.partner.city,
-                'default_profit_margin': float(stock.partner.default_profit_margin),
+                'default_profit_margin': 0.06,
                 'website': stock.partner.website,
                 'credit_term': stock.partner.credit_term,
                 'skype': stock.partner.skype,

@@ -26,9 +26,7 @@ class SerializerCustomerOrder():
                     'business_tax_id': stock_detail.partner.business_tax_id,
                     'address': stock_detail.partner.address,
                     'city': stock_detail.partner.city,
-                    'default_profit_margin': float(
-                        stock_detail.partner.default_profit_margin
-                    ),
+                    'default_profit_margin': 0.06,
                     'website': stock_detail.partner.website,
                     'credit_term': stock_detail.partner.credit_term,
                     'skype': stock_detail.partner.skype,
