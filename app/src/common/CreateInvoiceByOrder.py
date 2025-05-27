@@ -11,10 +11,6 @@ from trade.models import (
 )
 
 
-# Genera una factura a partir de una orden
-# La orden de venta genera Factura con el consecutivo de kosmo
-# la orden de compra se genera un factura que recibe el
-# numero del proveedor luego de ser creada
 class CreateInvoiceByOrder:
     def generate_invoice(self, order):
         """args: orden: Order"""
