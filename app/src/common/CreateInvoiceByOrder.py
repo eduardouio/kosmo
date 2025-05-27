@@ -71,6 +71,7 @@ class CreateInvoiceByOrder:
             'total_margin': 0,
             'fb_total': 0,
             'total_pieces': 0,
+            'total_bunches': 0,  # Agregar total_bunches
         }
         days = order.partner.credit_term
         due_date = datetime.now() + timedelta(days=days)
@@ -103,6 +104,7 @@ class CreateInvoiceByOrder:
             totals['tot_stem_flower'] += oi.tot_stem_flower
             totals['total_price'] += oi.line_price
             totals['total_margin'] += oi.line_margin
+            totals['total_bunches'] += oi.total_bunches  # Agregar bunches
 
             inv_item = InvoiceItems.objects.create(
                 invoice=invoice,
@@ -110,6 +112,7 @@ class CreateInvoiceByOrder:
                 id_order_item=oi.id,
                 quantity=oi.quantity,
                 tot_stem_flower=oi.tot_stem_flower,
+                total_bunches=oi.total_bunches,  # Agregar total_bunches
                 line_price=oi.line_price,
                 line_margin=oi.line_margin,
                 line_total=oi.line_total
@@ -123,6 +126,8 @@ class CreateInvoiceByOrder:
                     qty_stem_flower=obx.qty_stem_flower,
                     stem_cost_price=obx.stem_cost_price,
                     profit_margin=obx.profit_margin,
+                    total_bunches=obx.total_bunches,  # Agregar total_bunches
+                    stems_bunch=obx.stems_bunch,  # Agregar stems_bunch
                 )
 
         invoice.qb_total = totals['qb_total']
@@ -132,6 +137,7 @@ class CreateInvoiceByOrder:
         invoice.total_price = totals['total_price']
         invoice.total_margin = totals['total_margin']
         invoice.total_pieces = totals['total_pieces']
+        invoice.total_bunches = totals['total_bunches']  # Agregar total_bunches
 
         return invoice
 
@@ -169,6 +175,7 @@ class CreateInvoiceByOrder:
                 box_model=oi.box_model,
                 quantity=oi.quantity,
                 tot_stem_flower=oi.tot_stem_flower,
+                total_bunches=oi.total_bunches,  # Agregar total_bunches
                 line_price=oi.line_price,
                 line_margin=oi.line_margin,
                 line_total=oi.line_price
@@ -182,6 +189,8 @@ class CreateInvoiceByOrder:
                     qty_stem_flower=obx.qty_stem_flower,
                     stem_cost_price=obx.stem_cost_price,
                     profit_margin=obx.profit_margin,
+                    total_bunches=obx.total_bunches,  # Agregar total_bunches
+                    stems_bunch=obx.stems_bunch,  # Agregar stems_bunch
                 )
 
         return invoice

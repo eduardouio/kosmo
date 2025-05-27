@@ -130,7 +130,7 @@ class CreateInvoiceAPI(View):
                 line_price=order_item.line_price,
                 line_margin=0,  # Sin margen en factura de compra
                 line_total=order_item.line_price,
-                total_bunches=order_item.total_bunches
+                total_bunches=order_item.total_bunches  # Agregar total_bunches
             )
             
             # Copiar box items
@@ -143,6 +143,6 @@ class CreateInvoiceAPI(View):
                     qty_stem_flower=box_item.qty_stem_flower,
                     stem_cost_price=box_item.stem_cost_price,
                     profit_margin=0,  # Sin margen en factura de compra
-                    total_bunches=box_item.total_bunches,
-                    stems_bunch=box_item.stems_bunch
+                    total_bunches=box_item.total_bunches,  # Agregar total_bunches
+                    stems_bunch=box_item.stems_bunch  # Agregar stems_bunch
                 )
