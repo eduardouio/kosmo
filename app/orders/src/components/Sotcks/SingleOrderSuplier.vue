@@ -625,7 +625,7 @@ watch(() => purchaseStore.selectedPurchase,
                 <IconCheck size="20" stroke="1.5" v-if="!purchaseStore.selectedPurchase.is_confirmed" />
                 <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
                 <IconCheckbox size="20" stroke="1.5" v-if="purchaseStore.selectedPurchase.is_confirmed" />
-                <span v-if="purchaseStore.selectedPurchase.is_confirmed">Estoy Seguro</span>
+                <span v-if="purchaseStore.selectedPurchase.is_confirmed">Si Confirmar OC</span>
               </button>
               <button class="btn btn-sm btn-default">
                 <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)">

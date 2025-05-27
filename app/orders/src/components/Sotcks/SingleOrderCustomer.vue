@@ -11,6 +11,8 @@ import {
     IconRefresh,
     IconSettingsDollar,
     IconPrinter,
+    IconBox,
+    IconFileDollar
 } from '@tabler/icons-vue';
 
 const orderStore = useOrdersStore();
@@ -634,6 +636,14 @@ watch(() => orderStore.selectedOrder,
           <IconSettingsDollar size="20" stroke="1.5" />
           Generar Factura
         </button>
+        <a :href="appConfig.apiBaseUrl+'/trade/invoice/'+orderStore.selectedOrder.order.id_invoice" class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_invoiced">
+          <IconFileDollar size="20" stroke="1.5" />
+          Ver Factura
+        </a>
+         <a :href="appConfig.apiBaseUrl+'/trade/order/'+orderStore.selectedOrder.order.id" class="btn btn-default btn-sm">
+          <IconBox size="20" stroke="1.5" />
+                Ficha de Pedido
+        </a>
       </div>
     </div>
   </div>
