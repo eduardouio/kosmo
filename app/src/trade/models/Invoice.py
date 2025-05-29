@@ -241,7 +241,7 @@ class Invoice(BaseModel):
 
     @classmethod
     def get_by_type(cls, type_document):
-        return cls.objects.filter(type_document=type_document)
+        return cls.objects.filter(type_document=type_document, is_active=True)
 
     @classmethod
     def disable_invoice_items(cls, invoice):

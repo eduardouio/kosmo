@@ -7,6 +7,7 @@ import CompleteOrderView from '@/views/Stocks/CompleteOrderView.vue'
 import SingleSupplierOrderView from '@/views/Stocks/SingleSupplierOrderView.vue'
 import SingleOrderView from '@/views/Trade/SingleOrderView.vue'
 import SingleEditOrderViewVue from '@/views/Trade/SingleEditOrderView.vue'
+import PaymentCreateView from '@/views/Payments/PymentCreateView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -50,6 +51,11 @@ const router = createRouter({
       path: '/order/new/',
       name: 'createOrder',
       component: SingleOrderView,
+    },
+    {
+      path: '/payment/new/',
+      name: 'PaymentCreateView',
+      component: PaymentCreateView,
     }
   ],
 })

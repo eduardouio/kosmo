@@ -90,7 +90,7 @@ class Partner(BaseModel):
         'Rendimiento por defecto',
         max_digits=5,
         decimal_places=2,
-        default=0.06
+        default=0.00
     )
     credit_term = models.IntegerField(
         'Plazo de crédito',

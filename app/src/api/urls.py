@@ -21,9 +21,8 @@ from api import (
     OrderDetailAPI,
     CustomerOrderDetailAPI,
     UpdateFutureOrderAPI,
-    PaymentsListAPI,
-    CollectionsListAPI,
     SellersListAPI,
+    InvoicesForPaymentAPI,
 )
 
 urlpatterns = [
@@ -50,7 +49,6 @@ urlpatterns = [
     path('api/invoice/create-by-order/', CreateInvoiceAPI.as_view(), name='create_invoice_by_order'),
     path('api/orders/customer-order-detail/<int:order_id>/', CustomerOrderDetailAPI.as_view(), name='customer-order-detail'),
     path('api/orders/update-future-order/', UpdateFutureOrderAPI.as_view(), name='update_future_order'),
-    path('api/payments/list/', PaymentsListAPI.as_view(), name='payments_list_api'),
-    path('api/collections/list/', CollectionsListAPI.as_view(), name='collections_list_api'),
+    path('api/documents-for-payment/', InvoicesForPaymentAPI.as_view(), name='documents_for_payment'),
     path('api/users/sellers/', SellersListAPI.as_view(), name='sellers_list_api'),
 ]

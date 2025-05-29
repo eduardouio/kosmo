@@ -10,6 +10,7 @@ from .SyncOrders import SyncOrders
 from .CreateInvoiceByOrder import CreateInvoiceByOrder
 from .GPTDirectProcessor import GPTDirectProcessor
 from .StatsSystem import StatsSystem
+from .InvoicesPaymentPending import InvoicesPaymentPending
 
 __all__ = [
     'EmailBackEndAuth',
@@ -24,4 +25,5 @@ __all__ = [
     'CreateInvoiceByOrder',
     'GPTDirectProcessor',
     'StatsSystem',
+    'InvoicesPaymentPending'
 ]
