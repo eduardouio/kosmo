@@ -80,6 +80,14 @@ sudo systemctl restart kosmo.service &&
 sudo systemctl restart nginx.service
 ```
 
+## cada vez que se cree en entorno nuevo
+```bash
+python3 -m venv venv 
+source venv/bin/activate
+pip install -r requirements.txt
+playwright install 
+```
+
 
 ## Exportar Datos
 ```bash
