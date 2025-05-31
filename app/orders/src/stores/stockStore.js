@@ -197,18 +197,27 @@ export const useStockStore = defineStore('stockStore', {
         },
         stockToText() {
             const now = new Date();
-            this.stockText = 'Disponibilidad KosmoFlowers ' + now.toLocaleDateString() + '\n';
+            let headerText = 'Disponibilidad KosmoFlowers ' + now.toLocaleDateString() + '\n';
             let selected = this.stock.filter(item => item.is_selected);
+
+            if (selected.length === 0) {
+                this.stockText = 'Sin Seleccion';
+                return;
+            }
+
+            this.stockText = headerText;
 
             selected.forEach(item => {
                 const checkRelation = (item) => {
-                    if (!this.selectedCustomer) return true;
-                    const parnters = this.selectedCustomer.related_partners.map(p => p.id);
-                    return parnters.includes(item.partner.id);
+                    // Si no hay cliente seleccionado o es "Todos", mostrar todo
+                    if (!this.selectedCustomer || this.selectedCustomer.id === 'all') return true;
+                    if (!this.selectedCustomer.related_partners) return true;
+                    const partners = this.selectedCustomer.related_partners.map(p => p.id);
+                    return partners.includes(item.partner.id);
                 };
 
                 if (checkRelation(item)) {
-                    const totalStem = item.box_items.reduce((acc, subItem) => acc + subItem.qty_stem_flower, 0);
+                    const totalStem = item.box_items.reduce((acc, subItem) => acc + parseInt(subItem.qty_stem_flower || 0), 0);
                     let line_text = `#${item.partner.id} ${item.quantity}${item.box_model} ${totalStem}`;
 
                     const groupedBoxItems = Object.values(
@@ -217,7 +226,7 @@ export const useStockStore = defineStore('stockStore', {
                             if (!acc[key]) {
                                 acc[key] = { ...subItem };
                             } else {
-                                acc[key].qty_stem_flower += subItem.qty_stem_flower;
+                                acc[key].qty_stem_flower += parseInt(subItem.qty_stem_flower || 0);
                             }
                             return acc;
                         }, {})
@@ -226,7 +235,7 @@ export const useStockStore = defineStore('stockStore', {
                     let costText = '';
                     let currentVariety = null;
                     groupedBoxItems.forEach(subItem => {
-                        let cost = parseFloat(subItem.stem_cost_price) + parseFloat(subItem.margin);
+                        let cost = parseFloat(subItem.stem_cost_price || 0) + parseFloat(subItem.margin || 0);
                         cost = cost.toFixed(2);
 
                         if (subItem.product_variety !== currentVariety) {
@@ -234,8 +243,8 @@ export const useStockStore = defineStore('stockStore', {
                             currentVariety = subItem.product_variety;
                         }
                         
-                        line_text += ` ${subItem.length}X${subItem.qty_stem_flower}`;
-                        if (subItem.stem_cost_price){
+                        line_text += ` ${subItem.length}X${subItem.qty_stem_flower || 0}`;
+                        if (parseFloat(subItem.stem_cost_price || 0) > 0){
                             costText += ` $${cost}`;
                         }
                     });
@@ -244,6 +253,15 @@ export const useStockStore = defineStore('stockStore', {
                     this.stockText += line_text + `\n`;
                 }
             });
+
+            // Si después de filtrar no hay items válidos
+            if (this.stockText === headerText) {
+                if (this.selectedCustomer && this.selectedCustomer.id === 'all') {
+                    this.stockText = 'No hay productos seleccionados en el inventario';
+                } else {
+                    this.stockText = 'Sin productos válidos para el cliente seleccionado';
+                }
+            }
         },
         updateValues(newValue, column) {
             let box_items = [];
