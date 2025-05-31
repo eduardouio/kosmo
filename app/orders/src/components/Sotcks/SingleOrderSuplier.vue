@@ -499,7 +499,7 @@ watch(() => purchaseStore.selectedPurchase,
               </div>
             </div>
             <div class="col-md-4 text-end">
-              <button class="btn btn-outline-primary btn-sm" v-if="isTwoQBSelected" @click="mergeQB">
+              <button class="btn btn-outline-primary" v-if="isTwoQBSelected" @click="mergeQB">
                 <IconLayersIntersect2 size="16" stroke="1.5" class="me-1" />
                 Unificar a HB
               </button>
@@ -573,7 +573,7 @@ watch(() => purchaseStore.selectedPurchase,
                         <!-- Quantity & Delete -->
                         <div class="col-1 border-end p-1">
                           <div class="d-flex align-items-center gap-1">
-                            <button class="btn btn-sm btn-outline-danger border-0"
+                            <button class="btn btn-outline-danger border-0"
                                     @click="deleteOrderItem(item)"
                                     :class="{ 'text-danger': item.confirm_delete }"
                                     v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced">
@@ -788,7 +788,7 @@ watch(() => purchaseStore.selectedPurchase,
                   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <div>
                       <button type="button" 
-                              class="btn btn-outline-danger btn-sm" 
+                              class="btn btn-outline-danger" 
                               @click="updateOrder('cancell')"
                               v-if="!purchaseStore.selectedPurchase.is_invoiced && purchaseStore.selectedPurchase.order.status === 'CANCELADO'">
                         <IconBan size="16" stroke="1.5" class="me-1" />
@@ -799,7 +799,7 @@ watch(() => purchaseStore.selectedPurchase,
                     
                     <div class="d-flex gap-2 flex-wrap">
                       <button type="button" 
-                              class="btn btn-primary btn-sm" 
+                              class="btn btn-primary" 
                               @click="updateOrder('update')"
                               :disabled="orderHaveCeroItem" 
                               v-if="isModified && !purchaseStore.selectedPurchase.is_confirmed">
@@ -808,21 +808,21 @@ watch(() => purchaseStore.selectedPurchase,
                         <span v-else>Actualizar</span>
                       </button>
                       
-                      <button class="btn btn-success btn-sm" @click="updateOrder('confirm')">
+                      <button class="btn btn-success" @click="updateOrder('confirm')">
                         <IconCheck size="16" stroke="1.5" class="me-1" v-if="!purchaseStore.selectedPurchase.is_confirmed" />
                         <IconCheckbox size="16" stroke="1.5" class="me-1" v-if="purchaseStore.selectedPurchase.is_confirmed" />
                         <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
                         <span v-if="purchaseStore.selectedPurchase.is_confirmed">OC Confirmada</span>
                       </button>
                       
-                      <button class="btn btn-outline-secondary btn-sm">
+                      <button class="btn btn-outline-secondary">
                         <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)" class="text-decoration-none">
                           <IconPrinter size="16" stroke="1.5" class="me-1" />
-                          Imprimir OC
+                          Orden de Compra
                         </a>
                       </button>
                       
-                      <button class="btn btn-info btn-sm" 
+                      <button class="btn btn-info" 
                               v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
                               @click="purchaseStore.createInvoice()">
                         <IconFileDollar size="16" stroke="1.5" class="me-1" />
@@ -884,11 +884,6 @@ input[type="checkbox"] {
 .alert {
   border-radius: 6px;
   padding: 0.75rem;
-}
-
-.btn-sm {
-  padding: 0.125rem 0.375rem;
-  font-size: 0.75rem;
 }
 
 .input-error {

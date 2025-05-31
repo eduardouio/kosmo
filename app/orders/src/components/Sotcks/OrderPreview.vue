@@ -306,7 +306,7 @@ const calculateTotalStemsForItem = (item) => {
     <!-- Action Buttons -->
     <div class="row mb-2" v-if="isTwoQBSelected">
       <div class="col-12 text-end">
-        <button class="btn btn-outline-primary btn-sm" @click="ordersStore.mergeQB">
+        <button class="btn btn-outline-primary" @click="ordersStore.mergeQB">
           <IconLayersIntersect2 size="16" stroke="1.5" class="me-1" />
           {{ 
             ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected).length === 1 
@@ -384,7 +384,7 @@ const calculateTotalStemsForItem = (item) => {
                   <!-- Quantity Column -->
                   <div class="col-1 border-end p-1">
                     <div class="d-flex align-items-center gap-1">
-                      <button class="btn btn-sm btn-outline-danger border-0" 
+                      <button class="btn btn-outline-danger border-0" 
                               @click="deleteOrderItem(item)"
                               :class="{ 'text-danger': item.confirm_delete }">
                         <IconTrash size="14" stroke="1.5" />
@@ -439,11 +439,11 @@ const calculateTotalStemsForItem = (item) => {
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
                                  step="1" 
-                                 class="form-control form-control-sm text-end input-soft"
+                                 class="form-control form-control-sm text-end input-soft my-input-4"
                                  v-model="product.total_bunches" 
                                  @focus="selectText"
                                  @keydown="event => handleKeydown(event, '.my-input-4')" 
-                                 @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}"
+                                 @change="(event) => {formatInteger(event); calculateQtyStemFlower(product);}"
                                  :class="{ 
                                    'input-error': !product.total_bunches || parseInt(product.total_bunches) <= 0,
                                    'border-danger': !product.total_bunches || parseInt(product.total_bunches) <= 0
@@ -452,11 +452,11 @@ const calculateTotalStemsForItem = (item) => {
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
                                  step="1" 
-                                 class="form-control form-control-sm text-end input-soft"
+                                 class="form-control form-control-sm text-end input-soft my-input-5"
                                  v-model="product.stems_bunch" 
                                  @focus="selectText"
                                  @keydown="event => handleKeydown(event, '.my-input-5')" 
-                                 @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}"
+                                 @change="(event) => {formatInteger(event); calculateQtyStemFlower(product);}"
                                  :class="{ 
                                    'input-error': !product.stems_bunch || parseInt(product.stems_bunch) <= 0,
                                    'border-danger': !product.stems_bunch || parseInt(product.stems_bunch) <= 0
@@ -465,7 +465,7 @@ const calculateTotalStemsForItem = (item) => {
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
                                  step="0.01" 
-                                 class="form-control form-control-sm text-end input-soft"
+                                 class="form-control form-control-sm text-end input-soft my-input-2"
                                  v-model="product.stem_cost_price" 
                                  @focus="selectText"
                                  @keydown="event => handleKeydown(event, '.my-input-2')" 
@@ -478,7 +478,7 @@ const calculateTotalStemsForItem = (item) => {
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
                                  step="0.01" 
-                                 class="form-control form-control-sm text-end input-soft"
+                                 class="form-control form-control-sm text-end input-soft my-input-3"
                                  v-model="product.margin" 
                                  @focus="selectText" 
                                  @keydown="event => handleKeydown(event, '.my-input-3')"
@@ -591,13 +591,13 @@ const calculateTotalStemsForItem = (item) => {
           <div class="card-body p-reduced">
             <div class="d-flex justify-content-end gap-2">
               <button type="button" 
-                      class="btn btn-outline-danger btn-sm" 
+                      class="btn btn-outline-danger" 
                       @click="cancelOrder">
                 <IconBan size="16" stroke="1.5" class="me-1" />
                 Cancelar Pedido
               </button>
               <button type="button" 
-                      class="btn btn-success btn-sm" 
+                      class="btn btn-success" 
                       @click="createOrder" 
                       :disabled="orderHaveCeroItem">
                 <IconCheckbox size="16" stroke="1.5" class="me-1" />
@@ -653,14 +653,20 @@ input[type="checkbox"] {
   height: 14px;
 }
 
-.btn-sm {
-  padding: 0.125rem 0.375rem;
-  font-size: 0.75rem;
-}
-
 .input-error {
   background-color: #fff3f3;
   border-color: #f5c6cb;
+}
+
+/* Mantener las clases my-input para la funcionalidad de navegación */
+.my-input,
+.my-input-2,
+.my-input-3,
+.my-input-4,
+.my-input-5 {
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  text-align: right;
 }
 
 @media (max-width: 768px) {

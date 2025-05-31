@@ -584,11 +584,11 @@ watch(() => orderStore.selectedOrder,
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
                                  step="1" 
-                                 class="form-control form-control-sm text-end input-soft"
+                                 class="form-control form-control-sm text-end input-soft my-input-4"
                                  v-model="product.total_bunches" 
                                  @focus="selectText"
                                  @keydown="event => handleKeydown(event, '.my-input-4')"
-                                 @blur="event => handleBunchOrStemChange(event, item, product, 'total_bunches')"
+                                 @change="event => handleBunchOrStemChange(event, item, product, 'total_bunches')"
                                  :class="{ 
                                    'input-error': !product.total_bunches || parseInt(product.total_bunches) <= 0,
                                    'border-danger': !product.total_bunches || parseInt(product.total_bunches) <= 0
@@ -598,11 +598,11 @@ watch(() => orderStore.selectedOrder,
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
                                  step="1" 
-                                 class="form-control form-control-sm text-end input-soft"
+                                 class="form-control form-control-sm text-end input-soft my-input-5"
                                  v-model="product.stems_bunch" 
                                  @focus="selectText"
                                  @keydown="event => handleKeydown(event, '.my-input-5')"
-                                 @blur="event => handleBunchOrStemChange(event, item, product, 'stems_bunch')"
+                                 @change="event => handleBunchOrStemChange(event, item, product, 'stems_bunch')"
                                  :class="{ 
                                    'input-error': !product.stems_bunch || parseInt(product.stems_bunch) <= 0,
                                    'border-danger': !product.stems_bunch || parseInt(product.stems_bunch) <= 0
@@ -612,11 +612,11 @@ watch(() => orderStore.selectedOrder,
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
                                  step="0.01" 
-                                 class="form-control form-control-sm text-end input-soft"
+                                 class="form-control form-control-sm text-end input-soft my-input-2"
                                  v-model="product.stem_cost_price" 
                                  @focus="selectText"
                                  @keydown="event => handleKeydown(event, '.my-input-2')" 
-                                 @blur="formatNumber"
+                                 @change="formatNumber"
                                  :class="{ 
                                    'input-error': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.00,
                                    'border-danger': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.00
@@ -626,11 +626,11 @@ watch(() => orderStore.selectedOrder,
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
                                  step="0.01" 
-                                 class="form-control form-control-sm text-end input-soft"
+                                 class="form-control form-control-sm text-end input-soft my-input-3"
                                  v-model="product.margin" 
                                  @focus="selectText" 
                                  @keydown="event => handleKeydown(event, '.my-input-3')"
-                                 @blur="formatNumber" 
+                                 @change="formatNumber" 
                                  :class="{ 
                                    'input-error': !product.margin || parseFloat(product.margin) <= 0.00,
                                    'border-danger': !product.margin || parseFloat(product.margin) <= 0.00
@@ -759,7 +759,7 @@ watch(() => orderStore.selectedOrder,
                 v-if="!orderStore.selectedOrder.is_confirmed && !orderStore.selectedOrder.is_invoiced">
                 <a :href="getUrlReportCusOrder(orderStore.selectedOrder.order.id)" class="text-decoration-none">
                   <IconPrinter size="16" stroke="1.5" class="me-1" />
-                  Imprimir Ord Venta
+                  Orden De Venta
                 </a>
               </button>
 
@@ -846,6 +846,17 @@ input[type="checkbox"] {
 .input-error {
   border-color: #dc3545 !important;
   background-color: #f8d7da !important;
+}
+
+/* Mantener las clases my-input para la funcionalidad de navegación */
+.my-input,
+.my-input-2,
+.my-input-3,
+.my-input-4,
+.my-input-5 {
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  text-align: right;
 }
 
 @media (max-width: 768px) {
