@@ -538,14 +538,14 @@ watch(() => orderStore.selectedOrder,
               :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced"
             />
           </span>
-          <span class="text-end w-13 pe-2 form-control form-control-sm">
+          <span class="text-end w-13 pe-2 p-1 h-50">
             {{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
           </span>
         </div>
       </div>
       <div class="col-1">
         <div v-for="product in item.box_items" :key="product.id" class="d-flex align-items-center justify-content-end mb-1">
-          <span class="form-control form-control-sm text-end my-input-6">
+          <span class="text-end p-1">
             {{ calcTotalByProduct(product) }}
           </span>
         </div>
