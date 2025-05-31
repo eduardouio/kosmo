@@ -407,7 +407,7 @@ watch(() => purchaseStore.selectedPurchase,
           <div class="row mb-3">
             <div class="col-12">
               <div class="card card-soft border-0">
-                <div class="card-body bg-soft-orange p-reduced text-soft-orange">
+                <div class="card-body bg-soft-orange p-reduced text-orange-800">
                   <div class="row align-items-center mb-2">
                     <div class="col-md-4">
                       <h5 class="mb-0 fw-bold">
@@ -418,15 +418,15 @@ watch(() => purchaseStore.selectedPurchase,
                     <div class="col-md-4 text-center">
                       <h6 class="mb-0">
                         <i class="fas fa-shopping-cart me-2"></i>
-                        ORDEN DE COMPRA
+                        <span class="badge badge-soft-warning text-center fs-6">PEDIDO A PROVEEDOR</span>
                       </h6>
                     </div>
                     <div class="col-md-4 text-end">
                       <div class="d-flex justify-content-end gap-1 flex-wrap">
-                        <span class="badge badge-soft-secondary px-2 py-1">
+                        <span class="badge badge-soft-secondary px-2 py-1 fs-6">
                           Pedido {{ purchaseStore.selectedPurchase.order.serie }}-{{ String(purchaseStore.selectedPurchase.order.consecutive).padStart(6, '0') }}
                         </span>
-                        <span class="badge px-2 py-1" 
+                        <span class="badge px-2 py-1 fs-6" 
                               :class="{
                                 'badge-soft-success': purchaseStore.selectedPurchase.order.status === 'CONFIRMADO',
                                 'badge-soft-warning': purchaseStore.selectedPurchase.order.status === 'PENDIENTE',
