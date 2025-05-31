@@ -56,6 +56,23 @@ watch(() => searchTerm.value, (newValue) => {
   showSuggestions.value = newValue.length > 0
   filterCustomers()
 })
+
+const selectAllCustomers = () => {
+    const allCustomersOption = {
+        id: 'all',
+        name: 'Todos los Clientes',
+        business_tax_id: '*',
+        related_partners: null // Sin filtro de proveedores
+    };
+    
+    orderStore.selectedCustomer = allCustomersOption;
+    stockStore.selectedCustomer = allCustomersOption;
+    searchQuery.value = '';
+    showDropdown.value = false;
+    
+    // Regenerar el texto del stock sin filtros
+    stockStore.stockToText();
+};
 </script>
 
 <template>
@@ -83,5 +100,41 @@ watch(() => searchTerm.value, (newValue) => {
         {{ customer.name }}
       </li>
     </ul>
+  </div>
+  <div v-if="showDropdown && (filteredCustomers.length > 0 || searchQuery)" 
+       class="dropdown-menu show position-absolute w-100 mt-1 shadow-lg border-0 rounded">
+    
+    <!-- Opción "Todos" -->
+    <div class="dropdown-item cursor-pointer d-flex align-items-center py-2"
+         @mousedown="selectAllCustomers"
+         :class="{ 'bg-primary text-white': selectedCustomer?.id === 'all' }">
+      <i class="fas fa-globe me-2 text-success"></i>
+      <div>
+        <strong>Todos los Clientes</strong>
+        <small class="d-block text-muted">Mostrar stock completo sin filtrar</small>
+      </div>
+    </div>
+    
+    <div class="dropdown-divider my-1"></div>
+    
+    <!-- Lista de clientes filtrados -->
+    <div v-for="customer in filteredCustomers" 
+         :key="customer.id"
+         class="dropdown-item cursor-pointer d-flex align-items-center py-2"
+         @mousedown="selectCustomer(customer)"
+         :class="{ 'bg-primary text-white': selectedCustomer?.id === customer.id }">
+      <i class="fas fa-building me-2 text-primary"></i>
+      <div>
+        <strong>{{ customer.name }}</strong>
+        <small class="d-block text-muted">{{ customer.business_tax_id }}</small>
+      </div>
+    </div>
+    
+    <!-- Mensaje cuando no hay resultados -->
+    <div v-if="filteredCustomers.length === 0 && searchQuery" 
+         class="dropdown-item-text text-muted py-3 text-center">
+      <i class="fas fa-search me-2"></i>
+      No se encontraron clientes
+    </div>
   </div>
 </template>
