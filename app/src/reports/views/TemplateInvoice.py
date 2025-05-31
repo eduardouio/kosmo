@@ -20,7 +20,6 @@ class TemplateInvoice(TemplateView):
             })
         context['invoice'] = invoice
         context['invoice_items'] = invoice_items_det
-        # Validar si el usuario creador de la factura existe
         id_user_created = invoice.id_user_created if invoice.id_user_created else 1
         context['user_owner'] = CustomUserModel.get_by_id(id_user_created)
         context['now'] = datetime.now()

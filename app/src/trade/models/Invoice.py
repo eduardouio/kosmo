@@ -447,6 +447,16 @@ class InvoiceBoxItems(BaseModel):
     @property
     def unit_price(self):
         return self.stem_cost_price + self.profit_margin
+    
+    @property
+    def total_price_with_margin(self):
+        """Total del producto con margen incluido"""
+        return self.unit_price * self.qty_stem_flower
+    
+    @property
+    def total_price_with_margin_and_quantity(self):
+        """Total del producto con margen incluido multiplicado por la cantidad de cajas"""
+        return self.total_price_with_margin * self.invoice_item.quantity
 
     @classmethod
     def disable_by_invoice_items(cls, invoice_item):

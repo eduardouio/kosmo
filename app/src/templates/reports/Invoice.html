@@ -150,12 +150,12 @@
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{{ bxs.stem_cost_price }}</p>
+                  <p class="border-bottom">${{ bxs.unit_price|floatformat:2 }}</p>
                   {% endfor %}
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{{ bxs.total_price }}</p>
+                  <p class="border-bottom">${{ bxs.total_price_with_margin_and_quantity|floatformat:2 }}</p>
                   {% endfor %}
                 </td>
               </tr>
@@ -166,7 +166,7 @@
 
         <!-- Total Factura -->
         <div class="total-invoice">
-          <p>TOTAL INVOICE USD: {{ invoice.total_price }}</p>
+          <p>TOTAL INVOICE USD: {{ invoice.total_invoice }}</p>
         </div>
 
         <!-- Resumen de totales -->
