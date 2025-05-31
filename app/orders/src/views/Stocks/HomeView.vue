@@ -345,7 +345,7 @@ onMounted(() => {
                                     <div class="card-header header-soft-blue py-reduced">
                                         <h6 class="mb-0">
                                             <i class="fas fa-warehouse me-2"></i>
-                                            Inventario Disponible
+                                            Detalle de Disponibilidad {{ stockStore.stockDay.date }}
                                         </h6>
                                     </div>
                                     
