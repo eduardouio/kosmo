@@ -474,25 +474,28 @@ watch(() => purchaseStore.selectedPurchase,
             <div class="col-1 border-end bg-gray-400 text-center">Tallos</div>
             <div class="col-8 border-end bg-sky-500">
               <div class="d-flex">
-                <div class="flex-grow-1" style="flex: 0 0 26%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 22%; border-right: 1px solid #ddd; text-align: center;">
                   Variedad
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 12%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 10%; border-right: 1px solid #ddd; text-align: center;">
+                  Largo
+                </div>
+                <div class="flex-grow-1" style="flex: 0 0 11%; border-right: 1px solid #ddd; text-align: center;">
                   Bunches
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 12%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 11%; border-right: 1px solid #ddd; text-align: center;">
                   Tallos/Bunch
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 12%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 11%; border-right: 1px solid #ddd; text-align: center;">
                   Costo
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 12%; border-right: 1px solid #ddd; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 11%; border-right: 1px solid #ddd; text-align: center;">
                   Margen
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 12%; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 11%; border-right: 1px solid #ddd; text-align: center;">
                   PVP
                 </div>
-                <div class="flex-grow-1" style="flex: 0 0 14%; text-align: center;">
+                <div class="flex-grow-1" style="flex: 0 0 13%; text-align: center;">
                   Total
                 </div>
               </div>
@@ -524,10 +527,13 @@ watch(() => purchaseStore.selectedPurchase,
             </div>
             <div class="col-8">
               <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-                <span class="border-end text-end" style="width: 26%; padding-right: 0.5rem;">
+                <span class="border-end text-end" style="width: 22%; padding-right: 0.5rem;">
                   {{ product.product_name }} {{ product.product_variety }}
                 </span>
-                <span class="border-end text-end" style="width: 12%; padding-right: 0.5rem;">
+                <span class="border-end text-end" style="width: 10%; padding-right: 0.5rem;">
+                  {{ product.length }}
+                </span>
+                <span class="border-end text-end" style="width: 11%; padding-right: 0.5rem;">
                   <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
                     v-model="product.total_bunches" @focus="selectText"
                     @keydown="event => handleKeydown(event, '.my-input-4')" 
@@ -535,7 +541,7 @@ watch(() => purchaseStore.selectedPurchase,
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
-                <span class="border-end text-end" style="width: 12%; padding-right: 0.5rem;">
+                <span class="border-end text-end" style="width: 11%; padding-right: 0.5rem;">
                   <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
                     v-model="product.stems_bunch" @focus="selectText"
                     @keydown="event => handleKeydown(event, '.my-input-5')" 
@@ -543,7 +549,7 @@ watch(() => purchaseStore.selectedPurchase,
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
-                <span class="border-end text-end" style="width: 12%; padding-right: 0.5rem;">
+                <span class="border-end text-end" style="width: 11%; padding-right: 0.5rem;">
                   <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-2"
                     v-model="product.stem_cost_price" @focus="selectText"
                     @keydown="event => handleKeydown(event, '.my-input-2')" 
@@ -552,7 +558,7 @@ watch(() => purchaseStore.selectedPurchase,
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
-                <span class="border-end text-end" style="width: 12%; padding-right: 0.5rem;">
+                <span class="border-end text-end" style="width: 11%; padding-right: 0.5rem;">
                   <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
                     v-model="product.margin" @focus="selectText"
                     @keydown="event => handleKeydown(event, '.my-input-3')" 
@@ -561,12 +567,12 @@ watch(() => purchaseStore.selectedPurchase,
                     :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced"
                   />
                 </span>
-                <span class="text-end" style="width: 12%; padding-right: 0.5rem;">
+                <span class="text-end" style="width: 11%; padding-right: 0.5rem;">
                   <span class="form-control form-control-sm">
                     {{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
                   </span>
                 </span>
-                <span class="text-end" style="width: 14%; padding-right: 0.5rem;">
+                <span class="text-end" style="width: 13%; padding-right: 0.5rem;">
                   <span class="form-control form-control-sm text-end my-input-6">
                     {{ calcTotalByItem(item) }}
                   </span>
