@@ -370,31 +370,31 @@ onMounted(() => {
                                                 </div>
                                                 <div class="col-5 border-end bg-blue-600 py-2">
                                                     <div class="row g-0 text-center">
-                                                        <div class="col" style="flex: 0 0 25%;">
+                                                        <div class="col" style="flex: 0 0 22%;">
                                                             <small class="fw-bold">PRODUCTO</small>
                                                         </div>
-                                                        <div class="col border-start" style="flex: 0 0 10%;">
+                                                        <div class="col border-start" style="flex: 0 0 8%;">
                                                             <small class="fw-bold">LARGO</small>
                                                         </div>
-                                                        <div class="col border-start" style="flex: 0 0 13%;">
+                                                        <div class="col border-start" style="flex: 0 0 12%;">
                                                             <small class="fw-bold">T/CAJA</small>
                                                         </div>
-                                                        <div class="col border-start" style="flex: 0 0 13%;">
+                                                        <div class="col border-start" style="flex: 0 0 12%;">
                                                             <small class="fw-bold">COSTO</small>
                                                         </div>
-                                                        <div class="col border-start" style="flex: 0 0 13%;">
+                                                        <div class="col border-start" style="flex: 0 0 12%;">
                                                             <small class="fw-bold">MARGEN</small>
                                                         </div>
-                                                        <div class="col border-start" style="flex: 0 0 13%;">
+                                                        <div class="col border-start" style="flex: 0 0 12%;">
                                                             <small class="fw-bold">PVP</small>
                                                         </div>
-                                                        <div class="col border-start" style="flex: 0 0 13%;">
+                                                        <div class="col border-start" style="flex: 0 0 22%;">
                                                             <small class="fw-bold">COLORES</small>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="col-1 bg-green-600 text-center py-2">
-                                                    <small class="fw-bold">Selecionar</small>
+                                                    <small class="fw-bold">SEL</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -455,7 +455,7 @@ onMounted(() => {
                                                     <div class="col-5 border-end p-1">
                                                         <div v-for="box in item.box_items" :key="box.id" class="product-row mb-1">
                                                             <div class="row g-1 align-items-center">
-                                                                <div class="col" style="flex: 0 0 25%;">
+                                                                <div class="col" style="flex: 0 0 22%;">
                                                                     <div class="d-flex align-items-center gap-1">
                                                                         <button class="btn btn-sm btn-outline-info border-0"
                                                                                 @click="productSelected = box" 
@@ -466,10 +466,10 @@ onMounted(() => {
                                                                         <small class="fw-medium">{{ box.product_name }} {{ box.product_variety }}</small>
                                                                     </div>
                                                                 </div>
-                                                                <div class="col text-center" style="flex: 0 0 10%;">
+                                                                <div class="col text-center" style="flex: 0 0 8%;">
                                                                     <span class="badge badge-soft-info">{{ box.length }}</span>
                                                                 </div>
-                                                                <div class="col" style="flex: 0 0 13%;">
+                                                                <div class="col" style="flex: 0 0 12%;">
                                                                     <input type="number" 
                                                                            step="1" 
                                                                            class="form-control form-control-sm text-end input-soft my-input"
@@ -478,9 +478,12 @@ onMounted(() => {
                                                                            @change="(event) => formatInteger(event, box)"
                                                                            @input="calcIndicators" 
                                                                            v-model="box.qty_stem_flower"
-                                                                           :class="{ 'border-danger': parseInt(box.qty_stem_flower) <= 0 }">
+                                                                           :class="{ 
+                                                                             'input-error': !box.qty_stem_flower || parseInt(box.qty_stem_flower) <= 0,
+                                                                             'border-danger': !box.qty_stem_flower || parseInt(box.qty_stem_flower) <= 0
+                                                                           }">
                                                                 </div>
-                                                                <div class="col" style="flex: 0 0 13%;">
+                                                                <div class="col" style="flex: 0 0 12%;">
                                                                     <input type="number" 
                                                                            step="0.01" 
                                                                            class="form-control form-control-sm text-end input-soft my-input-2"
@@ -488,9 +491,12 @@ onMounted(() => {
                                                                            @focus="selectText" 
                                                                            @change="(event) => formatNumber(event, box)"
                                                                            v-model="box.stem_cost_price"
-                                                                           :class="{ 'border-danger': parseFloat(box.stem_cost_price) <= 0.00 }">
+                                                                           :class="{ 
+                                                                             'input-error': !box.stem_cost_price || parseFloat(box.stem_cost_price) <= 0.00,
+                                                                             'border-danger': !box.stem_cost_price || parseFloat(box.stem_cost_price) <= 0.00
+                                                                           }">
                                                                 </div>
-                                                                <div class="col" style="flex: 0 0 13%;">
+                                                                <div class="col" style="flex: 0 0 12%;">
                                                                     <input type="number" 
                                                                            step="0.01" 
                                                                            class="form-control form-control-sm text-end input-soft my-input-3"
@@ -498,14 +504,17 @@ onMounted(() => {
                                                                            @focus="selectText" 
                                                                            @change="(event) => formatNumber(event, box)"
                                                                            v-model="box.margin"
-                                                                           :class="{ 'border-danger': parseFloat(box.margin) <= 0.00 }">
+                                                                           :class="{ 
+                                                                             'input-error': !box.margin || parseFloat(box.margin) <= 0.00,
+                                                                             'border-danger': !box.margin || parseFloat(box.margin) <= 0.00
+                                                                           }">
                                                                 </div>
-                                                                <div class="col text-center" style="flex: 0 0 13%;">
+                                                                <div class="col text-center" style="flex: 0 0 12%;">
                                                                     <span class="badge badge-soft-success">
                                                                         {{ (parseFloat(box.margin) + parseFloat(box.stem_cost_price)).toFixed(2) }}
                                                                     </span>
                                                                 </div>
-                                                                <div class="col text-center" style="flex: 0 0 13%;">
+                                                                <div class="col text-center" style="flex: 0 0 22%;">
                                                                     <div class="d-flex gap-1 justify-content-center">
                                                                         <span v-for="color in uniqueColors(item.box_items)" :key="color"
                                                                               :class="getClass(color)">
@@ -532,7 +541,7 @@ onMounted(() => {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Modals -->
                         <ModalProduct :product="productSelected" />
                         <ModalSuplier :suplier="suplierSelected" />
@@ -591,13 +600,21 @@ input[type="checkbox"] {
 
 .btn-sm {
     padding: 0.125rem 0.375rem;
+    font-size: 0.75rem;
 }
 
 /* Mantener las clases my-input para la funcionalidad de navegación */
 .my-input,
 .my-input-2,
 .my-input-3 {
-    /* Las clases CSS existentes se mantienen para la funcionalidad de navegación entre inputs */
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    text-align: right;
+}
+
+.input-error {
+    background-color: #fff3f3;
+    border-color: #f5c2c7;
 }
 
 @media (max-width: 768px) {

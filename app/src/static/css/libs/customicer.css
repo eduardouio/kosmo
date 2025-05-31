@@ -2738,3 +2738,43 @@ body {
 	color: #64748b !important;
 	border: 1px solid #e2e8f0 !important;
 }
+
+/* Clases para inputs con valores inválidos */
+.input-error {
+    background-color: #fef2f2 !important;
+    border-color: #fca5a5 !important;
+}
+
+.input-warning {
+    background-color: #fffbeb !important;
+    border-color: #fcd34d !important;
+}
+
+.bg-error-soft {
+    background-color: #fef2f2 !important;
+}
+
+.bg-warning-soft {
+    background-color: #fffbeb !important;
+}
+
+.border-error-soft {
+    border-color: #fca5a5 !important;
+}
+
+.border-warning-soft {
+    border-color: #fcd34d !important;
+}
+
+/* Estados específicos para inputs */
+.form-control.input-error:focus {
+    background-color: #fef2f2 !important;
+    border-color: #f87171 !important;
+    box-shadow: 0 0 0 0.2rem rgba(248, 113, 113, 0.25) !important;
+}
+
+.form-control.input-warning:focus {
+    background-color: #fffbeb !important;
+    border-color: #f59e0b !important;
+    box-shadow: 0 0 0 0.2rem rgba(245, 158, 11, 0.25) !important;
+}

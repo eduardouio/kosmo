@@ -582,32 +582,60 @@ watch(() => orderStore.selectedOrder,
                           <span class="badge badge-soft-info">{{ product.length }}</span>
                         </div>
                         <div class="col" style="flex: 0 0 13%;">
-                          <input type="number" step="1" class="form-control form-control-sm text-end input-soft"
-                            v-model="product.total_bunches" @focus="selectText"
-                            @keydown="event => handleKeydown(event, '.my-input-4')"
-                            @blur="event => handleBunchOrStemChange(event, item, product, 'total_bunches')"
-                            :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
+                          <input type="number" 
+                                 step="1" 
+                                 class="form-control form-control-sm text-end input-soft"
+                                 v-model="product.total_bunches" 
+                                 @focus="selectText"
+                                 @keydown="event => handleKeydown(event, '.my-input-4')"
+                                 @blur="event => handleBunchOrStemChange(event, item, product, 'total_bunches')"
+                                 :class="{ 
+                                   'input-error': !product.total_bunches || parseInt(product.total_bunches) <= 0,
+                                   'border-danger': !product.total_bunches || parseInt(product.total_bunches) <= 0
+                                 }"
+                                 :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
                         </div>
                         <div class="col" style="flex: 0 0 13%;">
-                          <input type="number" step="1" class="form-control form-control-sm text-end input-soft"
-                            v-model="product.stems_bunch" @focus="selectText"
-                            @keydown="event => handleKeydown(event, '.my-input-5')"
-                            @blur="event => handleBunchOrStemChange(event, item, product, 'stems_bunch')"
-                            :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
+                          <input type="number" 
+                                 step="1" 
+                                 class="form-control form-control-sm text-end input-soft"
+                                 v-model="product.stems_bunch" 
+                                 @focus="selectText"
+                                 @keydown="event => handleKeydown(event, '.my-input-5')"
+                                 @blur="event => handleBunchOrStemChange(event, item, product, 'stems_bunch')"
+                                 :class="{ 
+                                   'input-error': !product.stems_bunch || parseInt(product.stems_bunch) <= 0,
+                                   'border-danger': !product.stems_bunch || parseInt(product.stems_bunch) <= 0
+                                 }"
+                                 :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
                         </div>
                         <div class="col" style="flex: 0 0 13%;">
-                          <input type="number" step="0.01" class="form-control form-control-sm text-end input-soft"
-                            v-model="product.stem_cost_price" @focus="selectText"
-                            @keydown="event => handleKeydown(event, '.my-input-2')" @blur="formatNumber"
-                            :class="{ 'border-danger': parseFloat(product.stem_cost_price) <= 0.00 }"
-                            :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
+                          <input type="number" 
+                                 step="0.01" 
+                                 class="form-control form-control-sm text-end input-soft"
+                                 v-model="product.stem_cost_price" 
+                                 @focus="selectText"
+                                 @keydown="event => handleKeydown(event, '.my-input-2')" 
+                                 @blur="formatNumber"
+                                 :class="{ 
+                                   'input-error': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.00,
+                                   'border-danger': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.00
+                                 }"
+                                 :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
                         </div>
                         <div class="col" style="flex: 0 0 13%;">
-                          <input type="number" step="0.01" class="form-control form-control-sm text-end input-soft"
-                            v-model="product.margin" @focus="selectText"
-                            @keydown="event => handleKeydown(event, '.my-input-3')" @blur="formatNumber"
-                            :class="{ 'border-danger': parseFloat(product.margin) <= 0.00 }"
-                            :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
+                          <input type="number" 
+                                 step="0.01" 
+                                 class="form-control form-control-sm text-end input-soft"
+                                 v-model="product.margin" 
+                                 @focus="selectText" 
+                                 @keydown="event => handleKeydown(event, '.my-input-3')"
+                                 @blur="formatNumber" 
+                                 :class="{ 
+                                   'input-error': !product.margin || parseFloat(product.margin) <= 0.00,
+                                   'border-danger': !product.margin || parseFloat(product.margin) <= 0.00
+                                 }"
+                                 :disabled="orderStore.selectedOrder.is_confirmed || orderStore.selectedOrder.is_invoiced" />
                         </div>
                         <div class="col text-center" style="flex: 0 0 13%;">
                           <span class="badge badge-soft-success">
@@ -813,6 +841,11 @@ input[type="checkbox"] {
 . {
   padding: 0.125rem 0.375rem;
   font-size: 0.75rem;
+}
+
+.input-error {
+  border-color: #dc3545 !important;
+  background-color: #f8d7da !important;
 }
 
 @media (max-width: 768px) {

@@ -631,6 +631,10 @@ watch(() => purchaseStore.selectedPurchase,
                                        @focus="selectText"
                                        @keydown="event => handleKeydown(event, '.my-input-4')" 
                                        @change="handleBunchOrStemChange($event, item, product, 'total_bunches')"
+                                       :class="{ 
+                                         'input-error': !product.total_bunches || parseInt(product.total_bunches) <= 0,
+                                         'border-danger': !product.total_bunches || parseInt(product.total_bunches) <= 0
+                                       }"
                                        :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
                               </div>
                               <div class="col" style="flex: 0 0 11%;">
@@ -641,6 +645,10 @@ watch(() => purchaseStore.selectedPurchase,
                                        @focus="selectText"
                                        @keydown="event => handleKeydown(event, '.my-input-5')" 
                                        @change="handleBunchOrStemChange($event, item, product, 'stems_bunch')"
+                                       :class="{ 
+                                         'input-error': !product.stems_bunch || parseInt(product.stems_bunch) <= 0,
+                                         'border-danger': !product.stems_bunch || parseInt(product.stems_bunch) <= 0
+                                       }"
                                        :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
                               </div>
                               <div class="col" style="flex: 0 0 11%;">
@@ -650,8 +658,11 @@ watch(() => purchaseStore.selectedPurchase,
                                        v-model="product.stem_cost_price" 
                                        @focus="selectText"
                                        @keydown="event => handleKeydown(event, '.my-input-2')" 
-                                       @change="(event) => { formatNumber(event); handlePriceOrMarginChange(event, item); }"
-                                       :class="{ 'border-danger': parseFloat(product.stem_cost_price) <= 0.0 }"
+                                       @change="(event) => { formatNumber(event); }"
+                                       :class="{ 
+                                         'input-error': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.0,
+                                         'border-danger': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.0
+                                       }"
                                        :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
                               </div>
                               <div class="col" style="flex: 0 0 11%;">
@@ -661,8 +672,11 @@ watch(() => purchaseStore.selectedPurchase,
                                        v-model="product.margin" 
                                        @focus="selectText"
                                        @keydown="event => handleKeydown(event, '.my-input-3')" 
-                                       @change="(event) => { formatNumber(event); handlePriceOrMarginChange(event, item); }"
-                                       :class="{ 'border-danger': parseFloat(product.margin) <= 0.0 }"
+                                       @change="(event) => { formatNumber(event); }"
+                                       :class="{ 
+                                         'input-error': !product.margin || parseFloat(product.margin) <= 0.0,
+                                         'border-danger': !product.margin || parseFloat(product.margin) <= 0.0
+                                       }"
                                        :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
                               </div>
                               <div class="col text-center" style="flex: 0 0 11%;">
@@ -875,6 +889,11 @@ input[type="checkbox"] {
 .btn-sm {
   padding: 0.125rem 0.375rem;
   font-size: 0.75rem;
+}
+
+.input-error {
+  background-color: #fff3f3;
+  color: #dc3545;
 }
 
 @media (max-width: 768px) {

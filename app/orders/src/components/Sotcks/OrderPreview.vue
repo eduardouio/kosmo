@@ -443,7 +443,11 @@ const calculateTotalStemsForItem = (item) => {
                                  v-model="product.total_bunches" 
                                  @focus="selectText"
                                  @keydown="event => handleKeydown(event, '.my-input-4')" 
-                                 @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
+                                 @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}"
+                                 :class="{ 
+                                   'input-error': !product.total_bunches || parseInt(product.total_bunches) <= 0,
+                                   'border-danger': !product.total_bunches || parseInt(product.total_bunches) <= 0
+                                 }" />
                         </div>
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
@@ -452,7 +456,11 @@ const calculateTotalStemsForItem = (item) => {
                                  v-model="product.stems_bunch" 
                                  @focus="selectText"
                                  @keydown="event => handleKeydown(event, '.my-input-5')" 
-                                 @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
+                                 @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}"
+                                 :class="{ 
+                                   'input-error': !product.stems_bunch || parseInt(product.stems_bunch) <= 0,
+                                   'border-danger': !product.stems_bunch || parseInt(product.stems_bunch) <= 0
+                                 }" />
                         </div>
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
@@ -462,7 +470,10 @@ const calculateTotalStemsForItem = (item) => {
                                  @focus="selectText"
                                  @keydown="event => handleKeydown(event, '.my-input-2')" 
                                  @change="formatNumber"
-                                 :class="{ 'border-danger': parseFloat(product.stem_cost_price) <= 0.00 }" />
+                                 :class="{ 
+                                   'input-error': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.00,
+                                   'border-danger': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.00
+                                 }" />
                         </div>
                         <div class="col" style="flex: 0 0 13%;">
                           <input type="number" 
@@ -472,7 +483,10 @@ const calculateTotalStemsForItem = (item) => {
                                  @focus="selectText" 
                                  @keydown="event => handleKeydown(event, '.my-input-3')"
                                  @change="formatNumber" 
-                                 :class="{ 'border-danger': parseFloat(product.margin) <= 0.00 }" />
+                                 :class="{ 
+                                   'input-error': !product.margin || parseFloat(product.margin) <= 0.00,
+                                   'border-danger': !product.margin || parseFloat(product.margin) <= 0.00
+                                 }" />
                         </div>
                         <div class="col text-center" style="flex: 0 0 13%;">
                           <span class="badge badge-soft-success">
@@ -642,6 +656,11 @@ input[type="checkbox"] {
 .btn-sm {
   padding: 0.125rem 0.375rem;
   font-size: 0.75rem;
+}
+
+.input-error {
+  background-color: #fff3f3;
+  border-color: #f5c6cb;
 }
 
 @media (max-width: 768px) {
