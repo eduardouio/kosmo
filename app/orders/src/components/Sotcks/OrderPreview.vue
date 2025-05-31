@@ -235,53 +235,79 @@ const calculateTotalStemsForItem = (item) => {
 </script>
 
 <template>
-  <div class="container-fluid p-3">
-    <div class="row p-0 mb-0">
+  <div class="container-fluid p-2">
+    <!-- Customer Selection -->
+    <div class="row mb-3">
       <div class="col-12">
-        <AutocompleteCustomer />
-      </div>
-    </div>
-    <div class="row">  
-      <div class="col-12 bg-gray-600 bg-gradient rounded-1 shadow-sm p-2 text-white" v-if="ordersStore.selectedCustomer">
-        <div class="row">
-          <div class="col text-center">
-            <h5>
-              {{ ordersStore.selectedCustomer.name }}
-            </h5>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-1 text-end">ID:</div>
-          <div class="col-1">{{ ordersStore.selectedCustomer.business_tax_id }}</div>
-          <div class="col-1 text-end">Dir:</div>
-          <div class="col-6">
-            {{ ordersStore.selectedCustomer.address }}
-            {{ ordersStore.selectedCustomer.country }}/{{ ordersStore.selectedCustomer.city }}
-          </div>
-          <div class="col-1 text-end">Skype:</div>
-          <div class="col-2">{{ ordersStore.selectedCustomer.skype }}</div>
-        </div>
-        <div class="row pt-1">
-          <div class="col-1 text-end">Contacto:</div>
-          <div class="col-8 d-flex gap-2">
-            <span>{{ ordersStore.selectedCustomer.contact.name }}</span>
-            <span>{{ ordersStore.selectedCustomer.contact.email }}</span>
-            <span>{{ ordersStore.selectedCustomer.contact.phone }}</span>
-            <span class="badge bg-green-600">{{ ordersStore.selectedCustomer.contact.contact_type }}</span>
-          </div>
-          <div class="col-1 text-end fw-semibold">
-            Consolida:
-          </div>
-          <div class="col-2">
-            {{ ordersStore.selectedCustomer.consolidate ? 'Si' : 'No' }}
+        <div class="card card-soft border-0">
+          <div class="card-body p-reduced">
+            <AutocompleteCustomer />
           </div>
         </div>
       </div>
     </div>
-    <div class="row pb-2 pt-2 text-end">
-      <div class="col">
-        <button class="btn btn-sm btn-default" v-if="isTwoQBSelected" @click="ordersStore.mergeQB">
-          <IconLayersIntersect2 size="20" stroke="1.5" />
+
+    <!-- Customer Information Card -->
+    <div class="row mb-3" v-if="ordersStore.selectedCustomer">
+      <div class="col-12">
+        <div class="card card-soft border-0">
+          <div class="card-body bg-soft-primary p-reduced text-soft-primary">
+            <div class="row align-items-center mb-2">
+              <div class="col">
+                <h5 class="mb-0 fw-bold">
+                  <i class="fas fa-building me-2"></i>
+                  {{ ordersStore.selectedCustomer.name }}
+                </h5>
+              </div>
+            </div>
+            
+            <div class="row g-2">
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-1">
+                  <strong class="me-2">ID:</strong>
+                  <span>{{ ordersStore.selectedCustomer.business_tax_id }}</span>
+                </div>
+                <div class="d-flex align-items-start">
+                  <strong class="me-2">Dirección:</strong>
+                  <span>{{ ordersStore.selectedCustomer.address }}, {{ ordersStore.selectedCustomer.city }}, {{ ordersStore.selectedCustomer.country }}</span>
+                </div>
+              </div>
+              
+              <div class="col-md-6">
+                <div class="d-flex align-items-center mb-1">
+                  <strong class="me-2">Skype:</strong>
+                  <span>{{ ordersStore.selectedCustomer.skype || 'N/A' }}</span>
+                </div>
+                <div class="d-flex align-items-center">
+                  <strong class="me-2">Consolida:</strong>
+                  <span class="badge" :class="ordersStore.selectedCustomer.consolidate ? 'badge-soft-success' : 'badge-soft-secondary'">
+                    {{ ordersStore.selectedCustomer.consolidate ? 'Sí' : 'No' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-2" v-if="ordersStore.selectedCustomer.contact">
+              <div class="col-12">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <strong>Contacto:</strong>
+                  <span class="badge badge-soft-secondary">{{ ordersStore.selectedCustomer.contact.name }}</span>
+                  <span class="badge badge-soft-secondary">{{ ordersStore.selectedCustomer.contact.email }}</span>
+                  <span class="badge badge-soft-secondary">{{ ordersStore.selectedCustomer.contact.phone }}</span>
+                  <span class="badge badge-soft-success">{{ ordersStore.selectedCustomer.contact.contact_type }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mb-2" v-if="isTwoQBSelected">
+      <div class="col-12 text-end">
+        <button class="btn btn-outline-primary btn-sm" @click="ordersStore.mergeQB">
+          <IconLayersIntersect2 size="16" stroke="1.5" class="me-1" />
           {{ 
             ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected).length === 1 
             ? 'Convertir QB a HB' 
@@ -290,172 +316,341 @@ const calculateTotalStemsForItem = (item) => {
         </button>
       </div>
     </div>
-    <div class="row p-1 text-white">
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Cant</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Mdl</div>
-      <div class="col-1 fw-bold fs-6 border-end bg-gray-400 text-center">Tallos</div>
-      <div class="col-2 fw-bold fs-6 border-end bg-gray-400 text-center">Proveedor</div>
-      <div class="col-6 fw-bold fs-6 border-end bg-sky-500">
-        <div class="d-flex">
-          <div class="flex-grow-1" style="flex: 0 0 25%; border-right: 1px solid #ddd; text-align: center;">
-            Variedad
-          </div>
-          <div class="flex-grow-1" style="flex: 0 0 10%; border-right: 1px solid #ddd; text-align: center;">
-            Largo
-          </div>
-          <div class="flex-grow-1" style="flex: 0 0 13%; border-right: 1px solid #ddd; text-align: center;">
-            Bunches
-          </div>
-          <div class="flex-grow-1" style="flex: 0 0 13%; border-right: 1px solid #ddd; text-align: center;">
-            Tallos/Bunch
-          </div>
-          <div class="flex-grow-1" style="flex: 0 0 13%; border-right: 1px solid #ddd; text-align: center;">
-            Costo
-          </div>
-          <div class="flex-grow-1" style="flex: 0 0 13%; border-right: 1px solid #ddd; text-align: center;">
-            Margen
-          </div>
-          <div class="flex-grow-1" style="flex: 0 0 13%; text-align: center;">
-            PVP
-          </div>
-        </div>
-      </div>
-      <div class="col-1 fw-bold fs-6 bg-kosmo-green">C/USD</div>
-    </div>
-    <div v-for="item, idx in ordersStore.newOrder" :key="item.id" class="row mb-1 border my-hover-2"
-      :class="{ 'bg-gray': idx % 2 === 0 }">
-      <div class="col-1 border-end d-flex gap-1 justify-content-between align-items-center">
-        <IconTrash size="30" stroke="1.5" :class="item.confirm_delete ? 'text-danger' : 'text-dark'"
-          @click="deleteOrderItem(item)" />
-        <input type="number" step="1" class="form-control form-control-sm text-end" v-model="item.quantity"
-          @change="(event) => delimitedNumber(event, item)" @focus="selectText"
-          @keydown="event => handleKeydown(event, '.form-control-sm')" />
-      </div>
-      <div class="col-1 text-end border-end d-flex align-items-end gap-2">
-        {{ item.box_model }}
-        <span>/</span>
-        <IconSitemap size="20" stroke="1.5" @click="ordersStore.splitHB(item)" v-if="item.box_model === 'HB'" />
-        <input type="checkbox" v-model="item.is_selected" v-if="item.box_model === 'QB'" />
-      </div>
-      <div class="col-1 text-end border-end d-flex align-items-end justify-content-end">
-        {{ calculateTotalStemsForItem(item) }}
-      </div>
-      <div class="col-2 d-flex align-items-end">
-        <small>
-          {{ item.partner.name }}
-        </small>
-      </div>
-      <div class="col-6">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex justify-content-between">
-          <span class="border-end text-end w-25 pe-2">
-            {{ product.product_name }} {{ product.product_variety }}
-          </span>
-          <span class="border-end text-end w-10 pe-2">
-            {{ product.length }}
-          </span>
-          <span class="border-end text-end w-13 pe-2">
-            <input type="number" step="1" class="form-control form-control-sm text-end my-input-4"
-              v-model="product.total_bunches" @focus="selectText"
-              @keydown="event => handleKeydown(event, '.my-input-4')" 
-              @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
-          </span>
-          <span class="border-end text-end w-13 pe-2">
-            <input type="number" step="1" class="form-control form-control-sm text-end my-input-5"
-              v-model="product.stems_bunch" @focus="selectText"
-              @keydown="event => handleKeydown(event, '.my-input-5')" 
-              @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
-          </span>
-          <span class="border-end text-end w-13 pe-2">
-            <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-2"
-              v-model="product.stem_cost_price" @focus="selectText"
-              @keydown="event => handleKeydown(event, '.my-input-2')" @change="formatNumber"
-              :class="{ 'bg-red-200': parseFloat(product.stem_cost_price) <= 0.00 }" />
-          </span>
-          <span class="border-end text-end w-13 pe-2">
-            <input type="number" step="0.01" class="form-control form-control-sm text-end my-input-3"
-              v-model="product.margin" @focus="selectText" @keydown="event => handleKeydown(event, '.my-input-3')"
-              @change="formatNumber" :class="{ 'bg-red-200': parseFloat(product.margin) <= 0.00 }" />
-          </span>
-          <span class="text-end w-13 pe-2 form-control form-control-sm">
-            {{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
-          </span>
-        </div>
-      </div>
-      <div class="col-1 fw-semibold">
-        <div v-for="product in item.box_items" :key="product.id" class="d-flex align-items-center justify-content-end mb-1">
-          <span class="form-control form-control-sm text-end my-input-6">
-            {{ calcTotalByProduct(product) }}
-          </span>
-        </div>
-      </div>
-    </div>
+
+    <!-- Order Items Table -->
     <div class="row">
-      <div class="col-3">
-        <div class="row shadow-sm p-2">
-          <div class="col-9 fs-5 text-start text-end">{{ totalBoxesHB }}</div>
-          <div class="col-3 fs-5 text-end">HB's:</div>
-          <div class="col-9 fs-5 text-start text-end">{{ totalBoxesQB }}</div>
-          <div class="col-3 fs-5 text-end">QB's:</div>
-          <div class="col-9 fs-5 text-start text-end">{{ totalStems }}</div>
-          <div class="col-3 fs-5 text-end">Tallos:</div>
-        </div>
-      </div>
-      <div class="col-4 offset-5">
-        <div class="row bg-gray-200 bg-gradient rounded-1 shadow-sm p-2">
-          <div class="col-7 text-end border-end fs-5 text-lime-600">Costo:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">{{ totalCost }}</div>
-          <div class="col-7 text-end border-end fs-5 text-lime-600">Margen:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">{{ totalMargin }}</div>
-          <div class="col-7 text-end border-end fs-5 text-lime-600">Total Pedido:</div>
-          <div class="col-5 fs-5 text-lime-600 text-end">{{ totalOrder }}</div>
+      <div class="col-12">
+        <div class="card card-soft border-0">
+          <div class="card-header header-soft-blue py-reduced">
+            <h6 class="mb-0">
+              <i class="fas fa-shopping-cart me-2"></i>
+              Productos del Pedido
+            </h6>
+          </div>
+          
+          <div class="card-body p-0">
+            <!-- Table Header -->
+            <div class="table-header bg-gray-700 text-white">
+              <div class="row g-0">
+                <div class="col-1 border-end text-center py-2">
+                  <small class="fw-bold">CANT</small>
+                </div>
+                <div class="col-1 border-end text-center py-2">
+                  <small class="fw-bold">MODELO</small>
+                </div>
+                <div class="col-1 border-end text-center py-2">
+                  <small class="fw-bold">TALLOS</small>
+                </div>
+                <div class="col-2 border-end text-center py-2">
+                  <small class="fw-bold">PROVEEDOR</small>
+                </div>
+                <div class="col-6 border-end bg-blue-600 py-2">
+                  <div class="row g-0 text-center">
+                    <div class="col" style="flex: 0 0 25%;">
+                      <small class="fw-bold">VARIEDAD</small>
+                    </div>
+                    <div class="col border-start" style="flex: 0 0 10%;">
+                      <small class="fw-bold">LARGO</small>
+                    </div>
+                    <div class="col border-start" style="flex: 0 0 13%;">
+                      <small class="fw-bold">BUNCHES</small>
+                    </div>
+                    <div class="col border-start" style="flex: 0 0 13%;">
+                      <small class="fw-bold">T/BUNCH</small>
+                    </div>
+                    <div class="col border-start" style="flex: 0 0 13%;">
+                      <small class="fw-bold">COSTO</small>
+                    </div>
+                    <div class="col border-start" style="flex: 0 0 13%;">
+                      <small class="fw-bold">MARGEN</small>
+                    </div>
+                    <div class="col border-start" style="flex: 0 0 13%;">
+                      <small class="fw-bold">PVP</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-1 bg-green-600 text-center py-2">
+                  <small class="fw-bold">TOTAL</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Table Body -->
+            <div class="table-body">
+              <div v-for="(item, idx) in ordersStore.newOrder" :key="item.id" 
+                   class="order-row" 
+                   :class="{ 'bg-gray-50': idx % 2 === 0 }">
+                <div class="row g-0 align-items-center">
+                  <!-- Quantity Column -->
+                  <div class="col-1 border-end p-1">
+                    <div class="d-flex align-items-center gap-1">
+                      <button class="btn btn-sm btn-outline-danger border-0" 
+                              @click="deleteOrderItem(item)"
+                              :class="{ 'text-danger': item.confirm_delete }">
+                        <IconTrash size="14" stroke="1.5" />
+                      </button>
+                      <input type="number" 
+                             step="1" 
+                             class="form-control form-control-sm text-end input-soft" 
+                             v-model="item.quantity"
+                             @change="(event) => delimitedNumber(event, item)" 
+                             @focus="selectText"
+                             @keydown="event => handleKeydown(event, '.form-control-sm')" />
+                    </div>
+                  </div>
+
+                  <!-- Model Column -->
+                  <div class="col-1 border-end p-1 text-center">
+                    <div class="d-flex align-items-center justify-content-center gap-1">
+                      <span class="badge badge-soft-secondary">{{ item.box_model }}</span>
+                      <div class="d-flex align-items-center gap-1">
+                        <IconSitemap size="14" stroke="1.5" 
+                                   class="text-primary cursor-pointer" 
+                                   @click="ordersStore.splitHB(item)" 
+                                   v-if="item.box_model === 'HB'" />
+                        <input type="checkbox" 
+                               class="form-check-input" 
+                               v-model="item.is_selected" 
+                               v-if="item.box_model === 'QB'" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Stems Column -->
+                  <div class="col-1 border-end p-1 text-center">
+                    <span class="fw-bold text-primary">{{ calculateTotalStemsForItem(item) }}</span>
+                  </div>
+
+                  <!-- Supplier Column -->
+                  <div class="col-2 border-end p-1">
+                    <small class="text-muted">{{ item.partner.name }}</small>
+                  </div>
+
+                  <!-- Products Column -->
+                  <div class="col-6 border-end p-1">
+                    <div v-for="product in item.box_items" :key="product.id" class="product-row mb-1">
+                      <div class="row g-1 align-items-center">
+                        <div class="col" style="flex: 0 0 25%;">
+                          <small class="fw-medium">{{ product.product_name }} {{ product.product_variety }}</small>
+                        </div>
+                        <div class="col text-center" style="flex: 0 0 10%;">
+                          <span class="badge badge-soft-info">{{ product.length }}</span>
+                        </div>
+                        <div class="col" style="flex: 0 0 13%;">
+                          <input type="number" 
+                                 step="1" 
+                                 class="form-control form-control-sm text-end input-soft"
+                                 v-model="product.total_bunches" 
+                                 @focus="selectText"
+                                 @keydown="event => handleKeydown(event, '.my-input-4')" 
+                                 @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
+                        </div>
+                        <div class="col" style="flex: 0 0 13%;">
+                          <input type="number" 
+                                 step="1" 
+                                 class="form-control form-control-sm text-end input-soft"
+                                 v-model="product.stems_bunch" 
+                                 @focus="selectText"
+                                 @keydown="event => handleKeydown(event, '.my-input-5')" 
+                                 @change="(event) => {formatInteger(event); updateQtyStemFlower(product);}" />
+                        </div>
+                        <div class="col" style="flex: 0 0 13%;">
+                          <input type="number" 
+                                 step="0.01" 
+                                 class="form-control form-control-sm text-end input-soft"
+                                 v-model="product.stem_cost_price" 
+                                 @focus="selectText"
+                                 @keydown="event => handleKeydown(event, '.my-input-2')" 
+                                 @change="formatNumber"
+                                 :class="{ 'border-danger': parseFloat(product.stem_cost_price) <= 0.00 }" />
+                        </div>
+                        <div class="col" style="flex: 0 0 13%;">
+                          <input type="number" 
+                                 step="0.01" 
+                                 class="form-control form-control-sm text-end input-soft"
+                                 v-model="product.margin" 
+                                 @focus="selectText" 
+                                 @keydown="event => handleKeydown(event, '.my-input-3')"
+                                 @change="formatNumber" 
+                                 :class="{ 'border-danger': parseFloat(product.margin) <= 0.00 }" />
+                        </div>
+                        <div class="col text-center" style="flex: 0 0 13%;">
+                          <span class="badge badge-soft-success">
+                            {{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Total Column -->
+                  <div class="col-1 p-1">
+                    <div v-for="product in item.box_items" :key="product.id" class="mb-1">
+                      <span class="fw-bold text-success">
+                        ${{ calcTotalByProduct(product) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="row mt-3 border-top pt-3">
-      <div class="col text-end d-flex gap-3 justify-content-end">
-        <button type="button" class="btn btn-sm btn-default text-danger" @click="cancelOrder">
-          <IconBan size="20" stroke="1.5" />
-          Cancelar Pedido
-        </button>
-        <button type="button" class="btn btn-sm btn-default" @click="createOrder" :disabled="orderHaveCeroItem">
-          <IconCheckbox size="20" stroke="1.5" />
-          Confirmar Pedido
-        </button>
+
+    <!-- Summary Cards -->
+    <div class="row mt-3">
+      <!-- Summary Stats -->
+      <div class="col-md-4">
+        <div class="card card-soft border-0 h-100">
+          <div class="card-header header-soft-secondary">
+            <h6 class="mb-0">
+              <i class="fas fa-chart-bar me-2"></i>
+              Resumen de Cajas
+            </h6>
+          </div>
+          <div class="card-body p-reduced">
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="h4 mb-0 text-primary">{{ totalBoxesHB }}</div>
+                  <small class="text-muted">Half Boxes</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="h4 mb-0 text-info">{{ totalBoxesQB }}</div>
+                  <small class="text-muted">Quarter Boxes</small>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="text-center pt-2 border-top">
+                  <div class="h4 mb-0 text-success">{{ totalStems }}</div>
+                  <small class="text-muted">Total Tallos</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Summary -->
+      <div class="col-md-8">
+        <div class="card card-soft border-0 h-100">
+          <div class="card-header header-soft-teal">
+            <h6 class="mb-0">
+              <i class="fas fa-dollar-sign me-2"></i>
+              Resumen Financiero
+            </h6>
+          </div>
+          <div class="card-body p-reduced">
+            <div class="row g-2">
+              <div class="col-md-4">
+                <div class="p-2 bg-soft-secondary rounded text-center">
+                  <div class="h5 mb-1 text-warning">${{ totalCost }}</div>
+                  <small class="text-muted">Costo Total</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-2 bg-soft-secondary rounded text-center">
+                  <div class="h5 mb-1 text-info">${{ totalMargin }}</div>
+                  <small class="text-muted">Margen Total</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="p-2 bg-soft-success rounded text-center">
+                  <div class="h5 mb-1 text-success">${{ totalOrder }}</div>
+                  <small>Total Pedido</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="row mt-3">
+      <div class="col-12">
+        <div class="card card-soft border-0">
+          <div class="card-body p-reduced">
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" 
+                      class="btn btn-outline-danger btn-sm" 
+                      @click="cancelOrder">
+                <IconBan size="16" stroke="1.5" class="me-1" />
+                Cancelar Pedido
+              </button>
+              <button type="button" 
+                      class="btn btn-success btn-sm" 
+                      @click="createOrder" 
+                      :disabled="orderHaveCeroItem">
+                <IconCheckbox size="16" stroke="1.5" class="me-1" />
+                Confirmar Pedido
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.table-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.order-row {
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.order-row:hover {
+  background-color: #f8fafc !important;
+}
+
+.product-row {
+  padding: 0.125rem 0;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.card {
+  border-radius: 6px;
+}
+
+.card-header {
+  border-radius: 6px 6px 0 0 !important;
+}
+
+.badge {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+}
+
 input[type="checkbox"] {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
 }
 
-.my-input,
-.my-input-2,
-.my-input-3,
-.my-input-4,
-.my-input-5,
-.my-input-6 {
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  text-align: right;
+.btn-sm {
+  padding: 0.125rem 0.375rem;
+  font-size: 0.75rem;
 }
 
-.w-25 {
-  width: 25% !important;
-}
-.w-13 {
-  width: 13% !important;
-}
-.w-10 {
-  width: 10% !important;
-}
-.w-30 {
-  width: 30% !important;
-}
-.w-40 {
-  width: 40% !important;
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 0.75rem;
+  }
+  
+  .card-body {
+    padding: 0.75rem;
+  }
 }
 </style>

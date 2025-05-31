@@ -108,7 +108,7 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
     </div>
     <div class="row">
       <div class="col d-flex justify-content-end">
-        <button @click="$router.go(-1)" class="btn btn-default btn-sm">
+        <button @click="$router.go(-1)" class="btn btn-primary">
           <IconArrowLeft stroke ="1.5" size="20" />
       Volver a Compras
     </button>
