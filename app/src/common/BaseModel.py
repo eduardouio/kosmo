@@ -126,17 +126,12 @@ class BaseModel(models.Model):
 
     def delete(self, id):
         """Marca el registro como eliminado"""
-        loggin_event(f'Eliminando registro {self.__name__} con id {id}')
-        try:
-            instance = self.objects.get(pk=id)
-            instance.is_active = False
-            instance.save()
-            return instance
-        except ObjectDoesNotExist:
-            return None
-        except Exception as e:
-            print(f"Error deleting instance: {e}")
-            return None
+        loggin_event(f'Eliminando registro {self} con id {id}')
+        instance = self.__class__.objects.get(pk=id)
+        instance.is_active = False
+        instance.save()
+        loggin_event(f'Registro {instance} con id {id} eliminado')
+        return True
 
     def get_all(self):
         """Devuelve todos los registros"""
