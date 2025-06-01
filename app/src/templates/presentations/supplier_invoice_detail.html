@@ -37,7 +37,7 @@
                                     <div class="col-md-4 text-end">
                                         <div class="d-flex justify-content-end gap-1 flex-wrap">
                                             <span class="badge badge-soft-secondary px-2 py-1 fs-6">
-                                                {{ invoice.serie }}-{{ invoice.consecutive|default:"000000"|stringformat:"06d" }}
+                                                <span class="text-orange-800">Factura Proveedor # </span> {{ invoice.num_invoice}}
                                             </span>
                                             <span class="badge {% if invoice.status == 'PAGADO' %}badge-soft-success{% elif invoice.status == 'VENCIDO' %}bg-red-100 text-red-700{% else %}badge-soft-warning{% endif %} px-2 py-1 fs-6">
                                                 {{ invoice.status }}
@@ -350,13 +350,13 @@
                                     
                                     <div class="d-flex gap-2 flex-wrap">
                                         {% if invoice.status == 'PENDIENTE' %}
-                                        <button class="btn btn-default btn-sm">
+                                        <a href="{% url 'invoice_supplier_update' invoice.pk %}" class="btn btn-default btn-sm">
                                             <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-pencil"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
                                             Editar Cabeceras
-                                        </button>
+                                        </a>
                                         {% endif %}
                                         {% if invoice.order %}
-                                        <a href="#" onclick="alert('Funcionalidad en desarrollo')" class="btn btn-default btn-sm">
+                                        <a href="#" class="btn btn-default btn-sm">
                                             <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-8 4.5" /></svg>
                                             Ver Orden Compra
                                         </a>

@@ -1,0 +1,153 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title_page }}{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="container">
+    <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+    </div>
+    <div class="text-center mt-3">
+        <a href="{% url 'supplier_invoices_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>
+            Volver al Listado
+        </a>
+    </div>
+</div>
+{% else %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="card mb-4">
+                <div class="card-header bg-orange-100">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-edit me-2"></i>
+                            {{ title_page }}
+                        </h4>
+                        <a href="{% url 'supplier_invoice_detail' invoice.pk %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-eye me-2"></i>
+                            Ver Detalle
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario -->
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="edit_headers" value="1">
+                
+                <!-- Información Básica -->
+                <div class="card mb-4">
+                    <div class="card-header bg-gray-100">
+                        <h6 class="mb-0">
+                            <i class="fas fa-file-invoice me-2"></i>
+                            Información Básica
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="num_invoice" class="form-label">Número de Factura</label>
+                                <input type="text" class="form-control" id="num_invoice" name="num_invoice" 
+                                       value="{{ invoice.num_invoice|default:'' }}" maxlength="50">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="due_date" class="form-label">Fecha de Vencimiento</label>
+                                <input type="date" class="form-control" id="due_date" name="due_date" 
+                                       value="{{ invoice.due_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="delivery_date" class="form-label">Fecha de Entrega</label>
+                                <input type="date" class="form-control" id="delivery_date" name="delivery_date" 
+                                       value="{{ invoice.delivery_date|date:'Y-m-d'|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de Solo Lectura -->
+                <div class="card mb-4">
+                    <div class="card-header bg-blue-100">
+                        <h6 class="mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Información de Solo Lectura
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label text-muted">Proveedor</label>
+                                <p class="form-control-static">{{ invoice.partner.name }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted">Fecha de Factura</label>
+                                <p class="form-control-static">{{ invoice.date|date:'Y-m-d H:i' }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted">Total Compra</label>
+                                <p class="form-control-static">${{ invoice.total_price|floatformat:2 }}</p>
+                            </div>
+                            {% if invoice.order %}
+                            <div class="col-md-4">
+                                <label class="form-label text-muted">Orden de Compra</label>
+                                <p class="form-control-static">{{ invoice.order.serie }}-{{ invoice.order.consecutive|default:"000000"|stringformat:"06d" }}</p>
+                            </div>
+                            {% endif %}
+                            <div class="col-md-4">
+                                <label class="form-label text-muted">Total Tallos</label>
+                                <p class="form-control-static>{{ invoice.tot_stem_flower }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label text-muted">Total Cajas</label>
+                                <p class="form-control-static">HB: {{ invoice.hb_total }} | QB: {{ invoice.qb_total }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Estado Actual</label>
+                                <span class="badge {% if invoice.status == 'PAGADO' %}badge-soft-success{% elif invoice.status == 'ANULADO' %}badge-soft-danger{% else %}badge-soft-warning{% endif %} px-2 py-1 fs-6">
+                                    {{ invoice.status }}
+                                </span>
+                            </div>
+                            {% if invoice.awb or invoice.hawb %}
+                            <div class="col-md-6">
+                                <label class="form-label text-muted">Información de Envío</label>
+                                <div class="d-flex gap-1">
+                                    {% if invoice.awb %}
+                                    <span class="badge badge-soft-secondary">MAWB: {{ invoice.awb }}</span>
+                                    {% endif %}
+                                    {% if invoice.hawb %}
+                                    <span class="badge badge-soft-secondary">HAWB: {{ invoice.hawb }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between gap-2">
+                            <a href="{% url 'supplier_invoice_detail' invoice.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i>
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-default btn-sm">
+                                <i class="fas fa-save me-2"></i>
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
