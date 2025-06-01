@@ -47,3 +47,6 @@ class SupplierInvoiceDetail(LoginRequiredMixin, TemplateView):
             context['title_page'] = 'Error - Factura de Proveedor'
 
         return context
+
+    def post(self, request, *args, **kwargs):
+        return self.get(request, *args, **kwargs)
