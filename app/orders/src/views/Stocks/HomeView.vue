@@ -413,7 +413,7 @@ onMounted(() => {
                                                     <!-- Quantity -->
                                                     <div class="col-1 border-end p-1">
                                                         <div class="d-flex align-items-center gap-1">
-                                                            <button class="btn btn-sm btn-outline-primary border-0"
+                                                            <button class="btn btn-sm btn-default border-0"
                                                                     @click="stockItemSeletec = item" 
                                                                     data-bs-toggle="modal"
                                                                     data-bs-target="#editBoxModal">
@@ -432,7 +432,7 @@ onMounted(() => {
                                                     <div class="col-2 border-end p-1">
                                                         <div class="d-flex align-items-center gap-1">
                                                             <small class="text-muted">#{{ item.partner.id }}</small>
-                                                            <button class="btn btn-sm btn-outline-info border-0"
+                                                            <button class="btn btn-sm btn-default border-0"
                                                                     @click="suplierSelected = item.partner" 
                                                                     data-bs-toggle="modal"
                                                                     data-bs-target="#suplierModal">
@@ -457,7 +457,7 @@ onMounted(() => {
                                                             <div class="row g-1 align-items-center">
                                                                 <div class="col" style="flex: 0 0 22%;">
                                                                     <div class="d-flex align-items-center gap-1">
-                                                                        <button class="btn btn-sm btn-outline-info border-0"
+                                                                        <button class="btn btn-sm btn-default border-0"
                                                                                 @click="productSelected = box" 
                                                                                 data-bs-toggle="modal"
                                                                                 data-bs-target="#productModal">

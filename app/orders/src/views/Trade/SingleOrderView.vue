@@ -337,7 +337,7 @@ const handleKeydown = (event) => {
                   </template>
                   <tr>
                     <td colspan="4" class="text-end"> <!-- Ajustado colspan -->
-                      <button class="btn btn-primary btn-sm" @click="addOrderLine">
+                      <button class="btn btn-default btn-sm" @click="addOrderLine">
                         <IconPlus size="15" stroke="1.5" class="text-white"/>
                         Agregar
                       </button>

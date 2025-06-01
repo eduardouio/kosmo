@@ -312,7 +312,7 @@ const saveOrder = async () => {
                       </div>
                     </td>
                     <td class="text-center">
-                      <button class="btn btn-primary btn-sm" @click="addBoxItem">+</button>
+                      <button class="btn btn-default btn-sm" @click="addBoxItem">+</button>
                     </td>
                   </tr>
 
@@ -334,7 +334,7 @@ const saveOrder = async () => {
                         <td>{{ item.stem_cost_price }}</td>
                         <td>{{ (item.stem_cost_price * item.qty_stem_flower).toFixed(2) }}</td>
                         <td class="text-center" v-if="itemIndex === 0" :rowspan="box.box_items.length">
-                          <button class="btn btn-danger btn-sm" @click="removeOrderDetail(boxIndex)">
+                          <button class="btn btn-default btn-sm" @click="removeOrderDetail(boxIndex)">
                             <IconTrash size="16"/>
                           </button>
                         </td>
