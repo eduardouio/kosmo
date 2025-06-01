@@ -5,14 +5,14 @@
 
 {% block content %}
 {% if error %}
-<div class="container-fluid p-2">
+<div class="container">
     <div class="alert alert-danger" role="alert">
         <i class="fas fa-exclamation-triangle me-2"></i>
         {{ error }}
     </div>
 </div>
 {% else %}
-<div class="container-fluid p-2">
+<div class="mx-auto" style="width: 80%;">
     <div class="row pt-1">
         <div class="col">
             <div class="container-fluid">
@@ -290,9 +290,13 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="p-2 {% if invoice.status == 'PAGADO' %}bg-success{% else %}bg-warning{% endif %} rounded text-center text-white">
+                                        <div class="p-2 {% if invoice.status == 'PAGADO' %}bg-success{% else %}bg-yellow-300{% endif %} rounded text-center">
                                             <div class="h6 mb-1">{{ invoice.status }}</div>
-                                            <small>Estado</small>
+                                            <small>{{ invoice.days_to_due }} Días para Vencimiento</small>
+                                            {% if invoice.is_dued %}
+                                            <div class="text-danger fw-bold">¡Factura Vencida!</div>
+                                            <small>{{ invoice.days_overdue }} Días de Vencimiento</small>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -330,35 +334,25 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="row mt-3">
+                <div class="row mt-3 mb-5 pb-5">
                     <div class="col-12">
                         <div class="card card-soft border-0">
                             <div class="card-body p-reduced">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                     <div class="d-flex gap-2 flex-wrap">
-                                        <button type="button" class="btn btn-outline-secondary">
-                                            <i class="fas fa-print me-1"></i>
-                                            Imprimir Factura
-                                        </button>
-                                        <button type="button" class="btn btn-outline-primary">
+                                        <button type="button" class="btn btn-default btn-sm">
                                             <i class="fas fa-download me-1"></i>
-                                            Descargar PDF
+                                            Orden de Compra
                                         </button>
                                     </div>
                                     
                                     <div class="d-flex gap-2 flex-wrap">
-                                        <button class="btn btn-warning">
+                                        <button class="btn btn-default btn-sm">
                                             <i class="fas fa-edit me-1"></i>
-                                            Editar Factura
+                                            Editar Cabeceras
                                         </button>
-                                        {% if invoice.status != 'PAGADO' %}
-                                        <button class="btn btn-success">
-                                            <i class="fas fa-check me-1"></i>
-                                            Marcar como Pagada
-                                        </button>
-                                        {% endif %}
                                         {% if invoice.order %}
-                                        <a href="#" onclick="alert('Funcionalidad en desarrollo')" class="btn btn-info">
+                                        <a href="#" onclick="alert('Funcionalidad en desarrollo')" class="btn btn-default btn-sm">
                                             <i class="fas fa-shopping-cart me-1"></i>
                                             Ver Orden Compra
                                         </a>

@@ -13,9 +13,27 @@
       {% endblock %}
       {% block files_header %}
       {% endblock %}
+      <style>
+         .wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+         }
+         .content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+         }
+         .main-content {
+            flex: 1;
+         }
+         .footer {
+            margin-top: auto;
+         }
+      </style>
    </head>
    <body>
-      <div id="app" class="content pb-5 mb-5">
+      <div id="app" class="wrapper">
          {% if title_page != 'Inicio Sesion' %}
          <nav class="navbar navbar-expand-lg bg-gray bg-gradient border-bottom">
             <div class="container-fluid">
@@ -271,40 +289,84 @@
             </div>
          </nav>
          {% endif %}
-         {% if show_alert  %}
-         <div class="container-fluid">
-            <div class="alert alert-warning" role="alert">
-               Esta es una alerta del sistema
+         
+         <div class="content-wrapper">
+            {% if show_alert  %}
+            <div class="container-fluid">
+               <div class="alert alert-warning" role="alert">
+                  Esta es una alerta del sistema
+               </div>
+            </div>
+            {% endif %}
+            
+            <div class="main-content pb-4">
+               {% block content %}
+               {% endblock %}
             </div>
          </div>
-         {% endif %}
-         {% block content %}
-         {% endblock %}
+
          {% if title_page != 'Inicio Sesion' %}
-         <div class="container-fluid footer mx-auto border shadow rounded-end bg-kosmo-primary px-4">
-            <footer class="d-flex flex-wrap justify-content-between align-items-center py-2 my-2 pt-2 mt-2 pb-2 mb-1">
-               <p class="col-md-4 mb-0 text-light">
-                  &copy;
-                  KOSMO FLOWERS Derechos Reservados
-               </p>
-               <p class="col-md-4 mb-0 text-light">
-                  <a href="/" class="border p-1 rounded-1 bg-kosmo-secondary">
-                     <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-home">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
-                        <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
-                        <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
-                     </svg>
-                     Volver al Inicio
-                  </a>
-               </p>
-               <span class="badge">
-               Desarrollado por eduardo@dev-7.com
-               </span>
-            </footer>
-         </div>
+         <footer class="footer py-4 mt-4 border-top bg-gray-200 bg-gradient">
+            <div class="container-fluid">
+               <div class="row">
+                  <!-- Enlaces de Navegación -->
+                  <div class="col-md-3">
+                     <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Disponibilidad</h6>
+                     <ul class="">
+                        <li><a href="{% url 'stock_list' %}" class="text-dark text-decoration-none small">Lista Disponibilidad</a></li>
+                        <li><a href="{% url 'stock_create' %}" class="text-dark text-decoration-none small">Crear Disponibilidad</a></li>
+                        <li><a href="{% url 'product_list' %}" class="text-dark text-decoration-none small">Catálogo de Flores</a></li>
+                     </ul>
+                  </div>
+                  
+                  <div class="col-md-3">
+                     <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Ventas</h6>
+                     <ul class="">
+                        <li><a href="{% url 'customer_orders_list' %}" class="text-dark text-decoration-none small">Órdenes de Venta</a></li>
+                        <li><a href="{% url 'customer_invoice_list' %}" class="text-dark text-decoration-none small">Facturas</a></li>
+                        <li><a href="{% url 'collections_list' %}" class="text-dark text-decoration-none small">Cobros</a></li>
+                     </ul>
+                  </div>
+                  
+                  <div class="col-md-3">
+                     <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Compras</h6>
+                     <ul class="">
+                        <li><a href="{% url 'supplier_orders_list' %}" class="text-dark text-decoration-none small">Órdenes Compra</a></li>
+                        <li><a href="{% url 'supplier_invoice_list' %}" class="text-dark text-decoration-none small">Facturas</a></li>
+                        <li><a href="{% url 'payments_list' %}" class="text-dark text-decoration-none small">Pagos</a></li>
+                     </ul>
+                  </div>
+                  
+                  <div class="col-md-3 mb-3">
+                     <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Socios</h6>
+                     <ul class="">
+                        <li><a href="{% url 'customers_list' %}" class="text-dark text-decoration-none small">Clientes</a></li>
+                        <li><a href="{% url 'supliers_list' %}" class="text-dark text-decoration-none small">Proveedores</a></li>
+                     </ul>
+                  </div>
+               </div>
+               
+               <hr class="p-0">
+               
+               <!-- Copyright y Desarrollador -->
+               <div class="row align-items-center">
+                  <div class="col-md-6">
+                     <p class="mb-0 small text-muted">
+                        &copy; 2025 KOSMO FLOWERS. Todos los derechos reservados.
+                     </p>
+                  </div>
+                  <div class="col-md-6 text-md-end">
+                     <p class="mb-0 small text-muted">
+                        Desarrollado por Eduardo Villota
+                        <a class=" fw-bold text-blue-500" href="mailto:eduardouio7@gmail.com">eduardouio7@gmail.com</a>
+                     </p>
+                  </div>
+               </div>
+            </div>
+         </footer>
+         {% endif %}
       </div>
-      {% endif %}
+      
       <script src="/static/js/libs/jquery-3.7.1.min.js"></script>
       <script src="/static/js/libs/dataTables.min.js" ></script>
       <script src="/static/js/libs/bootstrap.bundle.min.js"></script>
