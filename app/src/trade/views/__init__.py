@@ -4,12 +4,10 @@ from .Stock import (
     StockDayDeleteView,
     StockDayDetailView,
 )
-
 from .StockDetail import (
     DetailStockDetail,
     SingleStockDetailUpdateView,
 )
-
 from .CustomerInvoiceList import CustomerInvoiceList
 from .CustomerOrdersList import CustomerOrdersList
 from .SupplierOrdersList import SupplierOrdersList
@@ -22,6 +20,7 @@ from .CreateInvoiceByOrder import CreateInvoiceByOrder
 from .CollectionsList import CollectionsList
 from .PaymentsList import PaymentsList
 from .DeleteInvoiceView import DeleteInvoiceView
+from .SupplierInvoiceDetail import SupplierInvoiceDetail
 
 __all__ = [
     'StockDayListView',
@@ -42,4 +41,5 @@ __all__ = [
     'CollectionsList',
     'PaymentsList',
     'DeleteInvoiceView',
+    'SupplierInvoiceDetail',
 ]

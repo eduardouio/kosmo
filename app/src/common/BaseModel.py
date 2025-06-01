@@ -122,7 +122,8 @@ class BaseModel(models.Model):
                 loggin_event("El registro no existe o fue eliminado")
                 raise Exception("El registro no existe o fue eliminado")
         except ObjectDoesNotExist:
-            return None
+            loggin_event(f"El registro {self.__name__} con id {id} no existe")
+            raise Exception("El registro no existe")
 
     def delete(self, id):
         """Marca el registro como eliminado"""

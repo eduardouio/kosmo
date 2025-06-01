@@ -1,0 +1,377 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title_page }}{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="container-fluid p-2">
+    <div class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        {{ error }}
+    </div>
+</div>
+{% else %}
+<div class="container-fluid p-2">
+    <div class="row pt-1">
+        <div class="col">
+            <div class="container-fluid">
+                <!-- Supplier Information Header -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="card card-soft border-0">
+                            <div class="card-body bg-soft-orange p-reduced text-orange-800">
+                                <div class="row align-items-center mb-2">
+                                    <div class="col-md-4">
+                                        <h5 class="mb-0 fw-bold">
+                                            <i class="fas fa-industry me-2"></i>
+                                            {{ invoice.partner.name }}
+                                        </h5>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-file-invoice-dollar me-2"></i>
+                                            <span class="badge badge-soft-warning text-center fs-6">FACTURA DE PROVEEDOR</span>
+                                        </h6>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <div class="d-flex justify-content-end gap-1 flex-wrap">
+                                            <span class="badge badge-soft-secondary px-2 py-1 fs-6">
+                                                {{ invoice.serie }}-{{ invoice.consecutive|default:"000000"|stringformat:"06d" }}
+                                            </span>
+                                            <span class="badge {% if invoice.status == 'PAGADO' %}badge-soft-success{% elif invoice.status == 'VENCIDO' %}bg-red-100 text-red-700{% else %}badge-soft-warning{% endif %} px-2 py-1 fs-6">
+                                                {{ invoice.status }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Supplier Details -->
+                                <div class="row g-2">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="fas fa-id-card me-2"></i>
+                                            <strong class="me-2">RUC:</strong>
+                                            <span>{{ invoice.partner.business_tax_id|default:'N/A' }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-start">
+                                            <i class="fas fa-map-marker-alt me-2 mt-1"></i>
+                                            <div>
+                                                <strong class="me-2">Dirección:</strong>
+                                                <span>{{ invoice.partner.address|default:'N/A' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center mb-1">
+                                            <i class="fas fa-calendar me-2"></i>
+                                            <strong class="me-2">Fecha:</strong>
+                                            <span>{{ invoice.date|date:'Y-m-d' }}</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-calendar-check me-2"></i>
+                                            <strong class="me-2">Vencimiento:</strong>
+                                            <span>{{ invoice.due_date|date:'Y-m-d'|default:'N/A' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Invoice Information -->
+                                {% if invoice.order %}
+                                <div class="row mt-2">
+                                    <div class="col-12">
+                                        <div class="d-flex flex-wrap align-items-center gap-1">
+                                            <i class="fas fa-shopping-cart me-2"></i>
+                                            <strong>Orden de Compra:</strong>
+                                            <span class="badge badge-soft-secondary">{{ invoice.order.serie }}-{{ invoice.order.consecutive|default:"000000"|stringformat:"06d" }}</span>
+                                            {% if invoice.awb %}
+                                            <span class="badge badge-soft-secondary">MAWB: {{ invoice.awb }}</span>
+                                            {% endif %}
+                                            {% if invoice.hawb %}
+                                            <span class="badge badge-soft-secondary">HAWB: {{ invoice.hawb }}</span>
+                                            {% endif %}
+                                            {% if invoice.weight %}
+                                            <span class="badge badge-soft-success">Peso: {{ invoice.weight }} KG</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Items Table -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-soft border-0">
+                            <div class="card-header bg-gray-100 py-reduced">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-list-alt me-2"></i>
+                                    Detalles de la Factura
+                                </h6>
+                            </div>
+                            
+                            <div class="card-body p-0">
+                                <!-- Table Header -->
+                                <div class="table-header bg-gray-700 text-white sticky-top">
+                                    <div class="row g-0">
+                                        <div class="col-1 border-end text-center py-2">
+                                            <small class="fw-bold">CANT</small>
+                                        </div>
+                                        <div class="col-1 border-end text-center py-2">
+                                            <small class="fw-bold">MODELO</small>
+                                        </div>
+                                        <div class="col-1 border-end text-center py-2">
+                                            <small class="fw-bold">TALLOS</small>
+                                        </div>
+                                        <div class="col-8 border-end bg-blue-600 py-2">
+                                            <div class="row g-0 text-center">
+                                                <div class="col" style="flex: 0 0 22%;">
+                                                    <small class="fw-bold">VARIEDAD</small>
+                                                </div>
+                                                <div class="col border-start" style="flex: 0 0 10%;">
+                                                    <small class="fw-bold">LARGO</small>
+                                                </div>
+                                                <div class="col border-start" style="flex: 0 0 11%;">
+                                                    <small class="fw-bold">BUNCHES</small>
+                                                </div>
+                                                <div class="col border-start" style="flex: 0 0 11%;">
+                                                    <small class="fw-bold">T/BUNCH</small>
+                                                </div>
+                                                <div class="col border-start" style="flex: 0 0 11%;">
+                                                    <small class="fw-bold">COSTO</small>
+                                                </div>
+                                                <div class="col border-start" style="flex: 0 0 11%;">
+                                                    <small class="fw-bold">MARGEN</small>
+                                                </div>
+                                                <div class="col border-start" style="flex: 0 0 11%;">
+                                                    <small class="fw-bold">PVP</small>
+                                                </div>
+                                                <div class="col border-start" style="flex: 0 0 13%;">
+                                                    <small class="fw-bold">TOTAL</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-1 bg-green-600 text-center py-2">
+                                            <small class="fw-bold">T COMPRA</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Table Body -->
+                                <div class="table-body">
+                                    {% for item in invoice_items %}
+                                    <div class="invoice-row {% cycle 'bg-gray-50' '' %}">
+                                        <div class="row g-0 align-items-center">
+                                            <!-- Quantity -->
+                                            <div class="col-1 border-end p-1 text-center">
+                                                <span class="fw-bold">{{ item.quantity }}</span>
+                                            </div>
+
+                                            <!-- Model -->
+                                            <div class="col-1 border-end p-1 text-center">
+                                                <span class="badge badge-soft-secondary">{{ item.box_model }}</span>
+                                            </div>
+
+                                            <!-- Stems -->
+                                            <div class="col-1 border-end p-1 text-center">
+                                                <span class="fw-bold text-primary">{{ item.tot_stem_flower }}</span>
+                                            </div>
+
+                                            <!-- Products -->
+                                            <div class="col-8 border-end p-1">
+                                                {% for box_item in invoice_box_items %}
+                                                {% if box_item.invoice_item == item %}
+                                                <div class="product-row mb-1">
+                                                    <div class="row g-1 align-items-center">
+                                                        <div class="col" style="flex: 0 0 22%;">
+                                                            <small class="fw-medium">{{ box_item.product.variety }}</small>
+                                                        </div>
+                                                        <div class="col text-center" style="flex: 0 0 10%;">
+                                                            <span class="badge badge-soft-info">{{ box_item.length }}</span>
+                                                        </div>
+                                                        <div class="col text-center" style="flex: 0 0 11%;">
+                                                            <span class="text-success fw-bold">{{ box_item.total_bunches }}</span>
+                                                        </div>
+                                                        <div class="col text-center" style="flex: 0 0 11%;">
+                                                            <span class="text-primary fw-bold">{{ box_item.stems_bunch }}</span>
+                                                        </div>
+                                                        <div class="col text-center" style="flex: 0 0 11%;">
+                                                            <span class="badge badge-soft-warning">${{ box_item.stem_cost_price|floatformat:2 }}</span>
+                                                        </div>
+                                                        <div class="col text-center" style="flex: 0 0 11%;">
+                                                            <span class="badge badge-soft-info">${{ box_item.profit_margin|floatformat:2 }}</span>
+                                                        </div>
+                                                        <div class="col text-center" style="flex: 0 0 11%;">
+                                                            <span class="badge badge-soft-success">${{ box_item.unit_price|floatformat:2 }}</span>
+                                                        </div>
+                                                        <div class="col text-center" style="flex: 0 0 13%;">
+                                                            <span class="fw-bold text-success">${{ box_item.total_price_with_margin_and_quantity|floatformat:2 }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                {% endfor %}
+                                            </div>
+
+                                            <!-- Total Purchase -->
+                                            <div class="col-1 p-1 text-center">
+                                                <div class="mb-1">
+                                                    <span class="fw-bold text-warning">${{ item.line_price|floatformat:2 }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary & Financial Information -->
+                <div class="row mt-3">
+                    <!-- Summary Stats -->
+                    <div class="col-md-4">
+                        <div class="card card-soft border-0 h-100">
+                            <div class="card-header ">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-bar me-2"></i>
+                                    Resumen de Cajas
+                                </h6>
+                            </div>
+                            <div class="card-body p-reduced">
+                                <div class="row g-2 text-center">
+                                    <div class="col-6">
+                                        <div class="h5 mb-0 text-primary">{{ invoice.hb_total }}</div>
+                                        <small class="text-muted">HB's</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="h5 mb-0 text-info">{{ invoice.qb_total }}</div>
+                                        <small class="text-muted">QB's</small>
+                                    </div>
+                                    <div class="col-6 pt-2 border-top">
+                                        <div class="h5 mb-0 text-success">{{ invoice.tot_stem_flower }}</div>
+                                        <small class="text-muted">Tallos</small>
+                                    </div>
+                                    <div class="col-6 pt-2 border-top">
+                                        <div class="h5 mb-0 text-warning">{{ invoice.fb_total|floatformat:1 }}</div>
+                                        <small class="text-muted">FB's</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Summary -->
+                    <div class="col-md-8">
+                        <div class="card card-soft border-0 h-100">
+                            <div class="card-header ">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-dollar-sign me-2"></i>
+                                    Resumen Financiero - Compra
+                                </h6>
+                            </div>
+                            <div class="card-body p-reduced financial-card">
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <div class="p-2 bg-white rounded text-center border">
+                                            <div class="h6 mb-1 text-warning">${{ invoice.total_price|floatformat:2 }}</div>
+                                            <small class="text-muted">Total Compra</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-2 bg-white rounded text-center border">
+                                            <div class="h6 mb-1 text-info">${{ invoice.total_margin|floatformat:2 }}</div>
+                                            <small class="text-muted">Margen Total</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-2 {% if invoice.status == 'PAGADO' %}bg-success{% else %}bg-warning{% endif %} rounded text-center text-white">
+                                            <div class="h6 mb-1">{{ invoice.status }}</div>
+                                            <small>Estado</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Additional Invoice Information -->
+                                {% if invoice.num_invoice %}
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="p-2 bg-white rounded border">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <small class="text-muted">Número de Factura:</small>
+                                                    <div class="d-flex align-items-center mt-1">
+                                                        <i class="fas fa-file-invoice me-2 text-primary"></i>
+                                                        <span class="fw-bold">{{ invoice.num_invoice }}</span>
+                                                    </div>
+                                                </div>
+                                                {% if invoice.marking %}
+                                                <div class="col-md-6">
+                                                    <small class="text-muted">Marcación:</small>
+                                                    <div class="d-flex align-items-center mt-1">
+                                                        <i class="fas fa-tag me-2 text-success"></i>
+                                                        <span class="fw-bold">{{ invoice.marking }}</span>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="card card-soft border-0">
+                            <div class="card-body p-reduced">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <button type="button" class="btn btn-outline-secondary">
+                                            <i class="fas fa-print me-1"></i>
+                                            Imprimir Factura
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary">
+                                            <i class="fas fa-download me-1"></i>
+                                            Descargar PDF
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <button class="btn btn-warning">
+                                            <i class="fas fa-edit me-1"></i>
+                                            Editar Factura
+                                        </button>
+                                        {% if invoice.status != 'PAGADO' %}
+                                        <button class="btn btn-success">
+                                            <i class="fas fa-check me-1"></i>
+                                            Marcar como Pagada
+                                        </button>
+                                        {% endif %}
+                                        {% if invoice.order %}
+                                        <a href="#" onclick="alert('Funcionalidad en desarrollo')" class="btn btn-info">
+                                            <i class="fas fa-shopping-cart me-1"></i>
+                                            Ver Orden Compra
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
