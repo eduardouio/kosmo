@@ -28,7 +28,7 @@ class InvoiceSupplierUpdate(LoginRequiredMixin, TemplateView):
             return context
 
         context['invoice'] = invoice
-        context['title_page'] = f'Editar Cabeceras - Factura {invoice.serie}-{invoice.consecutive or "000000"}'
+        context['title_page'] = f'Editar Cabeceras Factura de Compra - Factura {invoice.serie}-{invoice.consecutive or "000000"}'
         return context
 
     def post(self, request, *args, **kwargs):
