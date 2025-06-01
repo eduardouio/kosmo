@@ -22,6 +22,7 @@ from .views import (
     DAEDeleteView,
     DAEListView,
     DAEDetailView,
+    PartnerAutoRegisterList,
 )
 
 urlpatterns = [
@@ -33,6 +34,7 @@ urlpatterns = [
     path('socios/eliminar/<int:pk>/', PartnerDeleteView.as_view(), name='partner_delete'),
     path('socios/actualizar-parent/<int:pk>/', PartnerUpdateParent.as_view(), name='partner_update_parent'),
     path('socios/auto-registro/', PartnerAutoRegister.as_view(), name='partner_auto_register'),
+    path('socios/auto-registro/lista/', PartnerAutoRegisterList.as_view(), name='partner_auto_register_list'),
     path('bancos/', BankListView.as_view(), name='bank_list'),
     path('bancos/<int:pk>/', BankDetailView.as_view(), name='bank_detail'),
     path('bancos/nuevo/<int:id_partner>/', BankCreateView.as_view(), name='bank_create'),

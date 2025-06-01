@@ -28,6 +28,7 @@ from .PartnerDelete import PartnerDeleteView
 from .PartnerDetail import PartnerDetailView
 from .PartnerList import PartnerListView
 from .PartnerAutoRegister import PartnerAutoRegister
+from .PartnerAutoRegisterList import PartnerAutoRegisterList
 
 __all__ = [
     'PartnerCreateView',
@@ -52,4 +53,5 @@ __all__ = [
     'PartnerDetailView',
     'PartnerListView',
     'PartnerAutoRegister',
+    'PartnerAutoRegisterList',
 ]
