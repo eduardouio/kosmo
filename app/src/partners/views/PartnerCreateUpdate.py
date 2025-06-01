@@ -88,6 +88,7 @@ class PartnerCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         # Establecer valores por defecto para nuevo socio
         form.instance.status = 'APROBADO'
+        form.instance.is_verified = True
         return super().form_valid(form)
 
 
