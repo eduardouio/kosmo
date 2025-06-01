@@ -382,8 +382,10 @@ class InvoiceItems(BaseModel):
             (line_price * invoice_item.quantity)
             + (line_margin * invoice_item.quantity)
         )
-        invoice_item.tot_stem_flower = tot_stem_flower * invoice_item.quantity  # Multiplicar por quantity
-        invoice_item.total_bunches = total_bunches * invoice_item.quantity  # Multiplicar por quantity
+        invoice_item.tot_stem_flower = tot_stem_flower * \
+            invoice_item.quantity  # Multiplicar por quantity
+        invoice_item.total_bunches = total_bunches * \
+            invoice_item.quantity  # Multiplicar por quantity
         invoice_item.save()
 
     def __str__(self):
@@ -447,12 +449,12 @@ class InvoiceBoxItems(BaseModel):
     @property
     def unit_price(self):
         return self.stem_cost_price + self.profit_margin
-    
+
     @property
     def total_price_with_margin(self):
         """Total del producto con margen incluido"""
         return self.unit_price * self.qty_stem_flower
-    
+
     @property
     def total_price_with_margin_and_quantity(self):
         """Total del producto con margen incluido multiplicado por la cantidad de cajas"""
