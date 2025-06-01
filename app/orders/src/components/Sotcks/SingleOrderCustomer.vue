@@ -396,7 +396,8 @@ watch(() => orderStore.selectedOrder,
                       'badge-soft-success': orderStore.selectedOrder.order.status === 'CONFIRMADO',
                       'badge-soft-warning': orderStore.selectedOrder.order.status === 'PENDIENTE',
                       'bg-red-100 text-red-700 border-red-200': orderStore.selectedOrder.order.status === 'CANCELADO',
-                      'badge-soft-primary': orderStore.selectedOrder.order.status === 'MODIFICADO'
+                      'badge-soft-primary': orderStore.selectedOrder.order.status === 'MODIFICADO',
+                      'badge-soft-success': orderStore.selectedOrder.order.status === 'FACTURADO'
                     }">
                       {{ orderStore.selectedOrder.order.status }}
                     </span>
@@ -755,7 +756,7 @@ watch(() => orderStore.selectedOrder,
                 <span v-else>Actualizar</span>
               </button>
 
-              <button class="btn btn-outline-secondary "
+              <button class="btn btn-default btn-sm"
                 v-if="!orderStore.selectedOrder.is_confirmed && !orderStore.selectedOrder.is_invoiced">
                 <a :href="getUrlReportCusOrder(orderStore.selectedOrder.order.id)" class="text-decoration-none">
                   <IconPrinter size="16" stroke="1.5" class="me-1" />
@@ -763,14 +764,14 @@ watch(() => orderStore.selectedOrder,
                 </a>
               </button>
 
-              <button class="btn btn-outline-secondary " v-if="orderStore.selectedOrder.is_invoiced">
+              <button class="btn btn-default btn-sm" v-if="orderStore.selectedOrder.is_invoiced">
                 <a :href="getUrlReportinvoice(orderStore.selectedOrder.id_invoice)" class="text-decoration-none">
                   <IconPrinter size="16" stroke="1.5" class="me-1" />
                   Imprimir Factura
                 </a>
               </button>
 
-              <button class="btn btn-success "
+              <button class="btn btn-default btn-sm"
                 v-if="orderStore.selectedOrder.is_confirmed && !orderStore.selectedOrder.is_invoiced"
                 @click="careteOrderInvoice">
                 <IconSettingsDollar size="16" stroke="1.5" class="me-1" />
@@ -784,7 +785,7 @@ watch(() => orderStore.selectedOrder,
               </a>
 
               <a :href="appConfig.apiBaseUrl + '/trade/order/' + orderStore.selectedOrder.order.id"
-                class="btn btn-outline-info ">
+                class="btn btn-default btn-sm">
                 <IconBox size="16" stroke="1.5" class="me-1" />
                 Ficha de Pedido
               </a>

@@ -431,7 +431,8 @@ watch(() => purchaseStore.selectedPurchase,
                                 'badge-soft-success': purchaseStore.selectedPurchase.order.status === 'CONFIRMADO',
                                 'badge-soft-warning': purchaseStore.selectedPurchase.order.status === 'PENDIENTE',
                                 'bg-red-100 text-red-700 border-red-200': purchaseStore.selectedPurchase.order.status === 'CANCELADO',
-                                'badge-soft-primary': purchaseStore.selectedPurchase.order.status === 'MODIFICADO'
+                                'badge-soft-primary': purchaseStore.selectedPurchase.order.status === 'MODIFICADO',
+                                'badge-soft-success': purchaseStore.selectedPurchase.order.status === 'FACTURADO'
                               }">
                           {{ purchaseStore.selectedPurchase.order.status }}
                         </span>
@@ -799,7 +800,7 @@ watch(() => purchaseStore.selectedPurchase,
                     
                     <div class="d-flex gap-2 flex-wrap">
                       <button type="button" 
-                              class="btn btn-primary" 
+                              class="btn btn-default btn-sm" 
                               @click="updateOrder('update')"
                               :disabled="orderHaveCeroItem" 
                               v-if="isModified && !purchaseStore.selectedPurchase.is_confirmed">
@@ -808,21 +809,21 @@ watch(() => purchaseStore.selectedPurchase,
                         <span v-else>Actualizar</span>
                       </button>
                       
-                      <button class="btn btn-success" @click="updateOrder('confirm')">
+                      <button class="btn btn-default btn-sm" @click="updateOrder('confirm')">
                         <IconCheck size="16" stroke="1.5" class="me-1" v-if="!purchaseStore.selectedPurchase.is_confirmed" />
                         <IconCheckbox size="16" stroke="1.5" class="me-1" v-if="purchaseStore.selectedPurchase.is_confirmed" />
                         <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
                         <span v-if="purchaseStore.selectedPurchase.is_confirmed">OC Confirmada</span>
                       </button>
                       
-                      <button class="btn btn-outline-secondary">
+                      <button class="btn btn-default btn-sm">
                         <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)" class="text-decoration-none">
                           <IconPrinter size="16" stroke="1.5" class="me-1" />
                           Orden de Compra
                         </a>
                       </button>
                       
-                      <button class="btn btn-info" 
+                      <button class="btn btn-default btn-sm" 
                               v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
                               @click="purchaseStore.createInvoice()">
                         <IconFileDollar size="16" stroke="1.5" class="me-1" />
