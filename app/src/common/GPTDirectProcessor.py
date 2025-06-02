@@ -13,6 +13,52 @@ class GPTDirectProcessor:
     _promt = None
     _client = OpenAI(api_key=_api_key)
 
+    tool_definitions = [
+        {
+            "type": "function",
+            "function": {
+                "name": "parse_stock_lines",
+                "description": "Convierte múltiples líneas de stock floral en un array de objetos JSON",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "items": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "cantidad": { "type": "integer" },
+                                    "modelo": { "type": "string" },
+                                    "tallos_totales": { "type": "integer" },
+                                    "precio_tallo_caja": { "type": "number" },
+                                    "variedad": { "type": "string" },
+                                    "medidas": {
+                                        "type": "array",
+                                        "items": { "type": "number" }
+                                    },
+                                    "precios": {
+                                        "type": "array",
+                                        "items": { "type": "number" }
+                                    }
+                                },
+                                "required": [
+                                    "cantidad",
+                                    "modelo",
+                                    "tallos_totales",
+                                    "precio_tallo_caja",
+                                    "variedad",
+                                    "medidas",
+                                    "precios"
+                                ]
+                            }
+                        }
+                    },
+                    "required": ["items"]
+                }
+            }
+        }
+    ]
+
     def process_text(self, dispo):
         dispo = TextPrepare().process(dispo)
         promt_file = os.path.join(self._current_dir, 'PromtText.txt')
@@ -23,29 +69,63 @@ class GPTDirectProcessor:
 
         if not self._prompt:
             raise Exception('No se encontró el archivo de configuración')
+
         loggin_event('Iniciando procesamiento de texto')
+        loggin_event(f'Texto a procesar: {dispo}')
         start_time = time.time()
 
-        try:
-            response = self._client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": self._prompt},
-                    {"role": "user", "content": dispo}
-                ],
-            )
-            end_time = time.time()
-            laps_time = end_time - start_time
-            loggin_event(f'Respuesta recibida de OpenAI API {laps_time}')
-            loggin_event(response)
+        response = self._client.chat.completions.create(
+            model="gpt-4-turbo",
+            temperature=0,
+            messages=[
+                {"role": "system", "content": self._prompt},
+                {"role": "user", "content": dispo}
+            ],
+            tools=self.tool_definitions,
+            tool_choice={"type": "function", "function": {"name": "parse_stock_lines"}}
+        )
+        end_time = time.time()
+        laps_time = end_time - start_time
+        loggin_event(f'Respuesta recibida de OpenAI API {laps_time}')
 
-            # Procesar la respuesta
-            message = response.choices[0].message.content
-            message = json.loads(message)
-            return message
-
-        except Exception as e:
-            loggin_event('Error en la API de OpenAI', error=True)
-            loggin_event(f"Error al procesar texto: {str(e)}", error=True)
-            loggin_event(response, error=True)
-            raise Exception(f"Error al procesar texto: {str(e)}")
+        if response.choices[0].message.tool_calls:
+            tool_call = response.choices[0].message.tool_calls[0]
+            payload = tool_call.function.arguments
+            loggin_event(f'Payload recibido: {payload}')
+            
+            parsed = json.loads(payload)
+            loggin_event(f'JSON parseado: {parsed}')
+            loggin_event(f'Tipo de JSON parseado: {type(parsed)}')
+            
+            # Verificar que es un diccionario y contiene items
+            if not isinstance(parsed, dict) or "items" not in parsed:
+                raise Exception(f"Se esperaba un diccionario con 'items', pero se recibió: {parsed}")
+            
+            items = parsed["items"]
+            if not isinstance(items, list):
+                raise Exception(f"Se esperaba una lista de items, pero se recibió: {type(items)}")
+            
+            result_arrays = []
+            for item in items:
+                # Validar campos requeridos para cada item
+                required_fields = ["cantidad", "modelo", "tallos_totales", "precio_tallo_caja", "variedad", "medidas", "precios"]
+                for field in required_fields:
+                    if field not in item:
+                        raise Exception(f"Campo requerido '{field}' no encontrado en item: {item}")
+                
+                result_array = [
+                    item["cantidad"],
+                    item["modelo"],
+                    item["tallos_totales"],
+                    item["precio_tallo_caja"],
+                    item["variedad"],
+                    item["medidas"],
+                    item["precios"]
+                ]
+                result_arrays.append(result_array)
+            
+            loggin_event(f'Arrays resultado: {result_arrays}')
+            loggin_event(f'Número de items procesados: {len(result_arrays)}')
+            return result_arrays
+        else:
+            raise Exception("No se recibió un JSON válido desde la función")
