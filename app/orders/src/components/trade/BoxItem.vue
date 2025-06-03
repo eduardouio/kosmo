@@ -285,7 +285,8 @@ watch(() => props.modelValue?.product, (newProduct) => {
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 
-                        type="text"
+                        type="number"
+                        step="0.01"
                         v-model="newboxItem.stem_cost_price"
                         class="border w-100 text-end trade-nav-input"
                         @input="newboxItem.total = calculateTotal"
@@ -293,7 +294,8 @@ watch(() => props.modelValue?.product, (newProduct) => {
                 </div>
                 <div style="width:10%" class="text-end">
                     <input 
-                        type="text"
+                        type="number"
+                        step="0.01"
                         v-model="newboxItem.profit_margin"
                         class="border w-100 text-end trade-nav-input" 
                         @input="newboxItem.total = calculateTotal"

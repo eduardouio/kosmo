@@ -202,6 +202,10 @@ left join trade_order to4 on (to4.id = to3.order_id )
 left join partners_partner pp2 on (pp2.id = to4.partner_id)
 
  
+ -- confirmar todos los socios de negocio
+ 
+ update partners_partner set is_verified = 1 where true
+
 ```
 
 Observaciones de Reunion
