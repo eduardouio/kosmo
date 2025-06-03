@@ -1,5 +1,5 @@
 from .Order import Order, OrderBoxItems, OrderItems
-from .Payment import Payment
+from .Payment import Payment, PaymentDetail
 from .Invoice import Invoice, InvoiceItems, InvoiceBoxItems, STATUS_CHOICES
 from .CreditNote import CreditNote
 
@@ -9,6 +9,7 @@ __all__ = [
     'OrderBoxItems',
     'OrderItems',
     'Payment',
+    'PaymentDetail',
     'Invoice',
     'InvoiceItems',
     'InvoiceBoxItems',

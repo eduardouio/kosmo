@@ -1,7 +1,6 @@
 from common import BaseModel
 from django.db import models
 from django.core.exceptions import ValidationError
-from trade.models import Invoice
 
 
 METHOD_CHOICES = (
@@ -30,9 +29,6 @@ STATUS_CHOICES = (
 class Payment(BaseModel):
     id = models.AutoField(
         primary_key=True
-    )
-    invoices = models.ManyToManyField(
-        'trade.Invoice'
     )
     payment_number = models.CharField(
         'Número de Pago',
@@ -119,24 +115,16 @@ class Payment(BaseModel):
     )
 
     @property
-    def is_overdue(self):
-        """Verifica si el pago está vencido"""
-        if self.due_date and self.status == 'PENDIENTE':
-            from datetime import date
-            return date.today() > self.due_date
-        return False
-
-    @property
     def total_invoices_amount(self):
-        """Calcula el total de las facturas asociadas"""
-        return sum(invoice.total_invoice for invoice in self.invoices.all())
+        """Calcula el total de las facturas asociadas a través de PaymentInvoice"""
+        return sum(pi.amount for pi in self.invoices.all())
 
     def clean(self):
         """Validaciones personalizadas"""
         super().clean()
 
         # Validar que el monto sea positivo
-        if self.amount <= 0:
+        if self.amount is not None and self.amount <= 0:
             raise ValidationError('El monto debe ser mayor a cero')
 
         # Validar campos requeridos según el método de pago
@@ -149,42 +137,9 @@ class Payment(BaseModel):
                     'El número de operación es requerido para este método de pago')
 
         # Validar que la fecha de vencimiento sea posterior a la fecha de pago
-        if self.due_date and self.due_date < self.date:
+        if self.due_date and self.date and self.due_date < self.date:
             raise ValidationError(
                 'La fecha de vencimiento no puede ser anterior a la fecha de pago')
-
-    @classmethod
-    def get_by_status(cls, status):
-        """Obtiene pagos por estado"""
-        return cls.objects.filter(status=status, is_active=True)
-
-    @classmethod
-    def get_pending_payments(cls):
-        """Obtiene pagos pendientes"""
-        return cls.get_by_status('PENDIENTE')
-
-    @classmethod
-    def get_overdue_payments(cls):
-        """Obtiene pagos vencidos"""
-        from datetime import date
-        return cls.objects.filter(
-            status='PENDIENTE',
-            due_date__lt=date.today(),
-            is_active=True
-        )
-
-    @classmethod
-    def get_payments_by_invoice(cls, invoice):
-        """Obtiene pagos asociados a una factura"""
-        return cls.objects.filter(invoices=invoice, is_active=True)
-
-    @classmethod
-    def get_payments_by_date_range(cls, start_date, end_date):
-        """Obtiene pagos en un rango de fechas"""
-        return cls.objects.filter(
-            date__range=[start_date, end_date],
-            is_active=True
-        )
 
     @classmethod
     def get_next_payment_number(cls):
@@ -202,23 +157,6 @@ class Payment(BaseModel):
 
         return "PAY-000001"
 
-    @classmethod
-    def get_net_collection_number(cls):
-        """Genera el siguiente número de recaudación neta"""
-        last_collection = cls.objects.filter(
-            net_collection_number__isnull=False
-        ).order_by('-id').first()
-
-        if last_collection and last_collection.net_collection_number:
-            try:
-                last_number = int(
-                    last_collection.net_collection_number.split('-')[-1])
-                return f"COL-{last_number + 1:06d}"
-            except (ValueError, IndexError):
-                pass
-
-        return "COL-000001"
-
     def __str__(self):
         return f"Pago {self.payment_number or self.id} - {self.amount}"
 
@@ -226,3 +164,47 @@ class Payment(BaseModel):
         ordering = ['-date', '-id']
         verbose_name = 'Pago'
         verbose_name_plural = 'Pagos'
+
+
+class PaymentDetail(BaseModel):
+    id = models.AutoField(
+        primary_key=True
+    )
+    payment = models.ForeignKey(
+        Payment,
+        on_delete=models.CASCADE,
+        related_name='invoices',
+        verbose_name='Pago'
+    )
+    invoice = models.ForeignKey(
+        'Invoice',
+        on_delete=models.CASCADE,
+        related_name='payments',
+        verbose_name='Factura'
+    )
+    amount = models.DecimalField(
+        'Monto',
+        max_digits=15,
+        decimal_places=2
+    )
+
+    class Meta:
+        unique_together = ('payment', 'invoice')
+        verbose_name = 'Pago de Factura'
+        verbose_name_plural = 'Pagos de Facturas'
+
+    def clean(self):
+        """Validaciones personalizadas"""
+        super().clean()
+        
+        # Validar que el monto sea positivo
+        if self.amount is not None and self.amount <= 0:
+            raise ValidationError('El monto debe ser mayor a cero')
+        
+        # Validar que el monto no exceda el total de la factura
+        if self.invoice and self.amount and self.amount > self.invoice.total_invoice:
+            raise ValidationError(
+                f'El monto no puede exceder el total de la factura ({self.invoice.total_invoice})')
+
+    def __str__(self):
+        return f"{self.payment} - {self.invoice} - {self.amount}"
