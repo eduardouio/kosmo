@@ -52,6 +52,14 @@
               <div class="value-col">{{ invoice.partner.name }}</div>
             </div>
             <div class="info-row">
+              <div class="label-col">Mark:</div>
+              <div class="value-col">{{ invoice.marking|default:'N/A' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="label-col">Farm:</div>
+              <div class="value-col"><strong>Finca Pednmiente</strong></div>
+            </div>
+            <div class="info-row">
               <div class="label-col">Address:</div>
               <div class="value-col">{{ invoice.partner.address }}</div>
             </div>
@@ -67,10 +75,6 @@
                 <div class="value-col">{{ invoice.partner.credit_term }} Days</div>
               </div>
             </div>
-            <div class="info-row">
-              <div class="label-col">Marking:</div>
-              <div class="value-col">{{ invoice.marking|default:'N/A' }}</div>
-            </div>
           </div>
           <!-- Información adicional -->
           <div class="additional-info">
@@ -78,10 +82,6 @@
             <div class="info-row">
               <div class="label-col">Date:</div>
               <div class="value-col">{{ invoice.date | date:'Y-m-d' }}</div>
-            </div>
-            <div class="info-row">
-              <div class="label-col">Marking:</div>
-              <div class="value-col">{{ invoice.marking|default:'N/A' }}</div>
             </div>
             <div class="info-row">
               <div class="label-col">Cargo Agency:</div>
@@ -189,13 +189,28 @@
             </div>
           </div>
           <div class="bank-info">
-            <p><strong>Beneficiary Bank:</strong> The Bank of New York Mellon</p>
-            <p><strong>Account Name:</strong> Western Union Business Solutions</p>
-            <p><strong>Account Number (checking account):</strong> 8901309192</p>
-            <p><strong>SWIFT:</strong> IRVTUS3N</p>
-            <p><strong>ABA Routing:</strong> 021000018</p>
-            <p><strong>Address:</strong> 1 Wall Street New York - NY 10286, USA</p>
-            <p><strong>Phone:</strong> 111</p>
+            <div style="margin-bottom: 15px;">
+              <p><strong>CUENTA BANCARIA ECUADOR</strong></p>
+              <p><strong>Beneficiario:</strong> Kosmo Flowers SAS</p>
+              <p><strong>Dirección del beneficiario:</strong> Pasaje Cusua y Pasaje Timasa</p>
+              <p><strong>RUC:</strong> 1793205904001</p>
+              <p><strong>Banco:</strong> Banco del Pacífico</p>
+              <p><strong>Dirección del banco:</strong> P. Icaza y Pedro Carbo</p>
+              <p><strong>Número de cuenta:</strong> 1067343082</p>
+              <p><strong>Tipo de cuenta:</strong> Ahorros</p>
+              <p><strong>Código Swift:</strong> PACIECEG</p>
+            </div>
+            
+            <div>
+              <p><strong>CUENTA BANCARIA ESTADOS UNIDOS</strong></p>
+              <p><strong>Beneficiario:</strong> KOSMOFLOWERS LLC</p>
+              <p><strong>Dirección:</strong> 7050 W PALMETTO PARK RD STE 15 300, BOCA RATON, FL 33433</p>
+              <p><strong>Número de cuenta:</strong> 532732693</p>
+              <p><strong>Banco:</strong> JPMORGAN CHASE</p>
+              <p><strong>Dirección del banco:</strong> 270 PARK AVENUE NEW YORK NY 10017</p>
+              <p><strong>ABA para ACH:</strong> 267084131</p>
+              <p><strong>ABA para WIRES:</strong> 021000021</p>
+            </div>
           </div>
         </div>
       
