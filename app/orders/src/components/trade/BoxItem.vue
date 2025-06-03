@@ -20,6 +20,10 @@ const props = defineProps({
             stems_bunch: 0,
             total: 0
         })
+    },
+    isInvalid: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -236,7 +240,34 @@ watch(() => props.modelValue?.product, (newProduct) => {
         newboxItem.value.product = JSON.parse(JSON.stringify(newProduct));
     }
 }, { deep: true });
+
+// Computed properties para validación individual de campos
+const isLengthInvalid = computed(() => {
+    const value = Number(newboxItem.value.length)
+    return !value || value <= 0 || isNaN(value)
+})
+
+const isTotalBunchesInvalid = computed(() => {
+    const value = Number(newboxItem.value.total_bunches)
+    return !value || value <= 0 || isNaN(value)
+})
+
+const isStemsBunchInvalid = computed(() => {
+    const value = Number(newboxItem.value.stems_bunch)
+    return !value || value <= 0 || isNaN(value)
+})
+
+const isStemCostPriceInvalid = computed(() => {
+    const value = Number(newboxItem.value.stem_cost_price)
+    return !value || value <= 0 || isNaN(value)
+})
+
+const isProfitMarginInvalid = computed(() => {
+    const value = Number(newboxItem.value.profit_margin)
+    return !value || value <= 0 || isNaN(value)
+})
 </script>
+
 <template>
     <div class="container-fluid">
         <div class="row">
@@ -262,7 +293,10 @@ watch(() => props.modelValue?.product, (newProduct) => {
                     <input 
                         type="number"
                         v-model="newboxItem.length"
-                        class="border w-100 text-end trade-nav-input" 
+                        :class="[
+                            'form-control form-control-sm text-end input-soft my-input',
+                            isLengthInvalid ? 'input-error border-danger' : ''
+                        ]"
                         step="1" 
                     />
                 </div>
@@ -270,7 +304,10 @@ watch(() => props.modelValue?.product, (newProduct) => {
                     <input 
                         type="number"
                         v-model="newboxItem.total_bunches"
-                        class="border w-100 text-end trade-nav-input" 
+                        :class="[
+                            'form-control form-control-sm text-end input-soft my-input',
+                            isTotalBunchesInvalid ? 'input-error border-danger' : ''
+                        ]"
                         step="1"
                         @blur="onBlurField('total_bunches')"
                     />
@@ -279,7 +316,10 @@ watch(() => props.modelValue?.product, (newProduct) => {
                     <input 
                         type="number"
                         v-model="newboxItem.stems_bunch"
-                        class="border w-100 text-end trade-nav-input" 
+                        :class="[
+                            'form-control form-control-sm text-end input-soft my-input',
+                            isStemsBunchInvalid ? 'input-error border-danger' : ''
+                        ]"
                         step="1"
                     />
                 </div>
@@ -288,7 +328,10 @@ watch(() => props.modelValue?.product, (newProduct) => {
                         type="number"
                         step="0.01"
                         v-model="newboxItem.stem_cost_price"
-                        class="border w-100 text-end trade-nav-input"
+                        :class="[
+                            'form-control form-control-sm text-end input-soft my-input',
+                            isStemCostPriceInvalid ? 'input-error border-danger' : ''
+                        ]"
                         @input="newboxItem.total = calculateTotal"
                         />
                 </div>
@@ -297,7 +340,10 @@ watch(() => props.modelValue?.product, (newProduct) => {
                         type="number"
                         step="0.01"
                         v-model="newboxItem.profit_margin"
-                        class="border w-100 text-end trade-nav-input" 
+                        :class="[
+                            'form-control form-control-sm text-end input-soft my-input',
+                            isProfitMarginInvalid ? 'input-error border-danger' : ''
+                        ]"
                         @input="newboxItem.total = calculateTotal"
                         />
                 </div>
@@ -305,7 +351,7 @@ watch(() => props.modelValue?.product, (newProduct) => {
                     <input 
                         type="text"
                         :value="calculateTotal"
-                        class="border w-100 text-end" 
+                        class="form-control form-control-sm text-end input-soft my-input" 
                         readonly
                         tabindex="-1"
                         />
@@ -314,7 +360,7 @@ watch(() => props.modelValue?.product, (newProduct) => {
                     <input 
                         type="text"
                         :value="calculateTotalBoxItem"
-                        class="border w-100 text-end" 
+                        class="form-control form-control-sm text-end input-soft my-input" 
                         readonly
                         tabindex="-1"
                         />
@@ -323,3 +369,24 @@ watch(() => props.modelValue?.product, (newProduct) => {
         </div>
     </div>
 </template>
+
+<style scoped>
+.input-error.border-danger {
+  border-color: #dc3545 !important;
+  border-width: 2px !important;
+}
+
+.input-error.border-danger:focus {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.border {
+  border: 1px solid #ced4da;
+}
+
+.border:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+</style>
