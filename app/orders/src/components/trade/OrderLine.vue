@@ -128,6 +128,7 @@ const removeLine = () => {
         v-model="localBoxModel"
       >
         <option value="">Seleccionar</option>
+        <option>EB</option>
         <option>QB</option>
         <option>HB</option>
         <option>FB</option>

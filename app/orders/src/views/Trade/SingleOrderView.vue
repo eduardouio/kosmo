@@ -55,6 +55,7 @@ function onSelectSupplier(supplier) {
 
 // Calcular totales del documento - versión mejorada
 function calculateOrderTotals() {
+  let eb_total = 0
   let hb_total = 0
   let qb_total = 0
   let fb_total = 0
@@ -69,6 +70,7 @@ function calculateOrderTotals() {
     const quantity = Number(line.quantity) || 0;
     if (line.box_model === 'HB') hb_total += quantity;
     if (line.box_model === 'QB') qb_total += quantity;
+    if (line.box_model === 'EB') qb_total += quantity;
 
     if (Array.isArray(line.order_box_items)) {
       line.order_box_items.forEach(item => {
@@ -87,13 +89,14 @@ function calculateOrderTotals() {
   })
 
   // FB = (HB/2) + (QB/4)
-  fb_total = (hb_total / 2) + (qb_total / 4)
+  fb_total = (hb_total / 2) + (qb_total / 4) + (eb_total / 8) 
   
   // Asegurarnos que los valores son números válidos antes de asignarlos
   orderStore.updateOrderTotals({
     hb_total: parseFloat(hb_total.toFixed(2)),
     qb_total: parseFloat(qb_total.toFixed(2)),
     fb_total: parseFloat(fb_total.toFixed(2)),
+    eb_total: parseFloat(eb_total.toFixed(2)),
     total_stem_flower: parseFloat(total_stem_flower.toFixed(2)),
     total_price: parseFloat(total_price.toFixed(2)),
     total_margin: parseFloat(total_margin.toFixed(2)),
