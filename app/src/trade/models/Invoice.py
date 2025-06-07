@@ -18,14 +18,15 @@ TYPE_DOCUMENT_CHOICES = (
 )
 
 BOX_CHOICES = (
+    ('EB', 'EB'),
     ('HB', 'HB'),
     ('QB', 'QB'),
     ('FB', 'FB')
 )
 
 SERIES = (
-    ('100', '100'),
-    ('200', '200'),
+    ('300', '300'),
+    ('000', '000'),
 )
 
 
@@ -36,7 +37,7 @@ class Invoice(BaseModel):
     serie = models.CharField(
         'Serie',
         max_length=5,
-        blank=True,
+        blank=True, 
         null=True,
         default=None,
         choices=SERIES

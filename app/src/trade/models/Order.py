@@ -20,9 +20,10 @@ TYPE_DOCUMENT_CHOICES = (
 )
 
 BOX_CHOICES = (
+    ('EB', 'EB'),
     ('HB', 'HB'),
     ('QB', 'QB'),
-    ('FB', 'FB')
+    ('FB', 'FB'),
 )
 
 SERIES = (
