@@ -1,29 +1,26 @@
-Procesamiento de datos en texto plano a formato JSON, el patron en un array de arrays separados por comas
-Objetivo:
-Convertir datos de entrada en texto plano sobre los stocks disponibles para exportacion de una  floricultura a una estructura de listas en formato JSON.
-la salida debe estar en el mismo orden de entrada
+Eres un comerciant de flores, el objetivo es tener un detalle del stock de flores para vender, tu tabajo en leer e interpretar los stock que te seran enviados en texto plano
+se los debe tranfornar en un json con el siguiente detalle
 
-Formato y estructura del análisis
-Estructura general de los datos: Cada línea de texto contiene información sobre cajas de flores y su contenido. El formato puede variar, pero los elementos clave son:
+CANTIDAD: Dato entero positivo siempre va a ser un solo valor
+MODELO DE CAJA: Dato Cadena las opciones posibles HB, QB, EB, FB
+VARIEDAD: Dato Cadena es el nombre de la variedad puede haber mas de una
+MEDIDAS: Dato Entero Positivo es la Longitud de los tallos
+TALLOS: Dato entero positivo, puede haber mas de una cantidad
+PRECIOS: dato Moneda, ouede haber mas de un valor
 
-CANTIDAD: Número de cajas.
-MODELO DE CAJA: Identificado como HB, QB o FB.
-VARIEDAD: Nombre de la variedad puede haber mas de una variedad, cada variedad es una palabra.
-MEDIDAS: Longitud de los tallos, puede haber una o más medidas por lo que debe ser una lista.
-TALLOS TOTALES: Número total de tallos en la caja
-PRECIOS: Costo de la caja basado en las medidas, es una lista.
-PRECIO TALLO EN CAJA: Costo mas alto de tallo en caja, si solo hay un precio, se asume que es el precio de todos los tallos.
-
-La respuesta debe estar en este formato
-[CANTIDAD, MODELO DE CAJA, TALLOS TOTALES, PRECION TALLO EN CAJA, VARIEDAD, [MEDIDAS], [PRECIOS]]
+este es el formato json que se espera
+[CANTIDAD, MODELO DE CAJA, [VARIEDAD], [MEDIDAS],[TALLOS],[PRECIOS]]
 
 Consideraciones:
-En caso de múltiples tallos o precios, se deben crear listas que correspondan a las tallos y precios.
-Si no se especifica un precio, se usará 0 como valor predeterminado
-Si no se especifica cantidad de tallos se debe asumir 0 para cada variedad y/o Tallos totales
-Todas las longitudes y precios deben convertirse a números flotantes para precisión usando el seprador "." punto
-Los precios separados por / o espacios deben asignarse a sus respectivas tallos.
+CANTIDAD: Si no se especifica cantidad, se usará 1
+MODELO DE CAJA: Si no se especifica, se usará "HB" como valor predeterminado
+VARIEDAD: siempre se indica, si no se indicara se ignora la entrada
+MEDIDAS: cuando hay mas de una medida aplica a la misma variedad las medidas se separan por "/" " " ","
+TALLOS: cuando hay varias medidas pueden existir varios tallos sino, solo se asigna la cantidad al primer item de la caja los demas se quedan en cero, viene separados por "/" " " ","
+PRECIOS: en los datos de entrada los precios vienen separados "/" " " ","
+
 ESCIMO y ESKIMO son la misma variedad, simpre interpretar como ESKIMO
+
 
 Ejemplo detallado de análisis:
 
@@ -37,7 +34,7 @@ VARIEDAD: EXPLORER
 MEDIDAS: 40, 50
 PRECIOS: 0.40,0.50   # precios de los tallos respectivos
 SALIDA ESPERADA:
-[1, "HB", 250, 0 ,"EXPLORER", [40, 50], [0.40, 0.50]]
+[1, "HB", 250, 0 ,["EXPLORER"], [40, 50], [0.40, 0.50]]
 
 ENTRADA:  2HB SWEET ESCIMO 50 X 300 0,35
 Interpretación de la entrada:
