@@ -88,6 +88,23 @@ FARM THREE
 #48 2HB 300 EXPLORER 60X300
 #48 1HB 300 EXPLORER 50X300
 
+## Lista de tareas
+
+- Permitir edición masiva de atributos de flores.
+- Implementar división de cajas QB en dos (EB).
+- Mostrar el total de tallos en la línea.
+- Fijar tallos por bunch en 25.
+- Incluir campo para PO del proveedor en la factura.
+- Relacionar órdenes de compra con órdenes de venta en líneas de detalle y hacer lo mismo con facturas.
+- Aprobar órdenes de compra y facturas en masa; facturar en masa las aprobadas.
+- Permitir cambiar fecha de emisión y vencimiento en la factura.
+- Aumentar el nombre del vendor en la lista de clientes.
+- En cajas compuestas de la dispo, mostrar cantidad de tallos solo en la primera línea cuando se especifica un solo número de tallos.
+- Al actualizar valores de tallos por cajas en dispo por caja compartida, dividir el total de tallos entre los componentes del QB o HB.
+- Visualizar la dispo con exponentes.
+- Definir roles de usuario: Administrador, Ventas (solo ve fincas de lioc), Clientes.
+- Al compartir texto, mostrar "kosmo moonligth" siempre primero.
+
 
 
 
