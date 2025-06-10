@@ -10,68 +10,16 @@ import os
 class GPTDirectProcessor:
     _api_key = GPT_API_KEY
     _current_dir = os.path.dirname(os.path.abspath(__file__))
-    _promt = None
+    _prompt = None
     _client = OpenAI(api_key=_api_key)
-
-    tool_definitions = [
-        {
-            "type": "function",
-            "function": {
-                "name": "parse_stock_lines",
-                "description": "Convierte múltiples líneas de stock floral en un array de objetos JSON",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "items": {
-                            "type": "array",
-                            "items": {
-                                "type": "object",
-                                "properties": {
-                                    "cantidad": { "type": "integer" },
-                                    "modelo": { "type": "string" },
-                                    "tallos_totales": { "type": "integer" },
-                                    "precio_tallo_caja": { "type": "number" },
-                                    "variedad": { "type": "string" },
-                                    "medidas": {
-                                        "type": "array",
-                                        "items": { "type": "number" }
-                                    },
-                                    "precios": {
-                                        "type": "array",
-                                        "items": { "type": "number" }
-                                    }
-                                },
-                                "required": [
-                                    "cantidad",
-                                    "modelo",
-                                    "tallos_totales",
-                                    "precio_tallo_caja",
-                                    "variedad",
-                                    "medidas",
-                                    "precios"
-                                ]
-                            }
-                        }
-                    },
-                    "required": ["items"]
-                }
-            }
-        }
-    ]
 
     def process_text(self, dispo):
         dispo = TextPrepare().process(dispo)
-        promt_file = os.path.join(self._current_dir, 'PromtText.txt')
-        if os.path.exists(promt_file):
-            with open(promt_file, 'r', encoding='utf-8') as file:
-                self._prompt = file.read()
-                loggin_event('Archivo de configuración leído correctamente')
 
         if not self._prompt:
-            raise Exception('No se encontró el archivo de configuración')
+            self._load_prompt()
 
         loggin_event('Iniciando procesamiento de texto')
-        loggin_event(f'Texto a procesar: {dispo}')
         start_time = time.time()
 
         response = self._client.chat.completions.create(
@@ -81,51 +29,77 @@ class GPTDirectProcessor:
                 {"role": "system", "content": self._prompt},
                 {"role": "user", "content": dispo}
             ],
-            tools=self.tool_definitions,
+            tools=[
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "parse_stock_lines",
+                        "description": "Parse stock lines into structured format",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "items": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "cantidad": {"type": "integer"},
+                                            "modelo": {"type": "string"},
+                                            "variedades": {"type": "array", "items": {"type": "string"}},
+                                            "medidas": {"type": "array", "items": {"type": "number"}},
+                                            "tallos": {"type": "array", "items": {"type": "number"}},
+                                            "precios": {"type": "array", "items": {"type": "number"}}
+                                        },
+                                        "required": ["cantidad", "modelo", "variedades", "medidas", "tallos", "precios"]
+                                    }
+                                }
+                            },
+                            "required": ["items"]
+                        }
+                    }
+                }
+            ],
             tool_choice={"type": "function", "function": {"name": "parse_stock_lines"}}
         )
-        end_time = time.time()
-        laps_time = end_time - start_time
-        loggin_event(f'Respuesta recibida de OpenAI API {laps_time}')
 
-        if response.choices[0].message.tool_calls:
-            tool_call = response.choices[0].message.tool_calls[0]
-            payload = tool_call.function.arguments
-            loggin_event(f'Payload recibido: {payload}')
-            
-            parsed = json.loads(payload)
-            loggin_event(f'JSON parseado: {parsed}')
-            loggin_event(f'Tipo de JSON parseado: {type(parsed)}')
-            
-            # Verificar que es un diccionario y contiene items
-            if not isinstance(parsed, dict) or "items" not in parsed:
-                raise Exception(f"Se esperaba un diccionario con 'items', pero se recibió: {parsed}")
-            
-            items = parsed["items"]
-            if not isinstance(items, list):
-                raise Exception(f"Se esperaba una lista de items, pero se recibió: {type(items)}")
-            
-            result_arrays = []
-            for item in items:
-                # Validar campos requeridos para cada item
-                required_fields = ["cantidad", "modelo", "tallos_totales", "precio_tallo_caja", "variedad", "medidas", "precios"]
-                for field in required_fields:
-                    if field not in item:
-                        raise Exception(f"Campo requerido '{field}' no encontrado en item: {item}")
-                
-                result_array = [
-                    item["cantidad"],
-                    item["modelo"],
-                    item["tallos_totales"],
-                    item["precio_tallo_caja"],
-                    item["variedad"],
-                    item["medidas"],
-                    item["precios"]
-                ]
-                result_arrays.append(result_array)
-            
-            loggin_event(f'Arrays resultado: {result_arrays}')
-            loggin_event(f'Número de items procesados: {len(result_arrays)}')
-            return result_arrays
-        else:
+        laps_time = time.time() - start_time
+        loggin_event(f'Respuesta recibida de OpenAI API {laps_time}s')
+
+        if not response.choices[0].message.tool_calls:
             raise Exception("No se recibió un JSON válido desde la función")
+
+        tool_call = response.choices[0].message.tool_calls[0]
+        parsed = json.loads(tool_call.function.arguments)
+
+        if not isinstance(parsed, dict) or "items" not in parsed:
+            raise Exception(
+                f"Formato inválido: se esperaba diccionario con 'items'")
+
+        result_arrays = []
+        required_fields = ["cantidad", "modelo", "variedades", "medidas", "tallos", "precios"]
+
+        for item in parsed["items"]:
+            if not all(field in item for field in required_fields):
+                missing = [f for f in required_fields if f not in item]
+                raise Exception(f"Campos faltantes: {missing}")
+
+            result_arrays.append([
+                item["cantidad"], 
+                item["modelo"], 
+                item["variedades"], 
+                item["medidas"], 
+                item["tallos"], 
+                item["precios"]
+            ])
+
+        loggin_event(f'Procesados {len(result_arrays)} items')
+        return result_arrays
+
+    def _load_prompt(self):
+        promt_file = os.path.join(self._current_dir, 'PromtText.txt')
+        if not os.path.exists(promt_file):
+            raise Exception('No se encontró el archivo de configuración')
+
+        with open(promt_file, 'r', encoding='utf-8') as file:
+            self._prompt = file.read()
+        loggin_event('Archivo de configuración leído correctamente')
