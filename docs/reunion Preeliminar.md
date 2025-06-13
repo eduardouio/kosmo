@@ -88,9 +88,9 @@ FARM THREE
 #48 2HB 300 EXPLORER 60X300
 #48 1HB 300 EXPLORER 50X300
 
-## Lista de tareas
+- Permitir edición masiva de atributos de flores catalago de flores 
 
-- Permitir edición masiva de atributos de flores.
+## Lista de tareas
 - Implementar división de cajas QB en dos (EB).
 - Mostrar el total de tallos en la línea.
 - Fijar tallos por bunch en 25.
@@ -105,6 +105,21 @@ FARM THREE
 - Definir roles de usuario: Administrador, Ventas (solo ve fincas de lioc), Clientes.
 - Al compartir texto, mostrar "kosmo moonligth" siempre primero.
 
+cotizar el enlace de plataformas y graficos en analiticas 
+cotizar 
 
+## Lo Que nos impide avanzar
+- Certificado SSL no está instalado.
+- Disponibilidad no se ajusta a los requerimientos. no soportamos bunches solo tallos, nuevos formatos de entrada exponentes precios y forma de calcular tallos y precios.
+- Facturacion no es navegable.
+- Registro de Proveedores y Clientes
 
-
+1.- Clientes
+2.- Dispo ->  modelos por separado
+3.- Registro de Proveedores 
+4.- Order de Venta 
+5.- Order de Compra
+6.- Factura Cliente PO finca y  
+7.- Factura Proveedor
+8.- Pagos
+9.- Portal del Vendendor
