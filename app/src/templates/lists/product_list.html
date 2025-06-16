@@ -93,17 +93,17 @@
                     <input type="checkbox" class="product-checkbox" data-id="{{ item.id }}" data-name="{{ item.name }}" data-variety="{{ item.variety }}" data-colors="{{ item.colors }}">
                 </td>
                 <td class="text-center align-middle" style="padding: 6px;">
-                    <a href="{% url 'product_detail' item.id %}" class="text-primary fw-bold text-decoration-none small">
+                    <a href="{% url 'product_detail' item.id %}" class="text-primary fw-bold text-decoration-none">
                         {{ forloop.counter }}
                     </a>
                 </td>
                 <td class="align-middle" style="padding: 6px;">
-                    <a href="{% url 'product_detail' item.id %}" class="text-dark text-decoration-none fw-semibold small">
+                    <a href="{% url 'product_detail' item.id %}" class="text-dark text-decoration-none fw-semibold">
                         {{ item.name }}
                     </a>
                 </td>
                 <td class="align-middle" style="padding: 6px;">
-                    <span class="badge bg-info text-dark small">{{ item.variety }}</span>
+                    <span class="badge bg-info text-dark">{{ item.variety }}</span>
                 </td>
                 <td class="align-middle" style="padding: 6px;">
                     <small class="text-muted">{{ item.colors|default:"Sin definir" }}</small>

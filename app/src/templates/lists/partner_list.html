@@ -1,14 +1,14 @@
 {% extends 'base/base.html' %}
 {% block content %}
 <div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
-        <div class="d-flex justify-content-between">
+    <div class="d-flex justify-content-between">
         {% if action %}
-        <span class="bg-peisol-secondary bg-gradient p-2 rounded">
+        <span class="bg-kosmo-green bg-gradient p-2 rounded">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-            <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
                 <path d="M9 12l2 2l4 -4" />
-              </svg>
+            </svg>
             {{ message }}
         </span>
         {% endif %}
@@ -17,7 +17,7 @@
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                 <path d="M12 5l0 14" />
                 <path d="M5 12l14 0" />
-              </svg>
+            </svg>
             {% if source_page == 'clientes' %}
                 Nuevo Cliente
             {% else %}
@@ -26,79 +26,328 @@
         </a>
     </div>
 </div>
-<div class="mx-auto" style="width: 80%;">
-    {{ source_page }}
-    <table class="table table-bordered table-striped" id="myTable">
+
+<div class="mx-auto" style="width: 95%;">
+    <!-- Debug info -->
+    <div class="mb-3 p-2 bg-light border rounded">
+        <small class="text-muted">
+            <strong>Debug:</strong> 
+            Source page: {{ source_page }} | 
+            Total registros: {{ object_list|length }} |
+            {% for item in object_list|slice:":3" %}
+                {{ item.name }} ({{ item.type_partner }}){% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </small>
+    </div>
+    
+    {% if object_list %}
+    <div class="mb-3">
+        <small class="text-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chart-line me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M4 19l16 0" />
+                <path d="M4 15l4 -6l4 2l4 -5l4 4" />
+            </svg>
+            {% if source_page == 'clientes' %}
+                Estadísticas de ventas por cliente
+            {% else %}
+                Estadísticas de compras por proveedor
+            {% endif %}
+        </small>
+    </div>
+    
+    <table class="table table-bordered table-striped table-sm" id="partnerTable">
         <thead>
-        <tr>
-            <th class="bg-secondary bg-opacity-25">#</th>
-            <th class="bg-secondary bg-opacity-25">Nombre</th>
-            <th class="bg-secondary bg-opacity-25">Correo Electrónico</th>
-            <th class="bg-secondary bg-opacity-25">Pais</th>                
-            <th class="bg-secondary bg-opacity-25">D Crédito</th>
-            <th class="bg-secondary bg-opacity-25">Verificado</th>
-            <th class="bg-secondary bg-opacity-25">Activo</th>
-            <th class="bg-secondary bg-opacity-25">Consolidado</th>
-        </tr>
+            <tr>
+                <th class="bg-secondary bg-opacity-25 text-center" style="width: 60px;">#</th>
+                <th class="bg-secondary bg-opacity-25" style="width: 220px;">Nombre</th>
+                <th class="bg-secondary bg-opacity-25" style="width: 180px;">Correo Electrónico</th>
+                <th class="bg-secondary bg-opacity-25 text-center" style="width: 80px;">País</th>
+                <th class="bg-secondary bg-opacity-25 text-center" style="width: 80px;">Crédito</th>
+                {% if source_page == 'clientes' %}
+                    <th class="bg-secondary bg-opacity-25 text-center" style="width: 100px;">
+                        <small>Total Ventas<br>($)</small>
+                    </th>
+                    <th class="bg-secondary bg-opacity-25 text-center" style="width: 90px;">
+                        <small>Tallos<br>Vendidos</small>
+                    </th>
+                    <th class="bg-secondary bg-opacity-25 text-center" style="width: 90px;">
+                        <small>Pedidos<br>Pendientes</small>
+                    </th>
+                    <th class="bg-secondary bg-opacity-25 text-center" style="width: 120px;">Vendedor</th>
+                {% else %}
+                    <th class="bg-secondary bg-opacity-25 text-center" style="width: 100px;">
+                        <small>Total Compras<br>($)</small>
+                    </th>
+                    <th class="bg-secondary bg-opacity-25 text-center" style="width: 90px;">
+                        <small>Tallos<br>Comprados</small>
+                    </th>
+                    <th class="bg-secondary bg-opacity-25 text-center" style="width: 90px;">
+                        <small>Pedidos<br>Pendientes</small>
+                    </th>
+                {% endif %}
+                <th class="bg-secondary bg-opacity-25 text-center" style="width: 80px;">Estado</th>
+            </tr>
         </thead>
         <tbody>
             {% for item in object_list %}
             <tr>
-                <td class="p-0 d-flex justify-content-start gap-3">
-                    <a href="/socios/{{ item.id }}/" class="text-primary d-flex justify-content-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crosshair" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-                            <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-                            <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-                            <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-                            <path d="M9 12l6 0" />
-                            <path d="M12 9l0 6" />
-                          </svg>
-                          {{ item.id }}
+                <td class="text-center align-middle" style="padding: 6px;">
+                    <a href="/socios/{{ item.id }}/" class="text-primary fw-bold text-decoration-none">
+                        {{ item.id }}
                     </a>
                 </td>
-                <td class="p-0">
-                    <a href="{% url 'partner_detail' item.id %}">
-                    {% if item.is_active %}
-                        <span class="text-success">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-checkbox"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 11l3 3l8 -8" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
-                        </span>
-                    {% else %}
-                        <span class="text-warning">
-                            <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-alert-triangle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v4" /><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z" /><path d="M12 16h.01" /></svg>
-                        </span>
-                    {% endif %}
-                    {{ item.name }}
-                </a>
+                <td class="align-middle" style="padding: 6px;">
+                    <a href="{% url 'partner_detail' item.id %}" class="text-dark text-decoration-none fw-semibold">
+                        {% if item.is_active %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check text-success me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                <path d="M9 12l5 5l8 -8" />
+                            </svg>
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-circle text-warning me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                <path d="M12 8v4" />
+                                <path d="M12 16h.01" />
+                            </svg>
+                        {% endif %}
+                        <span>{{ item.name }}</span>
+                    </a>
                 </td>
-                <td class="p-0">
-                    {% if item.email  %}
-                        {{ item.email }}
+                <td class="align-middle" style="padding: 6px;">
+                    {% if item.email %}
+                        <span class="text-muted">{{ item.email }}</span>
                     {% else %}
-                        --
+                        <span class="text-muted">--</span>
                     {% endif %}
                 </td>
-                <td class="p-0">{{ item.country }}</td>
-                <td class="p-0">
+                <td class="text-center align-middle" style="padding: 6px;">
+                    <span class="badge bg-info text-dark">{{ item.country|default:"--" }}</span>
+                </td>
+                <td class="text-center align-middle" style="padding: 6px;">
                     {% if item.credit_term %}
-                        {{ item.credit_term }} Días
+                        <span class="badge bg-warning text-dark">{{ item.credit_term }}d</span>
                     {% else %}
-                        Contado
+                        <span class="badge bg-secondary">Contado</span>
                     {% endif %}
-                </td>  
-                <td class="p-0">
-                    {{ item.is_verified | yesno:"Si,No" }}
                 </td>
-                <td class="p-0">
-                    {{ item.is_active | yesno:"Si,No" }}
+                <td class="text-center align-middle" style="padding: 6px;">
+                    {% if item.total_invoice_amount and item.total_invoice_amount > 0 %}
+                        <span class="badge bg-success">${{ item.total_invoice_amount|floatformat:2 }}</span>
+                    {% else %}
+                        <span class="text-muted">$0.00</span>
+                    {% endif %}
                 </td>
-                <td class="p-0">
-                    {{ item.consolidate | yesno:"Si,No" }}
+                <td class="text-center align-middle" style="padding: 6px;">
+                    {% if item.total_stems_sold and item.total_stems_sold > 0 %}
+                        <span class="badge bg-primary">{{ item.total_stems_sold|floatformat:0 }}</span>
+                    {% else %}
+                        <span class="text-muted">0</span>
+                    {% endif %}
+                </td>
+                <td class="text-center align-middle" style="padding: 6px;">
+                    {% if item.pending_orders and item.pending_orders > 0 %}
+                        <span class="badge bg-warning text-dark">{{ item.pending_orders }}</span>
+                    {% else %}
+                        <span class="text-muted">0</span>
+                    {% endif %}
+                </td>
+                {% if source_page == 'clientes' %}
+                <td class="text-center align-middle" style="padding: 6px;">
+                    {% if item.seller %}
+                        <span class="text-dark fw-semibold">{{ item.seller }}</span>
+                    {% else %}
+                        <span class="text-muted">Sin asignar</span>
+                    {% endif %}
+                </td>
+                {% endif %}
+                <td class="text-center align-middle" style="padding: 6px;">
+                    <div class="d-flex justify-content-center gap-1">
+                        {% if item.is_verified %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shield-check text-success" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" title="Verificado">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M11.46 20.846a12 12 0 0 1 -2.21 -2.634c-2.5 -3.104 -4.96 -6.821 -5.25 -11.212c0 -1.657 1.343 -3 3 -3s3 1.343 3 3v.5" />
+                                <path d="M15 19l2 2l4 -4" />
+                            </svg>
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shield-x text-danger" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" title="No verificado">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M13.252 20.601c-.408 .155 -.826 .288 -1.252 .399a12 12 0 0 1 -8.5 -15a3 3 0 0 1 3 -3h4a3 3 0 0 1 3 3v4" />
+                                <path d="M22 22l-5 -5" />
+                                <path d="M17 22l5 -5" />
+                            </svg>
+                        {% endif %}
+                        {% if item.is_active %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-check text-success" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" title="Activo">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                <path d="M6 21v-2a4 4 0 0 1 4 -4h4" />
+                                <path d="M15 19l2 2l4 -4" />
+                            </svg>
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-x text-danger" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" title="Inactivo">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                <path d="M6 21v-2a4 4 0 0 1 4 -4h4c.5 0 .97 .11 1.41 .3" />
+                                <path d="M22 22l-5 -5" />
+                                <path d="M17 22l5 -5" />
+                            </svg>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    
+    {% else %}
+    <!-- Mensaje cuando no hay datos -->
+    <div class="alert alert-info text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+            <path d="M12 9h.01" />
+            <path d="M11 12h1v4h1" />
+        </svg>
+        {% if source_page == 'clientes' %}
+            No hay clientes registrados en el sistema.
+        {% else %}
+            No hay proveedores registrados en el sistema.
+        {% endif %}
+        <br>
+        <a href="{% url 'partner_create' %}" class="btn btn-primary btn-sm mt-2">
+            Crear el primer {{ source_page|slice:":-1" }}
+        </a>
+    </div>
+    {% endif %}
 </div>
+
+{% endblock %}
+
+{% block style %}
+<style>
+/* Estilos mejorados para la tabla de partners */
+.table-sm td {
+    padding: 0.25rem !important;
+    vertical-align: middle;
+    /* Eliminé font-size para mantener tamaño normal */
+}
+
+.table-sm th {
+    padding: 0.4rem !important;
+    /* Eliminé font-size para mantener tamaño normal */
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.badge {
+    font-size: 0.75rem; /* Aumenté ligeramente el tamaño de los badges */
+    padding: 0.35em 0.6em;
+}
+
+/* Hover effects para las filas */
+tbody tr:hover {
+    background-color: #f8fafc !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+}
+
+/* Enlaces más atractivos */
+a.text-decoration-none:hover {
+    text-decoration: underline !important;
+    color: #0d6efd !important;
+}
+
+/* Mejorar la apariencia de los badges */
+.badge.bg-info {
+    background-color: #e3f2fd !important;
+    color: #1976d2 !important;
+    border: 1px solid #bbdefb;
+}
+
+.badge.bg-success {
+    background-color: #e8f5e8 !important;
+    color: #2e7d32 !important;
+    border: 1px solid #c8e6c9;
+}
+
+.badge.bg-primary {
+    background-color: #3b82f6 !important;
+    color: white !important;
+}
+
+.badge.bg-warning {
+    background-color: #f59e0b !important;
+    color: #1f2937 !important;
+}
+
+.badge.bg-secondary {
+    background-color: #6b7280 !important;
+    color: white !important;
+}
+
+/* Iconos de estado */
+.icon-tabler {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Responsividad mejorada */
+@media (max-width: 1200px) {
+    .mx-auto {
+        width: 100% !important;
+        padding: 0 5px;
+    }
+    
+    .table-sm td, .table-sm th {
+        padding: 0.2rem !important;
+        /* Mantengo font-size normal en responsive también */
+    }
+    
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.3em 0.5em;
+    }
+}
+
+/* Tooltip para iconos */
+[title] {
+    cursor: help;
+}
+</style>
+{% endblock %}
+
+{% block script %}
+<script>
+$(document).ready(function() {
+    // Inicializar DataTable para partners
+    $('#partnerTable').DataTable({
+        "pageLength": 15,
+        "lengthMenu": [15, 25, 50, 100, 500, 1000, 5000],
+        "language": {
+            "lengthMenu": "_MENU_ registros por página",
+            "zeroRecords": "Sin registros",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "Sin registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "columnDefs": [
+            {
+                "orderable": true,
+                "targets": "_all"
+            }
+        ]
+    });
+});
+</script>
 {% endblock %}
