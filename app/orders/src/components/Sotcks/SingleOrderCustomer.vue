@@ -196,25 +196,29 @@ const mergeBoxes = () => {
     return;
   }
 
-  // Check if we can merge this box type
-  if (!canMerge(boxModel, selectedItems.length)) {
-    console.error(`Cannot merge ${boxModel} boxes`);
+  // Calculate total quantity from all selected items
+  const totalQuantity = selectedItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  
+  // Check if we can merge this box type - pass the correct parameters
+  if (!canMerge(boxModel, selectedItems.length, totalQuantity)) {
+    console.error(`Cannot merge ${boxModel} boxes - not enough items or quantity`);
     return;
   }
 
   const targetSize = getMergeTarget(boxModel);
-  const ratio = BOX_SIZES[targetSize].ratio / BOX_SIZES[boxModel].ratio;
   
   // Case 1: Single item with quantity >= 2
   if (selectedItems.length === 1) {
     const item = selectedItems[0];
-    if (item.quantity < 2) {
+    const itemQuantity = item.quantity || 1;
+    
+    if (itemQuantity < 2) {
       console.error('Need at least 2 items to merge');
       return;
     }
 
-    const newQuantity = Math.floor(item.quantity / ratio);
-    const remainingQuantity = item.quantity % ratio;
+    const newQuantity = Math.floor(itemQuantity / 2);
+    const remainingQuantity = itemQuantity % 2;
     
     // Create new larger box
     const newBox = JSON.parse(JSON.stringify({
@@ -224,10 +228,10 @@ const mergeBoxes = () => {
       quantity: newQuantity
     }));
     
-    // Adjust stem quantities
-    newBox.tot_stem_flower = item.tot_stem_flower * ratio;
+    // Adjust stem quantities - double them for the larger box
+    newBox.tot_stem_flower = (item.tot_stem_flower || 0) * 2;
     newBox.box_items.forEach(boxItem => {
-      boxItem.qty_stem_flower = boxItem.qty_stem_flower * ratio;
+      boxItem.qty_stem_flower = (boxItem.qty_stem_flower || 0) * 2;
     });
     
     // Update the order
@@ -247,51 +251,66 @@ const mergeBoxes = () => {
     
     orderStore.selectedOrder.order_details = newOrder;
   } 
-  // Case 2: Multiple items of the same type
+  // Case 2: Multiple items (2 QB + 2 QB = 2 HB)
   else {
-    // Find the minimum quantity among selected items
-    const minQuantity = Math.min(...selectedItems.map(i => i.quantity));
-    const newQuantity = minQuantity * ratio;
+    // Calculate how many merged boxes we can create
+    const mergedQuantity = Math.floor(totalQuantity / 2);
+    const remainingQuantity = totalQuantity % 2;
     
-    // Create new larger box
+    if (mergedQuantity === 0) {
+      console.error('Not enough total quantity to merge');
+      return;
+    }
+    
+    // Create new larger box based on the first item
     const newBox = JSON.parse(JSON.stringify(selectedItems[0]));
     newBox.box_model = targetSize;
     newBox.is_selected = false;
-    newBox.quantity = newQuantity;
+    newBox.quantity = mergedQuantity;
     
-    // Combine box items and sum quantities
-    const combinedItems = selectedItems.flatMap(item => item.box_items);
-    const groupedItems = combinedItems.reduce((acc, item) => {
-      const key = `${item.product_name}-${item.product_variety}-${item.length}`;
-      if (!acc[key]) {
-        acc[key] = { ...item };
-      } else {
-        acc[key].qty_stem_flower += item.qty_stem_flower;
-      }
-      return acc;
-    }, {});
+    // Combine box items from all selected items
+    const combinedItems = {};
+    let totalStemsFromAllItems = 0;
     
-    newBox.box_items = Object.values(groupedItems);
+    selectedItems.forEach(item => {
+      item.box_items.forEach(boxItem => {
+        const key = `${boxItem.product_name}-${boxItem.product_variety}-${boxItem.length}`;
+        const stemsForThisItem = (boxItem.qty_stem_flower || 0) * (item.quantity || 1);
+        
+        if (!combinedItems[key]) {
+          combinedItems[key] = JSON.parse(JSON.stringify(boxItem));
+          combinedItems[key].qty_stem_flower = stemsForThisItem;
+        } else {
+          combinedItems[key].qty_stem_flower += stemsForThisItem;
+        }
+        
+        totalStemsFromAllItems += stemsForThisItem;
+      });
+    });
     
-    // Calculate total stems for the new box
-    newBox.tot_stem_flower = newBox.box_items.reduce((sum, item) => sum + item.qty_stem_flower, 0);
+    // Distribute stems for the merged boxes
+    Object.values(combinedItems).forEach(boxItem => {
+      // Distribute the stems proportionally to merged quantity
+      boxItem.qty_stem_flower = Math.floor(boxItem.qty_stem_flower * 2 / mergedQuantity);
+    });
     
-    // Update the order
+    newBox.box_items = Object.values(combinedItems);
+    newBox.tot_stem_flower = totalStemsFromAllItems * 2 / mergedQuantity;
+    
+    // Update the order - remove all selected items
     let newOrder = orderStore.selectedOrder.order_details
       .filter(i => !i.is_selected)
       .map(i => ({ ...i }));
     
     newOrder.push(newBox);
     
-    // Add remaining items if any
-    selectedItems.forEach(item => {
-      if (item.quantity > minQuantity) {
-        const remainingBox = JSON.parse(JSON.stringify(item));
-        remainingBox.quantity = item.quantity - minQuantity;
-        remainingBox.is_selected = false;
-        newOrder.push(remainingBox);
-      }
-    });
+    // Add remaining quantity if any
+    if (remainingQuantity > 0) {
+      const remainingBox = JSON.parse(JSON.stringify(selectedItems[0]));
+      remainingBox.quantity = remainingQuantity;
+      remainingBox.is_selected = false;
+      newOrder.push(remainingBox);
+    }
     
     orderStore.selectedOrder.order_details = newOrder;
   }
@@ -347,12 +366,15 @@ const canMergeSelected = computed(() => {
   
   if (selectedItems.length === 0) return false;
   
-  // All selected items must be of the same type
+  // Check if all selected items are of the same box model
   const boxModel = selectedItems[0].box_model;
   if (!selectedItems.every(item => item.box_model === boxModel)) return false;
   
+  // Calculate total quantity
+  const totalQuantity = selectedItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  
   // Check if we can merge this box type
-  return canMerge(boxModel, selectedItems.length);
+  return canMerge(boxModel, selectedItems.length, totalQuantity);
 });
 
 const canSplitSelected = computed(() => {
@@ -363,12 +385,32 @@ const canSplitSelected = computed(() => {
   return canSplit(selectedItems[0].box_model);
 });
 
-// For backward compatibility
+// For backward compatibility - update to use the correct logic
 const isTwoQBSelected = computed(() => {
   const selectedQBs = orderStore.selectedOrder.order_details.filter(
     (i) => i.box_model === 'QB' && i.is_selected
   );
-  return selectedQBs.length === 2 || (selectedQBs.length === 1 && selectedQBs[0].quantity >= 2);
+  
+  if (selectedQBs.length === 0) return false;
+  
+  // Case 1: Exactly 2 QBs are selected
+  if (selectedQBs.length === 2) {
+    return true;
+  }
+  
+  // Case 2: One QB is selected with quantity >= 2 and even
+  if (selectedQBs.length === 1) {
+    const item = selectedQBs[0];
+    const quantity = item.quantity || 1;
+    return quantity >= 2 && quantity % 2 === 0;
+  }
+  
+  // Case 3: More than 2 QBs selected (can merge in pairs)
+  if (selectedQBs.length > 2) {
+    return true;
+  }
+  
+  return false;
 });
 
 
