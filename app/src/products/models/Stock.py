@@ -222,6 +222,18 @@ class BoxItems(BaseModel):
         decimal_places=2,
         default=0.06
     )
+    total_bunches = models.IntegerField(
+        'Total de ramos',
+        blank=True,
+        null=True,
+        default=0
+    )
+    stems_bunch = models.IntegerField(
+        'Cantidad de tallos por ramo',
+        blank=True,
+        null=True,
+        default=0
+    )
 
     @classmethod
     def get_box_items(cls, stock_detail):
