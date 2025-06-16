@@ -17,6 +17,7 @@ class AnalizeStockTextAPI(View):
 
             raise Exception('StockDay not found')
         text_stock = TextPrepare().process(data['stockText'])
+        loggin_event(f'Texto a procesar: {text_stock}')
         profit_margin = data['profitMargin']
         profit_is_included = data['supplier']['is_profit_margin_included']
         if text_stock is None:
@@ -25,10 +26,11 @@ class AnalizeStockTextAPI(View):
             )
 
         result_dispo = GPTDirectProcessor().process_text(text_stock)
+        loggin_event(f'Resultado del procesamiento de texto: {result_dispo}')
 
-        if isinstance(result_dispo, str):
+        if isinstance(result_dispo, list):
             return JsonResponse(
-                {'message': result_dispo, 'status': 'error'},
+                {'message': result_dispo, 'status': 'error - Invalid format {}'.format(str(result_dispo))},
                 safe=False,
                 status=400
             )
@@ -58,33 +60,42 @@ class AnalizeStockTextAPI(View):
 
     def create_stock_items(self, **kwargs):
         for item in kwargs['result_dispo']:
+            quantity = item[0]  # Cantidad de cajas
+            box_model = item[1]  # Modelo de caja
+            varieties = item[2]  # Array de variedades
+            lengths = item[3]   # Array de largos
+            stem_quantities = item[4]  # Array de cantidades de tallos
+            prices = item[5]    # Array de precios
+            
+            # Calcular total de tallos para el StockDetail
+            total_stems = sum(stem_quantities)
+            
             stock_detail = StockDetail(
                 stock_day=kwargs['stock_day'],
                 partner=kwargs['partner'],
-                quantity=item[0],
-                box_model=item[1],
-                tot_stem_flower=item[2],
+                quantity=quantity,
+                box_model=box_model,
+                tot_stem_flower=total_stems,
             )
             stock_detail.save()
-            product = self.get_or_create_product(item[4])
-            for idx in range(len(item[5])):
-                price = 0.00
-                if len(item[-1]) == len(item[-2]):
-                    price = float(item[-1][idx])
-                else:
-                    price = float(item[-1][0])
-
+            
+            # Crear BoxItems para cada variedad
+            for idx in range(len(varieties)):
+                product = self.get_or_create_product(varieties[idx])
+                
+                # Obtener el precio correspondiente
+                price = float(prices[idx]) if idx < len(prices) else 0.00
+                
                 if kwargs['profit_is_included']:
                     price = price - float(kwargs['profit_margin']) if price > 0.00 else 0.00
-
-                length = item[-2]
+                
                 BoxItems.objects.create(
                     stock_detail=stock_detail,
                     product=product,
                     stem_cost_price=price,
                     profit_margin=kwargs['profit_margin'],
-                    length=length[idx],
-                    qty_stem_flower=item[2] if idx == 0 else 0,
+                    length=lengths[idx] if idx < len(lengths) else 0,
+                    qty_stem_flower=stem_quantities[idx] if idx < len(stem_quantities) else 0,
                 )
         return True
 
