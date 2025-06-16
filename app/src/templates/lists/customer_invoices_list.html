@@ -42,14 +42,14 @@
             <th class="bg-secondary bg-opacity-25 text-center">N Fac</th>
             <th class="bg-secondary bg-opacity-25 text-center">OV</th>
             <th class="bg-secondary bg-opacity-25 text-center">Cliente</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Fecha</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Vencimiento</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Total</th>
             <th class="bg-secondary bg-opacity-25 text-center">DAE</th>
             <th class="bg-secondary bg-opacity-25 text-center">AWB</th>
             <th class="bg-secondary bg-opacity-25 text-center">HAWB</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Agencia Cargo</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Fecha</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Vencimiento</th>
+            <th class="bg-secondary bg-opacity-25 text-center">Agencia</th>
             <th class="bg-secondary bg-opacity-25 text-center">Dias</th>
-            <th class="bg-secondary bg-opacity-25 text-center">Total</th>
             <th class="bg-secondary bg-opacity-25 text-center">Pago</th>
         </tr>
         </thead>
@@ -57,26 +57,27 @@
             {% for invoice in invoices %}
             <tr>
                 <td class="p-0 text-center">{{ forloop.counter }}</td>
-                <td class="p-0 text-end">
-                    <a href="{% url 'invoice_detail_presentation' invoice.id %}" class="text-primary">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
+                <td class="p-0">
+                    <a href="{% url 'invoice_detail_presentation' invoice.id %}" class="text-primary ms-2">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
                         {{ invoice.serie }}-{{ invoice.consecutive | stringformat:'06d' }}
                     </a>
                 </td>
                 <td class="p-0 text-center">
-                    <a href="{% url 'order_detail_presentation' invoice.order.id %}" class="text-primary" target="_blank">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
+                    <a href="{% url 'order_detail_presentation' invoice.order.id %}" class="text-primary">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
                         {{ invoice.order.serie }}-{{ invoice.order.consecutive | stringformat:'06d' }}
                     </a>
                 </td>
-                <td class="p-0 text-end">{{ invoice.partner.name }}</td>
-                <td class="p-0 text-end">{{ invoice.dae_export }}</td>
-                <td class="p-0 text-end">{{ invoice.awb }}</td>
-                <td class="p-0 text-end">{{ invoice.hawb }}</td>
-                <td class="p-0 text-end">{{ invoice.cargo_agency }}</td>
+                <td class="p-0">{{ invoice.partner.name }}</td>
                 <td class="p-0 text-end">{{ invoice.date|date:"d/m/Y" }}</td>
                 <td class="p-0 text-end">{{ invoice.due_date|date:"d/m/Y" }}</td>
-                <td class="p-0 text-end">
+                <td class="p-0 text-end">{{ invoice.total_price }}</td>
+                <td class="p-0 text-center">{{ invoice.dae_export|default:"-" }}</td>
+                <td class="p-0 text-center">{{ invoice.awb|default:"-" }}</td>
+                <td class="p-0 text-center">{{ invoice.hawb|default:"-" }}</td>
+                <td class="p-0 text-center">{{ invoice.cargo_agency|default:"-" }}</td>
+                <td class="p-0 text-center">
                     {% if invoice.days_to_due %}
                         {{ invoice.days_to_due }}
                         {% if invoice.days_to_due > 0 %}
@@ -89,17 +90,13 @@
                     {% else %}
                         <span class="text-danger">Sin Vencimiento</span>
                     {% endif %}
-                <td class="p-0 text-end">{{ invoice.total_price }}</td>
-                <td class="p-0 text-center">
-                    {% if invoice.status == 'PAGADO' %}
-                        <span class="text-success">Pagado</span>
-                    {% elif invoice.status == 'PENDIENTE' %}
-                        <span class="text-cyan-700">Pendiente</span>
-                    {% else %}
-                        <span class="text-danger">Anulado</span>
-                    {% endif %}
-                    <a href="{% url 'report_invoice' invoice.id %}" class="ms-2 text-primary">
-                        <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                </td>
+                <td class="p-0 text-center d-flex justify-content-between gap-2">
+                    <span class="{% if invoice.status == 'PAGADO' %}text-success{% elif invoice.status == 'PENDIENTE' %}text-cyan-700{% else %}text-danger{% endif %}">
+                        {{ invoice.status }}
+                    </span>
+                    <a href="{% url 'report_invoice' invoice.id %}" class="text-primary">
+                        <svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
                     </a>
                 </td>
             </tr>
@@ -108,3 +105,4 @@
     </table>
 </div>
 {% endblock %}
+</div>
