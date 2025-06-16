@@ -1,6 +1,6 @@
 from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from trade.models import Order, OrderItems, OrderBoxItems
+from trade.models import Order, OrderItems, OrderBoxItems, Invoice, InvoiceItems, InvoiceBoxItems
 from partners.models import Partner
 
 
@@ -256,6 +256,41 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
         response_data["purchase_orders_details"] = purchase_orders_details
 
+        # Agregar información de facturas separadas por tipo
+        sale_invoices_details = []
+        purchase_invoices_details = []
+        
+        # Obtener factura de la orden principal si existe
+        if order.is_invoiced and order.id_invoice:
+            try:
+                main_invoice = Invoice.objects.get(id=order.id_invoice, is_active=True)
+                invoice_data = self._build_invoice_data(main_invoice)
+                
+                if main_invoice.type_document == 'FAC_VENTA':
+                    sale_invoices_details.append(invoice_data)
+                else:
+                    purchase_invoices_details.append(invoice_data)
+            except Invoice.DoesNotExist:
+                pass
+        
+        # Obtener facturas de órdenes de compra relacionadas
+        if order.type_document == 'ORD_VENTA' and supplier_orders_qs:
+            for sup_order in supplier_orders_qs:
+                if sup_order.is_invoiced and sup_order.id_invoice:
+                    try:
+                        sup_invoice = Invoice.objects.get(id=sup_order.id_invoice, is_active=True)
+                        invoice_data = self._build_invoice_data(sup_invoice)
+                        
+                        if sup_invoice.type_document == 'FAC_VENTA':
+                            sale_invoices_details.append(invoice_data)
+                        else:
+                            purchase_invoices_details.append(invoice_data)
+                    except Invoice.DoesNotExist:
+                        pass
+        
+        response_data["sale_invoices_details"] = sale_invoices_details
+        response_data["purchase_invoices_details"] = purchase_invoices_details
+
         context['response_data'] = response_data
 
         context['customer'] = customer
@@ -296,3 +331,90 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
         context['can_confirm'] = order.status in ['PENDIENTE', 'MODIFICADO'] and not order.is_invoiced
 
         return context
+
+    def _build_invoice_data(self, invoice):
+        """Construir datos de factura para el contexto"""
+        invoice_items = InvoiceItems.get_invoice_items(invoice)
+        invoice_lines_data = []
+
+        for line in invoice_items:
+            box_items = InvoiceBoxItems.get_box_items(line)
+            invoice_box_items_data = []
+
+            for box in box_items:
+                product = box.product
+                box_item_data = {
+                    "product": {
+                        "id": product.id,
+                        "name": product.name,
+                        "variety": product.variety,
+                        "image": product.image.url if product.image else "",
+                        "colors": product.colors,
+                    },
+                    "length": box.length,
+                    "stems_bunch": box.stems_bunch,
+                    "total_bunches": box.total_bunches,
+                    "qty_stem_flower": box.qty_stem_flower,
+                    "stem_cost_price": str(box.stem_cost_price),
+                    "profit_margin": str(box.profit_margin),
+                    "total_price": str(box.total_price),
+                    "unit_price": str(box.unit_price),
+                    "total_price_with_margin": str(box.total_price_with_margin),
+                }
+                invoice_box_items_data.append(box_item_data)
+
+            line_data = {
+                "id": line.id,
+                "line_price": float(line.line_price),
+                "line_margin": float(line.line_margin),
+                "line_total": float(line.line_total),
+                "tot_stem_flower": line.tot_stem_flower,
+                "total_bunches": line.total_bunches,
+                "box_model": line.box_model,
+                "quantity": line.quantity,
+                "invoice_box_items": invoice_box_items_data
+            }
+            invoice_lines_data.append(line_data)
+
+        invoice_data = {
+            "id": invoice.id,
+            "serie": invoice.serie,
+            "consecutive": invoice.consecutive,
+            "num_invoice": invoice.num_invoice,
+            "type_document": invoice.type_document,
+            "date": invoice.date.strftime("%d/%m/%Y %H:%M") if invoice.date else "",
+            "due_date": invoice.due_date.strftime("%d/%m/%Y") if invoice.due_date else "",
+            "status": invoice.status,
+            "total_price": float(invoice.total_price),
+            "total_margin": float(invoice.total_margin),
+            "total_invoice": float(invoice.total_invoice),
+            "qb_total": invoice.qb_total,
+            "hb_total": invoice.hb_total,
+            "fb_total": float(invoice.fb_total) if invoice.fb_total else 0,
+            "tot_stem_flower": invoice.tot_stem_flower,
+            "total_bunches": invoice.total_bunches,
+            "awb": invoice.awb,
+            "hawb": invoice.hawb,
+            "dae_export": invoice.dae_export,
+            "cargo_agency": invoice.cargo_agency,
+            "delivery_date": invoice.delivery_date.strftime("%Y-%m-%d") if invoice.delivery_date else "",
+            "weight": str(invoice.weight) if invoice.weight else "",
+            "days_to_due": invoice.days_to_due,
+            "is_dued": invoice.is_dued,
+            "days_overdue": invoice.days_overdue,
+            "partner": {
+                "id": invoice.partner.id,
+                "name": invoice.partner.name,
+                "business_tax_id": invoice.partner.business_tax_id,
+                "address": invoice.partner.address,
+                "country": getattr(invoice.partner, 'country', ""),
+                "city": getattr(invoice.partner, 'city', ""),
+                "email": invoice.partner.email,
+                "phone": invoice.partner.phone,
+                "credit_term": invoice.partner.credit_term,
+            },
+            "order_id": invoice.order.id,
+            "invoiceLines": invoice_lines_data
+        }
+        
+        return invoice_data
