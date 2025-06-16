@@ -128,7 +128,7 @@ class AnalizeStockTextAPI(View):
         if not product:
             product = Product(
                 variety=variety.upper(),
-                name='ROSA VERIFICAR',
+                name='ROSA',
             )
             product.save()
         return product
