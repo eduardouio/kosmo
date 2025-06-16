@@ -101,53 +101,14 @@ const onBlurField = (field, format = false) => {
         return;
     }
     
-    // Si el campo está vacío y es stems_bunch, verificamos si bunches tiene valor
-    if ((newboxItem.value[field] === '' || newboxItem.value[field] === null) && field === 'stems_bunch') {
-        // Si bunches tiene valor, forzar el valor por defecto 25
+    // Calcular qty_stem_flower cuando cambian bunches o stems_bunch
+    if (field === 'total_bunches' || field === 'stems_bunch') {
         const bunches = parseInt(newboxItem.value.total_bunches) || 0;
-        if (bunches > 0) {
-            newboxItem.value[field] = 25; // Valor predeterminado fijo
-        } else {
-            // Si no hay bunches, usar valor 0
-            newboxItem.value[field] = 0;
-        }
-    }     
-    
-    // Cuando total_bunches tiene un valor > 0 pero stems_bunch es 0, asignar 25
-    if (field === 'total_bunches') {
-        const bunches = parseInt(newboxItem.value.total_bunches) || 0;
-        if (bunches > 0) {
-            const stemsBunch = parseInt(newboxItem.value.stems_bunch) || 0;
-            if (stemsBunch === 0) {
-                newboxItem.value.stems_bunch = 25;
-                // Forzar la actualización inmediatamente para evitar problemas de sincronización
-                nextTick(() => {
-                    // Asegurar que el valor se mantenga
-                    if (parseInt(newboxItem.value.stems_bunch) === 0) {
-                        newboxItem.value.stems_bunch = 25;
-                    }
-                });
-            }
-            // Actualizar la cantidad de tallos (qty_stem_flower)
-            newboxItem.value.qty_stem_flower = bunches * (stemsBunch || 25);
-        }
-    }
-    
-    // Asegurar stems_bunch > 0 cuando bunches > 0
-    if (field === 'stems_bunch') {
-        const bunches = parseInt(newboxItem.value.total_bunches) || 0;
-        let stemsBunch = parseInt(newboxItem.value.stems_bunch) || 0;
+        const stemsBunch = parseInt(newboxItem.value.stems_bunch) || 0;
         
-        // Si bunches tiene valor pero stems_bunch es 0, forzar el valor por defecto
-        if (bunches > 0 && stemsBunch === 0) {
-            stemsBunch = 25;
-            newboxItem.value.stems_bunch = stemsBunch;
-        }
-        
-        // Actualizar qty_stem_flower solo si ambos tienen valores
-        if (bunches > 0 && stemsBunch > 0) {
-            newboxItem.value.qty_stem_flower = bunches * stemsBunch;
-        }
+        // Calcular qty_stem_flower = bunches * stems_bunch
+        newboxItem.value.qty_stem_flower = bunches * stemsBunch;
+        console.log('BoxItem calculation:', { bunches, stemsBunch, qty_stem_flower: newboxItem.value.qty_stem_flower });
     }
     
     // Para campos numéricos con formato, aplicar el formato al salir
@@ -321,6 +282,7 @@ const isProfitMarginInvalid = computed(() => {
                             isStemsBunchInvalid ? 'input-error border-danger' : ''
                         ]"
                         step="1"
+                        @blur="onBlurField('stems_bunch')"
                     />
                 </div>
                 <div style="width:10%" class="text-end">

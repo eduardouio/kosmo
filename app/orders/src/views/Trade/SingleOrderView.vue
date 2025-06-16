@@ -80,9 +80,12 @@ function calculateOrderTotals() {
         const profitMargin = parseFloat(String(item.profit_margin || '0.00').replace(/,/g, '')) || 0;
         const bunches = parseInt(String(item.total_bunches || '0')) || 0;
 
-        total_stem_flower += qtyStems;
-        total_price += costPrice * qtyStems;
-        total_margin += profitMargin * qtyStems;
+        console.log('SingleOrderView calculation:', { quantity, qtyStems, bunches, stemsBunch: item.stems_bunch });
+
+        // Multiplicar por quantity ya que qty_stem_flower es por caja
+        total_stem_flower += qtyStems * quantity;
+        total_price += costPrice * qtyStems * quantity;
+        total_margin += profitMargin * qtyStems * quantity;
         total_bunches += bunches * quantity;
       })
     }
