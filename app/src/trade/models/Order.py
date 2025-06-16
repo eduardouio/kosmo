@@ -126,6 +126,10 @@ class Order(BaseModel):
         decimal_places=2,
         default=0
     )
+    eb_total = models.PositiveSmallIntegerField(
+        'Total EB',
+        default=0
+    )
     qb_total = models.PositiveSmallIntegerField(
         'Total QB',
         default=0
@@ -279,6 +283,7 @@ class Order(BaseModel):
         total_price = 0
         total_margin = 0
         total_order = 0
+        eb_total = 0
         qb_total = 0
         hb_total = 0
         total_bunches = 0
@@ -297,14 +302,20 @@ class Order(BaseModel):
             for box_item in OrderBoxItems.get_box_items(order_item):
                 total_bunches += box_item.total_bunches * order_item.quantity
 
-            if order_item.box_model == 'QB':
+            if order_item.box_model == 'EB':
+                eb_total += (order_item.quantity)
+            elif order_item.box_model == 'QB':
                 qb_total += (order_item.quantity)
             elif order_item.box_model == 'HB':
                 hb_total += (order_item.quantity)
 
+        # FB = HB/2 + QB/4 + EB/8
+        fb_total = (hb_total / 2) + (qb_total / 4) + (eb_total / 8)
+
+        order.eb_total = eb_total
         order.qb_total = qb_total
         order.hb_total = hb_total
-        order.fb_total = ((qb_total / 2) + hb_total) / 2
+        order.fb_total = fb_total
         order.total_margin = total_margin
         order.total_stem_flower = total_stem_flower
         order.total_price = total_price
@@ -392,6 +403,12 @@ class OrderItems(BaseModel):
     )
 
     @property
+    def eb_total(self):
+        if self.box_model == 'EB':
+            return self.quantity
+        return 0
+
+    @property
     def qb_total(self):
         if self.box_model == 'QB':
             return self.quantity
@@ -402,6 +419,14 @@ class OrderItems(BaseModel):
         if self.box_model == 'HB':
             return self.quantity
         return 0
+
+    @property
+    def fb_total(self):
+        # FB = HB/2 + QB/4 + EB/8
+        hb = self.hb_total
+        qb = self.qb_total
+        eb = self.eb_total
+        return (hb / 2) + (qb / 4) + (eb / 8)
 
     @classmethod
     def get_by_id(cls, id_order_item):
