@@ -119,14 +119,24 @@ const formatNumber = (event) => {
 
 // computed Properties
 const isTwoQBSelected = computed(() => {
-  // Caso 1: Dos QBs están seleccionados
   const selectedQBs = ordersStore.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
+  
+  if (selectedQBs.length === 0) return false;
+  
+  // Case 1: Exactly 2 QBs are selected
   if (selectedQBs.length === 2) {
     return true;
   }
   
-  // Caso 2: Un QB está seleccionado con cantidad par
-  if (selectedQBs.length === 1 && selectedQBs[0].quantity >= 2 && selectedQBs[0].quantity % 2 === 0) {
+  // Case 2: One QB is selected with quantity >= 2 and even
+  if (selectedQBs.length === 1) {
+    const item = selectedQBs[0];
+    const quantity = item.quantity || 1;
+    return quantity >= 2 && quantity % 2 === 0;
+  }
+  
+  // Case 3: More than 2 QBs selected (can merge in pairs)
+  if (selectedQBs.length > 2) {
     return true;
   }
   

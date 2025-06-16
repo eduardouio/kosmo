@@ -15,8 +15,19 @@ import SideBar from '@/components/Sotcks/SideBar.vue';
 import {
     IconCheckbox, IconSquare, IconEye, IconShare, IconLockOpen2, IconLock,
     IconCurrencyDollar, IconShoppingCart, IconSettings, IconTrash, IconEdit,
-    IconPointFilled, IconPoint,
+    IconPointFilled, IconPoint, IconLayersIntersect2, IconSitemap,
 } from '@tabler/icons-vue';
+import { 
+    BOX_SIZES, 
+    canSplit, 
+    canMerge, 
+    getMergeTarget, 
+    getSplitTarget, 
+    splitStems,
+    getSplitQuantity,
+    getMergeQuantity,
+    getRemainingAfterMerge
+} from '@/utils/boxUtils';
 
 const stockStore = useStockStore();
 const baseStore = useBaseStore();
@@ -200,6 +211,143 @@ onMounted(() => {
         }
     }, 3000);
 });
+
+/**
+ * Split a box into smaller boxes
+ * @param {Object} item - The stock item to split
+ */
+const splitBox = (item) => {
+    if (!canSplit(item.box_model)) {
+        console.error('Cannot split this box size');
+        return;
+    }
+
+    const targetSize = getSplitTarget(item.box_model);
+    const newQuantity = getSplitQuantity(item.box_model, item.quantity);
+    
+    // Create the new split item
+    const newItem = JSON.parse(JSON.stringify(item));
+    newItem.box_model = targetSize;
+    newItem.quantity = newQuantity;
+    newItem.is_selected = false;
+    
+    // Adjust stem quantities - divide by 2 for each box_item
+    newItem.box_items.forEach(boxItem => {
+        const originalStems = parseInt(boxItem.qty_stem_flower) || 0;
+        boxItem.qty_stem_flower = Math.floor(originalStems / 2);
+    });
+    
+    // Remove original item and add new split items
+    const itemIndex = stockStore.stock.findIndex(stockItem => stockItem === item);
+    if (itemIndex !== -1) {
+        stockStore.stock.splice(itemIndex, 1, newItem);
+        calcIndicators();
+        setVibilityButtons();
+    }
+};
+
+/**
+ * Merge selected boxes into larger boxes
+ */
+const mergeBoxes = () => {
+    const selectedItems = stockStore.stock.filter(item => item.is_selected);
+    
+    if (selectedItems.length === 0) {
+        console.error('No items selected for merge');
+        return;
+    }
+
+    // Group selected items by box model and supplier
+    const groupedItems = {};
+    selectedItems.forEach(item => {
+        const key = `${item.box_model}-${item.partner.id}`;
+        if (!groupedItems[key]) {
+            groupedItems[key] = [];
+        }
+        groupedItems[key].push(item);
+    });
+
+    // Process each group
+    Object.values(groupedItems).forEach(group => {
+        const boxModel = group[0].box_model;
+        
+        if (!canMerge(boxModel)) {
+            console.error(`Cannot merge ${boxModel} boxes`);
+            return;
+        }
+
+        const targetSize = getMergeTarget(boxModel);
+        
+        // Calculate total quantity to merge
+        const totalQuantity = group.reduce((sum, item) => sum + item.quantity, 0);
+        const mergedQuantity = getMergeQuantity(boxModel, totalQuantity);
+        const remainingQuantity = getRemainingAfterMerge(boxModel, totalQuantity);
+        
+        if (mergedQuantity === 0) {
+            console.error('Not enough boxes to merge');
+            return;
+        }
+
+        // Create merged item based on the first item in the group
+        const mergedItem = JSON.parse(JSON.stringify(group[0]));
+        mergedItem.box_model = targetSize;
+        mergedItem.quantity = mergedQuantity;
+        mergedItem.is_selected = false;
+        
+        // Combine and sum box_items from all items in the group
+        const combinedBoxItems = {};
+        group.forEach(item => {
+            item.box_items.forEach(boxItem => {
+                const key = `${boxItem.product_name}-${boxItem.product_variety}-${boxItem.length}`;
+                if (!combinedBoxItems[key]) {
+                    combinedBoxItems[key] = JSON.parse(JSON.stringify(boxItem));
+                    combinedBoxItems[key].qty_stem_flower = 0;
+                }
+                // Sum the stems, accounting for the quantity of each box
+                combinedBoxItems[key].qty_stem_flower += 
+                    (parseInt(boxItem.qty_stem_flower) || 0) * item.quantity;
+            });
+        });
+        
+        // Double the stem quantities for the merged box (since we're going to a larger size)
+        Object.values(combinedBoxItems).forEach(boxItem => {
+            boxItem.qty_stem_flower = Math.floor(boxItem.qty_stem_flower * 2 / totalQuantity);
+        });
+        
+        mergedItem.box_items = Object.values(combinedBoxItems);
+        
+        // Remove original items from stock
+        group.forEach(item => {
+            const index = stockStore.stock.findIndex(stockItem => stockItem === item);
+            if (index !== -1) {
+                stockStore.stock.splice(index, 1);
+            }
+        });
+        
+        // Add merged item
+        stockStore.stock.push(mergedItem);
+        
+        // Add remaining item if there are leftover boxes
+        if (remainingQuantity > 0) {
+            const remainingItem = JSON.parse(JSON.stringify(group[0]));
+            remainingItem.quantity = remainingQuantity;
+            remainingItem.is_selected = false;
+            stockStore.stock.push(remainingItem);
+        }
+    });
+    
+    calcIndicators();
+    setVibilityButtons();
+};
+
+// Add these methods to handle the UI interactions
+const handleSplit = (item) => {
+    splitBox(item);
+};
+
+const handleMerge = () => {
+    mergeBoxes();
+};
 </script>
 <template>
     <div class="container-fluid">
@@ -301,6 +449,13 @@ onMounted(() => {
                                 {{ stockStore.stock.length }} Registros Totales
                             </div>
                             <div class="col-7 d-flex gap-3 justify-content-end">
+                                <!-- Add merge button for selected items -->
+                                <button class="btn btn-sm btn-default text-primary" 
+                                        v-if="buttonsVisibility.order && canMergeSelected"
+                                        @click="handleMerge">
+                                    <IconLayersIntersect2 size="15" stroke="1.5" />
+                                    Unificar Cajas
+                                </button>
                                 <button class="btn btn-sm btn-default text-danger" v-if="buttonsVisibility.delete"
                                     @click="deleteSelected">
                                     <IconTrash size="15" stroke="1.5" />
@@ -421,6 +576,13 @@ onMounted(() => {
                                                                     data-bs-toggle="modal"
                                                                     data-bs-target="#editBoxModal">
                                                                 <IconEdit size="14" stroke="1.5" />
+                                                            </button>
+                                                            <!-- Add split button for splittable boxes -->
+                                                            <button class="btn btn-sm btn-default border-0 text-primary"
+                                                                    @click="handleSplit(item)"
+                                                                    v-if="canSplit(item.box_model)"
+                                                                    title="Dividir caja">
+                                                                <IconSitemap size="14" stroke="1.5" />
                                                             </button>
                                                             <span class="fw-medium">{{ item.quantity }} {{ item.box_model }}</span>
                                                         </div>

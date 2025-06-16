@@ -3,6 +3,14 @@ import { computed, ref, watch } from 'vue';
 import { usePurchaseStore } from '@/stores/purcharsesStore.js';
 import { appConfig } from '@/AppConfig';
 import SideBar from '@/components/Sotcks/SideBar.vue';
+import { 
+    BOX_SIZES, 
+    canSplit, 
+    canMerge, 
+    getMergeTarget, 
+    getSplitTarget, 
+    splitStems 
+} from '@/utils/boxUtils';
 import {
   IconTrash,
   IconCheckbox,
@@ -149,89 +157,183 @@ const handleBunchOrStemChange = (event, item, product, fieldName) => { // item e
   calcTotalByItem(item);   // Actualiza item.line_total
 };
 
-// Métodos para dividir y unificar
-const splitHB = (item) => {
+/**
+ * Split a box into two smaller boxes of the next size down
+ * @param {Object} item - The box item to split
+ */
+const splitBox = (item) => {
+  if (!canSplit(item.box_model)) {
+    console.error('Cannot split this box size');
+    return;
+  }
+
   const newDetails = purchaseStore.selectedPurchase.order_details.filter(
     (i) => i.order_item_id !== item.order_item_id
   );
-  const stem_flower = item.box_items.map((i) => i.qty_stem_flower);
-  const id = item.order_item_id;
+  
+  const targetSize = getSplitTarget(item.box_model);
+  
+  // Create two new boxes of the target size
+  const box1 = JSON.parse(JSON.stringify({
+    ...item,
+    box_model: targetSize,
+    is_selected: false
+  }));
+  
+  const box2 = JSON.parse(JSON.stringify({
+    ...item,
+    box_model: targetSize,
+    is_selected: false
+  }));
 
-  if (item.tot_stem_flower % 2 === 0) {
-    newDetails.push({
-      ...item,
-      tot_stem_flower: item.tot_stem_flower / 2,
-      box_model: 'QB',
-    });
-    newDetails.push({
-      ...item,
-      tot_stem_flower: item.tot_stem_flower / 2,
-      box_model: 'QB',
-    });
-  } else {
-    newDetails.push({
-      ...item,
-      tot_stem_flower: Math.floor(item.tot_stem_flower / 2),
-      box_model: 'QB',
-    });
-    newDetails.push({
-      ...item,
-      tot_stem_flower: Math.ceil(item.tot_stem_flower / 2),
-      box_model: 'QB',
-    });
-  }
-  newDetails.forEach((itm) => {
-    if (itm.order_item_id === id) {
-      itm.box_items.forEach((bItem, index) => {
-        bItem.qty_stem_flower = stem_flower[index] / 2;
-      });
-    }
+  // Calculate stem distribution for the two new boxes
+  const stems = splitStems(item.tot_stem_flower);
+  box1.tot_stem_flower = stems.first;
+  box2.tot_stem_flower = stems.second;
+
+  // Adjust the stem quantities in box_items
+  box1.box_items.forEach(boxItem => {
+    const boxStems = splitStems(boxItem.qty_stem_flower);
+    boxItem.qty_stem_flower = boxStems.first;
+  });
+  
+  box2.box_items.forEach(boxItem => {
+    const boxStems = splitStems(boxItem.qty_stem_flower);
+    boxItem.qty_stem_flower = boxStems.second;
   });
 
-  purchaseStore.selectedPurchase.order_details = newDetails.map((i) => ({ ...i }));
+  // Add the new boxes to the order
+  newDetails.push(box1, box2);
+  purchaseStore.selectedPurchase.order_details = newDetails.map(i => ({ ...i }));
 };
 
-const mergeQB = () => {
-  const selectedQBs = purchaseStore.selectedPurchase.order_details.filter(
-    (i) => i.box_model === 'QB' && i.is_selected
-  );
-  if (selectedQBs.length < 2) return;
+// Keep old method for backward compatibility
+const splitHB = (item) => {
+  splitBox(item);
+};
 
-  const newOrderItem = {
-    ...selectedQBs[0],
-    box_model: 'HB',
-    is_selected: false,
-  };
+/**
+ * Merge selected boxes of the same size into larger boxes
+ */
+const mergeBoxes = () => {
+  const selectedItems = purchaseStore.selectedPurchase.order_details.filter(item => item.is_selected);
+  
+  if (selectedItems.length === 0) {
+    console.error('No items selected for merge');
+    return;
+  }
 
-  let totalStems = 0;
-  selectedQBs.forEach((oitm) => {
-    totalStems += oitm.tot_stem_flower;
-  });
-  newOrderItem.tot_stem_flower = totalStems;
-  newOrderItem.box_items = selectedQBs.reduce((acc, item) => {
-    return acc.concat(item.box_items);
-  }, []);
+  // Check if all selected items are of the same box model
+  const boxModel = selectedItems[0].box_model;
+  if (!selectedItems.every(item => item.box_model === boxModel)) {
+    console.error('All selected items must be of the same box model');
+    return;
+  }
 
-  const groupedBoxItems = Object.values(
-    newOrderItem.box_items.reduce((acc, bItem) => {
-      const key = `${bItem.product_name}-${bItem.product_variety}-${bItem.length}`;
+  // Check if we can merge this box type
+  if (!canMerge(boxModel, selectedItems.length)) {
+    console.error(`Cannot merge ${boxModel} boxes`);
+    return;
+  }
+
+  const targetSize = getMergeTarget(boxModel);
+  const ratio = BOX_SIZES[targetSize].ratio / BOX_SIZES[boxModel].ratio;
+  
+  // Case 1: Single item with quantity >= 2
+  if (selectedItems.length === 1) {
+    const item = selectedItems[0];
+    if (item.quantity < 2) {
+      console.error('Need at least 2 items to merge');
+      return;
+    }
+
+    const newQuantity = Math.floor(item.quantity / ratio);
+    const remainingQuantity = item.quantity % ratio;
+    
+    // Create new larger box
+    const newBox = JSON.parse(JSON.stringify({
+      ...item,
+      box_model: targetSize,
+      is_selected: false,
+      quantity: newQuantity
+    }));
+    
+    // Adjust stem quantities
+    newBox.tot_stem_flower = item.tot_stem_flower * ratio;
+    newBox.box_items.forEach(boxItem => {
+      boxItem.qty_stem_flower = boxItem.qty_stem_flower * ratio;
+    });
+    
+    // Update the order
+    let newOrder = purchaseStore.selectedPurchase.order_details
+      .filter(i => i !== item)
+      .map(i => ({ ...i }));
+    
+    newOrder.push(newBox);
+    
+    // Add remaining items if any
+    if (remainingQuantity > 0) {
+      const remainingBox = JSON.parse(JSON.stringify(item));
+      remainingBox.quantity = remainingQuantity;
+      remainingBox.is_selected = false;
+      newOrder.push(remainingBox);
+    }
+    
+    purchaseStore.selectedPurchase.order_details = newOrder;
+  } 
+  // Case 2: Multiple items of the same type
+  else {
+    // Find the minimum quantity among selected items
+    const minQuantity = Math.min(...selectedItems.map(i => i.quantity));
+    const newQuantity = minQuantity * ratio;
+    
+    // Create new larger box
+    const newBox = JSON.parse(JSON.stringify(selectedItems[0]));
+    newBox.box_model = targetSize;
+    newBox.is_selected = false;
+    newBox.quantity = newQuantity;
+    
+    // Combine box items and sum quantities
+    const combinedItems = selectedItems.flatMap(item => item.box_items);
+    const groupedItems = combinedItems.reduce((acc, item) => {
+      const key = `${item.product_name}-${item.product_variety}-${item.length}`;
       if (!acc[key]) {
-        acc[key] = { ...bItem };
+        acc[key] = { ...item };
       } else {
-        acc[key].qty_stem_flower += bItem.qty_stem_flower;
+        acc[key].qty_stem_flower += item.qty_stem_flower;
       }
       return acc;
-    }, {})
-  );
+    }, {});
+    
+    newBox.box_items = Object.values(groupedItems);
+    
+    // Calculate total stems for the new box
+    newBox.tot_stem_flower = newBox.box_items.reduce((sum, item) => sum + item.qty_stem_flower, 0);
+    
+    // Update the order
+    let newOrder = purchaseStore.selectedPurchase.order_details
+      .filter(i => !i.is_selected)
+      .map(i => ({ ...i }));
+    
+    newOrder.push(newBox);
+    
+    // Add remaining items if any
+    selectedItems.forEach(item => {
+      if (item.quantity > minQuantity) {
+        const remainingBox = JSON.parse(JSON.stringify(item));
+        remainingBox.quantity = item.quantity - minQuantity;
+        remainingBox.is_selected = false;
+        newOrder.push(remainingBox);
+      }
+    });
+    
+    purchaseStore.selectedPurchase.order_details = newOrder;
+  }
+};
 
-  purchaseStore.selectedPurchase.order_details = purchaseStore.selectedPurchase.order_details
-    .filter((i) => !i.is_selected)
-    .map((i) => ({ ...i }));
-
-  purchaseStore.selectedPurchase.order_details.push({
-    ...newOrderItem,
-    box_items: groupedBoxItems,
-  });
+// Keep old method for backward compatibility
+const mergeQB = () => {
+  mergeBoxes();
 };
 
 const updateOrder = async (action) => {
@@ -283,12 +385,35 @@ const getUrlReportinvoice = (id) => {
   let urlInvoiceReport = appConfig.urlInvoiceReport.replace('{id_invoice}', id);
   return urlInvoiceReport;
 };
+
 // Propiedades computadas
+const canMergeSelected = computed(() => {
+  const selectedItems = purchaseStore.selectedPurchase.order_details.filter(item => item.is_selected);
+  
+  if (selectedItems.length === 0) return false;
+  
+  // All selected items must be of the same type
+  const boxModel = selectedItems[0].box_model;
+  if (!selectedItems.every(item => item.box_model === boxModel)) return false;
+  
+  // Check if we can merge this box type
+  return canMerge(boxModel, selectedItems.length);
+});
+
+const canSplitSelected = computed(() => {
+  const selectedItems = purchaseStore.selectedPurchase.order_details.filter(item => item.is_selected);
+  
+  if (selectedItems.length !== 1) return false;
+  
+  return canSplit(selectedItems[0].box_model);
+});
+
+// For backward compatibility
 const isTwoQBSelected = computed(() => {
-  let qb = purchaseStore.selectedPurchase.order_details.filter(
+  const selectedQBs = purchaseStore.selectedPurchase.order_details.filter(
     (i) => i.box_model === 'QB' && i.is_selected
   );
-  return qb.length === 2;
+  return selectedQBs.length === 2 || (selectedQBs.length === 1 && selectedQBs[0].quantity >= 2);
 });
 
 const totalMargin = computed(() => {

@@ -1,6 +1,14 @@
 import { defineStore } from "pinia"
 import { appConfig } from "@/AppConfig"
 import axios from 'axios';
+import { 
+    BOX_SIZES, 
+    canSplit, 
+    canMerge, 
+    getMergeTarget, 
+    getSplitTarget, 
+    splitStems 
+} from '@/utils/boxUtils';
 
 export const useOrdersStore = defineStore("ordersStore", {
     state: () => ({
@@ -82,131 +90,185 @@ export const useOrdersStore = defineStore("ordersStore", {
         setLimits(orderDetail) {
             this.limitsNewOrder = orderDetail
         },
-        splitHB(item) {
-            const newOrder = this.newOrder.filter(o => o !== item); // Filtrar por referencia del objeto en lugar de stock_detail_id
-            const stem_flower = item.box_items.map(i => i.qty_stem_flower);
-            const id = item.stock_detail_id;
-
-            // Crear dos nuevos objetos QB completamente independientes
-            const qb1 = JSON.parse(JSON.stringify({
-                ...item,
-                box_model: 'QB',
-                is_selected: false
-            }));
-            
-            const qb2 = JSON.parse(JSON.stringify({
-                ...item,
-                box_model: 'QB',
-                is_selected: false
-            }));
-
-            // Ajustar las cantidades según si es par o impar
-            if ((item.tot_stem_flower % 2) === 0) {
-                qb1.tot_stem_flower = item.tot_stem_flower / 2;
-                qb2.tot_stem_flower = item.tot_stem_flower / 2;
-            } else {
-                qb1.tot_stem_flower = Math.floor(item.tot_stem_flower / 2);
-                qb2.tot_stem_flower = Math.ceil(item.tot_stem_flower / 2);
+        /**
+         * Split a box into two smaller boxes of the next size down
+         * @param {Object} item - The box item to split
+         */
+        splitBox(item) {
+            if (!canSplit(item.box_model)) {
+                console.error('Cannot split this box size');
+                return;
             }
 
-            // Ajustar las cantidades de tallos en los box_items
-            qb1.box_items.forEach((i, index) => {
-                i.qty_stem_flower = Math.floor(stem_flower[index] / 2);
+            const newOrder = this.newOrder.filter(o => o !== item);
+            const targetSize = getSplitTarget(item.box_model);
+            
+            // Create two new boxes of the target size
+            const box1 = JSON.parse(JSON.stringify({
+                ...item,
+                box_model: targetSize,
+                is_selected: false
+            }));
+            
+            const box2 = JSON.parse(JSON.stringify({
+                ...item,
+                box_model: targetSize,
+                is_selected: false
+            }));
+
+            // Calculate stem distribution for the two new boxes
+            const stems = splitStems(item.tot_stem_flower);
+            box1.tot_stem_flower = stems.first;
+            box2.tot_stem_flower = stems.second;
+
+            // Adjust the stem quantities in box_items
+            box1.box_items.forEach(boxItem => {
+                const boxStems = splitStems(boxItem.qty_stem_flower);
+                boxItem.qty_stem_flower = boxStems.first;
             });
             
-            qb2.box_items.forEach((i, index) => {
-                i.qty_stem_flower = Math.ceil(stem_flower[index] / 2);
+            box2.box_items.forEach(boxItem => {
+                const boxStems = splitStems(boxItem.qty_stem_flower);
+                boxItem.qty_stem_flower = boxStems.second;
             });
 
-            // Agregar los nuevos QBs al array de pedidos
-            newOrder.push(qb1);
-            newOrder.push(qb2);
-
+            // Add the new boxes to the order
+            newOrder.push(box1, box2);
             this.newOrder = newOrder;
         },
-        mergeQB() {
-            const selectedQBs = this.newOrder.filter(i => i.box_model === 'QB' && i.is_selected);
+
+        // Keep old method for backward compatibility
+        splitHB(item) {
+            this.splitBox(item);
+        },
+        /**
+         * Merge selected boxes into larger boxes
+         * Handles both cases: multiple boxes of same size or single box with quantity >= 2
+         */
+        mergeBoxes() {
+            const selectedItems = this.newOrder.filter(i => i.is_selected);
             
-            // Caso 1: Solo un QB está seleccionado pero su cantidad es par (2 o más)
-            if (selectedQBs.length === 1 && selectedQBs[0].quantity >= 2 && selectedQBs[0].quantity % 2 === 0) {
-                const qb = selectedQBs[0];
-                const newHBCount = qb.quantity / 2; // Convertimos pares de QB en HBs
+            if (selectedItems.length === 0) {
+                console.error('No items selected for merge');
+                return;
+            }
+
+            // Check if all selected items are of the same box model
+            const boxModel = selectedItems[0].box_model;
+            if (!selectedItems.every(item => item.box_model === boxModel)) {
+                console.error('All selected items must be of the same box model');
+                return;
+            }
+
+            // Check if we can merge this box type - pass the correct parameters
+            const totalQuantity = selectedItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            if (!canMerge(boxModel, selectedItems.length, totalQuantity)) {
+                console.error(`Cannot merge ${boxModel} boxes - not enough items or quantity`);
+                return;
+            }
+
+            const targetSize = getMergeTarget(boxModel);
+            
+            // Case 1: Single item with quantity >= 2
+            if (selectedItems.length === 1) {
+                const item = selectedItems[0];
+                const itemQuantity = item.quantity || 1;
                 
-                // Crear el nuevo HB con las mismas características pero cantidad ajustada
-                const newHB = JSON.parse(JSON.stringify({
-                    ...qb,
-                    box_model: 'HB',
+                if (itemQuantity < 2) {
+                    console.error('Need at least 2 items to merge');
+                    return;
+                }
+
+                const newQuantity = Math.floor(itemQuantity / 2);
+                const remainingQuantity = itemQuantity % 2;
+                
+                // Create new larger box
+                const newBox = JSON.parse(JSON.stringify({
+                    ...item,
+                    box_model: targetSize,
                     is_selected: false,
-                    quantity: newHBCount
+                    quantity: newQuantity
                 }));
                 
-                // Duplicar la cantidad de tallos en cada ítem de la caja
-                newHB.box_items.forEach(item => {
-                    item.qty_stem_flower = item.qty_stem_flower * 2;
+                // Adjust stem quantities - double them for the larger box
+                newBox.tot_stem_flower = (item.tot_stem_flower || 0) * 2;
+                newBox.box_items.forEach(boxItem => {
+                    boxItem.qty_stem_flower = (boxItem.qty_stem_flower || 0) * 2;
                 });
                 
-                // Reemplazar el QB original con el nuevo HB
-                const index = this.newOrder.findIndex(i => i === qb);
-                if (index !== -1) {
-                    this.newOrder.splice(index, 1, newHB);
+                // Update the order
+                let newOrder = this.newOrder.filter(i => i !== item);
+                newOrder.push(newBox);
+                
+                // Add remaining items if any
+                if (remainingQuantity > 0) {
+                    const remainingBox = JSON.parse(JSON.stringify(item));
+                    remainingBox.quantity = remainingQuantity;
+                    remainingBox.is_selected = false;
+                    newOrder.push(remainingBox);
                 }
+                
+                this.newOrder = newOrder;
             } 
-            // Caso 2: Dos QB están seleccionados
-            else if (selectedQBs.length === 2) {
-                const [qb1, qb2] = selectedQBs;
+            // Case 2: Multiple items of the same type (2 or more QBs)
+            else if (selectedItems.length >= 2) {
+                // For multiple items, we can merge pairs
+                const itemsToMerge = selectedItems.slice(); // Copy array
+                const newOrder = this.newOrder.filter(i => !i.is_selected);
                 
-                // Determinamos cuántas cajas podemos unificar (el mínimo entre ambos)
-                const minQuantity = Math.min(qb1.quantity, qb2.quantity);
-                const newHBCount = minQuantity;
-                
-                // Crear el nuevo HB con características combinadas
-                const newHB = {
-                    ...qb1, // Tomamos propiedades base del primer QB
-                    box_model: 'HB',
-                    is_selected: false,
-                    quantity: newHBCount
-                };
-                
-                // Combinamos los box_items de ambos QBs
-                const combinedBoxItems = [...qb1.box_items, ...qb2.box_items];
-                
-                // Agrupamos por producto, variedad y longitud
-                const groupedBoxItems = Object.values(
-                    combinedBoxItems.reduce((acc, item) => {
-                        const key = `${item.product_name}-${item.product_variety}-${item.length}`;
-                        if (!acc[key]) {
-                            acc[key] = { ...item };
+                // Process pairs of items
+                while (itemsToMerge.length >= 2) {
+                    const item1 = itemsToMerge.shift();
+                    const item2 = itemsToMerge.shift();
+                    
+                    // Create new larger box combining both items
+                    const newBox = JSON.parse(JSON.stringify(item1));
+                    newBox.box_model = targetSize;
+                    newBox.is_selected = false;
+                    newBox.quantity = 1; // One merged box from two smaller ones
+                    
+                    // Combine stems from both boxes
+                    const totalStems1 = item1.tot_stem_flower || 0;
+                    const totalStems2 = item2.tot_stem_flower || 0;
+                    newBox.tot_stem_flower = totalStems1 + totalStems2;
+                    
+                    // Combine box items
+                    const combinedItems = {};
+                    
+                    // Add items from first box
+                    item1.box_items.forEach(boxItem => {
+                        const key = `${boxItem.product_name}-${boxItem.product_variety}-${boxItem.length}`;
+                        combinedItems[key] = { ...boxItem };
+                    });
+                    
+                    // Add items from second box
+                    item2.box_items.forEach(boxItem => {
+                        const key = `${boxItem.product_name}-${boxItem.product_variety}-${boxItem.length}`;
+                        if (combinedItems[key]) {
+                            combinedItems[key].qty_stem_flower += (boxItem.qty_stem_flower || 0);
                         } else {
-                            acc[key].qty_stem_flower += item.qty_stem_flower;
+                            combinedItems[key] = { ...boxItem };
                         }
-                        return acc;
-                    }, {})
-                );
-                
-                newHB.box_items = groupedBoxItems;
-                
-                // Actualizar las cantidades de los QBs existentes o eliminarlos
-                this.newOrder = this.newOrder.filter(i => !i.is_selected);
-                
-                // Si qb1 tiene más cajas que el mínimo, mantenemos las restantes
-                if (qb1.quantity > minQuantity) {
-                    const remainingQB1 = JSON.parse(JSON.stringify(qb1));
-                    remainingQB1.quantity = qb1.quantity - minQuantity;
-                    remainingQB1.is_selected = false;
-                    this.newOrder.push(remainingQB1);
+                    });
+                    
+                    newBox.box_items = Object.values(combinedItems);
+                    newOrder.push(newBox);
                 }
                 
-                // Si qb2 tiene más cajas que el mínimo, mantenemos las restantes
-                if (qb2.quantity > minQuantity) {
-                    const remainingQB2 = JSON.parse(JSON.stringify(qb2));
-                    remainingQB2.quantity = qb2.quantity - minQuantity;
-                    remainingQB2.is_selected = false;
-                    this.newOrder.push(remainingQB2);
+                // If there's one item left over, add it back
+                if (itemsToMerge.length > 0) {
+                    const leftoverItem = itemsToMerge[0];
+                    leftoverItem.is_selected = false;
+                    newOrder.push(leftoverItem);
                 }
                 
-                // Agregar el nuevo HB
-                this.newOrder.push(newHB);
+                this.newOrder = newOrder;
             }
+        },
+        
+        // Keep old method for backward compatibility
+        mergeQB() {
+            this.mergeBoxes();
         },
         changeView(viewName){
             this.showViews = {
