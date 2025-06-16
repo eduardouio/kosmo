@@ -28,10 +28,20 @@ class AnalizeStockTextAPI(View):
         result_dispo = GPTDirectProcessor().process_text(text_stock)
         loggin_event(f'Resultado del procesamiento de texto: {result_dispo}')
 
-        if isinstance(result_dispo, list):
+        if not result_dispo or not isinstance(result_dispo, list):
             return JsonResponse(
-                {'message': result_dispo,
-                    'status': 'error - Invalid format {}'.format(str(result_dispo))},
+                {
+                    'message': 'No se pudieron procesar los datos del stock',
+                    'data': str(result_dispo),
+                    'status': 'error'
+                },
+                safe=False,
+                status=400
+            )
+
+        if len(result_dispo) == 0:
+            return JsonResponse(
+                {'message': 'No se encontraron datos de stock', 'status': 'error'},
                 safe=False,
                 status=400
             )
