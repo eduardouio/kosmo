@@ -192,6 +192,31 @@ const totalBoxesHB = computed(() => {
   return total;
 });
 
+const totalBoxesEB = computed(() => {
+  let total = 0;
+  ordersStore.newOrder.forEach(item => {
+    total += item.box_model === 'EB' ? parseInt(item.quantity) : 0;
+  });
+  return total;
+});
+
+const totalBoxesFB = computed(() => {
+  let totalHB = 0;
+  let totalQB = 0;
+  let totalEB = 0;
+  
+  ordersStore.newOrder.forEach(item => {
+    const quantity = parseInt(item.quantity) || 0;
+    if (item.box_model === 'HB') totalHB += quantity;
+    if (item.box_model === 'QB') totalQB += quantity;
+    if (item.box_model === 'EB') totalEB += quantity;
+  });
+  
+  // FB = HB/2 + QB/4 + EB/8
+  const totalFB = (totalHB / 2) + (totalQB / 4) + (totalEB / 8);
+  return parseFloat(totalFB.toFixed(2));
+});
+
 const totalStems = computed(() => {
   let total = 0;
   ordersStore.newOrder.forEach(item => {
@@ -546,6 +571,18 @@ const calculateTotalStemsForItem = (item) => {
                 <div class="text-center">
                   <div class="h4 mb-0 text-info">{{ totalBoxesQB }}</div>
                   <small class="text-muted">Quarter Boxes</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="h4 mb-0 text-warning">{{ totalBoxesEB }}</div>
+                  <small class="text-muted">Eighth Boxes</small>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="text-center">
+                  <div class="h4 mb-0 text-success">{{ totalBoxesFB }}</div>
+                  <small class="text-muted">Full Boxes</small>
                 </div>
               </div>
               <div class="col-12">

@@ -110,6 +110,33 @@ const totalBoxesHB = computed(() => {
   return total;
 });
 
+const totalBoxesEB = computed(() => {
+  if (!purchaseStore.selectedPurchase.order_details) return 0;
+  let total = 0;
+  purchaseStore.selectedPurchase.order_details.forEach((item) => {
+    total += item.box_model === 'EB' ? parseInt(item.quantity) : 0;
+  });
+  return total;
+});
+
+const totalBoxesFB = computed(() => {
+  if (!purchaseStore.selectedPurchase.order_details) return 0;
+  let totalHB = 0;
+  let totalQB = 0;
+  let totalEB = 0;
+  
+  purchaseStore.selectedPurchase.order_details.forEach((item) => {
+    const quantity = parseInt(item.quantity) || 0;
+    if (item.box_model === 'HB') totalHB += quantity;
+    if (item.box_model === 'QB') totalQB += quantity;
+    if (item.box_model === 'EB') totalEB += quantity;
+  });
+  
+  // FB = HB/2 + QB/4 + EB/8
+  const totalFB = (totalHB / 2) + (totalQB / 4) + (totalEB / 8);
+  return parseFloat(totalFB.toFixed(2));
+});
+
 const totalStems = computed(() => {
   if (!purchaseStore.selectedPurchase.order_details) return 0;
   let total = 0;
@@ -385,6 +412,14 @@ watch(() => purchaseStore.selectedPurchase,
                     <div class="col-6">
                       <div class="h5 mb-0 text-info">{{ totalBoxesQB }}</div>
                       <small class="text-muted">QB's</small>
+                    </div>
+                    <div class="col-6">
+                      <div class="h5 mb-0 text-warning">{{ totalBoxesEB }}</div>
+                      <small class="text-muted">EB's</small>
+                    </div>
+                    <div class="col-6">
+                      <div class="h5 mb-0 text-success">{{ totalBoxesFB }}</div>
+                      <small class="text-muted">FB's</small>
                     </div>
                     <div class="col-12 pt-2 border-top">
                       <div class="h5 mb-0 text-success">{{ totalStems }}</div>

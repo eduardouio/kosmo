@@ -104,6 +104,8 @@ const calcIndicators = () => {
     generalIndicators.value = {
         total_QB: 0,
         total_HB: 0,
+        total_EB: 0,
+        total_FB: 0,
         total_stems: 0,
         total_suppliers: [],
     }
@@ -115,6 +117,7 @@ const calcIndicators = () => {
     stockStore.stock.forEach(item => {
         generalIndicators.value.total_HB += item.box_model === 'HB' ? item.quantity : 0;
         generalIndicators.value.total_QB += item.box_model === 'QB' ? item.quantity : 0;
+        generalIndicators.value.total_EB += item.box_model === 'EB' ? item.quantity : 0;
         generalIndicators.value.total_stems += item.box_items.reduce(
             (acc, box) => acc + (parseInt(box.qty_stem_flower) || 0), 0
         );
@@ -122,6 +125,13 @@ const calcIndicators = () => {
             generalIndicators.value.total_suppliers.push(item.partner.name);
         }
     });
+    
+    // Calcular FB total basado en conversiones
+    generalIndicators.value.total_FB = parseFloat(
+        ((generalIndicators.value.total_HB / 2) + 
+         (generalIndicators.value.total_QB / 4) + 
+         (generalIndicators.value.total_EB / 8)).toFixed(2)
+    );
 }
 
 const handleKeydown = (event, cssClass) => {
@@ -451,6 +461,22 @@ const handleMerge = () => {
                                     </span>
                                     <span class="text-blue-600 ps-1 pe-2">
                                         {{ generalIndicators.total_HB }}
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
+                                    <span class="text-white bg-blue-600 ps-1 pe-2">
+                                        EB's
+                                    </span>
+                                    <span class="text-blue-600 ps-1 pe-2">
+                                        {{ generalIndicators.total_EB }}
+                                    </span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">
+                                    <span class="text-white bg-blue-600 ps-1 pe-2">
+                                        FB's
+                                    </span>
+                                    <span class="text-blue-600 ps-1 pe-2">
+                                        {{ generalIndicators.total_FB }}
                                     </span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 border-blue-600 rounded-1">

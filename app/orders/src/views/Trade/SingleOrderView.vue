@@ -62,7 +62,7 @@ function calculateOrderTotals() {
   let total_stem_flower = 0
   let total_price = 0
   let total_margin = 0
-  let total_bunches = 0  // Añadimos esta variable para calcular el total de bunches
+  let total_bunches = 0
 
   const lines = orderStore.orderLines.slice()
   lines.forEach(line => {
@@ -70,7 +70,7 @@ function calculateOrderTotals() {
     const quantity = Number(line.quantity) || 0;
     if (line.box_model === 'HB') hb_total += quantity;
     if (line.box_model === 'QB') qb_total += quantity;
-    if (line.box_model === 'EB') qb_total += quantity;
+    if (line.box_model === 'EB') eb_total += quantity;
 
     if (Array.isArray(line.order_box_items)) {
       line.order_box_items.forEach(item => {
@@ -78,18 +78,18 @@ function calculateOrderTotals() {
         const qtyStems = parseFloat(String(item.qty_stem_flower || '0').replace(/,/g, '')) || 0;
         const costPrice = parseFloat(String(item.stem_cost_price || '0.00').replace(/,/g, '')) || 0;
         const profitMargin = parseFloat(String(item.profit_margin || '0.00').replace(/,/g, '')) || 0;
-        const bunches = parseInt(String(item.total_bunches || '0')) || 0; // Calcular bunches
+        const bunches = parseInt(String(item.total_bunches || '0')) || 0;
 
         total_stem_flower += qtyStems;
         total_price += costPrice * qtyStems;
         total_margin += profitMargin * qtyStems;
-        total_bunches += bunches * quantity; // Multiplicar por la cantidad del item
+        total_bunches += bunches * quantity;
       })
     }
   })
 
-  // FB = (HB/2) + (QB/4)
-  fb_total = (hb_total / 2) + (qb_total / 4) + (eb_total / 8) 
+  // FB = HB/2 + QB/4 + EB/8
+  fb_total = (hb_total / 2) + (qb_total / 4) + (eb_total / 8)
   
   // Asegurarnos que los valores son números válidos antes de asignarlos
   orderStore.updateOrderTotals({
@@ -100,7 +100,7 @@ function calculateOrderTotals() {
     total_stem_flower: parseFloat(total_stem_flower.toFixed(2)),
     total_price: parseFloat(total_price.toFixed(2)),
     total_margin: parseFloat(total_margin.toFixed(2)),
-    total_bunches: parseInt(total_bunches) // Añadir total_bunches al objeto que actualiza el store
+    total_bunches: parseInt(total_bunches)
   })
 }
 
@@ -364,6 +364,10 @@ const handleKeydown = (event) => {
               <div class="row">
                 <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div>
                 <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.qb_total }}</div>
+              </div>
+              <div class="row">
+                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div>
+                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.eb_total }}</div>
               </div>
               <div class="row">
                 <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div>
