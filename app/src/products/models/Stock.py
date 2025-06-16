@@ -9,7 +9,8 @@ from common.AppLoger import loggin_event
 BOX_CHOICES = (
     ('HB', 'HB'),
     ('QB', 'QB'),
-    ('FB', 'FB')
+    ('FB', 'FB'),
+    ('EB', 'EB')
 )
 
 # -----------------------------------------------------------------------------
