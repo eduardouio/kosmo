@@ -26,15 +26,22 @@ from .views import (
 )
 
 urlpatterns = [
-    path('socios/<str:source_page>/', PartnerListView.as_view(), name='customers_list'),
-    path('socios/<str:source_page>/', PartnerListView.as_view(), name='supliers_list'),
-    path('socios/<int:pk>/', PartnerDetailView.as_view(), name='partner_detail'),
+    # URLs específicas deben ir ANTES de las URLs con parámetros variables
     path('socios/nuevo/', PartnerCreateView.as_view(), name='partner_create'),
+    path('socios/auto-registro/', PartnerAutoRegister.as_view(), name='partner_auto_register'),
+    path('socios/auto-registro/lista/', PartnerAutoRegisterList.as_view(), name='partner_auto_register_list'),
     path('socios/actualizar/<int:pk>/', PartnerUpdateView.as_view(), name='partner_update'),
     path('socios/eliminar/<int:pk>/', PartnerDeleteView.as_view(), name='partner_delete'),
     path('socios/actualizar-parent/<int:pk>/', PartnerUpdateParent.as_view(), name='partner_update_parent'),
-    path('socios/auto-registro/', PartnerAutoRegister.as_view(), name='partner_auto_register'),
-    path('socios/auto-registro/lista/', PartnerAutoRegisterList.as_view(), name='partner_auto_register_list'),
+    
+    # URLs específicas para clientes y proveedores con nombres únicos
+    path('socios/clientes/', PartnerListView.as_view(), {'source_page': 'clientes'}, name='customers_list'),
+    path('socios/proveedores/', PartnerListView.as_view(), {'source_page': 'proveedores'}, name='supliers_list'),
+    
+    # URLs con parámetros variables van después
+    path('socios/<int:pk>/', PartnerDetailView.as_view(), name='partner_detail'),
+    
+    # URLs de módulos relacionados
     path('bancos/', BankListView.as_view(), name='bank_list'),
     path('bancos/<int:pk>/', BankDetailView.as_view(), name='bank_detail'),
     path('bancos/nuevo/<int:id_partner>/', BankCreateView.as_view(), name='bank_create'),
