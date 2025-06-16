@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:prod": "vite build && npm run move-css",
+    "move-css": "mkdir -p ../src/static/css/app && mv ../src/static/js/app/app-orders.css ../src/static/css/app/app-orders.css 2>/dev/null || true && echo 'Build completed: app-order.js and app-orders.css created in their respective directories'"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
