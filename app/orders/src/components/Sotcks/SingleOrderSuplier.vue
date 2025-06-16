@@ -2,43 +2,19 @@
 import { computed, ref, watch } from 'vue';
 import { usePurchaseStore } from '@/stores/purcharsesStore.js';
 import { appConfig } from '@/AppConfig';
-import SideBar from '@/components/Sotcks/SideBar.vue';
-import { 
-    BOX_SIZES, 
-    canSplit, 
-    canMerge, 
-    getMergeTarget, 
-    getSplitTarget, 
-    splitStems 
-} from '@/utils/boxUtils';
 import {
-  IconTrash,
   IconCheckbox,
   IconCheck,
-  IconSitemap,
-  IconBan,
-  IconLayersIntersect2,
-  IconAlertTriangle,
-  IconRefresh,
   IconPrinter,
   IconFileDollar,
 } from '@tabler/icons-vue';
 
 const purchaseStore = usePurchaseStore();
 
-const confirmDelete = ref(false);
-const exceedLimit = ref(false);
-const deleteMessage = ref(
-  'El item marcado será eliminado del pedido, haga clic nuevamente para confirmar'
-);
-const exceedLimitMessage = ref('');
-const isModified = ref(false);
-
-// Métodos
-
+// Métodos simplificados - solo cálculos, sin modificaciones
 const calcAndGetProductQtyStemFlower = (product) => {
   const bunches = parseInt(product.total_bunches) || 0;
-  const stemsPerBunch = parseInt(product.stems_bunch) || 25; // Default 25 si no está definido o es 0
+  const stemsPerBunch = parseInt(product.stems_bunch) || 25;
   return bunches * stemsPerBunch;
 };
 
@@ -53,7 +29,6 @@ const calcTotalByItem = (item) => {
     }, 0);
   }
   const total = totalValue * (parseInt(item.quantity) || 0);
-  item.line_total = parseFloat(total.toFixed(2));
   return total.toFixed(2);
 };
 
@@ -65,277 +40,10 @@ const calcTotalStemFlower = (item) => {
     });
   }
   const total = totalStemsInItem * (parseInt(item.quantity) || 0);
-  item.tot_stem_flower = total;
   return total;
 };
 
-const delimitedNumber = (event, item) => {
-  exceedLimit.value = false;
-  let value = parseInt(event.target.value);
-  // Ajustar si en tu store tienes "purchaseStore.limitsNewOrder" con la misma lógica
-  let maxValue = purchaseStore.limitsNewOrder
-    ? purchaseStore.limitsNewOrder.filter((i) => i.order_item_id === item.order_item_id).map((i) => i.quantity)
-    : [];
-
-  if (maxValue.length > 0) {
-    if (value > maxValue[0] || value === 0) {
-      item.quantity = maxValue[0];
-      exceedLimitMessage.value = `La cantidad máxima permitida para este item es de ${maxValue[0]}`;
-      exceedLimit.value = true;
-    }
-  }
-  
-  // Recalcular totales cuando cambia la cantidad
-  calcTotalStemFlower(item);
-  calcTotalByItem(item);
-};
-
-const selectText = (event) => {
-  event.target.select();
-};
-
-const deleteOrderItem = (item) => {
-  if (item.confirm_delete) {
-    // Eliminamos el item del array order_details de la orden seleccionada
-    purchaseStore.selectedPurchase.order_details = purchaseStore.selectedPurchase.order_details.filter(
-      (i) => i.order_item_id !== item.order_item_id
-    );
-  } else {
-    confirmDelete.value = true;
-    item.confirm_delete = true;
-  }
-};
-
-const handleKeydown = (event, cssClass) => {
-  const inputs = document.querySelectorAll(cssClass);
-  const currentIndex = Array.prototype.indexOf.call(inputs, event.target);
-
-  if (event.key === 'Enter' && !event.shiftKey && currentIndex < inputs.length - 1) {
-    inputs[currentIndex + 1].focus();
-  }
-  if (event.key === 'Enter' && event.shiftKey && currentIndex > 0) {
-    inputs[currentIndex - 1].focus();
-  }
-};
-
-const formatNumber = (event) => {
-  let value = event.target.value;
-  value = value.replace(',', '.');
-  if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
-    event.target.value = '0.00';
-    return;
-  }
-  event.target.value = parseFloat(value).toFixed(2);
-};
-
-const formatInteger = (event) => {
-  let value = event.target.value;
-  value = value.replace(',', '.');
-  if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
-    event.target.value = '0';
-    return;
-  }
-  event.target.value = parseInt(value);
-};
-
-const handleBunchOrStemChange = (event, item, product, fieldName) => { // item es order_detail
-  formatInteger(event); // Formatea el input actual (product[fieldName])
-
-  if (fieldName === 'total_bunches') {
-    const bunches = parseInt(product.total_bunches) || 0;
-    const stemsValue = product.stems_bunch; // Puede ser string, number, null, undefined
-    // Si bunches > 0 y stems_bunch es undefined, null, vacío o 0, autocompletar a 25.
-    if (bunches > 0 && (stemsValue === undefined || stemsValue === null || stemsValue === '' || parseInt(stemsValue) === 0)) {
-      product.stems_bunch = 25;
-    }
-  }
-  // Si fieldName es 'stems_bunch', formatInteger ya lo manejó.
-  // Si el usuario ingresa 0 explícitamente en stems_bunch, se mantendrá 0 (después de formatInteger).
-
-  // Recalcular los totales del item.
-  calcTotalStemFlower(item); // Actualiza item.tot_stem_flower
-  calcTotalByItem(item);   // Actualiza item.line_total
-};
-
-/**
- * Split a box into two smaller boxes of the next size down
- * @param {Object} item - The box item to split
- */
-const splitBox = (item) => {
-  if (!canSplit(item.box_model)) {
-    console.error('Cannot split this box size');
-    return;
-  }
-
-  const newDetails = purchaseStore.selectedPurchase.order_details.filter(
-    (i) => i.order_item_id !== item.order_item_id
-  );
-  
-  const targetSize = getSplitTarget(item.box_model);
-  
-  // Create two new boxes of the target size
-  const box1 = JSON.parse(JSON.stringify({
-    ...item,
-    box_model: targetSize,
-    is_selected: false
-  }));
-  
-  const box2 = JSON.parse(JSON.stringify({
-    ...item,
-    box_model: targetSize,
-    is_selected: false
-  }));
-
-  // Calculate stem distribution for the two new boxes
-  const stems = splitStems(item.tot_stem_flower);
-  box1.tot_stem_flower = stems.first;
-  box2.tot_stem_flower = stems.second;
-
-  // Adjust the stem quantities in box_items
-  box1.box_items.forEach(boxItem => {
-    const boxStems = splitStems(boxItem.qty_stem_flower);
-    boxItem.qty_stem_flower = boxStems.first;
-  });
-  
-  box2.box_items.forEach(boxItem => {
-    const boxStems = splitStems(boxItem.qty_stem_flower);
-    boxItem.qty_stem_flower = boxStems.second;
-  });
-
-  // Add the new boxes to the order
-  newDetails.push(box1, box2);
-  purchaseStore.selectedPurchase.order_details = newDetails.map(i => ({ ...i }));
-};
-
-// Keep old method for backward compatibility
-const splitHB = (item) => {
-  splitBox(item);
-};
-
-/**
- * Merge selected boxes of the same size into larger boxes
- */
-const mergeBoxes = () => {
-  const selectedItems = purchaseStore.selectedPurchase.order_details.filter(item => item.is_selected);
-  
-  if (selectedItems.length === 0) {
-    console.error('No items selected for merge');
-    return;
-  }
-
-  // Check if all selected items are of the same box model
-  const boxModel = selectedItems[0].box_model;
-  if (!selectedItems.every(item => item.box_model === boxModel)) {
-    console.error('All selected items must be of the same box model');
-    return;
-  }
-
-  // Check if we can merge this box type
-  if (!canMerge(boxModel, selectedItems.length)) {
-    console.error(`Cannot merge ${boxModel} boxes`);
-    return;
-  }
-
-  const targetSize = getMergeTarget(boxModel);
-  const ratio = BOX_SIZES[targetSize].ratio / BOX_SIZES[boxModel].ratio;
-  
-  // Case 1: Single item with quantity >= 2
-  if (selectedItems.length === 1) {
-    const item = selectedItems[0];
-    if (item.quantity < 2) {
-      console.error('Need at least 2 items to merge');
-      return;
-    }
-
-    const newQuantity = Math.floor(item.quantity / ratio);
-    const remainingQuantity = item.quantity % ratio;
-    
-    // Create new larger box
-    const newBox = JSON.parse(JSON.stringify({
-      ...item,
-      box_model: targetSize,
-      is_selected: false,
-      quantity: newQuantity
-    }));
-    
-    // Adjust stem quantities
-    newBox.tot_stem_flower = item.tot_stem_flower * ratio;
-    newBox.box_items.forEach(boxItem => {
-      boxItem.qty_stem_flower = boxItem.qty_stem_flower * ratio;
-    });
-    
-    // Update the order
-    let newOrder = purchaseStore.selectedPurchase.order_details
-      .filter(i => i !== item)
-      .map(i => ({ ...i }));
-    
-    newOrder.push(newBox);
-    
-    // Add remaining items if any
-    if (remainingQuantity > 0) {
-      const remainingBox = JSON.parse(JSON.stringify(item));
-      remainingBox.quantity = remainingQuantity;
-      remainingBox.is_selected = false;
-      newOrder.push(remainingBox);
-    }
-    
-    purchaseStore.selectedPurchase.order_details = newOrder;
-  } 
-  // Case 2: Multiple items of the same type
-  else {
-    // Find the minimum quantity among selected items
-    const minQuantity = Math.min(...selectedItems.map(i => i.quantity));
-    const newQuantity = minQuantity * ratio;
-    
-    // Create new larger box
-    const newBox = JSON.parse(JSON.stringify(selectedItems[0]));
-    newBox.box_model = targetSize;
-    newBox.is_selected = false;
-    newBox.quantity = newQuantity;
-    
-    // Combine box items and sum quantities
-    const combinedItems = selectedItems.flatMap(item => item.box_items);
-    const groupedItems = combinedItems.reduce((acc, item) => {
-      const key = `${item.product_name}-${item.product_variety}-${item.length}`;
-      if (!acc[key]) {
-        acc[key] = { ...item };
-      } else {
-        acc[key].qty_stem_flower += item.qty_stem_flower;
-      }
-      return acc;
-    }, {});
-    
-    newBox.box_items = Object.values(groupedItems);
-    
-    // Calculate total stems for the new box
-    newBox.tot_stem_flower = newBox.box_items.reduce((sum, item) => sum + item.qty_stem_flower, 0);
-    
-    // Update the order
-    let newOrder = purchaseStore.selectedPurchase.order_details
-      .filter(i => !i.is_selected)
-      .map(i => ({ ...i }));
-    
-    newOrder.push(newBox);
-    
-    // Add remaining items if any
-    selectedItems.forEach(item => {
-      if (item.quantity > minQuantity) {
-        const remainingBox = JSON.parse(JSON.stringify(item));
-        remainingBox.quantity = item.quantity - minQuantity;
-        remainingBox.is_selected = false;
-        newOrder.push(remainingBox);
-      }
-    });
-    
-    purchaseStore.selectedPurchase.order_details = newOrder;
-  }
-};
-
-// Keep old method for backward compatibility
-const mergeQB = () => {
-  mergeBoxes();
-};
-
+// Solo mantener la función de confirmar orden
 const updateOrder = async (action) => {
   switch (action) {
     case 'confirm':
@@ -346,31 +54,6 @@ const updateOrder = async (action) => {
         }
       } else {
         purchaseStore.selectedPurchase.is_confirmed = true;
-      }
-      break;
-    case 'update':
-      console.log('update Order');
-      if (purchaseStore.selectedPurchase.is_modified) {
-        const response = await purchaseStore.updateSupplierOrder();
-        if (response) {
-          purchaseStore.selectedPurchase.is_confirmed = false;
-          location.reload();
-        }
-      } else {
-        purchaseStore.selectedPurchase.is_modified = true;
-      }
-      break;
-    case 'cancell':
-      console.log('Cancelar la orden de compra');
-      if (purchaseStore.selectedPurchase.is_cancelled) {
-        const response = await purchaseStore.cancellOrder();
-        if (response) {
-          console.log('Cancelar los items de la orden Venta');
-          purchaseStore.selectedPurchase.order.status = 'CANCELADO';
-          location.reload();
-        }
-      } else {
-        purchaseStore.selectedPurchase.is_cancelled = true;
       }
       break;
   }
@@ -386,36 +69,7 @@ const getUrlReportinvoice = (id) => {
   return urlInvoiceReport;
 };
 
-// Propiedades computadas
-const canMergeSelected = computed(() => {
-  const selectedItems = purchaseStore.selectedPurchase.order_details.filter(item => item.is_selected);
-  
-  if (selectedItems.length === 0) return false;
-  
-  // All selected items must be of the same type
-  const boxModel = selectedItems[0].box_model;
-  if (!selectedItems.every(item => item.box_model === boxModel)) return false;
-  
-  // Check if we can merge this box type
-  return canMerge(boxModel, selectedItems.length);
-});
-
-const canSplitSelected = computed(() => {
-  const selectedItems = purchaseStore.selectedPurchase.order_details.filter(item => item.is_selected);
-  
-  if (selectedItems.length !== 1) return false;
-  
-  return canSplit(selectedItems[0].box_model);
-});
-
-// For backward compatibility
-const isTwoQBSelected = computed(() => {
-  const selectedQBs = purchaseStore.selectedPurchase.order_details.filter(
-    (i) => i.box_model === 'QB' && i.is_selected
-  );
-  return selectedQBs.length === 2 || (selectedQBs.length === 1 && selectedQBs[0].quantity >= 2);
-});
-
+// Propiedades computadas - solo lectura
 const totalMargin = computed(() => {
   if (!purchaseStore.selectedPurchase.order_details) return 0;
   let total = 0;
@@ -460,41 +114,18 @@ const totalStems = computed(() => {
   if (!purchaseStore.selectedPurchase.order_details) return 0;
   let total = 0;
   purchaseStore.selectedPurchase.order_details.forEach((item) => {
-    total += item.tot_stem_flower || 0;
+    total += calcTotalStemFlower(item) || 0;
   });
   return total;
 });
 
-const orderHaveCeroItem = computed(() => {
-  if (!purchaseStore.selectedPurchase.order_details) {
-    return false;
-  }
-
-  for (const item of purchaseStore.selectedPurchase.order_details) {
-    let ceroBoxesStem = item.box_items.filter((bItem) => bItem.qty_stem_flower === 0);
-    let ceroBoxesCost = item.box_items.filter((bItem) => bItem.stem_cost_price === 0);
-
-    if (ceroBoxesStem.length > 0 || ceroBoxesCost.length > 0) {
-      exceedLimitMessage.value = 'No se permiten items con cantidad 0 o costo 0';
-      exceedLimit.value = true;
-      return true;
-    }
-  }
-
-  exceedLimitMessage.value = '';
-  exceedLimit.value = false;
-  return false;
-});
-
-// watchers
+// watchers - solo para inicializar valores
 watch(() => purchaseStore.selectedPurchase,
   (newValue) => {
     console.log('selectedPurchase', newValue);
-    isModified.value = true;
-    // Inicializar/recalcular totales al cargar una nueva orden
+    // Solo inicializar stems_bunch si es necesario, sin permitir edición
     if (newValue && newValue.order_details) {
       newValue.order_details.forEach(item_detail => {
-        // Inicializar stems_bunch si es undefined o null
         if (item_detail.box_items) {
           item_detail.box_items.forEach(product => {
             if (product.stems_bunch === undefined || product.stems_bunch === null) {
@@ -502,8 +133,6 @@ watch(() => purchaseStore.selectedPurchase,
             }
           });
         }
-        calcTotalStemFlower(item_detail);
-        calcTotalByItem(item_detail);
       });
     }
   }, { deep: true, immediate: true }
@@ -515,19 +144,6 @@ watch(() => purchaseStore.selectedPurchase,
     <div class="row pt-1">
       <div class="col">
         <div class="container-fluid" v-if="purchaseStore.selectedPurchase.order">
-          <!-- Alert Messages -->
-          <div class="row mb-3" v-if="exceedLimit || confirmDelete">
-            <div class="col-12">
-              <div class="alert alert-soft-warning d-flex align-items-center" role="alert">
-                <IconAlertTriangle size="18" stroke="1.5" class="me-2" />
-                <div>
-                  <span v-if="confirmDelete">{{ deleteMessage }}</span>
-                  <span v-if="exceedLimit">{{ exceedLimitMessage }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Supplier Information Header -->
           <div class="row mb-3">
             <div class="col-12">
@@ -543,7 +159,7 @@ watch(() => purchaseStore.selectedPurchase,
                     <div class="col-md-4 text-center">
                       <h6 class="mb-0">
                         <i class="fas fa-shopping-cart me-2"></i>
-                        <span class="badge badge-soft-warning text-center fs-6">PEDIDO A PROVEEDOR</span>
+                        <span class="badge badge-soft-warning text-center fs-6">ORDEN DE COMPRA</span>
                       </h6>
                     </div>
                     <div class="col-md-4 text-end">
@@ -616,22 +232,6 @@ watch(() => purchaseStore.selectedPurchase,
             </div>
           </div>
 
-          <!-- Status Message & Actions -->
-          <div class="row mb-2">
-            <div class="col-md-8">
-              <div class="alert alert-soft-info mb-0" v-if="purchaseStore.selectedPurchase.is_modified">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Orden de Compra Modificada, si actualiza el pedido se actualizarán la o las ordenes de compra
-              </div>
-            </div>
-            <div class="col-md-4 text-end">
-              <button class="btn btn-outline-primary" v-if="isTwoQBSelected" @click="mergeQB">
-                <IconLayersIntersect2 size="16" stroke="1.5" class="me-1" />
-                Unificar a HB
-              </button>
-            </div>
-          </div>
-
           <!-- Order Items Table -->
           <div class="row">
             <div class="col-12">
@@ -696,42 +296,16 @@ watch(() => purchaseStore.selectedPurchase,
                          class="order-row"
                          :class="{ 'bg-gray-50': idx % 2 === 0 }">
                       <div class="row g-0 align-items-center">
-                        <!-- Quantity & Delete -->
+                        <!-- Quantity -->
                         <div class="col-1 border-end p-1">
-                          <div class="d-flex align-items-center gap-1">
-                            <button class="btn btn-outline-danger border-0"
-                                    @click="deleteOrderItem(item)"
-                                    :class="{ 'text-danger': item.confirm_delete }"
-                                    v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced">
-                              <IconTrash size="14" stroke="1.5" />
-                            </button>
-                            <input type="number" 
-                                   step="1" 
-                                   class="form-control form-control-sm text-end input-soft" 
-                                   v-model="item.quantity"
-                                   @change="(event) => delimitedNumber(event, item)" 
-                                   @focus="selectText"
-                                   @keydown="(event) => handleKeydown(event, '.form-control-sm')"
-                                   :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
+                          <div class="d-flex align-items-center justify-content-center">
+                            <span class="fw-medium">{{ item.quantity }}</span>
                           </div>
                         </div>
 
                         <!-- Model -->
                         <div class="col-1 border-end p-1 text-center">
-                          <div class="d-flex align-items-center justify-content-center gap-1">
-                            <span class="badge badge-soft-secondary">{{ item.box_model }}</span>
-                            <div v-if="!purchaseStore.selectedPurchase.is_confirmed && !purchaseStore.selectedPurchase.is_invoiced" 
-                                 class="d-flex align-items-center gap-1">
-                              <IconSitemap size="14" stroke="1.5" 
-                                         class="text-primary cursor-pointer"
-                                         @click="splitHB(item)"
-                                         v-if="item.box_model === 'HB'" />
-                              <input type="checkbox" 
-                                     class="form-check-input"
-                                     v-model="item.is_selected"
-                                     v-if="item.box_model === 'QB'" />
-                            </div>
-                          </div>
+                          <span class="badge badge-soft-secondary">{{ item.box_model }}</span>
                         </div>
 
                         <!-- Stems -->
@@ -749,70 +323,26 @@ watch(() => purchaseStore.selectedPurchase,
                               <div class="col text-center" style="flex: 0 0 10%;">
                                 <span class="badge badge-soft-info">{{ product.length }}</span>
                               </div>
-                              <div class="col" style="flex: 0 0 11%;">
-                                <input type="number" 
-                                       step="1" 
-                                       class="form-control form-control-sm text-end input-soft"
-                                       v-model="product.total_bunches" 
-                                       @focus="selectText"
-                                       @keydown="event => handleKeydown(event, '.my-input-4')" 
-                                       @change="handleBunchOrStemChange($event, item, product, 'total_bunches')"
-                                       :class="{ 
-                                         'input-error': !product.total_bunches || parseInt(product.total_bunches) <= 0,
-                                         'border-danger': !product.total_bunches || parseInt(product.total_bunches) <= 0
-                                       }"
-                                       :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
+                              <div class="col text-center" style="flex: 0 0 11%;">
+                                <span class="fw-medium">{{ product.total_bunches }}</span>
                               </div>
-                              <div class="col" style="flex: 0 0 11%;">
-                                <input type="number" 
-                                       step="1" 
-                                       class="form-control form-control-sm text-end input-soft"
-                                       v-model="product.stems_bunch" 
-                                       @focus="selectText"
-                                       @keydown="event => handleKeydown(event, '.my-input-5')" 
-                                       @change="handleBunchOrStemChange($event, item, product, 'stems_bunch')"
-                                       :class="{ 
-                                         'input-error': !product.stems_bunch || parseInt(product.stems_bunch) <= 0,
-                                         'border-danger': !product.stems_bunch || parseInt(product.stems_bunch) <= 0
-                                       }"
-                                       :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
+                              <div class="col text-center" style="flex: 0 0 11%;">
+                                <span class="fw-medium">{{ product.stems_bunch }}</span>
                               </div>
-                              <div class="col" style="flex: 0 0 11%;">
-                                <input type="number" 
-                                       step="0.01" 
-                                       class="form-control form-control-sm text-end input-soft"
-                                       v-model="product.stem_cost_price" 
-                                       @focus="selectText"
-                                       @keydown="event => handleKeydown(event, '.my-input-2')" 
-                                       @change="(event) => { formatNumber(event); }"
-                                       :class="{ 
-                                         'input-error': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.0,
-                                         'border-danger': !product.stem_cost_price || parseFloat(product.stem_cost_price) <= 0.0
-                                       }"
-                                       :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
+                              <div class="col text-center" style="flex: 0 0 11%;">
+                                <span class="fw-medium">${{ parseFloat(product.stem_cost_price).toFixed(2) }}</span>
                               </div>
-                              <div class="col" style="flex: 0 0 11%;">
-                                <input type="number" 
-                                       step="0.01" 
-                                       class="form-control form-control-sm text-end input-soft"
-                                       v-model="product.margin" 
-                                       @focus="selectText"
-                                       @keydown="event => handleKeydown(event, '.my-input-3')" 
-                                       @change="(event) => { formatNumber(event); }"
-                                       :class="{ 
-                                         'input-error': !product.margin || parseFloat(product.margin) <= 0.0,
-                                         'border-danger': !product.margin || parseFloat(product.margin) <= 0.0
-                                       }"
-                                       :disabled="purchaseStore.selectedPurchase.is_confirmed || purchaseStore.selectedPurchase.is_invoiced" />
+                              <div class="col text-center" style="flex: 0 0 11%;">
+                                <span class="fw-medium">${{ parseFloat(product.margin).toFixed(2) }}</span>
                               </div>
                               <div class="col text-center" style="flex: 0 0 11%;">
                                 <span class="badge badge-soft-success">
-                                  {{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
+                                  ${{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
                                 </span>
                               </div>
                               <div class="col text-center" style="flex: 0 0 13%;">
                                 <span class="fw-bold text-success">
-                                  {{ calcTotalByItem(item) }}
+                                  ${{ calcTotalByItem(item) }}
                                 </span>
                               </div>
                             </div>
@@ -823,7 +353,7 @@ watch(() => purchaseStore.selectedPurchase,
                         <div class="col-1 p-1">
                           <div v-for="product in item.box_items" :key="product.id" class="mb-1 text-center">
                             <span class="fw-bold text-warning">
-                              {{ purchaseStore.formatNumber(product.stem_cost_price * calcAndGetProductQtyStemFlower(product)) }}
+                              ${{ purchaseStore.formatNumber(product.stem_cost_price * calcAndGetProductQtyStemFlower(product)) }}
                             </span>
                           </div>
                         </div>
@@ -906,55 +436,33 @@ watch(() => purchaseStore.selectedPurchase,
             </div>
           </div>
 
-          <!-- Action Buttons -->
+          <!-- Action Buttons - Solo Confirmar y Reportes -->
           <div class="row mt-3">
             <div class="col-12">
               <div class="card card-soft border-0">
                 <div class="card-body p-reduced">
-                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <div>
-                      <button type="button" 
-                              class="btn btn-outline-danger" 
-                              @click="updateOrder('cancell')"
-                              v-if="!purchaseStore.selectedPurchase.is_invoiced && purchaseStore.selectedPurchase.order.status === 'CANCELADO'">
-                        <IconBan size="16" stroke="1.5" class="me-1" />
-                        <span v-if="purchaseStore.selectedPurchase.is_cancelled">Confirmar Cancelación</span>
-                        <span v-else>Cancelar</span>
-                      </button>
-                    </div>
+                  <div class="d-flex justify-content-end gap-2 flex-wrap">
+                    <button class="btn btn-default btn-sm" @click="updateOrder('confirm')">
+                      <IconCheck size="16" stroke="1.5" class="me-1" v-if="!purchaseStore.selectedPurchase.is_confirmed" />
+                      <IconCheckbox size="16" stroke="1.5" class="me-1" v-if="purchaseStore.selectedPurchase.is_confirmed" />
+                      <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
+                      <span v-if="purchaseStore.selectedPurchase.is_confirmed">OC Confirmada</span>
+                    </button>
                     
-                    <div class="d-flex gap-2 flex-wrap">
-                      <button type="button" 
-                              class="btn btn-default btn-sm" 
-                              @click="updateOrder('update')"
-                              :disabled="orderHaveCeroItem" 
-                              v-if="isModified && !purchaseStore.selectedPurchase.is_confirmed">
-                        <IconRefresh size="16" stroke="1.5" class="me-1" />
-                        <span v-if="purchaseStore.selectedPurchase.is_modified">Confirmar</span>
-                        <span v-else>Actualizar</span>
-                      </button>
-                      
-                      <button class="btn btn-default btn-sm" @click="updateOrder('confirm')">
-                        <IconCheck size="16" stroke="1.5" class="me-1" v-if="!purchaseStore.selectedPurchase.is_confirmed" />
-                        <IconCheckbox size="16" stroke="1.5" class="me-1" v-if="purchaseStore.selectedPurchase.is_confirmed" />
-                        <span v-if="!purchaseStore.selectedPurchase.is_confirmed">Confirmar OC</span>
-                        <span v-if="purchaseStore.selectedPurchase.is_confirmed">OC Confirmada</span>
-                      </button>
-                      
-                      <button class="btn btn-default btn-sm">
-                        <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)" class="text-decoration-none">
-                          <IconPrinter size="16" stroke="1.5" class="me-1" />
-                          Orden de Compra
-                        </a>
-                      </button>
-                      
-                      <button class="btn btn-default btn-sm" 
-                              v-if="purchaseStore.selectedPurchase.order.status === 'CONFIRMADO'"
-                              @click="purchaseStore.createInvoice()">
+                    <button class="btn btn-default btn-sm">
+                      <a :href="getUrlReportSupOrder(purchaseStore.selectedPurchase.order.id)" class="text-decoration-none">
+                        <IconPrinter size="16" stroke="1.5" class="me-1" />
+                        Orden de Compra
+                      </a>
+                    </button>
+                    
+                    <button class="btn btn-default btn-sm" 
+                            v-if="purchaseStore.selectedPurchase.order.status === 'FACTURADO'">
+                      <a :href="getUrlReportinvoice(purchaseStore.selectedPurchase.id_invoice)" class="text-decoration-none">
                         <IconFileDollar size="16" stroke="1.5" class="me-1" />
-                        Registrar Factura
-                      </button>
-                    </div>
+                        Ver Factura
+                      </a>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -986,10 +494,6 @@ watch(() => purchaseStore.selectedPurchase,
   padding: 0.125rem 0;
 }
 
-.cursor-pointer {
-  cursor: pointer;
-}
-
 .card {
   border-radius: 6px;
 }
@@ -1000,21 +504,6 @@ watch(() => purchaseStore.selectedPurchase,
 
 .badge {
   font-size: 0.7rem;
-}
-
-input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
-}
-
-.alert {
-  border-radius: 6px;
-  padding: 0.75rem;
-}
-
-.input-error {
-  background-color: #fff3f3;
-  color: #dc3545;
 }
 
 @media (max-width: 768px) {
