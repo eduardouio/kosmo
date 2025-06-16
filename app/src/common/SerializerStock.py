@@ -53,6 +53,9 @@ class SerializerStock():
                 'qty_stem_flower': box.qty_stem_flower,
                 'stem_cost_price': float(cost_product),
                 'margin': float(box.profit_margin),
+                'total_bunches': box.total_bunches,
+                'stems_bunch': box.stems_bunch,
+                'bunches_display': f"{box.total_bunches}X{box.stems_bunch}" if box.total_bunches and box.stems_bunch else "0X0",
                 'is_active': box.is_active
             }
             item['box_items'].append(item_box)
