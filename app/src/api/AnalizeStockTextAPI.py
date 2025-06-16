@@ -30,7 +30,8 @@ class AnalizeStockTextAPI(View):
 
         if isinstance(result_dispo, list):
             return JsonResponse(
-                {'message': result_dispo, 'status': 'error - Invalid format {}'.format(str(result_dispo))},
+                {'message': result_dispo,
+                    'status': 'error - Invalid format {}'.format(str(result_dispo))},
                 safe=False,
                 status=400
             )
@@ -66,10 +67,10 @@ class AnalizeStockTextAPI(View):
             lengths = item[3]   # Array de largos
             stem_quantities = item[4]  # Array de cantidades de tallos
             prices = item[5]    # Array de precios
-            
+
             # Calcular total de tallos para el StockDetail
             total_stems = sum(stem_quantities)
-            
+
             stock_detail = StockDetail(
                 stock_day=kwargs['stock_day'],
                 partner=kwargs['partner'],
@@ -78,24 +79,27 @@ class AnalizeStockTextAPI(View):
                 tot_stem_flower=total_stems,
             )
             stock_detail.save()
-            
+
             # Crear BoxItems para cada variedad
             for idx in range(len(varieties)):
                 product = self.get_or_create_product(varieties[idx])
-                
+
                 # Obtener el precio correspondiente
                 price = float(prices[idx]) if idx < len(prices) else 0.00
-                
+
                 if kwargs['profit_is_included']:
-                    price = price - float(kwargs['profit_margin']) if price > 0.00 else 0.00
-                
+                    price = price - \
+                        float(kwargs['profit_margin']
+                              ) if price > 0.00 else 0.00
+
                 BoxItems.objects.create(
                     stock_detail=stock_detail,
                     product=product,
                     stem_cost_price=price,
                     profit_margin=kwargs['profit_margin'],
                     length=lengths[idx] if idx < len(lengths) else 0,
-                    qty_stem_flower=stem_quantities[idx] if idx < len(stem_quantities) else 0,
+                    qty_stem_flower=stem_quantities[idx] if idx < len(
+                        stem_quantities) else 0,
                 )
         return True
 
