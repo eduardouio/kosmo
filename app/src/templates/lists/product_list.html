@@ -12,23 +12,38 @@
             {{ message }}
         </span>
         {% endif %}
-        <a href="{% url 'product_create' %}" class="btn btn-sm btn-default">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                <path d="M12 5l0 14" />
-                <path d="M5 12l14 0" />
-            </svg>
-            Nuevo Producto
-        </a>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-success" id="bulk-edit-btn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                    <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                    <path d="M16 5l3 3" />
+                </svg>
+                Editar Seleccionados
+            </button>
+            <a href="{% url 'product_create' %}" class="btn btn-sm btn-default">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
+                Nuevo Producto
+            </a>
+        </div>
     </div>
 </div>
 <div class="mx-auto" style="width: 80%;">
-    <table class="table table-bordered table-striped" id="myTable">
+    <table class="table table-bordered table-striped" id="productTable">
         <thead>
             <tr>
+                <th class="bg-secondary bg-opacity-25">
+                    <input type="checkbox" id="select-all" title="Seleccionar todos">
+                </th>
                 <th class="bg-secondary bg-opacity-25">#</th>
                 <th class="bg-secondary bg-opacity-25">Nombre</th>
                 <th class="bg-secondary bg-opacity-25">Variedad</th>
+                <th class="bg-secondary bg-opacity-25">Colores</th>
                 <th class="bg-secondary bg-opacity-25">Rendimiento por Defecto</th>
                 <th class="bg-secondary bg-opacity-25">Imagen</th>
             </tr>
@@ -36,6 +51,9 @@
         <tbody>
             {% for item in object_list %}
             <tr>
+                <td class="p-2">
+                    <input type="checkbox" class="product-checkbox" data-id="{{ item.id }}" data-name="{{ item.name }}" data-variety="{{ item.variety }}" data-colors="{{ item.colors }}">
+                </td>
                 <td class="p-0 d-flex justify-content-start gap-3">
                     <a href="{% url 'product_detail' item.id %}" class="text-primary d-flex justify-content-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crosshair" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -56,6 +74,7 @@
                     </a>
                 </td>
                 <td class="p-0">{{ item.variety }}</td>
+                <td class="p-0">{{ item.colors }}</td>
                 <td class="p-0">{{ item.default_rend }}</td>
                 <td class="p-0">
                     {% if item.image %}
@@ -69,4 +88,382 @@
         </tbody>
     </table>
 </div>
+
+<!-- Modal para edición en masa -->
+<div class="modal fade" id="bulk-edit-modal" tabindex="-1" role="dialog" aria-labelledby="bulk-edit-modal-label" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h4 class="modal-title" id="bulk-edit-modal-label">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                        <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                        <path d="M16 5l3 3" />
+                    </svg>
+                    Editar Productos Seleccionados
+                </h4>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info d-flex align-items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle me-2" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0c5460" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                        <path d="M12 9h.01" />
+                        <path d="M11 12h1v4h1" />
+                    </svg>
+                    <div>
+                        <strong>Productos seleccionados:</strong> <span id="selected-count">0</span>
+                        <br><small>Los cambios se aplicarán a todos los productos seleccionados. La combinación nombre + variedad debe ser única.</small>
+                    </div>
+                </div>
+                
+                <form id="bulk-edit-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="bulk-name" class="form-label fw-bold">Nuevo Nombre: <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="bulk-name" name="name" required placeholder="Ingrese el nuevo nombre">
+                                <div class="invalid-feedback" id="name-error"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="bulk-colors" class="form-label fw-bold">Colores:</label>
+                                <input type="text" class="form-control" id="bulk-colors" name="colors" placeholder="Ej: Rojo, Blanco, Rosa">
+                                <small class="form-text text-muted">Separar múltiples colores con comas</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <h6 class="fw-bold mb-2">Lista de productos a editar:</h6>
+                        <div id="selected-products-list" class="small"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M18 6l-12 12" />
+                        <path d="M6 6l12 12" />
+                    </svg>
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="save-bulk-edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-16a2 2 0 0 1 2 -2" />
+                        <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+                        <path d="M14 4l0 4l-6 0l0 -4" />
+                    </svg>
+                    Guardar Cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+$(document).ready(function() {
+    let selectedProducts = [];
+    
+    console.log('Inicializando script de productos...'); // Debug
+    
+    // Verificar que jQuery esté disponible
+    if (typeof $ === 'undefined') {
+        console.error('jQuery no está disponible');
+        return;
+    }
+    
+    // Actualizar productos seleccionados
+    function updateSelectedProducts() {
+        selectedProducts = [];
+        
+        // Buscar TODOS los checkboxes marcados en el documento
+        $('input.product-checkbox:checked').each(function() {
+            const productData = {
+                id: parseInt($(this).attr('data-id')),
+                name: $(this).attr('data-name'),
+                variety: $(this).attr('data-variety'),
+                colors: $(this).attr('data-colors') || ''
+            };
+            selectedProducts.push(productData);
+            console.log('Producto agregado:', productData); // Debug
+        });
+        
+        console.log('Total productos seleccionados:', selectedProducts.length); // Debug
+        
+        // Habilitar/deshabilitar botón
+        const bulkEditBtn = $('#bulk-edit-btn');
+        if (selectedProducts.length > 0) {
+            bulkEditBtn.prop('disabled', false);
+            console.log('Botón habilitado'); // Debug
+        } else {
+            bulkEditBtn.prop('disabled', true);
+            console.log('Botón deshabilitado'); // Debug
+        }
+        
+        $('#selected-count').text(selectedProducts.length);
+        
+        // Actualizar lista de productos seleccionados
+        let productsList = selectedProducts.map(p => 
+            `<span class="badge bg-secondary me-1">${p.name} - ${p.variety}</span>`
+        ).join('');
+        $('#selected-products-list').html(productsList || '<em>Ningún producto seleccionado</em>');
+    }
+
+    // Inicializar DataTable DESPUÉS de configurar los eventos
+    const table = $('#productTable').DataTable({
+        "pageLength": 15,
+        "lengthMenu": [15, 25, 50, 100, 500, 1000, 5000],
+        "language": {
+            "lengthMenu": "_MENU_ registros por página",
+            "zeroRecords": "Sin registros",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "Sin registros",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            }
+        },
+        "columnDefs": [
+            {
+                "orderable": false,
+                "targets": 0 // Desactivar ordenación en la columna del checkbox
+            }
+        ],
+        "drawCallback": function(settings) {
+            // Después de cada redibujado de DataTable, reconectar eventos
+            console.log('DataTable redibujado, reconectando eventos...'); // Debug
+            updateSelectedProducts();
+        }
+    });
+
+    // Manejar selección de todos - usando delegación para elementos que pueden cambiar
+    $(document).on('change', '#select-all', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const isChecked = this.checked;
+        console.log('Select all clicked:', isChecked); // Debug
+        
+        // Marcar/desmarcar todos los checkboxes de productos visibles y no visibles
+        $('input.product-checkbox').each(function() {
+            this.checked = isChecked;
+        });
+        
+        updateSelectedProducts();
+    });
+
+    // Manejar selección individual - usando delegación más específica
+    $(document).on('change', 'input.product-checkbox', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const productId = $(this).attr('data-id');
+        const isChecked = this.checked;
+        console.log('Individual checkbox clicked - ID:', productId, 'Checked:', isChecked); // Debug
+        
+        updateSelectedProducts();
+        
+        // Actualizar estado del checkbox "select all"
+        const totalCheckboxes = $('input.product-checkbox').length;
+        const checkedCheckboxes = $('input.product-checkbox:checked').length;
+        
+        console.log(`Estado checkboxes: ${checkedCheckboxes}/${totalCheckboxes}`); // Debug
+        
+        const selectAllCheckbox = $('#select-all')[0];
+        if (selectAllCheckbox) {
+            if (checkedCheckboxes === 0) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            } else if (checkedCheckboxes === totalCheckboxes) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = true;
+            } else {
+                selectAllCheckbox.indeterminate = true;
+                selectAllCheckbox.checked = false;
+            }
+        }
+    });
+
+    // Abrir modal de edición
+    $('#bulk-edit-btn').on('click', function() {
+        console.log('Bulk edit button clicked, selected count:', selectedProducts.length); // Debug
+        
+        if (selectedProducts.length === 0) {
+            alert('Por favor seleccione al menos un producto');
+            return;
+        }
+        
+        // Limpiar formulario
+        $('#bulk-edit-form')[0].reset();
+        $('.form-control').removeClass('is-invalid');
+        $('.alert-danger').remove();
+        
+        // Mostrar modal
+        $('#bulk-edit-modal').modal('show');
+    });
+
+    // Validar unicidad nombre + variedad
+    function validateUniqueness(newName, callback) {
+        const conflicts = [];
+        const selectedIds = selectedProducts.map(p => p.id);
+        
+        selectedProducts.forEach(product => {
+            // Buscar en todas las filas de la tabla si existe conflicto
+            $('#productTable tbody tr').each(function() {
+                const checkbox = $(this).find('input.product-checkbox');
+                const productId = parseInt(checkbox.attr('data-id'));
+                
+                // Solo revisar productos no seleccionados
+                if (!selectedIds.includes(productId)) {
+                    const rowName = $(this).find('td:nth-child(3) a').text().trim();
+                    const rowVariety = $(this).find('td:nth-child(4)').text().trim();
+                    
+                    if (rowName === newName && rowVariety === product.variety) {
+                        conflicts.push(`${newName} - ${product.variety}`);
+                    }
+                }
+            });
+        });
+        
+        callback([...new Set(conflicts)]); // Eliminar duplicados
+    }
+
+    // Guardar cambios
+    $('#save-bulk-edit').on('click', function() {
+        const newName = $('#bulk-name').val().trim();
+        const newColors = $('#bulk-colors').val().trim();
+        
+        $('.alert-danger').remove();
+        
+        if (!newName) {
+            $('#bulk-name').addClass('is-invalid');
+            $('#name-error').text('El nombre es requerido');
+            return;
+        }
+        
+        $('#bulk-name').removeClass('is-invalid');
+        
+        // Validar unicidad
+        validateUniqueness(newName, function(conflicts) {
+            if (conflicts.length > 0) {
+                $('#bulk-name').addClass('is-invalid');
+                $('#name-error').text(`Ya existen productos con estas combinaciones: ${conflicts.join(', ')}`);
+                return;
+            }
+            
+            // Realizar la actualización
+            const productIds = selectedProducts.map(p => p.id);
+            const updateData = {
+                product_ids: productIds,
+                new_name: newName,
+                new_colors: newColors || null
+            };
+            
+            console.log('Enviando datos:', updateData); // Debug
+            
+            const originalButtonHtml = $('#save-bulk-edit').html();
+            $('#save-bulk-edit').prop('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm me-1"></span>Guardando...'
+            );
+            
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            
+            $.ajax({
+                url: '/api/products/bulk-update/',
+                method: 'PUT',
+                data: JSON.stringify(updateData),
+                contentType: 'application/json',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                success: function(response) {
+                    console.log('Success response:', response);
+                    $('#bulk-edit-modal').modal('hide');
+                    
+                    let alertHtml = `
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check me-2" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M5 12l5 5l10 -10" />
+                            </svg>
+                            ${response.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    
+                    $('.container-fluid').first().after(alertHtml);
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                },
+                error: function(xhr) {
+                    console.error('Error en AJAX:', xhr);
+                    let errorMessage = 'Error al actualizar productos';
+                    
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    
+                    let alertHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-exclamation-circle me-2" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+                                <path d="M12 9v4" />
+                                <path d="M12 16v.01" />
+                            </svg>
+                            ${errorMessage}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+                    
+                    $('.modal-body').prepend(alertHtml);
+                },
+                complete: function() {
+                    $('#save-bulk-edit').prop('disabled', false).html(originalButtonHtml);
+                }
+            });
+        });
+    });
+    
+    $('#bulk-name').on('input', function() {
+        $(this).removeClass('is-invalid');
+    });
+    
+    // Inicializar el estado del botón inmediatamente
+    updateSelectedProducts();
+    
+    // También actualizar después de que DataTable termine de cargar
+    setTimeout(function() {
+        updateSelectedProducts();
+        console.log('Actualización diferida completada'); // Debug
+    }, 500);
+});
+</script>
 {% endblock %}

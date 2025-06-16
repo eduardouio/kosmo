@@ -1,6 +1,8 @@
 from products.models import Product
 from django.views.generic import View
 from django.http import JsonResponse
+from django.db import transaction
+from django.db.models import Q
 from common.AppLoger import loggin_event
 import json
 
@@ -22,8 +24,9 @@ class UpdateProductAPI(View):
 
             product_ids = data['product_ids']
             new_name = data['new_name'].strip()
+            new_colors = data.get('new_colors', '').strip() if data.get('new_colors') else None
 
-            # Validar que product_ids sea una lista
+            # Validaciones básicas
             if not isinstance(product_ids, list) or len(product_ids) == 0:
                 return JsonResponse(
                     {'message': 'product_ids debe ser una lista no vacía',
@@ -32,7 +35,6 @@ class UpdateProductAPI(View):
                     status=400
                 )
 
-            # Validar que new_name no esté vacío
             if not new_name:
                 return JsonResponse(
                     {'message': 'El nuevo nombre no puede estar vacío',
@@ -41,40 +43,74 @@ class UpdateProductAPI(View):
                     status=400
                 )
 
-            loggin_event(
-                f'Actualizando {len(product_ids)} productos con nombre: {new_name}')
+            loggin_event(f'Actualizando {len(product_ids)} productos con nombre: {new_name}, colores: {new_colors}')
 
-            # Buscar productos que existen
+            # Verificar que los productos existan
             existing_products = Product.objects.filter(
                 id__in=product_ids, is_active=True)
             existing_ids = list(existing_products.values_list('id', flat=True))
 
-            # Identificar IDs que no existen
-            non_existing_ids = [
-                pid for pid in product_ids if pid not in existing_ids]
+            if len(existing_ids) != len(product_ids):
+                non_existing_ids = [pid for pid in product_ids if pid not in existing_ids]
+                return JsonResponse(
+                    {'message': f'Los siguientes productos no existen: {non_existing_ids}',
+                        'status': 'error'},
+                    safe=False,
+                    status=404
+                )
 
-            if non_existing_ids:
-                loggin_event(f'Productos no encontrados: {non_existing_ids}')
+            # Validar unicidad de nombre + variedad
+            conflicts = []
+            for product in existing_products:
+                # Verificar si ya existe otro producto con el mismo nombre y variedad
+                # (excluyendo los productos que estamos actualizando)
+                existing_combination = Product.objects.filter(
+                    name=new_name,
+                    variety=product.variety,
+                    is_active=True
+                ).exclude(id__in=product_ids).exists()
 
-            # Actualizar productos existentes
-            updated_count = existing_products.update(name=new_name)
+                if existing_combination:
+                    conflicts.append(f"{new_name} - {product.variety}")
 
-            loggin_event(
-                f'Se actualizaron {updated_count} productos exitosamente')
+            if conflicts:
+                return JsonResponse(
+                    {'message': f'Ya existen productos con estas combinaciones nombre-variedad: {", ".join(set(conflicts))}',
+                        'status': 'error'},
+                    safe=False,
+                    status=409
+                )
 
-            response_data = {
-                'message': f'Se actualizaron {updated_count} productos exitosamente',
-                'status': 'success',
-                'updated_count': updated_count,
-                'total_requested': len(product_ids)
-            }
+            # Realizar la actualización en una transacción
+            with transaction.atomic():
+                update_fields = {'name': new_name}
+                
+                if new_colors is not None:
+                    update_fields['colors'] = new_colors if new_colors else 'NO DEFINIDO'
 
-            if non_existing_ids:
-                response_data[
-                    'warning'] = f'Los siguientes IDs no fueron encontrados: {non_existing_ids}'
-                response_data['non_existing_ids'] = non_existing_ids
+                updated_count = existing_products.update(**update_fields)
 
-            return JsonResponse(response_data, safe=False, status=200)
+                loggin_event(f'Se actualizaron {updated_count} productos exitosamente')
+
+                # Obtener los productos actualizados para logging
+                updated_products = Product.objects.filter(id__in=existing_ids)
+                updated_info = [
+                    f"ID {p.id}: {p.name} - {p.variety} (colores: {p.colors})"
+                    for p in updated_products
+                ]
+                loggin_event(f'Productos actualizados: {"; ".join(updated_info)}')
+
+                response_data = {
+                    'message': f'Se actualizaron {updated_count} productos exitosamente',
+                    'status': 'success',
+                    'updated_count': updated_count,
+                    'updated_fields': {
+                        'name': new_name,
+                        'colors': new_colors if new_colors is not None else 'Sin cambios'
+                    }
+                }
+
+                return JsonResponse(response_data, safe=False, status=200)
 
         except json.JSONDecodeError:
             loggin_event('Error al decodificar JSON en UpdateProductAPI')
@@ -86,8 +122,7 @@ class UpdateProductAPI(View):
         except Exception as e:
             loggin_event(f'Error en UpdateProductAPI: {str(e)}')
             return JsonResponse(
-                {'message':
-                    f'Error interno del servidor: {str(e)}', 'status': 'error'},
+                {'message': f'Error interno del servidor: {str(e)}', 'status': 'error'},
                 safe=False,
                 status=500
             )
