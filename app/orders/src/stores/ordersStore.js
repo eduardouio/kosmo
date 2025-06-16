@@ -160,8 +160,10 @@ export const useOrdersStore = defineStore("ordersStore", {
                 return;
             }
 
-            // Check if we can merge this box type - pass the correct parameters
+            // Calculate total quantity from all selected items
             const totalQuantity = selectedItems.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            
+            // Check if we can merge this box type - pass the correct parameters
             if (!canMerge(boxModel, selectedItems.length, totalQuantity)) {
                 console.error(`Cannot merge ${boxModel} boxes - not enough items or quantity`);
                 return;
@@ -210,56 +212,62 @@ export const useOrdersStore = defineStore("ordersStore", {
                 
                 this.newOrder = newOrder;
             } 
-            // Case 2: Multiple items of the same type (2 or more QBs)
-            else if (selectedItems.length >= 2) {
-                // For multiple items, we can merge pairs
-                const itemsToMerge = selectedItems.slice(); // Copy array
-                const newOrder = this.newOrder.filter(i => !i.is_selected);
+            // Case 2: Multiple items (2 QB + 2 QB = 2 HB)
+            else {
+                // Calculate how many merged boxes we can create
+                const mergedQuantity = Math.floor(totalQuantity / 2);
+                const remainingQuantity = totalQuantity % 2;
                 
-                // Process pairs of items
-                while (itemsToMerge.length >= 2) {
-                    const item1 = itemsToMerge.shift();
-                    const item2 = itemsToMerge.shift();
-                    
-                    // Create new larger box combining both items
-                    const newBox = JSON.parse(JSON.stringify(item1));
-                    newBox.box_model = targetSize;
-                    newBox.is_selected = false;
-                    newBox.quantity = 1; // One merged box from two smaller ones
-                    
-                    // Combine stems from both boxes
-                    const totalStems1 = item1.tot_stem_flower || 0;
-                    const totalStems2 = item2.tot_stem_flower || 0;
-                    newBox.tot_stem_flower = totalStems1 + totalStems2;
-                    
-                    // Combine box items
-                    const combinedItems = {};
-                    
-                    // Add items from first box
-                    item1.box_items.forEach(boxItem => {
-                        const key = `${boxItem.product_name}-${boxItem.product_variety}-${boxItem.length}`;
-                        combinedItems[key] = { ...boxItem };
-                    });
-                    
-                    // Add items from second box
-                    item2.box_items.forEach(boxItem => {
-                        const key = `${boxItem.product_name}-${boxItem.product_variety}-${boxItem.length}`;
-                        if (combinedItems[key]) {
-                            combinedItems[key].qty_stem_flower += (boxItem.qty_stem_flower || 0);
-                        } else {
-                            combinedItems[key] = { ...boxItem };
-                        }
-                    });
-                    
-                    newBox.box_items = Object.values(combinedItems);
-                    newOrder.push(newBox);
+                if (mergedQuantity === 0) {
+                    console.error('Not enough total quantity to merge');
+                    return;
                 }
                 
-                // If there's one item left over, add it back
-                if (itemsToMerge.length > 0) {
-                    const leftoverItem = itemsToMerge[0];
-                    leftoverItem.is_selected = false;
-                    newOrder.push(leftoverItem);
+                // Create new larger box based on the first item
+                const newBox = JSON.parse(JSON.stringify(selectedItems[0]));
+                newBox.box_model = targetSize;
+                newBox.is_selected = false;
+                newBox.quantity = mergedQuantity;
+                
+                // Combine box items from all selected items
+                const combinedItems = {};
+                let totalStemsFromAllItems = 0;
+                
+                selectedItems.forEach(item => {
+                    item.box_items.forEach(boxItem => {
+                        const key = `${boxItem.product_name}-${boxItem.product_variety}-${boxItem.length}`;
+                        const stemsForThisItem = (boxItem.qty_stem_flower || 0) * (item.quantity || 1);
+                        
+                        if (!combinedItems[key]) {
+                            combinedItems[key] = JSON.parse(JSON.stringify(boxItem));
+                            combinedItems[key].qty_stem_flower = stemsForThisItem;
+                        } else {
+                            combinedItems[key].qty_stem_flower += stemsForThisItem;
+                        }
+                        
+                        totalStemsFromAllItems += stemsForThisItem;
+                    });
+                });
+                
+                // Distribute stems for the merged boxes
+                Object.values(combinedItems).forEach(boxItem => {
+                    // Distribute the stems proportionally to merged quantity
+                    boxItem.qty_stem_flower = Math.floor(boxItem.qty_stem_flower * 2 / mergedQuantity);
+                });
+                
+                newBox.box_items = Object.values(combinedItems);
+                newBox.tot_stem_flower = totalStemsFromAllItems * 2 / mergedQuantity;
+                
+                // Update the order - remove all selected items
+                let newOrder = this.newOrder.filter(i => !i.is_selected);
+                newOrder.push(newBox);
+                
+                // Add remaining quantity if any
+                if (remainingQuantity > 0) {
+                    const remainingBox = JSON.parse(JSON.stringify(selectedItems[0]));
+                    remainingBox.quantity = remainingQuantity;
+                    remainingBox.is_selected = false;
+                    newOrder.push(remainingBox);
                 }
                 
                 this.newOrder = newOrder;

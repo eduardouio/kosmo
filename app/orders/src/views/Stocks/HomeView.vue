@@ -190,6 +190,30 @@ const getClass = (color) => {
     return baseStore.colors.OTRO;
 }
 
+// Add computed property for merge detection
+const canMergeSelected = computed(() => {
+    const selectedItems = stockStore.stock.filter(item => item.is_selected);
+    
+    if (selectedItems.length === 0) return false;
+    
+    // Group by box model and supplier
+    const groupedItems = {};
+    selectedItems.forEach(item => {
+        const key = `${item.box_model}-${item.partner.id}`;
+        if (!groupedItems[key]) {
+            groupedItems[key] = [];
+        }
+        groupedItems[key].push(item);
+    });
+    
+    // Check if any group can be merged
+    return Object.values(groupedItems).some(group => {
+        const boxModel = group[0].box_model;
+        const totalQuantity = group.reduce((sum, item) => sum + item.quantity, 0);
+        return canMerge(boxModel, group.length, totalQuantity);
+    });
+});
+
 // Watchers
 watch(() => querySearch.value, (newValue) => {
     stockStore.filterStock(newValue);
@@ -309,9 +333,10 @@ const mergeBoxes = () => {
             });
         });
         
-        // Double the stem quantities for the merged box (since we're going to a larger size)
+        // Adjust stem quantities for the merged boxes
         Object.values(combinedBoxItems).forEach(boxItem => {
-            boxItem.qty_stem_flower = Math.floor(boxItem.qty_stem_flower * 2 / totalQuantity);
+            // Double the stems and divide by the number of merged boxes
+            boxItem.qty_stem_flower = Math.floor(boxItem.qty_stem_flower * 2 / mergedQuantity);
         });
         
         mergedItem.box_items = Object.values(combinedBoxItems);
@@ -724,9 +749,8 @@ const handleMerge = () => {
                 </div>
             </div>
         </div>
-    </div>
+    </div>   cursor: pointer;
 </template>
-
 <style scoped>
 .table-header {
     position: sticky;
@@ -792,7 +816,7 @@ input[type="checkbox"] {
     .container-fluid {
         padding: 0.75rem;
     }
-    
+
     .card-body {
         padding: 0.75rem;
     }
