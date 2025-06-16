@@ -373,6 +373,9 @@ onMounted(() => {
                                                         <div class="col" style="flex: 0 0 20%;">
                                                             <small class="fw-bold">PRODUCTO</small>
                                                         </div>
+                                                        <div class="col border-start" style="flex: 0 0 15%;">
+                                                            <small class="fw-bold">VARIEDAD</small>
+                                                        </div>
                                                         <div class="col border-start" style="flex: 0 0 8%;">
                                                             <small class="fw-bold">LARGO</small>
                                                         </div>
@@ -382,17 +385,14 @@ onMounted(() => {
                                                         <div class="col border-start" style="flex: 0 0 10%;">
                                                             <small class="fw-bold">BUNCHES</small>
                                                         </div>
-                                                        <div class="col border-start" style="flex: 0 0 10%;">
+                                                        <div class="col border-start" style="flex: 0 0 12%;">
                                                             <small class="fw-bold">COSTO</small>
                                                         </div>
-                                                        <div class="col border-start" style="flex: 0 0 10%;">
+                                                        <div class="col border-start" style="flex: 0 0 12%;">
                                                             <small class="fw-bold">MARGEN</small>
                                                         </div>
-                                                        <div class="col border-start" style="flex: 0 0 10%;">
+                                                        <div class="col border-start" style="flex: 0 0 13%;">
                                                             <small class="fw-bold">PVP</small>
-                                                        </div>
-                                                        <div class="col border-start" style="flex: 0 0 22%;">
-                                                            <small class="fw-bold">COLORES</small>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -466,8 +466,20 @@ onMounted(() => {
                                                                                 data-bs-target="#productModal">
                                                                             <IconEye size="12" stroke="1.5" />
                                                                         </button>
-                                                                        <small class="fw-medium">{{ box.product_name }} {{ box.product_variety }}</small>
+                                                                        <div class="d-flex align-items-center gap-1">
+                                                                            <div class="d-flex gap-1">
+                                                                                <span v-for="color in box.product_colors" :key="color"
+                                                                                      :class="getClass(color)">
+                                                                                    <IconPoint size="12" stroke="1.5" v-if="color === 'BLANCO'" />
+                                                                                    <IconPointFilled size="12" stroke="1.5" v-else="" />
+                                                                                </span>
+                                                                            </div>
+                                                                            <small class="fw-medium">{{ box.product_name }}</small>
+                                                                        </div>
                                                                     </div>
+                                                                </div>
+                                                                <div class="col" style="flex: 0 0 15%;">
+                                                                    <small class="fw-medium">{{ box.product_variety }}</small>
                                                                 </div>
                                                                 <div class="col text-center" style="flex: 0 0 8%;">
                                                                     <span class="badge badge-soft-info">{{ box.length }}</span>
@@ -489,7 +501,7 @@ onMounted(() => {
                                                                 <div class="col text-center" style="flex: 0 0 10%;">
                                                                     <span class="badge badge-soft-warning">{{ box.bunches_display }}</span>
                                                                 </div>
-                                                                <div class="col" style="flex: 0 0 10%;">
+                                                                <div class="col" style="flex: 0 0 12%;">
                                                                     <input type="number" 
                                                                            step="0.01" 
                                                                            class="form-control form-control-sm text-end input-soft my-input-2"
@@ -502,7 +514,7 @@ onMounted(() => {
                                                                              'border-danger': !box.stem_cost_price || parseFloat(box.stem_cost_price) <= 0.00
                                                                            }">
                                                                 </div>
-                                                                <div class="col" style="flex: 0 0 10%;">
+                                                                <div class="col" style="flex: 0 0 12%;">
                                                                     <input type="number" 
                                                                            step="0.01" 
                                                                            class="form-control form-control-sm text-end input-soft my-input-3"
@@ -515,19 +527,10 @@ onMounted(() => {
                                                                              'border-danger': !box.margin || parseFloat(box.margin) <= 0.00
                                                                            }">
                                                                 </div>
-                                                                <div class="col text-center" style="flex: 0 0 10%;">
+                                                                <div class="col text-center" style="flex: 0 0 13%;">
                                                                     <span class="badge badge-soft-success">
                                                                         {{ (parseFloat(box.margin) + parseFloat(box.stem_cost_price)).toFixed(2) }}
                                                                     </span>
-                                                                </div>
-                                                                <div class="col text-center" style="flex: 0 0 22%;">
-                                                                    <div class="d-flex gap-1 justify-content-center">
-                                                                        <span v-for="color in uniqueColors(item.box_items)" :key="color"
-                                                                              :class="getClass(color)">
-                                                                            <IconPoint size="16" stroke="1.5" v-if="color === 'BLANCO'" />
-                                                                            <IconPointFilled size="16" stroke="1.5" v-else="" />
-                                                                        </span>
-                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
