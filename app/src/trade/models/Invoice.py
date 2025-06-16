@@ -100,6 +100,12 @@ class Invoice(BaseModel):
         decimal_places=2,
         default=0
     )
+    eb_total = models.PositiveSmallIntegerField(
+        'Total EB',
+        blank=True,
+        null=True,
+        default=0
+    )
     qb_total = models.PositiveSmallIntegerField(
         'Total QB',
         blank=True,
@@ -258,10 +264,11 @@ class Invoice(BaseModel):
         loggin_event(f"Reconstruyendo totales de factura {invoice.id}")
         total_price = 0
         total_margin = 0
+        eb_total = 0
         qb_total = 0
         hb_total = 0
         total_stem_flower = 0
-        total_bunches = 0  # Agregar total_bunches
+        total_bunches = 0
 
         for invoice_item in InvoiceItems.get_invoice_items(invoice):
             InvoiceItems.rebuild_invoice_item(invoice_item)
@@ -270,20 +277,24 @@ class Invoice(BaseModel):
             total_price += invoice_item.line_price * invoice_item.quantity
             total_margin += invoice_item.line_margin * invoice_item.quantity
             total_stem_flower += invoice_item.tot_stem_flower
-            total_bunches += invoice_item.total_bunches  # Agregar total_bunches
+            total_bunches += invoice_item.total_bunches
 
-            if invoice_item.box_model == 'QB':
+            if invoice_item.box_model == 'EB':
+                eb_total += invoice_item.quantity
+            elif invoice_item.box_model == 'QB':
                 qb_total += invoice_item.quantity
             elif invoice_item.box_model == 'HB':
                 hb_total += invoice_item.quantity
 
+        invoice.eb_total = eb_total
         invoice.qb_total = qb_total
         invoice.hb_total = hb_total
         invoice.total_margin = total_margin
         invoice.tot_stem_flower = total_stem_flower
-        invoice.fb_total = ((qb_total / 2) + hb_total) / 2
+        # FB = HB×(1/2) + QB×(1/4) + EB×(1/8)
+        invoice.fb_total = (hb_total * 0.5) + (qb_total * 0.25) + (eb_total * 0.125)
         invoice.total_price = total_price
-        invoice.total_bunches = total_bunches  # Agregar total_bunches
+        invoice.total_bunches = total_bunches
 
         invoice.save()
 

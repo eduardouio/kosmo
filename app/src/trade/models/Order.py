@@ -309,8 +309,8 @@ class Order(BaseModel):
             elif order_item.box_model == 'HB':
                 hb_total += (order_item.quantity)
 
-        # FB = HB/2 + QB/4 + EB/8
-        fb_total = (hb_total / 2) + (qb_total / 4) + (eb_total / 8)
+        # FB = HB×(1/2) + QB×(1/4) + EB×(1/8)
+        fb_total = (hb_total * 0.5) + (qb_total * 0.25) + (eb_total * 0.125)
 
         order.eb_total = eb_total
         order.qb_total = qb_total

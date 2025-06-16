@@ -245,21 +245,29 @@
                             </div>
                             <div class="card-body p-reduced">
                                 <div class="row g-2 text-center">
-                                    <div class="col-6">
+                                    <div class="col-3">
+                                        <div class="h5 mb-0 text-warning">{{ invoice.eb_total }}</div>
+                                        <small class="text-muted">EB's</small>
+                                    </div>
+                                    <div class="col-3">
                                         <div class="h5 mb-0 text-primary">{{ invoice.hb_total }}</div>
                                         <small class="text-muted">HB's</small>
                                     </div>
-                                    <div class="col-6">
+                                    <div class="col-3">
                                         <div class="h5 mb-0 text-info">{{ invoice.qb_total }}</div>
                                         <small class="text-muted">QB's</small>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="h5 mb-0 text-success">{{ invoice.fb_total|floatformat:1 }}</div>
+                                        <small class="text-muted">FB's</small>
                                     </div>
                                     <div class="col-6 pt-2 border-top">
                                         <div class="h5 mb-0 text-success">{{ invoice.tot_stem_flower }}</div>
                                         <small class="text-muted">Tallos</small>
                                     </div>
                                     <div class="col-6 pt-2 border-top">
-                                        <div class="h5 mb-0 text-warning">{{ invoice.fb_total|floatformat:1 }}</div>
-                                        <small class="text-muted">FB's</small>
+                                        <div class="h5 mb-0 text-warning">{{ invoice.total_bunches }}</div>
+                                        <small class="text-muted">Bunches</small>
                                     </div>
                                 </div>
                             </div>

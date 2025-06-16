@@ -190,6 +190,7 @@
           <div class="row mb-4">
             <div class="col-md-6 mb-3 mb-md-0">
               <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.eb_total }}</div></div>
                 <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.hb_total }}</div></div>
                 <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.qb_total }}</div></div>
                 <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.fb_total }}</div></div>
@@ -375,16 +376,12 @@
                 <div class="row mb-4">
                   <div class="col-md-6 mb-3 mb-md-0">
                     <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                      <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.eb_total }}</div></div>
                       <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.hb_total }}</div></div>
                       <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.qb_total }}</div></div>
                       <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.fb_total }}</div></div>
                       <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.total_stem_flower }}</div></div>
                       <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL BUNCHES:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.total_bunches }}</div></div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
-                      <div class="row mt-md-0 mt-3"><div class="col-7 text-end border-end text-success fs-5"><strong>Total Compra:</strong></div><div class="col-5 text-end text-success fs-5">${{ po.total_order }}</div></div>
                     </div>
                   </div>
                 </div>
@@ -583,6 +580,7 @@
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
                 <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                  <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.eb_total }}</div></div>
                   <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.hb_total }}</div></div>
                   <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.qb_total }}</div></div>
                   <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.fb_total }}</div></div>
@@ -726,7 +724,7 @@
                         <tr>
                           {% if forloop.first %}
                             <td rowspan="{{ line.invoice_box_items|length }}" class="align-middle text-center">{{ line.quantity }}</td>
-                            <td rowspan="{{ line.invoice_box_items|length }}" class="align-middle text-center">{{ line.box_model }}</td>
+                            <td rowspan="{{ line.order_box_items|length }}" class="align-middle text-center">{{ line.box_model }}</td>
                           {% endif %}
                           <td>{{ box_item.product.variety }} ({{box_item.product.name}})</td>
                           <td class="text-end">{{ box_item.length }}</td>
@@ -756,6 +754,7 @@
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
                 <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                  <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.eb_total }}</div></div>
                   <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.hb_total }}</div></div>
                   <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.qb_total }}</div></div>
                   <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.fb_total }}</div></div>
