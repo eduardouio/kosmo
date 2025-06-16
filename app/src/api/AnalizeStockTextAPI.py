@@ -78,6 +78,9 @@ class AnalizeStockTextAPI(View):
             stem_quantities = item[4]  # Array de cantidades de tallos
             prices = item[5]    # Array de precios
 
+            # Determinar tallos por ramo según el tipo de caja
+            stems_per_bunch = 12 if box_model == 'EB' else 25
+
             # Calcular total de tallos para el StockDetail
             total_stems = sum(stem_quantities)
 
@@ -102,14 +105,21 @@ class AnalizeStockTextAPI(View):
                         float(kwargs['profit_margin']
                               ) if price > 0.00 else 0.00
 
+                # Calcular cantidad de tallos para esta variedad
+                qty_stems = stem_quantities[idx] if idx < len(stem_quantities) else 0
+                
+                # Calcular total de ramos para esta variedad
+                total_bunches = qty_stems // stems_per_bunch if qty_stems > 0 else 0
+
                 BoxItems.objects.create(
                     stock_detail=stock_detail,
                     product=product,
                     stem_cost_price=price,
                     profit_margin=kwargs['profit_margin'],
                     length=lengths[idx] if idx < len(lengths) else 0,
-                    qty_stem_flower=stem_quantities[idx] if idx < len(
-                        stem_quantities) else 0,
+                    qty_stem_flower=qty_stems,
+                    total_bunches=total_bunches,
+                    stems_bunch=stems_per_bunch,
                 )
         return True
 
