@@ -26,7 +26,7 @@ class SupplierInvoiceList(ListView):
     def get_queryset(self):
         return super().get_queryset().filter(
             type_document='FAC_COMPRA',
-        ).order_by('-date')
+        ).select_related('order', 'order__parent_order', 'partner').order_by('-date')
 
     def get_values_stats(self):
         invoices = self.get_queryset()

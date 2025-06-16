@@ -84,6 +84,12 @@ class CustomerOrdersList(ListView):
         ).aggregate(total=Sum('total_price'))['total'] or 0
 
     def get_queryset(self):
-        return super().get_queryset().filter(
+        queryset = super().get_queryset().filter(
             type_document='ORD_VENTA',
         ).order_by('-date')
+        
+        # Agregar órdenes de compra relacionadas a cada orden de venta
+        for order in queryset:
+            order.related_purchase_orders = Order.get_purchase_orders_by_sale_order(order)
+        
+        return queryset

@@ -87,5 +87,5 @@ class SupplierOrdersList(ListView):
     def get_queryset(self):
         return super().get_queryset().filter(
             type_document='ORD_COMPRA',
-        ).order_by('-date')
+        ).select_related('parent_order', 'partner', 'user_creator').order_by('-date')
 
