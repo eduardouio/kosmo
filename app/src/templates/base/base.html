@@ -329,9 +329,9 @@
          {% if title_page != 'Inicio Sesion' %}
          <footer class="footer py-4 mt-4 border-top bg-gray-200 bg-gradient">
             <div class="container-fluid">
-               <div class="row">
+               <div class="d-flex justify-content-between">
                   <!-- Enlaces de Navegación -->
-                  <div class="col-md-2">
+                  <div class="">
                      <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Disponibilidad</h6>
                      <ul class="">
                         <li><a href="{% url 'stock_list' %}" class="text-dark text-decoration-none small">Lista Disponibilidad</a></li>
@@ -340,7 +340,7 @@
                      </ul>
                   </div>
                   
-                  <div class="col-md-2">
+                  <div class="">
                      <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Ventas</h6>
                      <ul class="">
                         <li><a href="{% url 'customer_orders_list' %}" class="text-dark text-decoration-none small">Órdenes de Venta</a></li>
@@ -348,7 +348,7 @@
                      </ul>
                   </div>
                   
-                  <div class="col-md-2">
+                  <div class="">
                      <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Compras</h6>
                      <ul class="">
                         <li><a href="{% url 'supplier_orders_list' %}" class="text-dark text-decoration-none small">Órdenes Compra</a></li>
@@ -356,7 +356,7 @@
                      </ul>
                   </div>
                   
-                  <div class="col-md-2">
+                  <div class="">
                      <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Cartera</h6>
                      <ul class="">
                         <li><a href="{% url 'payments_list' %}" class="text-dark text-decoration-none small">Pagos Efectuados</a></li>
@@ -364,20 +364,12 @@
                      </ul>
                   </div>
                   
-                  <div class="col-md-2">
+                  <div class="">
                      <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Socios</h6>
                      <ul class="">
                         <li><a href="{% url 'customers_list' %}" class="text-dark text-decoration-none small">Clientes</a></li>
                         <li><a href="{% url 'supliers_list' %}" class="text-dark text-decoration-none small">Proveedores</a></li>
                         <li><a href="{% url 'partner_auto_register_list' %}" class="text-dark text-decoration-none small">Sin Confirmar</a></li>
-                     </ul>
-                  </div>
-                  
-                  <div class="col-md-2 mb-3">
-                     <h6 class="text-uppercase fw-bold mb-3 text-gray-600">Desarrollador</h6>
-                     <ul class="">
-                        <li><span class="text-dark text-decoration-none small">Eduardo Villota</span></li>
-                        <li><a class="text-dark text-decoration-none small" href="mailto:eduardouio7@gmail.com">eduardouio7@gmail.com</a></li>
                      </ul>
                   </div>
                </div>
@@ -393,7 +385,7 @@
                   </div>
                   <div class="col-md-6 text-md-end">
                      <p class="mb-0 small text-muted">
-                        Sistema desarrollado con Django y Bootstrap
+                        Sistema desarrollado por Eduardo Villota <a href="mailto:eduardouio7@gmail.com">eduardouio7@gmail.com</a>
                      </p>
                   </div>
                </div>
