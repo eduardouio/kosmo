@@ -96,8 +96,6 @@ FARM THREE
 - Fijar tallos por bunch en 25.
 - Incluir campo para PO del proveedor en la factura.
 - Relacionar órdenes de compra con órdenes de venta en líneas de detalle y hacer lo mismo con facturas.
-- Aprobar órdenes de compra y facturas en masa; facturar en masa las aprobadas.
-- Permitir cambiar fecha de emisión y vencimiento en la factura.
 - Aumentar el nombre del vendor en la lista de clientes.
 - En cajas compuestas de la dispo, mostrar cantidad de tallos solo en la primera línea cuando se especifica un solo número de tallos.
 - Al actualizar valores de tallos por cajas en dispo por caja compartida, dividir el total de tallos entre los componentes del QB o HB.
@@ -123,3 +121,8 @@ cotizar
 7.- Factura Proveedor
 8.- Pagos
 9.- Portal del Vendendor
+
+
+
+- Aprobar órdenes de compra y facturas en masa; facturar en masa las aprobadas.
+- Permitir cambiar fecha de emisión y vencimiento en la factura.
