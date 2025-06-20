@@ -33,6 +33,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                 )
 
         order_data = {
+            "id": order.id,
             "serie": order.serie,
             "serie_name": "ORD-VENTA" if order.serie == "200" else "ORD-COMPRA",
             "consecutive": order.consecutive or "000000",
@@ -261,35 +262,50 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
         # Agregar información de facturas separadas por tipo
         sale_invoices_details = []
         purchase_invoices_details = []
-        
-        # Obtener factura de la orden principal si existe
+
+        # Obtener facturas relacionadas con la orden principal
         if order.is_invoiced and order.id_invoice:
             try:
-                main_invoice = Invoice.objects.get(id=order.id_invoice, is_active=True)
+                main_invoice = Invoice.objects.get(
+                    id=order.id_invoice, is_active=True)
                 invoice_data = self._build_invoice_data(main_invoice)
-                
+
                 if main_invoice.type_document == 'FAC_VENTA':
                     sale_invoices_details.append(invoice_data)
-                else:
+                elif main_invoice.type_document == 'FAC_COMPRA':
                     purchase_invoices_details.append(invoice_data)
             except Invoice.DoesNotExist:
                 pass
-        
+
         # Obtener facturas de órdenes de compra relacionadas
         if order.type_document == 'ORD_VENTA' and supplier_orders_qs:
             for sup_order in supplier_orders_qs:
                 if sup_order.is_invoiced and sup_order.id_invoice:
                     try:
-                        sup_invoice = Invoice.objects.get(id=sup_order.id_invoice, is_active=True)
+                        sup_invoice = Invoice.objects.get(
+                            id=sup_order.id_invoice, is_active=True)
                         invoice_data = self._build_invoice_data(sup_invoice)
-                        
+
                         if sup_invoice.type_document == 'FAC_VENTA':
                             sale_invoices_details.append(invoice_data)
-                        else:
+                        elif sup_invoice.type_document == 'FAC_COMPRA':
                             purchase_invoices_details.append(invoice_data)
                     except Invoice.DoesNotExist:
                         pass
-        
+
+        # También buscar facturas que referencien esta orden directamente
+        all_invoices = Invoice.objects.filter(order=order, is_active=True)
+        for invoice in all_invoices:
+            invoice_data = self._build_invoice_data(invoice)
+            if invoice.type_document == 'FAC_VENTA':
+                # Evitar duplicados
+                if not any(inv['id'] == invoice.id for inv in sale_invoices_details):
+                    sale_invoices_details.append(invoice_data)
+            elif invoice.type_document == 'FAC_COMPRA':
+                # Evitar duplicados
+                if not any(inv['id'] == invoice.id for inv in purchase_invoices_details):
+                    purchase_invoices_details.append(invoice_data)
+
         response_data["sale_invoices_details"] = sale_invoices_details
         response_data["purchase_invoices_details"] = purchase_invoices_details
 
@@ -330,7 +346,8 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             context['message'] = message
 
         # Agregar información sobre si la orden puede ser confirmada
-        context['can_confirm'] = order.status in ['PENDIENTE', 'MODIFICADO'] and not order.is_invoiced
+        context['can_confirm'] = order.status in [
+            'PENDIENTE', 'MODIFICADO'] and not order.is_invoiced
 
         return context
 
@@ -419,5 +436,5 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             "order_id": invoice.order.id,
             "invoiceLines": invoice_lines_data
         }
-        
+
         return invoice_data

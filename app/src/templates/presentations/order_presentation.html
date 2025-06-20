@@ -4,11 +4,10 @@
 <div class="container">
   <div class="bg-light py-4">
     <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
-      <!-- Encabezado General -->
-        <!-- Pestañas de Navegación -->
-      <ul class="nav nav-tabs mb-3" id="orderTab" role="tablist">
-        <li class="nav-item bg-gray-200" role="presentation">
-          <button class="nav-link active" id="main-order-tab" data-bs-toggle="tab" data-bs-target="#main-order" type="button" role="tab" aria-controls="main-order" aria-selected="true">
+      <!-- Pestañas de Navegación -->
+      <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="main-order-tab" data-bs-toggle="tab" data-bs-target="#main-order-tab-pane" type="button" role="tab" aria-controls="main-order-tab-pane" aria-selected="true">
             {% if response_data.order.type_document == "ORD_VENTA" %}
               ORDEN DE VENTA
             {% else %}
@@ -17,22 +16,22 @@
           </button>
         </li>
         {% if response_data.order.type_document == "ORD_VENTA" and response_data.purchase_orders_details %}
-        <li class="nav-item bg-gray-200" role="presentation">
-          <button class="nav-link" id="purchase-orders-tab" data-bs-toggle="tab" data-bs-target="#purchase-orders" type="button" role="tab" aria-controls="purchase-orders" aria-selected="false">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="purchase-orders-tab" data-bs-toggle="tab" data-bs-target="#purchase-orders-tab-pane" type="button" role="tab" aria-controls="purchase-orders-tab-pane" aria-selected="false">
             ORDENES DE COMPRA
           </button>
         </li>
         {% endif %}
         {% if response_data.sale_invoices_details %}
-        <li class="nav-item bg-gray-200" role="presentation">
-          <button class="nav-link" id="sale-invoices-tab" data-bs-toggle="tab" data-bs-target="#sale-invoices" type="button" role="tab" aria-controls="sale-invoices" aria-selected="false">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="sale-invoices-tab" data-bs-toggle="tab" data-bs-target="#sale-invoices-tab-pane" type="button" role="tab" aria-controls="sale-invoices-tab-pane" aria-selected="false">
             FACTURAS DE VENTA
           </button>
         </li>
         {% endif %}
         {% if response_data.purchase_invoices_details %}
-        <li class="nav-item bg-gray-200" role="presentation">
-          <button class="nav-link" id="purchase-invoices-tab" data-bs-toggle="tab" data-bs-target="#purchase-invoices" type="button" role="tab" aria-controls="purchase-invoices" aria-selected="false">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="purchase-invoices-tab" data-bs-toggle="tab" data-bs-target="#purchase-invoices-tab-pane" type="button" role="tab" aria-controls="purchase-invoices-tab-pane" aria-selected="false">
             FACTURAS DE COMPRA
           </button>
         </li>
@@ -40,38 +39,39 @@
       </ul>
 
       <!-- Contenido de las Pestañas -->
-      <div class="tab-content" id="orderTabContent">
+      <div class="tab-content" id="myTabContent">
         <!-- Pestaña Orden Principal -->
-        <div class="tab-pane fade show active" id="main-order" role="tabpanel" aria-labelledby="main-order-tab">
-      <div class="row mb-4 align-items-center">
-        <div class="col-8">
-          <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
-        </div>
-        <div class="col-4">
-          <div class="border border-2 border-warning p-2 rounded">
-            <div class="d-flex justify-content-end align-items-center mb-1">
-              <span class="small fw-bold me-2">PEDIDO PRINCIPAL:</span>
-              <span class="text-danger fs-4">{{ response_data.order.serie }}-{{ response_data.order.consecutive | stringformat:'06d' }}</span>
+        <div class="tab-pane fade show active" id="main-order-tab-pane" role="tabpanel" aria-labelledby="main-order-tab" tabindex="0">
+          <!-- Encabezado de la orden principal -->
+          <div class="row mb-4 align-items-center">
+            <div class="col-8">
+              <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
             </div>
-            <div class="d-flex justify-content-end align-items-center border-top border-success pt-1 mb-1">
-              <span class="small fw-bold me-2">FECHA:</span>
-              <span class="fs-4">{{ response_data.order.date }}</span>
-            </div>
-            <div class="d-flex justify-content-end align-items-center border-top border-info pt-1">
-              <span class="small fw-bold me-2">ESTADO:</span>
-              <span class="badge 
-                {% if response_data.order.status == 'PENDIENTE' %}bg-warning text-dark
-                {% elif response_data.order.status == 'CONFIRMADO' %}bg-success
-                {% elif response_data.order.status == 'MODIFICADO' %}bg-info
-                {% elif response_data.order.status == 'FACTURADO' %}bg-primary
-                {% elif response_data.order.status == 'CANCELADO' %}bg-danger
-                {% elif response_data.order.status == 'PROMESA' %}bg-secondary
-                {% else %}bg-light text-dark
-                {% endif %} fs-6">{{ response_data.order.status }}</span>
+            <div class="col-4">
+              <div class="border border-2 border-warning p-2 rounded">
+                <div class="d-flex justify-content-end align-items-center mb-1">
+                  <span class="small fw-bold me-2">PEDIDO PRINCIPAL:</span>
+                  <span class="text-danger fs-4">{{ response_data.order.serie }}-{{ response_data.order.consecutive | stringformat:'06d' }}</span>
+                </div>
+                <div class="d-flex justify-content-end align-items-center border-top border-success pt-1 mb-1">
+                  <span class="small fw-bold me-2">FECHA:</span>
+                  <span class="fs-4">{{ response_data.order.date }}</span>
+                </div>
+                <div class="d-flex justify-content-end align-items-center border-top border-info pt-1">
+                  <span class="small fw-bold me-2">ESTADO:</span>
+                  <span class="badge 
+                    {% if response_data.order.status == 'PENDIENTE' %}bg-warning text-dark
+                    {% elif response_data.order.status == 'CONFIRMADO' %}bg-success
+                    {% elif response_data.order.status == 'MODIFICADO' %}bg-info
+                    {% elif response_data.order.status == 'FACTURADO' %}bg-primary
+                    {% elif response_data.order.status == 'CANCELADO' %}bg-danger
+                    {% elif response_data.order.status == 'PROMESA' %}bg-secondary
+                    {% else %}bg-light text-dark
+                    {% endif %} fs-6">{{ response_data.order.status }}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
           <!-- Información del cliente y proveedor para Orden Principal -->
           <div class="row mb-4">
             <div class="col-md-6 mb-3 mb-md-0">
@@ -279,15 +279,15 @@
             </a>
           {% endif %}
         </div>
-
+      </div>
+        </div>
+        
         <!-- Pestaña Órdenes de Compra Relacionadas -->
         {% if response_data.order.type_document == "ORD_VENTA" and response_data.purchase_orders_details %}
-        <div class="tab-pane fade" id="purchase-orders" role="tabpanel" aria-labelledby="purchase-orders-tab">
+        <div class="tab-pane fade" id="purchase-orders-tab-pane" role="tabpanel" aria-labelledby="purchase-orders-tab" tabindex="0">
           {% if response_data.purchase_orders_details %}
             {% for po in response_data.purchase_orders_details %}
-
-              <div class="">
-                
+              <div class="mb-5">
                 <div class="row mb-3">
                   <div class="col-md-6 mb-3 mb-md-0">
                     <div class="border border-2 border-warning p-3 rounded h-100">
@@ -448,7 +448,7 @@
 
         <!-- Pestaña Facturas de Venta -->
         {% if response_data.sale_invoices_details %}
-        <div class="tab-pane fade" id="sale-invoices" role="tabpanel" aria-labelledby="sale-invoices-tab">
+        <div class="tab-pane fade" id="sale-invoices-tab-pane" role="tabpanel" aria-labelledby="sale-invoices-tab" tabindex="0">
           {% for invoice in response_data.sale_invoices_details %}
           <div class="mb-5">
             <!-- Encabezado de Factura de Venta -->
@@ -650,7 +650,7 @@
 
         <!-- Pestaña Facturas de Compra -->
         {% if response_data.purchase_invoices_details %}
-        <div class="tab-pane fade" id="purchase-invoices" role="tabpanel" aria-labelledby="purchase-invoices-tab">
+        <div class="tab-pane fade" id="purchase-invoices-tab-pane" role="tabpanel" aria-labelledby="purchase-invoices-tab" tabindex="0">
           {% for invoice in response_data.purchase_invoices_details %}
           <div class="mb-5">
             <!-- Encabezado de Factura de Compra -->
@@ -819,9 +819,14 @@
     </div>
   </div>
 </div>
+{% endblock %}
 
+{% block script %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
+    // Las pestañas de Bootstrap funcionan automáticamente con data-bs-toggle="tab"
+    // No necesitamos JavaScript adicional para las pestañas
+    
     const confirmButtons = document.querySelectorAll('.action-btn.needs-confirmation');
     const directActionButtons = document.querySelectorAll('.action-btn:not(.needs-confirmation)');
     
@@ -844,7 +849,7 @@
             if (isConfirmState) {
               btn.querySelector('.btn-text').textContent = originalText;
               isConfirmState = false;
-            }
+                       }
           }, 3000);
         } else {
           // Segundo clic: ir a la URL de acción
@@ -861,20 +866,22 @@
           btn.href = actionUrl;
         });
       }
-       });
+    });
 
-       // Manejar botón de eliminar factura
+    // Manejar botón de eliminar factura
     const deleteInvoiceButtons = document.querySelectorAll('.delete-invoice-btn');
 
     deleteInvoiceButtons.forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.preventDefault();
-        const deleteUrl = btn.getAttribute('data-delete-url'); window.location.href = deleteUrl;
+        const deleteUrl = btn.getAttribute('data-delete-url');
         const confirmText = btn.getAttribute('data-confirm-text');
-        );
-          window.location.href = deleteUrl;);
+        
+        if (confirm(confirmText)) {
+          window.location.href = deleteUrl;
         }
-      );
-
-
+      });
+    });
+  });
+</script>
 {% endblock %}
