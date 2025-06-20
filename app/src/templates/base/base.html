@@ -9,6 +9,7 @@
       <link href="/static/css/libs/customicer.css" rel="stylesheet">
       <link rel="stylesheet" href="/static/css/libs/dataTables.dataTables.min.css">
       <script src="/static/js/libs/vue@3.js"></script>
+      <script src="/static/js/libs/jquery-3.7.1.min.js"></script>
       {% block style%}
       {% endblock %}
       {% block files_header %}
@@ -393,10 +394,8 @@
          </footer>
          {% endif %}
       </div>
-      
-      <script src="/static/js/libs/jquery-3.7.1.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
       <script src="/static/js/libs/dataTables.min.js" ></script>
-      <script src="/static/js/libs/bootstrap.bundle.min.js"></script>
       <script>
          $(document).ready(function() {
          $('#myTable').DataTable(      
