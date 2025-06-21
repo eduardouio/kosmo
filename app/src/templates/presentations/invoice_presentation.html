@@ -55,6 +55,7 @@
                 <p class="small mb-1"><strong>Email:</strong> {{ invoice.partner.email|default:'No disponible' }}</p>
                 <p class="small mb-1"><strong>Crédito:</strong> {{ invoice.partner.credit_term|default:'No disponible' }}</p>
               </div>
+              <p class="small mb-1"><strong>PO Number:</strong> {{ invoice.po_number|default:'No disponible' }}</p>
               <p class="small mb-1"><strong>Marcación:</strong> {{ invoice.marking|default:'No disponible' }}</p>
             </div>
           </div>
@@ -188,15 +189,15 @@
           <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
             <div class="row mt-4">
               <div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div>
-              <div class="col-5 text-end text-success fs-5">${{ invoice.total_price|floatformat:2 }}</div>
+              <div class="col-5 text-end text-success fs-5>${{ invoice.total_price|floatformat:2 }}</div>
             </div>
             <div class="row">
               <div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div>
-              <div class="col-5 text-end text-success fs-5">${{ invoice.total_margin|floatformat:2 }}</div>
+              <div class="col-5 text-end text-success fs-5>${{ invoice.total_margin|floatformat:2 }}</div>
             </div>
             <div class="row mb-1">
               <div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div>
-              <div class="col-5 text-end text-success fs-5">${{ invoice.total_invoice|floatformat:2 }}</div>
+              <div class="col-5 text-end text-success fs-5>${{ invoice.total_invoice|floatformat:2 }}</div>
             </div>
           </div>
         </div>

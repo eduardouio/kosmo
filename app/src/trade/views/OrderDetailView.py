@@ -413,6 +413,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             "fb_total": float(invoice.fb_total) if invoice.fb_total else 0,
             "tot_stem_flower": invoice.tot_stem_flower,
             "total_bunches": invoice.total_bunches,
+            "po_number": invoice.po_number,
             "awb": invoice.awb,
             "hawb": invoice.hawb,
             "dae_export": invoice.dae_export,

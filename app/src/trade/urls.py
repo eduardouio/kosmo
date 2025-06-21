@@ -36,6 +36,7 @@ urlpatterns = [
     path('trade/supplier-invoice/update/<int:invoice_id>/', InvoiceSupplierUpdate.as_view(), name='invoice_supplier_update'),
     path('trade/invoice/<int:pk>/', InvoiceDetailView.as_view(), name='invoice_detail_presentation'),
     path('trade/invoice-form/<int:pk>/', InvoiceFormView.as_view(), name='edit_invoice_form'),
+    path('trade/invoice/update/<int:pk>/', InvoiceFormView.as_view(), name='update_invoice'),
     path('trade/invoice/delete/<int:pk>/', DeleteInvoiceView.as_view(), name='delete_invoice'),
     path('trade/supplier-invoice/<int:invoice_id>/', SupplierInvoiceDetail.as_view(), name='supplier_invoice_detail'),
     path('trade/order/<int:pk>/', OrderDetailView.as_view(), name='order_detail_presentation'),

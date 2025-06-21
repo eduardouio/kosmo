@@ -55,6 +55,7 @@
                   <p class="small mb-1"><strong>Email:</strong> {{ invoice.partner.email|default:'No disponible' }}</p>
                   <p class="small mb-1"><strong>Crédito:</strong> {{ invoice.partner.credit_term|default:'No disponible' }}</p>
                 </div>
+                <p class="small mb-1"><strong>PO Number:</strong> <input type="text" name="po_number" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.po_number|default:'' }}"></p>
               </div>
             </div>
           </div>

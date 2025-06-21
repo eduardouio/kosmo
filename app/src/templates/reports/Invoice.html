@@ -75,6 +75,10 @@
                 <div class="value-col">{{ invoice.partner.credit_term }} Days</div>
               </div>
             </div>
+            <div class="info-row">
+              <div class="label-col">PO Number:</div>
+              <div class="value-col">{{ invoice.po_number|default:'N/A' }}</div>
+            </div>
           </div>
           <!-- Información adicional -->
           <div class="additional-info">

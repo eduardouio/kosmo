@@ -144,6 +144,12 @@ class Invoice(BaseModel):
         null=True,
         default=0
     )
+    po_number = models.CharField(
+        'Número PO',
+        max_length=50,
+        blank=True,
+        null=True
+    )
     awb = models.CharField(
         'MAWB',
         max_length=50,
