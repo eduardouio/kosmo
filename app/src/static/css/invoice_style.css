@@ -1,4 +1,3 @@
-/* Estilos generales */
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background-color: #f3f4f6;
@@ -267,7 +266,6 @@ table td {
 
 /* Nota final */
 .footer-note {
-  font-size: 0.70rem;
   font-style: italic;
 }
 
