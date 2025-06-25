@@ -2,236 +2,221 @@
 
 {% block content %}
 <div class="container">
-  <div class="bg-light py-4">
-    <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
-      <!-- Encabezado -->
-      <div class="row">
-        <div class="col text-center fs-2 text-kosmo-secondary">
-          DETALLE DE FACTURA DE {% if invoice.type_document == "FAC_VENTA" %}VENTA{% else %}COMPRA{% endif %}
-        </div>
-        <div class="row">
-         <span class="text-blue-700 fs-6 upper">
-           Factura de {% if invoice.type_document == "FAC_VENTA" %}Venta{% else %}Compra{% endif %} {{ invoice.status }}
-         </span>
-        </div>
-      </div>
-    
-      <div class="row mb-4 align-items-center">
-        <div class="col-9">
-          <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
-        </div>
-        <div class="col-3">
-          <div class="border border-2 border-warning p-2 rounded">
-            <div class="d-flex justify-content-end align-items-center mb-1">
-              <span class="small fw-bold me-2">FACTURA:</span>
-              <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive | stringformat:'06d'}}</span>
+    <div class="bg-light py-4">
+        <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
+            <!-- Encabezado -->
+            <div class="row">
+                <div class="col text-center fs-2 text-kosmo-secondary">
+                    DETALLE DE FACTURA DE {% if invoice.type_document == "FAC_VENTA" %}VENTA{% else %}COMPRA{% endif %}
+                </div>
+                <div class="row">
+                    <span class="text-blue-700 fs-6 upper">
+                        Factura de {% if invoice.type_document == "FAC_VENTA" %}Venta{% else %}Compra{% endif %} {{ invoice.status }}
+                    </span>
+                </div>
             </div>
-            <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
-              <span class="small fw-bold me-2">FECHA:</span>
-              <span class="fs-4">{{ invoice.date|date:"d/m/Y" }}</span>
-            </div>
-            {% if invoice.due_date %}
-            <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
-              <span class="small fw-bold me-2">VENCIMIENTO:</span>
-              <span class="fs-4">{{ invoice.due_date|date:"d/m/Y" }}</span>
-            </div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
 
-      <!-- Información del cliente y proveedor -->
-      <div class="row mb-4">
-        <div class="col-6">
-          <div class="border border-2 border-warning p-3 rounded h-100">
-            <h6 class="fw-bold mb-3">Información del Cliente</h6>
-            <div class="form-control bg-light">
-              {{ invoice.partner.name }}
+            <!-- Logo y número de factura -->
+            <div class="row mb-4 align-items-center">
+                <div class="col-9">
+                    <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px;" />
+                </div>
+                <div class="col-3">
+                    <div class="border border-2 border-warning p-2 rounded">
+                        <div class="d-flex justify-content-end align-items-center mb-1">
+                            <span class="small fw-bold me-2">FACTURA:</span>
+                            <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive | stringformat:'06d'}}</span>
+                        </div>
+                        <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
+                            <span class="small fw-bold me-2">FECHA:</span>
+                            <span class="fs-4">{{ invoice.date|date:"d/m/Y" }}</span>
+                        </div>
+                        {% if invoice.due_date %}
+                        <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
+                            <span class="small fw-bold me-2">VENCIMIENTO:</span>
+                            <span class="fs-4">{{ invoice.due_date|date:"d/m/Y" }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-            <div>
-              <p class="small mb-1"><strong>Dirección:</strong> {{ invoice.partner.address|default:'No disponible' }}</p>
-              <p class="small mb-1"><strong>Ciudad - País:</strong> {{ invoice.partner.city|default:'No disponible' }} - {{ invoice.partner.country|default:'No disponible' }}</p>
-              <div class="d-flex justify-content-between">
-                <p class="small mb-1"><strong>Email:</strong> {{ invoice.partner.email|default:'No disponible' }}</p>
-                <p class="small mb-1"><strong>Crédito:</strong> {{ invoice.partner.credit_term|default:'No disponible' }}</p>
-              </div>
-              <p class="small mb-1"><strong>PO Number:</strong> {{ invoice.po_number|default:'No disponible' }}</p>
-              <p class="small mb-1"><strong>Marcación:</strong> {{ invoice.marking|default:'No disponible' }}</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-6">
-          <div class="border border-2 border-warning p-3 rounded h-100">
-            <h6 class="fw-bold mb-3">Información de Envío</h6>
-            <div class="form-control bg-light mb-2">
-              Información de Transporte
-            </div>
-            <div>
-              <p class="small mb-1"><strong>MAWB:</strong> {{ awb|default:'No disponible' }}</p>
-              <p class="small mb-1"><strong>HAWB:</strong> {{ hawb|default:'No disponible' }}</p>
-              <p class="small mb-1"><strong>DAE Exportación:</strong> {{ dae_export|default:'No disponible' }}</p>
-              <p class="small mb-1"><strong>Agencia de Carga:</strong> {{ cargo_agency|default:'No disponible' }}</p>
-              <p class="small mb-1"><strong>Fecha de Entrega:</strong> {{ delivery_date|date:"d/m/Y"|default:'No disponible' }}</p>
-              <p class="small mb-1"><strong>Peso (KG):</strong> {{ weight|default:'No disponible' }}</p>
-              <p class="small mb-1"><strong># Orden:</strong> {{ invoice.order.serie }}-{{ invoice.order.consecutive }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Tabla de productos -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="table-responsive">
-            <table class="table table-bordered table-sm">
-              <thead class="bg-warning bg-opacity-25">
-                <tr class="text-center small">
-                  <th>CANT</th>
-                  <th>MODELO</th>
-                  <th>VARIEDAD</th>
-                  <th>LARGO CM</th>
-                  <th>TALLOS</th>
-                  <th>TALL/BUNC</th>
-                  <th>BUNCHES</th>
-                  <th>COSTO</th>
-                  <th>TOTAL</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for item in invoice_items %}
-                <tr>
-                  <td rowspan="{{ item.box_items_count|default:'1' }}" class="text-center">{{ item.quantity }}</td>
-                  <td rowspan="{{ item.box_items_count|default:'1' }}" class="text-center">{{ item.box_model }}</td>
-                  <td>
-                    {% for box_item in box_items %}
-                    {% if box_item.invoice_item.id == item.id %}
-                    <p>{{ box_item.product.variety }}</p>
-                    {% endif %}
-                    {% endfor %}
-                  </td>
-                  <td class="text-end">
-                    {% for box_item in box_items %}
-                    {% if box_item.invoice_item.id == item.id %}
-                    <p>{{ box_item.length }}</p>
-                    {% endif %}
-                    {% endfor %}
-                  </td>
-                  <td class="text-end">
-                    {% for box_item in box_items %}
-                    {% if box_item.invoice_item.id == item.id %}
-                    <p>{{ box_item.qty_stem_flower }}</p>
-                    {% endif %}
-                    {% endfor %}
-                  </td>
-                  <td class="text-end">
-                    {% for box_item in box_items %}
-                    {% if box_item.invoice_item.id == item.id %}
-                    <p>{{ box_item.stems_bunch }}</p>
-                    {% endif %}
-                    {% endfor %}
-                  </td>
-                  <td class="text-end">
-                    {% for box_item in box_items %}
-                    {% if box_item.invoice_item.id == item.id %}
-                    <p>{{ box_item.total_bunches }}</p>
-                    {% endif %}
-                    {% endfor %}
-                  </td>
-                  <td class="text-end">
-                    {% for box_item in box_items %}
-                    {% if box_item.invoice_item.id == item.id %}
-                    <p>{{ box_item.unit_price }}</p>
-                    {% endif %}
-                    {% endfor %}
-                  </td>
-                  <td class="text-end">
-                    {% for box_item in box_items %}
-                    {% if box_item.invoice_item.id == item.id %}
-                    <p>{{ box_item.calculated_total|floatformat:2 }}</p>
-                    {% endif %}
-                    {% endfor %}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+            <!-- Información del cliente y proveedor -->
+            <div class="row mb-4">
+                <div class="col-6">
+                    <div class="border border-2 border-warning p-3 rounded h-100">
+                        <h6 class="fw-bold mb-3">Información del Cliente</h6>
+                        <div class="form-control bg-light">
+                            {{ invoice.partner.name }}
+                        </div>
+                        <div>
+                            <p class="small mb-1"><strong>Dirección:</strong> {{ invoice.partner.address|default:'No disponible' }}</p>
+                            <p class="small mb-1"><strong>Ciudad - País:</strong> {{ invoice.partner.city|default:'No disponible' }} - {{ invoice.partner.country|default:'No disponible' }}</p>
+                            <div class="d-flex justify-content-between">
+                                <p class="small mb-1"><strong>Email:</strong> {{ invoice.partner.email|default:'No disponible' }}</p>
+                                <p class="small mb-1"><strong>Crédito:</strong> {{ invoice.partner.credit_term|default:'No disponible' }}</p>
+                            </div>
+                            <p class="small mb-1"><strong>PO Number:</strong> {{ invoice.po_number|default:'No disponible' }}</p>
+                            <p class="small mb-1"><strong>Marcación:</strong> {{ invoice.marking|default:'No disponible' }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="border border-2 border-warning p-3 rounded h-100">
+                        <h6 class="fw-bold mb-3">Información de Envío</h6>
+                        <div class="form-control bg-light mb-2">Información de Transporte</div>
+                        <div>
+                            <p class="small mb-1"><strong>MAWB:</strong> {{ awb|default:'No disponible' }}</p>
+                            <p class="small mb-1"><strong>HAWB:</strong> {{ hawb|default:'No disponible' }}</p>
+                            <p class="small mb-1"><strong>DAE Exportación:</strong> {{ dae_export|default:'No disponible' }}</p>
+                            <p class="small mb-1"><strong>Agencia de Carga:</strong> {{ cargo_agency|default:'No disponible' }}</p>
+                            <p class="small mb-1"><strong>Fecha de Entrega:</strong> {{ delivery_date|date:"d/m/Y"|default:'No disponible' }}</p>
+                            <p class="small mb-1"><strong>Peso (KG):</strong> {{ weight|default:'No disponible' }}</p>
+                            <p class="small mb-1"><strong># Orden:</strong> {{ invoice.order.serie }}-{{ invoice.order.consecutive }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-      <!-- Totales -->
-      <div class="row mb-4">
-        <div class="col-6">
-          <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
-            <div class="row">
-              <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div>
-              <div class="col-4 text-end fs-5 fw-bold">{{ invoice.eb_total }}</div>
+            <!-- Tabla de productos -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm">
+                            <thead class="bg-warning bg-opacity-25">
+                                <tr class="text-center small">
+                                    <th>CANT</th>
+                                    <th>MODELO</th>
+                                    <th>VARIEDAD</th>
+                                    <th>LARGO CM</th>
+                                    <th>TALLOS</th>
+                                    <th>TALL/BUNC</th>
+                                    <th>BUNCHES</th>
+                                    <th>COSTO</th>
+                                    <th>TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in invoice_items %}
+                                <tr>
+                                    <td rowspan="{{ item.box_items_count|default:'1' }}" class="text-center">{{ item.quantity }}</td>
+                                    <td rowspan="{{ item.box_items_count|default:'1' }}" class="text-center">{{ item.box_model }}</td>
+                                    <td>
+                                        {% for box_item in box_items %} {% if box_item.invoice_item.id == item.id %}
+                                        <p>{{ box_item.product.variety }}</p>
+                                        {% endif %} {% endfor %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% for box_item in box_items %} {% if box_item.invoice_item.id == item.id %}
+                                        <p>{{ box_item.length }}</p>
+                                        {% endif %} {% endfor %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% for box_item in box_items %} {% if box_item.invoice_item.id == item.id %}
+                                        <p>{{ box_item.qty_stem_flower }}</p>
+                                        {% endif %} {% endfor %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% for box_item in box_items %} {% if box_item.invoice_item.id == item.id %}
+                                        <p>{{ box_item.stems_bunch }}</p>
+                                        {% endif %} {% endfor %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% for box_item in box_items %} {% if box_item.invoice_item.id == item.id %}
+                                        <p>{{ box_item.total_bunches }}</p>
+                                        {% endif %} {% endfor %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% for box_item in box_items %} {% if box_item.invoice_item.id == item.id %}
+                                        <p>{{ box_item.unit_price }}</p>
+                                        {% endif %} {% endfor %}
+                                    </td>
+                                    <td class="text-end">
+                                        {% for box_item in box_items %} {% if box_item.invoice_item.id == item.id %}
+                                        <p>{{ box_item.calculated_total|floatformat:2 }}</p>
+                                        {% endif %} {% endfor %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="row">
-              <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div>
-              <div class="col-4 text-end fs-5 fw-bold">{{ invoice.hb_total }}</div>
+
+            <!-- Totales -->
+            <div class="row mb-4">
+                <div class="col-6">
+                    <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                        <div class="row">
+                            <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div>
+                            <div class="col-4 text-end fs-5 fw-bold">{{ invoice.eb_total }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div>
+                            <div class="col-4 text-end fs-5 fw-bold">{{ invoice.hb_total }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div>
+                            <div class="col-4 text-end fs-5 fw-bold">{{ invoice.qb_total }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div>
+                            <div class="col-4 text-end fs-5 fw-bold">{{ invoice.fb_total }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div>
+                            <div class="col-4 text-end fs-5 fw-bold">{{ invoice.tot_stem_flower }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                        <div class="row mt-4">
+                            <div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div>
+                            <div class="col-5 text-end text-success fs-5">${{ invoice.total_price|floatformat:2 }}</div>
+                        </div>
+                        <div class="row">
+                            <div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div>
+                            <div class="col-5 text-end text-success fs-5">${{ invoice.total_margin|floatformat:2 }}</div>
+                        </div>
+                        <div class="row mb-1">
+                            <div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div>
+                            <div class="col-5 text-end text-success fs-5">${{ invoice.total_invoice|floatformat:2 }}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="row">
-              <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div>
-              <div class="col-4 text-end fs-5 fw-bold">{{ invoice.qb_total }}</div>
-            </div>
-            <div class="row">
-              <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div>
-              <div class="col-4 text-end fs-5 fw-bold">{{ invoice.fb_total }}</div>
-            </div>
-            <div class="row">
-              <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div>
-              <div class="col-4 text-end fs-5 fw-bold">{{ invoice.tot_stem_flower }}</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-6">
-          <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
-            <div class="row mt-4">
-              <div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div>
-              <div class="col-5 text-end text-success fs-5>${{ invoice.total_price|floatformat:2 }}</div>
-            </div>
-            <div class="row">
-              <div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div>
-              <div class="col-5 text-end text-success fs-5>${{ invoice.total_margin|floatformat:2 }}</div>
-            </div>
+
+            <!-- Estado de la factura -->
             <div class="row mb-1">
-              <div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div>
-              <div class="col-5 text-end text-success fs-5>${{ invoice.total_invoice|floatformat:2 }}</div>
+                <div class="col-12">
+                    <div class="alert {% if invoice.status == 'PENDIENTE' %}alert-warning{% elif invoice.status == 'PAGADO' %}alert-success{% else %}alert-danger{% endif %} text-center">
+                        <h6>Estado: {{ invoice.status }}</h6>
+                        {% if invoice.status == 'PENDIENTE' %}
+                        <p>Esta factura está pendiente de pago. Fecha de vencimiento: {{ invoice.due_date|date:"d/m/Y"|default:'No establecida' }}</p>
+                        {% elif invoice.status == 'PAGADO' %}
+                        <p>Esta factura ha sido pagada.</p>
+                        {% else %}
+                        <p>Esta factura ha sido anulada.</p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Estado de la factura -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="alert {% if invoice.status == 'PENDIENTE' %}alert-warning{% elif invoice.status == 'PAGADO' %}alert-success{% else %}alert-danger{% endif %} text-center">
-            <h5>Estado: {{ invoice.status }}</h5>
-            {% if invoice.status == 'PENDIENTE' %}
-              <p>Esta factura está pendiente de pago. Fecha de vencimiento: {{ invoice.due_date|date:"d/m/Y"|default:'No establecida' }}</p>
-            {% elif invoice.status == 'PAGADO' %}
-              <p>Esta factura ha sido pagada.</p>
-            {% else %}
-              <p>Esta factura ha sido anulada.</p>
+            <!-- Mensajes de acción -->
+            {% if action %}
+            <div class="row mt-1">
+                <div class="col-12">
+                    <div class="alert {% if action == 'delete' %}alert-danger{% elif action == 'deleted_related' %}alert-warning{% else %}alert-success{% endif %} text-center">
+                        {{ message }}
+                    </div>
+                </div>
+            </div>
             {% endif %}
-          </div>
-        </div>
-      </div>
-      
-      <!-- Mensajes de acción -->
-      {% if action %}
-      <div class="row mt-4">
-        <div class="col-12">
-          <div class="alert {% if action == 'delete' %}alert-danger{% elif action == 'deleted_related' %}alert-warning{% else %}alert-success{% endif %} text-center">
-            {{ message }}
-          </div>
-        </div>
-      </div>
-      {% endif %}
-      
-      <!-- Botones de acción -->
-      <div class="row">
+
+            <!-- Botones de acción -->
+                 <div class="row">
          <div class="col d-flex justify-content-end gap-3">
           {% if invoice.status == 'PENDIENTE' %}
             <a href="{% url 'edit_invoice_form' invoice.id %}" class="btn btn-default btn-sm action-btn" data-action-url=" 'edit_invoice' invoice.id %}" data-confirm-text="Confirmar Modificación">
@@ -260,32 +245,35 @@
             </a>
          </div>
       </div>
+        </div>
     </div>
-  </div>
 </div>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteBtn = document.querySelector('.delete-invoice-btn');
-    let confirmClicked = false;
+{% endblock %}
 
-    if (deleteBtn) {
-        deleteBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            if (!confirmClicked) {
-                const confirmText = this.getAttribute('data-confirm-text');
-                if (confirm(confirmText)) {
-                    confirmClicked = true;
-                    this.querySelector('.btn-text').textContent = 'Confirmar Eliminación';
-                    this.classList.remove('btn-default');
-                    this.classList.add('btn-danger');
+{% block script %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const deleteBtn = document.querySelector(".delete-invoice-btn");
+        let confirmClicked = false;
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", function (e) {
+                e.preventDefault();
+
+                if (!confirmClicked) {
+                    const confirmText = this.getAttribute("data-confirm-text");
+                    if (confirm(confirmText)) {
+                        confirmClicked = true;
+                        this.querySelector(".btn-text").textContent = "Confirmar Eliminación";
+                        this.classList.remove("btn-default");
+                        this.classList.add("btn-danger");
+                    }
+                } else {
+                    const deleteUrl = this.getAttribute("data-delete-url");
+                    window.location.href = deleteUrl;
                 }
-            } else {
-                const deleteUrl = this.getAttribute('data-delete-url');
-                window.location.href = deleteUrl;
-            }
-        });
-    }
-});
+            });
+        }
+    });
 </script>
 {% endblock %}
