@@ -15,7 +15,7 @@ class AprovePurchaseOrderView(LoginRequiredMixin, View):
         order = get_object_or_404(Order, id=order_id)
 
         # Validar que la orden esté en estado que permita confirmación
-        if order.status not in ['PENDIENTE', 'MODIFICADO']:
+        if order.status not in ['PENDIENTE', 'MODIFICADO', 'PROMESA']:
             messages.error(
                 request, f'La orden no puede ser confirmada. Estado actual: {order.status}')
             return redirect(reverse('order_detail_presentation', kwargs={'pk': order_id}))
@@ -55,7 +55,7 @@ class AprovePurchaseOrderView(LoginRequiredMixin, View):
 
         if all_sup_orders:
             for sup_order in all_sup_orders:
-                if sup_order.status in ['PENDIENTE', 'MODIFICADO']:
+                if sup_order.status in ['PENDIENTE', 'MODIFICADO', 'PROMESA']:
                     all_confirmed = False
                     break
 
