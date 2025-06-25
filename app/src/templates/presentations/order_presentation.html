@@ -216,13 +216,13 @@
           </div>
            <div class="row mt-4">
          <div class="col d-flex justify-content-end gap-3">
-          {% if response_data.order.type_document == 'ORD_VENTA' and response_data.order.status == 'PENDIENTE' %}
+          {% if response_data.order.type_document == 'ORD_VENTA' and response_data.order.status in 'PENDIENTE,PROMESA' %}
             <a href="/trade/{{ response_data.order.stock_day.pk }}/#/order-detail/{{ response_data.order.id }}/" class="btn btn-default btn-sm">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pencil"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
                <span class="btn-text">Modificar</span>
             </a>
           {% endif %}
-          {% if response_data.order.status == 'PENDIENTE' %}
+          {% if response_data.order.status in 'PENDIENTE,PROMESA' %}
             <a href="/trade/1/#/order/{{ response_data.order.id }}/" class="btn btn-default btn-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pencil"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
               <span class="btn-text">Modificar</span>
@@ -238,7 +238,7 @@
               </button>
             </form>
           {% endif %}
-          {% if not response_data.order.is_invoiced and response_data.order.status in 'PENDIENTE,MODIFICADO' %}
+          {% if not response_data.order.is_invoiced and response_data.order.status in 'PENDIENTE,MODIFICADO,PROMESA' %}
             <a href="{% url 'aprove_purchase_order' response_data.order.id %}" class="btn btn-default btn-sm action-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 6a3.667 3.667 0 0 1 3.667 3.667v8.666a3.667 3.667 0 0 1 -3.667 3.667h-8.666a3.667 3.667 0 0 1 -3.667 -3.667v-8.666a3.667 3.667 0 0 1 3.667 -3.667zm-3.333 -4c1.094 0 1.828 .533 2.374 1.514a1 1 0 1 1 -1.748 .972c-.221 -.398 -.342 -.486 -.626 -.486h-10c-.548 0 -1 .452 -1 1v9.998c0 .32 .154 .618 .407 .805l.1 .065a1 1 0 1 1 -.99 1.738a3 3 0 0 1 -1.517 -2.606v-10c0 -1.652 1.348 -3 3 -3zm1.293 9.293l-3.293 3.292l-1.293 -1.292a1 1 0 0 0 -1.414 1.414l2 2a1 1 0 0 0 1.414 0l4 -4a1 1 0 0 0 -1.414 -1.414" /></svg>
               <span class="btn-text">
@@ -250,6 +250,7 @@
               </span>
             </a>
           {% endif %}
+          
           {% if response_data.order.is_invoiced and response_data.order.type_document == 'ORD_VENTA' %}
             {% if response_data.order.id_invoice %}
             <a href="{% url 'invoice_detail_presentation' response_data.order.id_invoice %}" class="btn btn-default btn-sm action-btn">

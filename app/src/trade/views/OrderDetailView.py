@@ -347,7 +347,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
         # Agregar información sobre si la orden puede ser confirmada
         context['can_confirm'] = order.status in [
-            'PENDIENTE', 'MODIFICADO'] and not order.is_invoiced
+            'PENDIENTE', 'MODIFICADO', 'PROMESA'] and not order.is_invoiced
 
         return context
 
