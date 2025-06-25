@@ -1,8 +1,19 @@
 {% extends 'base/base.html' %}
 {% load humanize %}
 {% block content %}
+{% csrf_token %}
 <div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2 d-flex justify-content-between">
-    <div class="text-primary">Ordenes de Venta a Clientes</div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="text-primary">Ordenes de Venta a Clientes</div>
+        <!-- Botón Confirmar (se muestra cuando hay selecciones) -->
+        <button type="button" class="btn btn-success btn-sm" id="confirmButton" style="display: none;" data-bs-toggle="modal" data-bs-target="#confirmModal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M5 12l5 5l10 -10" />
+            </svg>
+            Confirmar (<span id="selectedCount">0</span>)
+        </button>
+    </div>
     <div class="d-flex justify-content-end gap-4">
         <div class="fw-bold">
             <span>Por Confirmar:</span>
@@ -37,6 +48,9 @@
     <table class="table table-bordered table-striped" id="myTable">
         <thead>
         <tr>
+            <th class="bg-secondary bg-opacity-25 text-center" style="width: 30px;">
+                <input type="checkbox" id="selectAll" title="Seleccionar todos" style="transform: scale(0.5);">
+            </th>
             <th class="bg-secondary bg-opacity-25 text-center">#</th>
             <th class="bg-secondary bg-opacity-25 text-center">N. OV</th>
             <th class="bg-secondary bg-opacity-25 text-center">OC Relacionadas</th>
@@ -51,6 +65,11 @@
         <tbody>
             {% for order in orders %}
             <tr>
+                <td class="p-1 text-center">
+                    {% if order.status in 'PENDIENTE,MODIFICADO,PROMESA' %}
+                        <input type="checkbox" class="order-checkbox" value="{{ order.id }}" data-order-id="{{ order.id }}" style="transform: scale(0.5);">
+                    {% endif %}
+                </td>
                 <td class="p-0 text-center">{{ forloop.counter }}</td>
                 <td class="p-0">
                     <a href="{% url 'order_detail_presentation' order.id %}" class="text-primary ms-2">
@@ -93,4 +112,246 @@
         </tbody>
     </table>
 </div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Confirmar Pedidos Seleccionados</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3">Los siguientes pedidos serán confirmados:</p>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>N. Orden</th>
+                                <th>Cliente</th>
+                                <th class="text-end">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody id="selectedOrdersTable">
+                            <!-- Los pedidos seleccionados se llenarán aquí -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3 p-3 bg-light rounded">
+                    <strong>Total: $<span id="totalValue">0</span></strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="executeConfirm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M5 12l5 5l10 -10" />
+                    </svg>
+                    Confirmar Pedidos
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block script %}
+<script>
+$(document).ready(function() {
+    let selectedOrders = [];
+    let ordersData = {}; // Para almacenar datos de los pedidos
+    
+    // Inicializar datos de pedidos usando JSON seguro desde el backend
+    {% regroup orders by id as orders_grouped %}
+    const ordersFromServer = {
+        {% for order in orders %}
+        '{{ order.id }}': {
+            id: {{ order.id }},
+            number: '{{ order.serie }}-{{ order.consecutive|stringformat:"06d" }}',
+            client: '{{ order.partner.name|escapejs }}',
+            value: parseFloat('{{ order.total_price|default:"0" }}')
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+    
+    // Asignar datos
+    ordersData = ordersFromServer;
+    
+    console.log('Datos de órdenes cargados:', Object.keys(ordersData).length);
+    
+    // Esperar a que DataTable se inicialice desde base.html
+    setTimeout(function() {
+        if ($.fn.DataTable.isDataTable('#myTable')) {
+            var table = $('#myTable').DataTable();
+            console.log('DataTable encontrado, inicializando eventos');
+            initializeCheckboxEvents(table);
+        } else {
+            console.log('DataTable no encontrado, reintentando...');
+            // Reintentar una vez más
+            setTimeout(function() {
+                if ($.fn.DataTable.isDataTable('#myTable')) {
+                    var table = $('#myTable').DataTable();
+                    initializeCheckboxEvents(table);
+                }
+            }, 1000);
+        }
+    }, 500);
+    
+    function initializeCheckboxEvents(table) {
+        console.log('Inicializando eventos de checkbox');
+        
+        // Manejar checkbox individual
+        $(document).off('change', '.order-checkbox').on('change', '.order-checkbox', function() {
+            var orderId = $(this).attr('data-order-id');
+            
+            if ($(this).is(':checked')) {
+                if (selectedOrders.indexOf(orderId) === -1) {
+                    selectedOrders.push(orderId);
+                }
+            } else {
+                selectedOrders = selectedOrders.filter(function(id) {
+                    return id !== orderId;
+                });
+            }
+            
+            updateSelectAllCheckbox();
+            updateConfirmButton();
+        });
+        
+        // Manejar "Seleccionar todos"
+        $(document).off('change', '#selectAll').on('change', '#selectAll', function() {
+            var isChecked = $(this).is(':checked');
+            selectedOrders = [];
+            
+            $('.order-checkbox:visible').each(function() {
+                $(this).prop('checked', isChecked);
+                if (isChecked) {
+                    var orderId = $(this).attr('data-order-id');
+                    selectedOrders.push(orderId);
+                }
+            });
+            
+            updateConfirmButton();
+        });
+        
+        // Actualizar estado del checkbox "Seleccionar todos"
+        function updateSelectAllCheckbox() {
+            var totalCheckboxes = $('.order-checkbox:visible').length;
+            var checkedCheckboxes = $('.order-checkbox:visible:checked').length;
+            var selectAllCheckbox = document.getElementById('selectAll');
+            
+            if (selectAllCheckbox) {
+                if (checkedCheckboxes === 0) {
+                    selectAllCheckbox.indeterminate = false;
+                    selectAllCheckbox.checked = false;
+                } else if (checkedCheckboxes === totalCheckboxes) {
+                    selectAllCheckbox.indeterminate = false;
+                    selectAllCheckbox.checked = true;
+                } else {
+                    selectAllCheckbox.indeterminate = true;
+                    selectAllCheckbox.checked = false;
+                }
+            }
+        }
+        
+        // Actualizar botón de confirmar
+        function updateConfirmButton() {
+            var confirmButton = $('#confirmButton');
+            var selectedCount = $('#selectedCount');
+            
+            console.log('Actualizando botón, pedidos seleccionados:', selectedOrders.length);
+            
+            if (selectedOrders.length > 0) {
+                confirmButton.show();
+                selectedCount.text(selectedOrders.length);
+            } else {
+                confirmButton.hide();
+            }
+        }
+        
+        // Reinicializar eventos después de que DataTable redibuje la tabla
+        if (table) {
+            table.on('draw', function() {
+                updateSelectAllCheckbox();
+                updateConfirmButton();
+            });
+        }
+    }
+    
+    // Manejar apertura del modal
+    $('#confirmModal').on('show.bs.modal', function() {
+        updateModalContent();
+    });
+    
+    // Actualizar contenido del modal
+    function updateModalContent() {
+        var tableBody = $('#selectedOrdersTable');
+        var totalValueSpan = $('#totalValue');
+        var totalValue = 0;
+        
+        tableBody.empty();
+        
+        for (var i = 0; i < selectedOrders.length; i++) {
+            var orderId = selectedOrders[i];
+            var orderData = ordersData[orderId];
+            if (orderData) {
+                var value = parseFloat(orderData.value) || 0;
+                var row = '<tr>' +
+                    '<td>' + orderData.number + '</td>' +
+                    '<td>' + orderData.client + '</td>' +
+                    '<td class="text-end">$' + value.toLocaleString() + '</td>' +
+                    '</tr>';
+                tableBody.append(row);
+                totalValue += value;
+            }
+        }
+        
+        totalValueSpan.text(totalValue.toLocaleString());
+    }
+    
+    // Manejar confirmación de pedidos
+    $('#executeConfirm').on('click', function() {
+        var button = $(this);
+        var originalText = button.html();
+        
+        // Deshabilitar botón y mostrar loading
+        button.prop('disabled', true).html(
+            '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Procesando...'
+        );
+        
+        // Enviar POST
+        $.ajax({
+            url: '/trade/aprove-batch-orders/',
+            type: 'POST',
+            data: {
+                'order_ids': selectedOrders,
+                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(response) {
+                // Cerrar modal
+                $('#confirmModal').modal('hide');
+                
+                // Mostrar mensaje de éxito
+                alert('Pedidos confirmados exitosamente');
+                
+                // Recargar página
+                window.location.reload();
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+                alert('Error al confirmar pedidos. Intente nuevamente.');
+                
+                // Restaurar botón
+                button.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+    
+    // Función global para obtener los IDs seleccionados
+    window.getSelectedOrderIds = function() {
+        return selectedOrders;
+    };
+});
+</script>
+{% endblock %}
 {% endblock %}
