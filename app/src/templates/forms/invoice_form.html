@@ -19,22 +19,26 @@
         </div>
       
         <div class="row mb-4 align-items-center">
-          <div class="col-9">
+          <div class="col-8">
             <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
           </div>
-          <div class="col-3">
+          <div class="col-4">
             <div class="border border-2 border-warning p-2 rounded">
               <div class="d-flex justify-content-end align-items-center mb-1">
                 <span class="small fw-bold me-2">FACTURA:</span>
                 <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive | stringformat:'06d' }}</span>
               </div>
-              <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
-                <span class="small fw-bold me-2">FECHA:</span>
-                <input type="date" name="date" class="form-control form-control-sm" value="{{ invoice.date|date:'Y-m-d' }}" required>
+              <div class="row border-top border-success pt-2 mb-2">
+                <div class="col-5 text-end"><span class="small fw-bold">EMISIÓN:</span></div>
+                <div class="col-7">
+                  <input type="date" name="date" class="form-control form-control-sm" value="{{ invoice.date|date:'Y-m-d' }}" required>
+                </div>
               </div>
-              <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
-                <span class="small fw-bold me-2">VENCIMIENTO:</span>
-                <input type="date" name="due_date" class="form-control form-control-sm" value="{{ invoice.due_date|date:'Y-m-d' }}">
+              <div class="row border-top border-success pt-2">
+                <div class="col-5 text-end"><span class="small fw-bold">VENCIMIENTO:</span></div>
+                <div class="col-7">
+                  <input type="date" name="due_date" class="form-control form-control-sm" value="{{ invoice.due_date|date:'Y-m-d' }}">
+                </div>
               </div>
             </div>
           </div>
@@ -45,35 +49,88 @@
           <div class="col-6">
             <div class="border border-2 border-warning p-3 rounded h-100">
               <h6 class="fw-bold mb-3">Información del Cliente</h6>
-              <div class="form-control bg-light">
+              <div class="form-control bg-light mb-3">
                 {{ invoice.partner.name }}
               </div>
-              <div>
-                <p class="small mb-1"><strong>Dirección:</strong> {{ invoice.partner.address|default:'No disponible' }}</p>
-                <p class="small mb-1"><strong>Ciudad - País:</strong> {{ invoice.partner.city|default:'No disponible' }} - {{ invoice.partner.country|default:'No disponible' }}</p>
-                <div class="d-flex justify-content-between">
-                  <p class="small mb-1"><strong>Email:</strong> {{ invoice.partner.email|default:'No disponible' }}</p>
-                  <p class="small mb-1"><strong>Crédito:</strong> {{ invoice.partner.credit_term|default:'No disponible' }}</p>
+              <div class="small">
+                <div class="row mb-2">
+                  <div class="col-4"><strong>Dirección:</strong></div>
+                  <div class="col-8">{{ invoice.partner.address|default:'No disponible' }}</div>
                 </div>
-                <p class="small mb-1"><strong>PO Number:</strong> <input type="text" name="po_number" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.po_number|default:'' }}"></p>
+                <div class="row mb-2">
+                  <div class="col-4"><strong>Ciudad - País:</strong></div>
+                  <div class="col-8">{{ invoice.partner.city|default:'No disponible' }} - {{ invoice.partner.country|default:'No disponible' }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-4"><strong>Email:</strong></div>
+                  <div class="col-8">{{ invoice.partner.email|default:'No disponible' }}</div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-4"><strong>Crédito:</strong></div>
+                  <div class="col-8">{{ invoice.partner.credit_term|default:'No disponible' }}</div>
+                </div>
+                <div class="row mb-2 align-items-center">
+                  <div class="col-4"><strong>PO Number:</strong></div>
+                  <div class="col-8">
+                    <input type="text" name="po_number" class="form-control form-control-sm" value="{{ invoice.po_number|default:'' }}">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           <div class="col-6">
             <div class="border border-2 border-warning p-3 rounded h-100">
               <h6 class="fw-bold mb-3">Información de Envío</h6>
-              <div class="form-control bg-light mb-2">
+              <div class="form-control bg-light mb-3">
                 Información de Transporte
               </div>
-              <div>
-                <p class="small mb-1"><strong>Marcación:</strong> <input type="text" name="marking" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.marking|default:'' }}"></p>
-                <p class="small mb-1"><strong>MAWB:</strong> <input type="text" name="awb" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.awb|default:'' }}"></p>
-                <p class="small mb-1"><strong>HAWB:</strong> <input type="text" name="hawb" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.hawb|default:'' }}"></p>
-                <p class="small mb-1"><strong>DAE Exportación:</strong> <input type="text" name="dae_export" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.dae_export|default:'' }}"></p>
-                <p class="small mb-1"><strong>Agencia de Carga:</strong> <input type="text" name="cargo_agency" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.cargo_agency|default:'' }}"></p>
-                <p class="small mb-1"><strong>Fecha de Entrega:</strong> <input type="date" name="delivery_date" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.delivery_date|date:'Y-m-d'|default:'' }}"></p>
-                <p class="small mb-1"><strong>Peso (KG):</strong> <input type="number" name="weight" step="0.01" class="form-control form-control-sm d-inline-block w-75" value="{{ invoice.weight|default:'' }}"></p>
-                <p class="small mb-1"><strong># Orden:</strong> {{ invoice.order.serie }}-{{ invoice.order.consecutive }}</p>
+              <div class="small">
+                <div class="row mb-2 align-items-center">
+                  <div class="col-4"><strong>Marcación:</strong></div>
+                  <div class="col-8">
+                    <input type="text" name="marking" class="form-control form-control-sm" value="{{ invoice.marking|default:'' }}">
+                  </div>
+                </div>
+                <div class="row mb-2 align-items-center">
+                  <div class="col-4"><strong>MAWB:</strong></div>
+                  <div class="col-8">
+                    <input type="text" name="awb" class="form-control form-control-sm" value="{{ invoice.awb|default:'' }}">
+                  </div>
+                </div>
+                <div class="row mb-2 align-items-center">
+                  <div class="col-4"><strong>HAWB:</strong></div>
+                  <div class="col-8">
+                    <input type="text" name="hawb" class="form-control form-control-sm" value="{{ invoice.hawb|default:'' }}">
+                  </div>
+                </div>
+                <div class="row mb-2 align-items-center">
+                  <div class="col-4"><strong>DAE Exportación:</strong></div>
+                  <div class="col-8">
+                    <input type="text" name="dae_export" class="form-control form-control-sm" value="{{ invoice.dae_export|default:'' }}">
+                  </div>
+                </div>
+                <div class="row mb-2 align-items-center">
+                  <div class="col-4"><strong>Agencia de Carga:</strong></div>
+                  <div class="col-8">
+                    <input type="text" name="cargo_agency" class="form-control form-control-sm" value="{{ invoice.cargo_agency|default:'' }}">
+                  </div>
+                </div>
+                <div class="row mb-2 align-items-center">
+                  <div class="col-4"><strong>Fecha de Entrega:</strong></div>
+                  <div class="col-8">
+                    <input type="date" name="delivery_date" class="form-control form-control-sm" value="{{ invoice.delivery_date|date:'Y-m-d'|default:'' }}">
+                  </div>
+                </div>
+                <div class="row mb-2 align-items-center">
+                  <div class="col-4"><strong>Peso (KG):</strong></div>
+                  <div class="col-8">
+                    <input type="number" name="weight" step="0.01" class="form-control form-control-sm" value="{{ invoice.weight|default:'' }}">
+                  </div>
+                </div>
+                <div class="row mb-2">
+                  <div class="col-4"><strong># Orden:</strong></div>
+                  <div class="col-8">{{ invoice.order.serie }}-{{ invoice.order.consecutive }}</div>
+                </div>
               </div>
             </div>
           </div>
