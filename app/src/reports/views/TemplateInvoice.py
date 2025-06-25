@@ -5,7 +5,7 @@ from accounts.models.CustomUserModel import CustomUserModel
 
 
 class TemplateInvoice(TemplateView):
-    template_name = 'reports/invoice.html'
+    template_name = 'reports/Invoice.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
