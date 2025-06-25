@@ -240,7 +240,7 @@ class Order(BaseModel):
         )
         if sup_orders.exists():
             return sup_orders
-
+            
         loggin_event(
             f"La orden {sale_order.pk} no tiene ordenes de proveedor", True)
         return None
