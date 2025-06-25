@@ -736,10 +736,8 @@
                       {% for line in invoice.invoiceLines %}
                         {% for box_item in line.invoice_box_items %}
                         <tr>
-                          {% if forloop.first %}
-                            <td rowspan="{{ line.invoice_box_items|length }}" class="align-middle text-center">{{ line.quantity }}</td>
-                            <td rowspan="{{ line.order_box_items|length }}" class="align-middle text-center">{{ line.box_model }}</td>
-                          {% endif %}
+                          <td class="align-middle text-center">{{ line.quantity }}</td>
+                          <td class="align-middle text-center">{{ line.box_model }}</td>
                           <td>{{ box_item.product.variety }} ({{box_item.product.name}})</td>
                           <td class="text-end">{{ box_item.length }}</td>
                           <td class="text-end">{{ box_item.stems_bunch }}</td>
