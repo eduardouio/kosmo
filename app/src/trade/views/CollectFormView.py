@@ -16,26 +16,26 @@ from decimal import Decimal
 
 class CollectFormView(LoginRequiredMixin, View):
     template_name = 'forms/collect_form.html'
-    
+
     def get(self, request, collection_id=None):
         context = {
             'method_choices': METHOD_CHOICES,
             'partners': Partner.objects.filter(is_active=True, type_partner='CLIENTE')
         }
-        
+
         if collection_id:
             collection = get_object_or_404(Payment, id=collection_id)
             context['collection'] = collection
-            
+
             # Obtener las facturas asociadas a este cobro
             invoices_in_collection = collection.invoices.all()
             context['invoices_in_collection'] = invoices_in_collection
-            
+
         return render(request, self.template_name, context)
-    
+
     def post(self, request, collection_id=None):
         data = request.POST
-        
+
         try:
             # Crear o actualizar cobro
             if collection_id:
@@ -44,7 +44,7 @@ class CollectFormView(LoginRequiredMixin, View):
             else:
                 collection = Payment()
                 collection.created_by = request.user
-            
+
             # Actualizar datos del cobro
             collection.date = data.get('date')
             collection.amount = Decimal(data.get('amount', '0.0'))
@@ -54,28 +54,31 @@ class CollectFormView(LoginRequiredMixin, View):
             collection.nro_operation = data.get('nro_operation')
             collection.updated_by = request.user
             collection.save()
-            
+
             # Procesar facturas asociadas al cobro
             invoice_payments = json.loads(data.get('invoice_payments', '{}'))
-            
+
             if invoice_payments:
-                SupplierInvoiceBalance.apply_collection_to_invoices(collection.id, invoice_payments)
-                
+                SupplierInvoiceBalance.apply_collection_to_invoices(
+                    collection.id, invoice_payments)
+
             messages.success(request, "Cobro guardado correctamente")
             return redirect(reverse('collection_detail', kwargs={'collection_id': collection.id}))
-            
+
         except Exception as e:
             messages.error(request, f"Error al guardar el cobro: {str(e)}")
             return redirect(request.path)
 
+
 class CollectionApiView(View):
     def get(self, request):
         action = request.GET.get('action')
-        
+
         if action == 'get_partner_invoices':
             partner_id = request.GET.get('partner_id')
-            pending_invoices = SupplierInvoiceBalance.get_pending_invoices(partner_id)
-            
+            pending_invoices = SupplierInvoiceBalance.get_pending_invoices(
+                partner_id)
+
             invoices_data = []
             for invoice_data in pending_invoices:
                 invoice = invoice_data['invoice']
@@ -89,13 +92,14 @@ class CollectionApiView(View):
                     'paid_amount': float(invoice_data['paid_amount']),
                     'balance': float(invoice_data['balance']),
                 })
-            
+
             return JsonResponse({'invoices': invoices_data})
-            
+
         elif action == 'get_client_summary':
             partner_id = request.GET.get('partner_id')
-            summary = SupplierInvoiceBalance.get_client_collection_summary(partner_id)
-            
+            summary = SupplierInvoiceBalance.get_client_collection_summary(
+                partner_id)
+
             return JsonResponse({
                 'total_invoiced': float(summary['total_invoiced']),
                 'total_collected': float(summary['total_collected']),
@@ -104,5 +108,5 @@ class CollectionApiView(View):
                 'paid_invoices_count': summary['paid_invoices_count'],
                 'pending_invoices_count': summary['pending_invoices_count']
             })
-            
+
         return JsonResponse({'error': 'Acción no válida'})

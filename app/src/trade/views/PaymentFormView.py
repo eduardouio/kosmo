@@ -14,6 +14,7 @@ from partners.models import Partner
 import json
 from decimal import Decimal
 
+
 class PaymentFormView(LoginRequiredMixin, View):
     template_name = 'forms/payment_form.html'
     
