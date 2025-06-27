@@ -251,3 +251,13 @@ app/src/products/migrations/0001_initial.py
 app/src/trade/migrations/0001_initial.py
 app/src/static/js/app/favicon.ico
 app/src/static/js/app/index.html
+app/src/accounts/migrations/0001_initial.py
+app/src/partners/migrations/0001_initial.py
+app/src/products/migrations/0001_initial.py
+app/src/products/migrations/0002_boxitems_stems_bunch_boxitems_total_bunches_and_more.py
+app/src/products/migrations/0003_alter_historicalstockdetail_box_model_and_more.py
+app/src/trade/migrations/0001_initial.py
+app/src/trade/migrations/0002_remove_payment_invoices_historicalpaymentdetail_and_more.py
+app/src/trade/migrations/0004_historicalorder_eb_total_order_eb_total.py
+app/src/trade/migrations/0005_historicalinvoice_eb_total_invoice_eb_total.py
+app/src/trade/migrations/0006_historicalinvoice_po_number_invoice_po_number.py
