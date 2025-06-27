@@ -5,11 +5,13 @@ from django.contrib import messages
 from api.CreateInvoiceAPI import CreateInvoiceAPI
 from trade.models import Order
 
+
 class CreateInvoiceByOrder(View):
     def post(self, request, *args, **kwargs):
         order_id = kwargs.get('pk')
         # Simular request para CreateInvoiceAPI
         api_view = CreateInvoiceAPI()
+
         class DummyRequest:
             def __init__(self, user, body):
                 self.user = user

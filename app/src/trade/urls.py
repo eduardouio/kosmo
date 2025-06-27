@@ -20,7 +20,7 @@ from trade.views import (
     DeleteInvoiceView,
     SupplierInvoiceDetail,
     InvoiceSupplierUpdate,
-    #BatchOrderApprovalView,
+    BatchOrderApprovalView,
 )
 
 urlpatterns = [
@@ -42,7 +42,7 @@ urlpatterns = [
     path('trade/supplier-invoice/<int:invoice_id>/', SupplierInvoiceDetail.as_view(), name='supplier_invoice_detail'),
     path('trade/order/<int:pk>/', OrderDetailView.as_view(), name='order_detail_presentation'),
     path('trade/order/aprove/<int:pk>/', AprovePurchaseOrderView.as_view(), name='aprove_purchase_order'),
-    #path('trade/aprove-batch-orders/', BatchOrderApprovalView.as_view(), name='aprove_batch_orders'),
+    path('trade/aprove-batch-orders/', BatchOrderApprovalView.as_view(), name='aprove_batch_orders'),
     path('trade/order/generate-invoice/<int:pk>/', CreateInvoiceByOrder.as_view(), name='generate_invoice_by_order'),
     path('cobros/', CollectionsList.as_view(), name='collections_list'),
     path('pagos/', PaymentsList.as_view(), name="payments_list")

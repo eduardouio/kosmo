@@ -22,6 +22,7 @@ from .PaymentsList import PaymentsList
 from .DeleteInvoiceView import DeleteInvoiceView
 from .SupplierInvoiceDetail import SupplierInvoiceDetail
 from .InvoiceSupplierUpdate import InvoiceSupplierUpdate
+from .BatchOrderApprovalView import BatchOrderApprovalView
 
 __all__ = [
     'StockDayListView',
@@ -44,4 +45,5 @@ __all__ = [
     'DeleteInvoiceView',
     'SupplierInvoiceDetail',
     'InvoiceSupplierUpdate',
+    'BatchOrderApprovalView',
 ]

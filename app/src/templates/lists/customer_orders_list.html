@@ -162,7 +162,6 @@ $(document).ready(function() {
     let ordersData = {}; // Para almacenar datos de los pedidos
     
     // Inicializar datos de pedidos usando JSON seguro desde el backend
-    {% regroup orders by id as orders_grouped %}
     const ordersFromServer = {
         {% for order in orders %}
         '{{ order.id }}': {
@@ -203,6 +202,7 @@ $(document).ready(function() {
         // Manejar checkbox individual
         $(document).off('change', '.order-checkbox').on('change', '.order-checkbox', function() {
             var orderId = $(this).attr('data-order-id');
+            console.log('Checkbox cambiado para orden:', orderId, 'Checked:', $(this).is(':checked'));
             
             if ($(this).is(':checked')) {
                 if (selectedOrders.indexOf(orderId) === -1) {
@@ -214,6 +214,7 @@ $(document).ready(function() {
                 });
             }
             
+            console.log('Pedidos seleccionados actuales:', selectedOrders);
             updateSelectAllCheckbox();
             updateConfirmButton();
         });
@@ -259,13 +260,16 @@ $(document).ready(function() {
             var confirmButton = $('#confirmButton');
             var selectedCount = $('#selectedCount');
             
-            console.log('Actualizando botón, pedidos seleccionados:', selectedOrders.length);
+            console.log('Actualizando botón. Pedidos seleccionados:', selectedOrders.length);
             
             if (selectedOrders.length > 0) {
                 confirmButton.show();
                 selectedCount.text(selectedOrders.length);
+                confirmButton.prop('disabled', false);
+                console.log('Botón mostrado y habilitado');
             } else {
                 confirmButton.hide();
+                console.log('Botón ocultado');
             }
         }
         
@@ -279,8 +283,22 @@ $(document).ready(function() {
     }
     
     // Manejar apertura del modal
-    $('#confirmModal').on('show.bs.modal', function() {
+    $('#confirmModal').on('show.bs.modal', function(event) {
+        console.log('Intentando abrir modal. Pedidos seleccionados:', selectedOrders.length);
+        
+        // Actualizar el contenido del modal siempre
         updateModalContent();
+        
+        // Si no hay pedidos seleccionados, mostrar mensaje en el modal
+        if (selectedOrders.length === 0) {
+            $('#selectedOrdersTable').html('<tr><td colspan="3" class="text-center text-muted">No hay pedidos seleccionados</td></tr>');
+            $('#totalValue').text('0');
+            // Deshabilitar el botón de confirmar
+            $('#executeConfirm').prop('disabled', true);
+        } else {
+            // Habilitar el botón de confirmar
+            $('#executeConfirm').prop('disabled', false);
+        }
     });
     
     // Actualizar contenido del modal
@@ -314,35 +332,66 @@ $(document).ready(function() {
         var button = $(this);
         var originalText = button.html();
         
+        // Verificar que hay pedidos seleccionados
+        if (selectedOrders.length === 0) {
+            console.log('No hay pedidos seleccionados para confirmar');
+            return;
+        }
+        
+        console.log('Enviando pedidos para aprobación:', selectedOrders);
+        
         // Deshabilitar botón y mostrar loading
         button.prop('disabled', true).html(
             '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Procesando...'
         );
         
+        // Preparar datos para envío
+        var formData = new FormData();
+        
+        // Añadir CSRF token
+        formData.append('csrfmiddlewaretoken', $('[name=csrfmiddlewaretoken]').val());
+        
+        // Añadir cada ID de orden como un elemento separado en el array
+        for (var i = 0; i < selectedOrders.length; i++) {
+            formData.append('order_ids[]', selectedOrders[i]);
+        }
+        
         // Enviar POST
         $.ajax({
             url: '/trade/aprove-batch-orders/',
             type: 'POST',
-            data: {
-                'order_ids': selectedOrders,
-                'csrfmiddlewaretoken': $('[name=csrfmiddlewaretoken]').val()
-            },
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
                 // Cerrar modal
                 $('#confirmModal').modal('hide');
                 
-                // Mostrar mensaje de éxito
-                alert('Pedidos confirmados exitosamente');
+                // Si hay errores, mostrarlos en consola
+                if (response.errors && response.errors.length > 0) {
+                    console.log('Errores encontrados:', response.errors);
+                }
                 
-                // Recargar página
+                // Recargar página sin alertas
                 window.location.reload();
             },
             error: function(xhr, status, error) {
-                console.error('Error:', error);
-                alert('Error al confirmar pedidos. Intente nuevamente.');
+                console.error('Error AJAX:', error);
                 
-                // Restaurar botón
+                // Solo mostrar error en consola, no en alerta
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    console.error('Error del servidor:', response.message || 'Error desconocido');
+                } catch (e) {
+                    console.error('Error desconocido');
+                }
+                
+                // Restaurar botón y cerrar modal
                 button.prop('disabled', false).html(originalText);
+                $('#confirmModal').modal('hide');
+                
+                // Recargar página para actualizar estado
+                window.location.reload();
             }
         });
     });
