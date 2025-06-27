@@ -1,316 +1,696 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-  <div class="mx-auto" style="width: 80%;">
-    <div class="row pt-2">
-      <div class="col">
+{% verbatim %}
+<div id="collectionApp" class="mx-auto" style="width: 90%;">
+  <!-- Bootstrap Modal para el registro de cobros -->
+  <div class="modal fade" id="collectionModal" tabindex="-1" role="dialog" aria-labelledby="collectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="collectionModalLabel">💰 Registrar Cobro</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Área de mensajes del modal -->
+          <div v-if="modalMessage.text" :class="['alert', 'alert-' + modalMessage.type, 'alert-dismissible', 'fade', 'show']" role="alert">
+            <i v-if="modalMessage.type === 'success'" class="fas fa-check-circle"></i>
+            <i v-if="modalMessage.type === 'danger'" class="fas fa-exclamation-circle"></i>
+            <i v-if="modalMessage.type === 'warning'" class="fas fa-exclamation-triangle"></i>
+            <strong>{{ modalMessage.text }}</strong>
+            <button type="button" class="btn-close" @click="clearModalMessage"></button>
+          </div>
+
+          <form id="collectionForm" enctype="multipart/form-data">
+            <div class="row">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">📅 Fecha de Cobro</label>
+                <input type="date" v-model="collectionData.date" class="form-control" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">💳 Método de Pago</label>
+                <select v-model="collectionData.method" class="form-select" required>
+                  <option value="">Seleccionar...</option>
+                  <option v-for="method in paymentMethods" :key="method.value" :value="method.value">{{ method.label }}</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">🏦 Banco</label>
+                <input type="text" v-model="collectionData.bank" class="form-control" placeholder="Nombre del banco">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">📄 Referencia/Documento</label>
+                <input type="text" v-model="collectionData.nro_operation" class="form-control" placeholder="Núm. cheque, transferencia...">
+              </div>
+            </div>
+            
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">💰 Monto Total</label>
+                <input type="number" step="0.01" v-model="collectionData.amount" class="form-control text-end fw-semibold" readonly>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">📎 Adjuntar Comprobante</label>
+                <input type="file" @change="handleFileUpload" class="form-control" accept="image/*,.pdf">
+                <small class="text-muted">Formato: JPG, PNG, PDF (máx 5MB)</small>
+              </div>
+            </div>
+            
+            <div class="row mt-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">📝 Observaciones</label>
+                <textarea v-model="collectionData.observations" class="form-control" rows="3" placeholder="Observaciones adicionales del cobro..."></textarea>
+              </div>
+            </div>
+            
+            <!-- Vista previa del archivo -->
+            <div v-if="filePreview" class="row mt-3">
+              <div class="col-12">
+                <div class="border rounded p-3 bg-light">
+                  <h6>📎 Vista previa del archivo:</h6>
+                  <div v-if="filePreview.type === 'image'">
+                    <img :src="filePreview.url" class="img-thumbnail" style="max-height: 200px;">
+                  </div>
+                  <div v-else>
+                    <i class="fas fa-file-pdf fa-3x text-danger"></i>
+                    <p>{{ filePreview.name }}</p>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-danger" @click="removeFile">🗑️ Remover archivo</button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">❌ Cancelar</button>
+          <button type="button" class="btn btn-success" @click="submitCollection" :disabled="!canSubmit">💰 Procesar Cobro</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row pt-2">
+    <div class="col">
+      <!-- Loading State -->
+      <div v-if="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2">Cargando datos de cobros...</p>
+      </div>
+
+      <!-- Error State -->
+      <div v-if="error" class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-triangle"></i>
+        <strong>Error:</strong> {{ error }}
+      </div>
+
+      <!-- Main Content -->
+      <div v-if="!loading && !error" class="container-fluid">
         <!-- Encabezado Principal -->
-        <div class="container-fluid">
-          <div class="row">
-            <div class="col-12 rounded-1 shadow-sm p-2 bg-zinc-600 bg-gradient border-gray-300 text-white">
-              <div class="row pb-3 mb-3">
-                <div class="col-3 fs-4">
-                </div>
-                <div class="col-6 text-center fs-5 upper">
-                  <span>Registro de cobros</span>
-                </div>
-                <div class="col-3 text-end fs-6">
-                  <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
-                    Fecha Registro: 01/07/2025 <span class="text-blue-700">16:30</span>
-                  </strong>
-                  <span class="pe-1 ps-1"></span>
-                </div>
+        <div class="row">
+          <div class="col-12 rounded-1 shadow-sm p-2 bg-success bg-gradient border-gray-300 text-white">
+            <div class="row pb-3 mb-3">
+              <div class="col-3 fs-4">
+                💰 Cobros
+              </div>
+              <div class="col-6 text-center fs-5 upper">
+                <span>Registro de Cobros</span>
+              </div>
+              <div class="col-3 text-end fs-6">
+                <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
+                  Fecha: {{ getCurrentDate() }} <span class="text-blue-700">{{ getCurrentTime() }}</span>
+                </strong>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Filtros adicionales -->
-          <div class="row pb-2 pt-2 fw-bold border pt-2 pb-2 mt-2 mb-2 shadow-sm">
-            <div class="col-4 text-start text-xl">
-                Estadísticas Enero
-            </div>
-            <div class="col-8 text-end text-xl">
-                <span class=""> Total facturas: 7 </span>
-                <span class="text-muted ps-1 pe-1">|</span>
-                <span class="text-cyan-800"> Total pendiente: $4,537.75 </span>
-                <span class="text-muted ps-1 pe-1">|</span>
-                <span class="text-danger"> Saldo Vencido: $2,201.25</span>
-                <span class="text-muted ps-1 pe-1">|</span>
-                <span class="text-yellow-600"> Por Vencer: $2,336.50</span>
-            </div>
-          </div>
-
-          <!-- Encabezados de tabla -->
-          <div class="row p-1 text-white">
-            <div class="col-1 border-end bg-gray-400 text-center">Sel.</div>
-            <div class="col-2 border-end bg-gray-400 text-center">Factura</div>
-            <div class="col-2 border-end bg-gray-400 text-center">Cliente</div>
-            <div class="col-1 border-end bg-gray-400 text-center">Fecha</div>
-            <div class="col-1 border-end bg-gray-400 text-center">Vence</div>
-            <div class="col-1 border-end bg-gray-400 text-center">Días</div>
-            <div class="col-1 border-end bg-sky-500 text-center">Total</div>
-            <div class="col-1 border-end bg-sky-500 text-center">Pagado</div>
-            <div class="col-1 border-end bg-sky-500 text-center">Saldo</div>
-            <div class="col-1 bg-lime-600 text-center">A Pagar</div>
-          </div>
-
-          <!-- Filas de facturas -->
-          <div class="row mb-1 border my-hover-2 bg-gray">
-            <div class="col-1 border-end d-flex align-items-center justify-content-center">
-              <input type="checkbox" class="form-check-input">
-            </div>
-            <div class="col-2 border-end d-flex align-items-center">
-              <div>
-                <div class="fw-semibold">001-000001</div>
-                <small class="text-muted">FAC_VENTA</small>
-              </div>
-            </div>
-            <div class="col-2 border-end d-flex align-items-center">
-              <div>
-                <div class="fw-semibold">A&C Wholesle Flower</div>
-                <small class="text-muted">390484522</small>
-              </div>
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              2025-05-06
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              2025-06-05
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              <span class="badge bg-yellow-300 text-dark">30</span>
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              $1,203.75
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              $0.00
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              <span class="fw-semibold text-danger">$1,203.75</span>
-            </div>
-            <div class="col-1 d-flex align-items-center">
-              <input type="number" step="0.01" class="form-control form-control-sm text-end" value="1203.75">
-            </div>
-          </div>
-
-          <div class="row mb-1 border my-hover-2">
-            <div class="col-1 border-end d-flex align-items-center justify-content-center">
-              <input type="checkbox" class="form-check-input">
-            </div>
-            <div class="col-2 border-end d-flex align-items-center">
-              <div>
-                <div class="fw-semibold">001-000002</div>
-                <small class="text-muted">FAC_VENTA</small>
-              </div>
-            </div>
-            <div class="col-2 border-end d-flex align-items-center">
-              <div>
-                <div class="fw-semibold">Aliance Floral Co</div>
-                <small class="text-muted">390484524</small>
-              </div>
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              2025-05-27
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              2025-06-26
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              <span class="badge bg-green-600">11</span>
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              $903.75
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              $0.00
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              <span class="fw-semibold text-danger">$903.75</span>
-            </div>
-            <div class="col-1 d-flex align-items-center">
-              <input type="number" step="0.01" class="form-control form-control-sm text-end" value="0.00">
-            </div>
-          </div>
-
-          <div class="row mb-1 border my-hover-2 bg-gray">
-            <div class="col-1 border-end d-flex align-items-center justify-content-center">
-              <input type="checkbox" class="form-check-input" checked>
-            </div>
-            <div class="col-2 border-end d-flex align-items-center">
-              <div>
-                <div class="fw-semibold">100-000004</div>
-                <small class="text-muted">FAC_VENTA</small>
-              </div>
-            </div>
-            <div class="col-2 border-end d-flex align-items-center">
-              <div>
-                <div class="fw-semibold">Premier Floral Corp</div>
-                <small class="text-muted">39048452</small>
-              </div>
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              2025-05-27
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              2025-07-11
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              <span class="badge bg-red-600 text-white">-5</span>
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              $997.50
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              $0.00
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              <span class="fw-semibold text-danger">$997.50</span>
-            </div>
-            <div class="col-1 d-flex align-items-center">
-              <input type="number" step="0.01" class="form-control form-control-sm text-end" value="997.50">
-            </div>
-          </div>
-
-          <div class="row mb-1 border my-hover-2">
-            <div class="col-1 border-end d-flex align-items-center justify-content-center">
-              <input type="checkbox" class="form-check-input">
-            </div>
-            <div class="col-2 border-end d-flex align-items-center">
-              <div>
-                <div class="fw-semibold">100-000006</div>
-                <small class="text-muted">FAC_VENTA</small>
-              </div>
-            </div>
-            <div class="col-2 border-end d-flex align-items-center">
-              <div>
-                <div class="fw-semibold">Global Flowers</div>
-                <small class="text-muted">390484526</small>
-              </div>
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              2025-05-27
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              2025-06-11
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-center">
-              <span class="badge bg-green-600">4</span>
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              $300.00
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              $0.00
-            </div>
-            <div class="col-1 border-end d-flex align-items-center text-end">
-              <span class="fw-semibold text-danger">$300.00</span>
-            </div>
-            <div class="col-1 d-flex align-items-center">
-              <input type="number" step="0.01" class="form-control form-control-sm text-end" value="0.00">
-            </div>
-          </div>
-
-          <!-- Resumen de totales -->
-          <div class="row">
-            <div class="col-8">
-              <div class="row shadow-sm p-2 border bg-transparent rounded-1 fs-5">
-                <div class="col-3 text-end fw-semibold">Facturas seleccionadas:</div>
-                <div class="col-2 text-end">2</div>
-                <div class="col-3 text-end fw-semibold">Total a pagar:</div>
-                <div class="col-4 text-end text-lime-600">$2,201.25</div>
-              </div>
-            </div>
-            <div class="col-4">
-              <div class="row bg-trasparent rounded-1 shadow-sm p-2 border">
-                <div class="col-6 text-end border-end fs-5 text-danger fw-semibold">Saldo Total:</div>
-                <div class="col-6 fs-5 text-danger text-end fw-semibold">
-                  $4,537.75
-                </div>
+        <!-- Filtros y Autocomplete -->
+        <div class="row pt-2 pb-2">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">🔍 Buscar Cliente</label>
+            <div class="position-relative">
+              <input 
+                type="text" 
+                v-model="customerSearch" 
+                @input="filterCustomers"
+                @focus="showCustomerDropdown = true"
+                class="form-control" 
+                placeholder="Escriba para buscar cliente..."
+                autocomplete="off">
+              
+              <!-- Dropdown de clientes -->
+              <div v-if="showCustomerDropdown && filteredCustomers.length > 0" 
+                   class="dropdown-menu show w-100 position-absolute" 
+                   style="z-index: 1050; max-height: 300px; overflow-y: auto;">
+                <a v-for="customer in filteredCustomers" 
+                   :key="customer.id" 
+                   @click="selectCustomer(customer)"
+                   class="dropdown-item d-flex justify-content-between align-items-center">
+                  <div>
+                    <strong>{{ customer.name }}</strong>
+                    <br><small class="text-muted">{{ customer.document_number }}</small>
+                  </div>
+                  <span class="badge bg-primary">{{ customer.pending_invoices || 0 }}</span>
+                </a>
               </div>
             </div>
           </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">📊 Cliente Seleccionado</label>
+            <div v-if="selectedCustomer" class="alert alert-info mb-0">
+              <strong>{{ selectedCustomer.name }}</strong> - {{ selectedCustomer.document_number }}
+              <button type="button" class="btn btn-sm btn-outline-secondary float-end" @click="clearCustomerSelection">🗑️ Limpiar</button>
+            </div>
+            <div v-else class="alert alert-light mb-0">
+              <em>Ningún cliente seleccionado</em>
+            </div>
+          </div>
+        </div>
 
-          <!-- Formulario de Pago -->
-          <div class="row mt-3 border-top pt-3">
-            <div class="col-12">
-              <div class="row bg-light border rounded-1 shadow-sm p-3">
-                <div class="col-12 mb-3">
-                  <h5 class="text-orange-700 fw-semibold mb-3">Información del Pago</h5>
-                </div>
-                
-                <div class="col-3">
-                  <label class="form-label fw-semibold">Fecha de Pago</label>
-                  <input type="date" class="form-control" value="2025-01-07">
-                </div>
-                
-                <div class="col-3">
-                  <label class="form-label fw-semibold">Método de Pago</label>
-                  <select class="form-select">
-                    <option value="">Seleccionar...</option>
-                    <option value="cash">Efectivo</option>
-                    <option value="transfer">Transferencia</option>
-                    <option value="check">Cheque</option>
-                    <option value="card">Tarjeta</option>
-                  </select>
-                </div>
-                
-                <div class="col-3">
-                  <label class="form-label fw-semibold">Referencia/Documento</label>
-                  <input type="text" class="form-control" placeholder="Núm. cheque, transferencia...">
-                </div>
-                
-                <div class="col-3">
-                  <label class="form-label fw-semibold">Monto Total</label>
-                  <input type="number" step="0.01" class="form-control text-end fw-semibold" value="2201.25" readonly>
-                </div>
-                
-                <div class="col-6 mt-3">
-                  <label class="form-label fw-semibold">Observaciones</label>
-                  <textarea class="form-control" rows="2" placeholder="Observaciones adicionales..."></textarea>
-                </div>
-                
-                <div class="col-6 mt-3">
-                  <label class="form-label fw-semibold">Cuenta Bancaria</label>
-                  <select class="form-select">
-                    <option value="">Seleccionar cuenta...</option>
-                    <option value="1">Banco de Bogotá - *****1234</option>
-                    <option value="2">Bancolombia - *****5678</option>
-                  </select>
-                </div>
+        <!-- Estadísticas -->
+        <div v-if="statistics" class="row pb-2 pt-2 fw-bold border pt-2 pb-2 mt-2 mb-2 shadow-sm">
+          <div class="col-4 text-start text-xl">
+            📊 Estadísticas {{ getCurrentMonthName() }}
+          </div>
+          <div class="col-8 text-end text-xl">
+            <span>Total facturas: {{ statistics.total_invoices || 0 }}</span>
+            <span class="text-muted ps-1 pe-1">|</span>
+            <span class="text-cyan-800">Total pendiente: {{ formatCurrency(statistics.total_pending || 0) }}</span>
+            <span class="text-muted ps-1 pe-1">|</span>
+            <span class="text-danger">Vencido: {{ formatCurrency(statistics.overdue_amount || 0) }}</span>
+            <span class="text-muted ps-1 pe-1">|</span>
+            <span class="text-warning">Por vencer: {{ formatCurrency(statistics.due_soon_amount || 0) }}</span>
+          </div>
+        </div>
+
+        <!-- Encabezados de tabla -->
+        <div class="row p-1 text-white">
+          <div class="col-1 border-end bg-gray-400 text-center">Sel.</div>
+          <div class="col-2 border-end bg-gray-400 text-center">Factura</div>
+          <div class="col-2 border-end bg-gray-400 text-center">Cliente</div>
+          <div class="col-1 border-end bg-gray-400 text-center">Fecha</div>
+          <div class="col-1 border-end bg-gray-400 text-center">Vence</div>
+          <div class="col-1 border-end bg-gray-400 text-center">Días</div>
+          <div class="col-1 border-end bg-sky-500 text-center">Total</div>
+          <div class="col-1 border-end bg-sky-500 text-center">Cobrado</div>
+          <div class="col-1 border-end bg-sky-500 text-center">Saldo</div>
+          <div class="col-1 bg-lime-600 text-center">A Cobrar</div>
+        </div>
+
+        <!-- Filas de facturas dinámicas -->
+        <div v-for="invoice in displayedInvoices" :key="invoice.id" 
+             :class="['row', 'mb-1', 'border', 'my-hover-2', { 'bg-light': invoice.selected }]">
+          <div class="col-1 border-end d-flex align-items-center justify-content-center">
+            <input type="checkbox" 
+                   v-model="invoice.selected" 
+                   @change="updateInvoiceSelection(invoice)"
+                   class="form-check-input">
+          </div>
+          <div class="col-2 border-end d-flex align-items-center">
+            <div>
+              <div class="fw-semibold">{{ invoice.number }}</div>
+              <small class="text-muted">{{ invoice.type }}</small>
+            </div>
+          </div>
+          <div class="col-2 border-end d-flex align-items-center">
+            <div>
+              <div class="fw-semibold">{{ invoice.customer_name }}</div>
+              <small class="text-muted">{{ invoice.customer_document }}</small>
+            </div>
+          </div>
+          <div class="col-1 border-end d-flex align-items-center text-center">
+            {{ formatDate(invoice.date) }}
+          </div>
+          <div class="col-1 border-end d-flex align-items-center text-center">
+            {{ formatDate(invoice.due_date) }}
+          </div>
+          <div class="col-1 border-end d-flex align-items-center text-center">
+            <span :class="getDaysBadgeClass(invoice.days_overdue)">
+              {{ invoice.days_overdue }}
+            </span>
+          </div>
+          <div class="col-1 border-end d-flex align-items-center text-end">
+            {{ formatCurrency(invoice.total_amount) }}
+          </div>
+          <div class="col-1 border-end d-flex align-items-center text-end">
+            {{ formatCurrency(invoice.paid_amount) }}
+          </div>
+          <div class="col-1 border-end d-flex align-items-center text-end">
+            <span class="fw-semibold text-danger">{{ formatCurrency(invoice.pending_amount) }}</span>
+          </div>
+          <div class="col-1 d-flex align-items-center">
+            <input type="number" 
+                   step="0.01" 
+                   v-model.number="invoice.payment_amount"
+                   @input="updatePaymentAmount(invoice)"
+                   :max="invoice.pending_amount"
+                   :disabled="!invoice.selected"
+                   class="form-control form-control-sm text-end">
+          </div>
+        </div>
+
+        <!-- Mensaje cuando no hay facturas -->
+        <div v-if="displayedInvoices.length === 0" class="row">
+          <div class="col-12 text-center py-4">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              <span v-if="selectedCustomer">No hay facturas pendientes para este cliente.</span>
+              <span v-else>Seleccione un cliente para ver sus facturas pendientes.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen de totales -->
+        <div class="row mt-3">
+          <div class="col-8">
+            <div class="row shadow-sm p-2 border bg-transparent rounded-1 fs-5">
+              <div class="col-3 text-end fw-semibold">Facturas seleccionadas:</div>
+              <div class="col-2 text-end">{{ selectedInvoicesCount }}</div>
+              <div class="col-3 text-end fw-semibold">Total a cobrar:</div>
+              <div class="col-4 text-end text-success fw-bold">{{ formatCurrency(totalToCollect) }}</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="row bg-transparent rounded-1 shadow-sm p-2 border">
+              <div class="col-6 text-end border-end fs-5 text-danger fw-semibold">Saldo Total:</div>
+              <div class="col-6 fs-5 text-danger text-end fw-semibold">
+                {{ formatCurrency(totalPendingAmount) }}
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Botones de Acción -->
-          <div class="row mt-3 border-top pt-3">
-            <div class="col-6">
-              <button type="button" class="btn btn-sm btn-default me-2">
-                <span>🔄</span>
-                Limpiar Selección
-              </button>
-              <button type="button" class="btn btn-sm btn-default">
-                <span>📋</span>
-                Guardar Borrador
-              </button>
-            </div>
-            <div class="col-6 text-end d-flex gap-3 justify-content-end">
-              <button type="button" class="btn btn-sm btn-default">
-                <span>❌</span>
-                Cancelar
-              </button>
-              <button type="button" class="btn btn-sm btn-default" disabled>
-                <span>💰</span>
-                Procesar Pago
-              </button>
-              <button type="button" class="btn btn-sm btn-default">
-                <span>✅</span>
-                Confirmar y Registrar
-              </button>
-            </div>
+        <!-- Botones de Acción -->
+        <div class="row mt-3 border-top pt-3">
+          <div class="col-6">
+            <button type="button" class="btn btn-sm btn-outline-secondary me-2" @click="clearSelection">
+              🔄 Limpiar Selección
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-info" @click="selectAllInvoices">
+              ☑️ Seleccionar Todo
+            </button>
+          </div>
+          <div class="col-6 text-end d-flex gap-3 justify-content-end">
+            <button type="button" 
+                    class="btn btn-success" 
+                    @click="openCollectionModal"
+                    :disabled="selectedInvoicesCount === 0">
+              💰 Registrar Cobro
+            </button>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+{% endverbatim %}
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+<script>
+const { createApp } = Vue;
+
+createApp({
+  data() {
+    return {
+      loading: true,
+      error: null,
+      modalMessage: { text: '', type: '' },
+      
+      // Datos de contexto
+      customers: [],
+      invoices: [],
+      paymentMethods: [],
+      statistics: null,
+      
+      // Filtros y selecciones
+      customerSearch: '',
+      filteredCustomers: [],
+      showCustomerDropdown: false,
+      selectedCustomer: null,
+      
+      // Modal y formulario
+      collectionData: {
+        date: this.getTodayDate(),
+        method: '',
+        bank: '',
+        nro_operation: '',
+        amount: 0,
+        observations: ''
+      },
+      
+      // Archivo adjunto
+      selectedFile: null,
+      filePreview: null
+    }
+  },
+  
+  computed: {
+    displayedInvoices() {
+      if (!this.selectedCustomer) {
+        return [];
+      }
+      return this.invoices.filter(invoice => 
+        invoice.customer_id === this.selectedCustomer.id
+      );
+    },
+    
+    selectedInvoicesCount() {
+      return this.displayedInvoices.filter(invoice => invoice.selected).length;
+    },
+    
+    totalToCollect() {
+      return this.displayedInvoices
+        .filter(invoice => invoice.selected)
+        .reduce((sum, invoice) => sum + (invoice.payment_amount || 0), 0);
+    },
+    
+    totalPendingAmount() {
+      return this.displayedInvoices
+        .reduce((sum, invoice) => sum + invoice.pending_amount, 0);
+    },
+    
+    canSubmit() {
+      return this.collectionData.date && 
+             this.collectionData.method && 
+             this.totalToCollect > 0;
+    }
+  },
+  
+  mounted() {
+    this.loadData();
+    
+    // Cerrar dropdown al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.position-relative')) {
+        this.showCustomerDropdown = false;
+      }
+    });
+  },
+  
+  methods: {
+    async loadData() {
+      try {
+        this.loading = true;
+        this.error = null;
+        
+        const response = await fetch('/api/collections-context-data/');
+        
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          this.customers = data.customers || [];
+          this.invoices = (data.invoices || []).map(invoice => ({
+            ...invoice,
+            selected: false,
+            payment_amount: 0
+          }));
+          this.paymentMethods = data.payment_methods || [];
+          this.statistics = data.statistics;
+          
+          this.filteredCustomers = this.customers;
+        } else {
+          throw new Error(data.error || 'Error desconocido');
+        }
+        
+      } catch (error) {
+        console.error('Error loading data:', error);
+        this.error = error.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    filterCustomers() {
+      if (!this.customerSearch) {
+        this.filteredCustomers = this.customers;
+        return;
+      }
+      
+      const search = this.customerSearch.toLowerCase();
+      this.filteredCustomers = this.customers.filter(customer => 
+        customer.name.toLowerCase().includes(search) ||
+        customer.document_number.toLowerCase().includes(search)
+      );
+      this.showCustomerDropdown = true;
+    },
+    
+    selectCustomer(customer) {
+      this.selectedCustomer = customer;
+      this.customerSearch = customer.name;
+      this.showCustomerDropdown = false;
+      this.clearSelection();
+    },
+    
+    clearCustomerSelection() {
+      this.selectedCustomer = null;
+      this.customerSearch = '';
+      this.clearSelection();
+    },
+    
+    updateInvoiceSelection(invoice) {
+      if (invoice.selected && invoice.payment_amount === 0) {
+        invoice.payment_amount = invoice.pending_amount;
+      } else if (!invoice.selected) {
+        invoice.payment_amount = 0;
+      }
+      this.updateCollectionAmount();
+    },
+    
+    updatePaymentAmount(invoice) {
+      if (invoice.payment_amount > invoice.pending_amount) {
+        invoice.payment_amount = invoice.pending_amount;
+      }
+      if (invoice.payment_amount <= 0) {
+        invoice.selected = false;
+        invoice.payment_amount = 0;
+      }
+      this.updateCollectionAmount();
+    },
+    
+    updateCollectionAmount() {
+      this.collectionData.amount = this.totalToCollect;
+    },
+    
+    clearSelection() {
+      this.displayedInvoices.forEach(invoice => {
+        invoice.selected = false;
+        invoice.payment_amount = 0;
+      });
+      this.updateCollectionAmount();
+    },
+    
+    selectAllInvoices() {
+      this.displayedInvoices.forEach(invoice => {
+        invoice.selected = true;
+        invoice.payment_amount = invoice.pending_amount;
+      });
+      this.updateCollectionAmount();
+    },
+    
+    openCollectionModal() {
+      if (this.selectedInvoicesCount === 0) {
+        this.showModalMessage('Debe seleccionar al menos una factura para cobrar.', 'warning');
+        return;
+      }
+      
+      this.updateCollectionAmount();
+      this.clearModalMessage();
+      
+      const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
+      modal.show();
+    },
+    
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) {
+        this.selectedFile = null;
+        this.filePreview = null;
+        return;
+      }
+      
+      // Validar tamaño (5MB máximo)
+      if (file.size > 5 * 1024 * 1024) {
+        this.showModalMessage('El archivo debe ser menor a 5MB.', 'danger');
+        event.target.value = '';
+        return;
+      }
+      
+      // Validar tipo de archivo
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        this.showModalMessage('Solo se permiten archivos de imagen (JPG, PNG, GIF) o PDF.', 'danger');
+        event.target.value = '';
+        return;
+      }
+      
+      this.selectedFile = file;
+      
+      // Generar preview
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.filePreview = {
+            type: 'image',
+            url: e.target.result,
+            name: file.name
+          };
+        };
+        reader.readAsDataURL(file);
+      } else {
+        this.filePreview = {
+          type: 'pdf',
+          name: file.name
+        };
+      }
+    },
+    
+    removeFile() {
+      this.selectedFile = null;
+      this.filePreview = null;
+      const fileInput = document.querySelector('input[type="file"]');
+      if (fileInput) fileInput.value = '';
+    },
+    
+    async submitCollection() {
+      if (!this.canSubmit) {
+        this.showModalMessage('Complete todos los campos requeridos.', 'warning');
+        return;
+      }
+      
+      try {
+        const formData = new FormData();
+        
+        // Datos básicos del cobro
+        formData.append('date', this.collectionData.date);
+        formData.append('method', this.collectionData.method);
+        formData.append('bank', this.collectionData.bank);
+        formData.append('nro_operation', this.collectionData.nro_operation);
+        formData.append('amount', this.collectionData.amount.toString());
+        formData.append('observations', this.collectionData.observations);
+        
+        // Archivo adjunto
+        if (this.selectedFile) {
+          formData.append('document', this.selectedFile);
+        }
+        
+        // Pagos por factura
+        const invoicePayments = {};
+        this.displayedInvoices
+          .filter(invoice => invoice.selected && invoice.payment_amount > 0)
+          .forEach(invoice => {
+            invoicePayments[invoice.id] = invoice.payment_amount;
+          });
+        
+        formData.append('invoice_payments', JSON.stringify(invoicePayments));
+        
+        const response = await fetch('/trade/collection-form/', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRFToken': this.getCSRFToken()
+          }
+        });
+        
+        if (response.ok) {
+          this.showModalMessage('¡Cobro registrado exitosamente!', 'success');
+          
+          // Recargar datos después de un breve delay
+          setTimeout(() => {
+            this.loadData();
+            this.clearSelection();
+            this.resetCollectionForm();
+            
+            // Cerrar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
+            if (modal) modal.hide();
+          }, 2000);
+          
+        } else {
+          const errorData = await response.json().catch(() => ({ error: 'Error del servidor' }));
+          throw new Error(errorData.error || 'Error al procesar el cobro');
+        }
+        
+      } catch (error) {
+        console.error('Error submitting collection:', error);
+        this.showModalMessage(`Error: ${error.message}`, 'danger');
+      }
+    },
+    
+    resetCollectionForm() {
+      this.collectionData = {
+        date: this.getTodayDate(),
+        method: '',
+        bank: '',
+        nro_operation: '',
+        amount: 0,
+        observations: ''
+      };
+      this.removeFile();
+    },
+    
+    showModalMessage(text, type) {
+      this.modalMessage = { text, type };
+    },
+    
+    clearModalMessage() {
+      this.modalMessage = { text: '', type: '' };
+    },
+    
+    // Utilidades
+    getTodayDate() {
+      return new Date().toISOString().split('T')[0];
+    },
+    
+    getCurrentDate() {
+      return new Date().toLocaleDateString('es-ES');
+    },
+    
+    getCurrentTime() {
+      return new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    },
+    
+    getCurrentMonthName() {
+      return new Date().toLocaleDateString('es-ES', { month: 'long' });
+    },
+    
+    formatDate(dateStr) {
+      if (!dateStr) return '';
+      return new Date(dateStr).toLocaleDateString('es-ES');
+    },
+    
+    formatCurrency(amount) {
+      if (amount === null || amount === undefined) return '$0.00';
+      return new Intl.NumberFormat('es-ES', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+      }).format(amount);
+    },
+    
+    getDaysBadgeClass(days) {
+      if (days < 0) return 'badge bg-danger text-white';
+      if (days <= 7) return 'badge bg-warning text-dark';
+      if (days <= 30) return 'badge bg-success';
+      return 'badge bg-secondary';
+    },
+    
+    getCSRFToken() {
+      const token = document.querySelector('[name=csrfmiddlewaretoken]');
+      return token ? token.value : '';
+    }
+  }
+}).mount('#collectionApp');
+</script>
+
+<!-- CSRF Token para requests AJAX -->
+{% csrf_token %}
 {% endblock %}

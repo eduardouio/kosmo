@@ -25,6 +25,7 @@ from api import (
     InvoicesForPaymentAPI,
     UpdateProductAPI,
     PaymentContextData,
+    CollectionsContextAPI,
 )
 
 urlpatterns = [
@@ -55,4 +56,5 @@ urlpatterns = [
     path('api/users/sellers/', SellersListAPI.as_view(), name='sellers_list_api'),
     path('api/products/bulk-update/', UpdateProductAPI.as_view(), name='update_product_api'),
     path('api/payments/context-data/', PaymentContextData.as_view(), name='payment_context_data'),
+    path('api/collections/context-data/', CollectionsContextAPI.as_view(), name='collections_context_data'),
 ]
