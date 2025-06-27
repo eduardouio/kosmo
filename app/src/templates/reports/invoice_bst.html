@@ -181,19 +181,26 @@
                                         {% for bxs in item.box_items %}
                                         <p class="mb-0">{{ bxs.product.variety }}</p>
                                         {% endfor %}
-                                    </td>
-                                    <td>
-                                        {% for bxs in item.box_items %}
-                                        <p class="mb-0">{{ bxs.length }}</p>
-                                        {% endfor %}
-                                    </td>
-                                    <td>x</td>
-                                    <td>x</td>
-                                    <td>
-                                        {% for bxs in item.box_items %}
-                                        <p class="mb-0">{{ bxs.qty_stem_flower }}</p>
-                                        {% endfor %}
-                                    </td>
+                                    </td>                                <td>
+                                    {% for bxs in item.box_items %}
+                                    <p class="mb-0">{{ bxs.length }}</p>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for bxs in item.box_items %}
+                                    <p class="mb-0">{{ bxs.stems_bunch|default:"25" }}</p>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for bxs in item.box_items %}
+                                    <p class="mb-0">{{ bxs.total_bunches|default:"1" }}</p>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% for bxs in item.box_items %}
+                                    <p class="mb-0">{{ bxs.qty_stem_flower }}</p>
+                                    {% endfor %}
+                                </td>
                                     <td>
                                         {% for bxs in item.box_items %}
                                         <p class="mb-0">{{ bxs.stem_cost_price }}</p>
@@ -223,6 +230,7 @@
                                 <div class="border-bottom p-1"><strong>TOTAL QB:</strong> <span>{{ invoice.total_qb }}</span></div>
                                 <div class="border-bottom p-1"><strong>TOTAL PIECES:</strong> <span>{{ invoice.pieces }}</span></div>
                                 <div class="border-bottom p-1"><strong>TOTAL STEMS:</strong> <span>{{ invoice.total_stems }}</span></div>
+                                <div class="border-bottom p-1"><strong>TOTAL BUNCHES:</strong> <span>{{ invoice.total_bunches }}</span></div>
                                 <div class="p-1"><strong>TOTAL FB:</strong> <span>{{ invoice.total_fb }}</span></div>
                             </div>
                         </div>

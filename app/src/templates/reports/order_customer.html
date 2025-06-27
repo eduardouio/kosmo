@@ -99,12 +99,12 @@
                                 </td>
                                 <td class="border border-gray-700 px-4 py-2">
                                     {% for bxs in item.box_items %}
-                                    <p>{{ bxs.box_item.stems_bunch }}</p>
+                                    <p>{{ bxs.box_item.stems_bunch|default:"25" }}</p>
                                     {% endfor %}
                                 </td>
                                 <td class="border border-gray-700 px-4 py-2">
                                     {% for bxs in item.box_items %}
-                                    <p>{{ bxs.box_item.total_bunches }}</p>
+                                    <p>{{ bxs.box_item.total_bunches|default:"1" }}</p>
                                     {% endfor %}
                                 </td>
                                 <td class="border border-gray-700 px-4 py-2">

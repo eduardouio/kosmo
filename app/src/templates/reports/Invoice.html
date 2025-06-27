@@ -144,12 +144,12 @@
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{{ bxs.stems_bunch }}</p>
+                  <p class="border-bottom">{{ bxs.stems_bunch|default:"25" }}</p>
                   {% endfor %}
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{{ bxs.total_bunches }}</p>
+                  <p class="border-bottom">{{ bxs.total_bunches|default:"1" }}</p>
                   {% endfor %}
                 </td>
                 <td>
@@ -190,6 +190,9 @@
             </div>
             <div class="summary-row">
               <strong>TOTAL STEMS:</strong> <strong>{{ invoice.tot_stem_flower }}</strong>
+            </div>
+            <div class="summary-row">
+              <strong>TOTAL BUNCHES:</strong> <strong>{{ invoice.total_bunches }}</strong>
             </div>
             <div class="summary-row">
               <strong>TOTAL FB:</strong> <strong>{{ invoice.fb_total }}</strong>
