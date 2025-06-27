@@ -53,7 +53,13 @@ class PaymentFormView(LoginRequiredMixin, View):
             payment.bank = data.get('bank')
             payment.nro_account = data.get('nro_account')
             payment.nro_operation = data.get('nro_operation')
+            payment.observations = data.get('observations', '')
             payment.updated_by = request.user
+            
+            # Manejar archivo de documento si se proporciona
+            if 'document' in request.FILES:
+                payment.document = request.FILES['document']
+            
             payment.save()
             
             # Procesar facturas asociadas al pago

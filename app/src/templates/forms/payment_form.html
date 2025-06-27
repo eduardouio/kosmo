@@ -1,8 +1,13 @@
 {% extends 'base/base.html' %}
 
+{% block style %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
 {% block content %}
-  <div id="paymentApp" class="mx-auto" style="width: 80%;">
-    <div class="row pt-2">
+  <div id="paymentApp" class="mx-auto" style="width: 80%;"          <!-- Lista de facturas seleccionadas -->
+          <div class="mb-3">
+            <h6>📋 Facturas Seleccionadas:</h6>   <div class="row pt-2">
       <div class="col">
         <!-- Loader mientras se cargan los datos -->
         <div v-if="loading" class="text-center py-5">
@@ -40,29 +45,68 @@
             <div class="col-8 text-end text-xl">
                 <span>Total facturas pendientes: {% verbatim %}{{ statistics.pending_invoices.count }}{% endverbatim %}</span>
                 <span class="text-muted ps-1 pe-1">|</span>
-                <span class="text-cyan-800">Total pendiente: ${% verbatim %}{{ formatCurrency(statistics.pending_invoices.total_amount) }}{% endverbatim %}</span>
+                <span class="text-cyan-800">Total pendiente: ${%  verbatim %}{{ formatCurrency(statistics.pending_invoices.total_amount) }}{% endverbatim %}</span>
                 <span class="text-muted ps-1 pe-1">|</span>
-                <span class="text-danger">Saldo Vencido: ${% verbatim %}{{ formatCurrency(statistics.overdue_payments.total_amount) }}{% endverbatim %}</span>
+                <span class="text-danger">Saldo Vencido: ${%  verbatim %}{{ formatCurrency(statistics.overdue_payments.total_amount) }}{% endverbatim %}</span>
                 <span class="text-muted ps-1 pe-1">|</span>
-                <span class="text-yellow-600">Por Vencer: ${% verbatim %}{{ formatCurrency(statistics.upcoming_due_invoices.total_amount) }}{% endverbatim %}</span>
+                <span class="text-yellow-600">Por Vencer: ${%  verbatim %}{{ formatCurrency(statistics.upcoming_due_invoices.total_amount) }}{% endverbatim %}</span>
             </div>
           </div>
 
-          <!-- Filtro de proveedor -->
+          <!-- Filtro de proveedor con autocomplete -->
           <div class="row mb-3">
             <div class="col-4">
               <label class="form-label fw-semibold">Filtrar por Proveedor:</label>
-              <select v-model="selectedSupplierId" @change="filterInvoicesBySupplier" class="form-select">
-                <option value="">Todos los proveedores</option>
-                <option v-for="supplier in suppliers" :key="supplier.id" :value="supplier.id">
-                  {% verbatim %}{{ supplier.name }}{% endverbatim %} - {% verbatim %}{{ supplier.document_number }}{% endverbatim %}
-                </option>
-              </select>
+              <div class="position-relative">
+                <input 
+                  type="text" 
+                  v-model="supplierSearchTerm" 
+                  @input="filterSuppliers"
+                  @focus="showSupplierDropdown = true"
+                  @blur="hideSupplierDropdown"
+                  class="form-control" 
+                  placeholder="Buscar proveedor..."
+                  autocomplete="off">
+                
+                <!-- Dropdown de proveedores filtrados -->
+                <div v-if="showSupplierDropdown && filteredSuppliers.length > 0" 
+                     class="position-absolute w-100 bg-white border rounded shadow-lg mt-1 z-index-1000"
+                     style="max-height: 200px; overflow-y: auto; z-index: 1000;">
+                  <div v-for="supplier in filteredSuppliers" 
+                       :key="supplier.id"
+                       @mousedown="selectSupplier(supplier)"
+                       class="p-2 cursor-pointer hover-bg-light border-bottom">
+                    <div class="fw-semibold">{% verbatim %}{{ supplier.name }}{% endverbatim %}</div>
+                    <small class="text-muted">RUT: {% verbatim %}{{ supplier.business_tax_id }}{% endverbatim %}</small>
+                  </div>
+                  <div v-if="supplierSearchTerm && filteredSuppliers.length === 0" 
+                       class="p-2 text-muted text-center">
+                    No se encontraron proveedores
+                  </div>
+                  <div @mousedown="clearSupplierFilter" 
+                       class="p-2 text-center bg-light cursor-pointer hover-bg-secondary text-primary">
+                    <small><i class="fas fa-times"></i> Mostrar todos los proveedores</small>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Proveedor seleccionado -->
+              <div v-if="selectedSupplier" class="mt-2">
+                <span class="badge bg-primary">
+                  {% verbatim %}{{ selectedSupplier.name }}{% endverbatim %}
+                  <i @click="clearSupplierFilter" class="fas fa-times ms-1 cursor-pointer"></i>
+                </span>
+              </div>
             </div>
             <div class="col-8 text-end pt-4">
               <span class="badge bg-info">
                 Facturas mostradas: {% verbatim %}{{ filteredInvoices.length }}{% endverbatim %}
               </span>
+              <button @click="openPaymentModal" 
+                      :disabled="selectedInvoicesCount === 0"
+                      class="btn btn-success btn-sm ms-2">
+                <i class="fas fa-plus"></i> Registrar Pago ({% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %})
+              </button>
             </div>
           </div>
 
@@ -117,13 +161,13 @@
               <span v-else class="badge bg-success">{% verbatim %}{{ Math.abs(invoice.days_overdue) }}{% endverbatim %}</span>
             </div>
             <div class="col-1 border-end d-flex align-items-center text-end">
-              ${% verbatim %}{{ formatCurrency(invoice.total_amount) }}{% endverbatim %}
+              ${%  verbatim %}{{ formatCurrency(invoice.total_amount) }}{% endverbatim %}
             </div>
             <div class="col-1 border-end d-flex align-items-center text-end">
-              ${% verbatim %}{{ formatCurrency(invoice.paid_amount) }}{% endverbatim %}
+              ${%  verbatim %}{{ formatCurrency(invoice.paid_amount) }}{% endverbatim %}
             </div>
             <div class="col-1 border-end d-flex align-items-center text-end">
-              <span class="fw-semibold text-danger">${% verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</span>
+              <span class="fw-semibold text-danger">${%  verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</span>
             </div>
             <div class="col-1 d-flex align-items-center">
               <input type="number" step="0.01" v-model="invoice.paymentAmount" 
@@ -143,10 +187,10 @@
                     <strong>Facturas Seleccionadas:</strong> {% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %}
                   </div>
                   <div class="col-3">
-                    <strong>Total a Pagar:</strong> ${% verbatim %}{{ formatCurrency(totalPaymentAmount) }}{% endverbatim %}
+                    <strong>Total a Pagar:</strong> ${%  verbatim %}{{ formatCurrency(totalPaymentAmount) }}{% endverbatim %}
                   </div>
                   <div class="col-3">
-                    <strong>Saldo Total:</strong> ${% verbatim %}{{ formatCurrency(totalBalanceAmount) }}{% endverbatim %}
+                    <strong>Saldo Total:</strong> ${%  verbatim %}{{ formatCurrency(totalBalanceAmount) }}{% endverbatim %}
                   </div>
                   <div class="col-3">
                     <strong>Diferencia:</strong> 
@@ -159,78 +203,217 @@
             </div>
           </div>
 
-          <!-- Formulario de Pago -->
-          <div class="row mt-3 border-top pt-3">
-            <div class="col-12">
-              <h5 class="mb-3">📝 Información del Pago</h5>
-              <div class="row">
-                <div class="col-3">
-                  <label class="form-label fw-semibold">Fecha del Pago</label>
-                  <input type="date" v-model="paymentForm.date" class="form-control" :max="currentDate">
-                </div>
-                
-                <div class="col-3">
-                  <label class="form-label fw-semibold">Método de Pago</label>
-                  <select v-model="paymentForm.method" class="form-select">
-                    <option value="">Seleccionar...</option>
-                    <option v-for="method in paymentMethods" :key="method.value" :value="method.value">
-                      {% verbatim %}{{ method.label }}{% endverbatim %}
-                    </option>
-                  </select>
-                </div>
-                
-                <div class="col-3">
-                  <label class="form-label fw-semibold">Referencia/Documento</label>
-                  <input type="text" v-model="paymentForm.reference" class="form-control" placeholder="Núm. cheque, transferencia...">
-                </div>
-                
-                <div class="col-3">
-                  <label class="form-label fw-semibold">Monto Total</label>
-                  <input type="number" step="0.01" v-model="paymentForm.amount" class="form-control text-end fw-semibold" readonly>
-                </div>
-                
-                <div class="col-6 mt-3">
-                  <label class="form-label fw-semibold">Banco</label>
-                  <input type="text" v-model="paymentForm.bank" class="form-control" placeholder="Nombre del banco" list="popular-banks">
-                  <datalist id="popular-banks">
-                    <option v-for="bank in popularBanks" :key="bank.bank" :value="bank.bank">
-                  </datalist>
-                </div>
-                
-                <div class="col-6 mt-3">
-                  <label class="form-label fw-semibold">Número de Cuenta</label>
-                  <input type="text" v-model="paymentForm.accountNumber" class="form-control" placeholder="Número de cuenta">
-                </div>
-
-                <div class="col-12 mt-3">
-                  <label class="form-label fw-semibold">Observaciones</label>
-                  <textarea v-model="paymentForm.observations" class="form-control" rows="2" placeholder="Observaciones adicionales..."></textarea>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Botones de Acción -->
+          <!-- Botones de Acción rápida -->
           <div class="row mt-3 border-top pt-3">
             <div class="col-6">
               <button type="button" @click="clearSelection" class="btn btn-sm btn-secondary me-2">
                 🔄 Limpiar Selección
               </button>
               <button type="button" @click="selectAllInvoices" class="btn btn-sm btn-outline-primary">
-                ☑️ Seleccionar Todas
+                ☑️ Seleccionar Todas las Mostradas
               </button>
             </div>
-            <div class="col-6 text-end d-flex gap-2 justify-content-end">
-              <button type="button" @click="goBack" class="btn btn-sm btn-secondary">
-                ❌ Cancelar
-              </button>
-              <button type="button" @click="savePayment" :disabled="!canSavePayment" class="btn btn-sm btn-success">
-                <span v-if="saving">⏳</span>
-                <span v-else>✅</span>
-                {% verbatim %}{{ saving ? 'Guardando...' : 'Confirmar y Registrar' }}{% endverbatim %}
+            <div class="col-6 text-end">
+              <button type="button" @click="goBack" class="btn btn-sm btn-secondary me-2">
+                ← Volver a Lista
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE REGISTRO DE PAGO -->
+  <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="paymentModalLabel">
+            <i class="fas fa-money-bill-wave"></i> Registrar Pago
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <!-- Sección de mensajes del modal -->
+        <div v-if="modalMessage.show" class="alert m-3 mb-0" :class="`alert-${modalMessage.type}`">
+          <div class="d-flex align-items-center">
+            <i class="fas" :class="modalMessage.icon"></i>
+            <span class="ms-2">{% verbatim %}{{ modalMessage.text }}{% endverbatim %}</span>
+            <button type="button" class="btn-close ms-auto" @click="clearModalMessage"></button>
+          </div>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Resumen del pago -->
+          <div class="alert alert-info mb-3">
+            <div class="row">
+              <div class="col-6">
+                <strong>Facturas a Pagar:</strong> {% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %}
+              </div>
+              <div class="col-6 text-end">
+                <strong>Total:</strong> ${%  verbatim %}{{ formatCurrency(totalPaymentAmount) }}{% endverbatim %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de facturas seleccionadas -->
+          <div class="mb-3">
+            <h6>� Facturas Seleccionadas:</h6>
+            <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+              <table class="table table-sm table-striped">
+                <thead class="table-dark">
+                  <tr>
+                    <th>Factura</th>
+                    <th>Proveedor</th>
+                    <th class="text-end">Saldo</th>
+                    <th class="text-end">A Pagar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="invoice in selectedInvoicesForPayment" :key="invoice.id">
+                    <td>
+                      <strong>{% verbatim %}{{ invoice.serie }}{% endverbatim %}-{% verbatim %}{{ invoice.consecutive }}{% endverbatim %}</strong>
+                      <br><small class="text-muted">{% verbatim %}{{ invoice.num_invoice || 'FAC_COMPRA' }}{% endverbatim %}</small>
+                    </td>
+                    <td>{% verbatim %}{{ invoice.partner_name }}{% endverbatim %}</td>
+                    <td class="text-end">${%  verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</td>
+                    <td class="text-end">
+                      <input type="number" step="0.01" v-model="invoice.paymentAmount" 
+                             @input="validatePaymentAmount(invoice); updatePaymentFormAmount()"
+                             :max="invoice.balance"
+                             class="form-control form-control-sm text-end"
+                             style="width: 100px;">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Formulario de Pago -->
+          <form @submit.prevent="savePayment">
+            <div class="row">
+              <div class="col-6">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-calendar"></i> Fecha del Pago *
+                </label>
+                <input type="date" 
+                       v-model="paymentForm.date" 
+                       class="form-control" 
+                       :max="currentDate"
+                       required>
+                <div v-if="formErrors.date" class="text-danger small">{% verbatim %}{{ formErrors.date }}{% endverbatim %}</div>
+              </div>
+              
+              <div class="col-6">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-credit-card"></i> Método de Pago *
+                </label>
+                <select v-model="paymentForm.method" class="form-select" required>
+                  <option value="">Seleccionar...</option>
+                  <option v-for="method in paymentMethods" :key="method.value" :value="method.value">
+                    {% verbatim %}{{ method.label }}{% endverbatim %}
+                  </option>
+                </select>
+                <div v-if="formErrors.method" class="text-danger small">{% verbatim %}{{ formErrors.method }}{% endverbatim %}</div>
+              </div>
+              
+              <div class="col-6 mt-3">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-hashtag"></i> Referencia/Documento
+                </label>
+                <input type="text" 
+                       v-model="paymentForm.reference" 
+                       class="form-control" 
+                       placeholder="Núm. cheque, transferencia..."
+                       maxlength="50">
+                <small class="text-muted">Número de cheque, código de transferencia, etc.</small>
+              </div>
+              
+              <div class="col-6 mt-3">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-dollar-sign"></i> Monto Total
+                </label>
+                <input type="number" 
+                       step="0.01" 
+                       v-model="paymentForm.amount" 
+                       class="form-control text-end fw-semibold bg-light" 
+                       readonly>
+              </div>
+              
+              <div class="col-6 mt-3">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-university"></i> Banco
+                </label>
+                <input type="text" 
+                       v-model="paymentForm.bank" 
+                       class="form-control" 
+                       placeholder="Nombre del banco" 
+                       list="popular-banks"
+                       maxlength="100">
+                <datalist id="popular-banks">
+                  <option v-for="bank in popularBanks" :key="bank.bank" :value="bank.bank">
+                </datalist>
+              </div>
+              
+              <div class="col-6 mt-3">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-credit-card"></i> Número de Cuenta
+                </label>
+                <input type="text" 
+                       v-model="paymentForm.accountNumber" 
+                       class="form-control" 
+                       placeholder="Número de cuenta"
+                       maxlength="50">
+              </div>
+
+              <div class="col-6 mt-3">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-file-upload"></i> Comprobante/Documento
+                </label>
+                <input type="file" 
+                       ref="documentFile"
+                       @change="handleFileChange"
+                       class="form-control" 
+                       accept="image/*,.pdf,.doc,.docx"
+                       placeholder="Seleccionar archivo...">
+                <small class="text-muted">Formatos: JPG, PNG, PDF, DOC (máx. 5MB)</small>
+                <div v-if="paymentForm.documentPreview" class="mt-2">
+                  <small class="text-success">
+                    <i class="fas fa-check"></i> Archivo seleccionado: {% verbatim %}{{ paymentForm.documentName }}{% endverbatim %}
+                  </small>
+                </div>
+              </div>
+
+              <div class="col-12 mt-3">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-sticky-note"></i> Observaciones
+                </label>
+                <textarea v-model="paymentForm.observations" 
+                         class="form-control" 
+                         rows="2" 
+                         placeholder="Observaciones adicionales..."
+                         maxlength="500"></textarea>
+                <small class="text-muted">{% verbatim %}{{ paymentForm.observations.length }}{% endverbatim %}/500 caracteres</small>
+              </div>
+            </div>
+          </form>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+          <button type="button" @click="savePayment" :disabled="!canSavePayment" class="btn btn-success">
+            <span v-if="saving">
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+              Guardando...
+            </span>
+            <span v-else>
+              <i class="fas fa-check"></i> Confirmar y Registrar
+            </span>
+          </button>
         </div>
       </div>
     </div>
@@ -250,12 +433,19 @@ createApp({
       loading: true,
       saving: false,
       suppliers: [],
+      filteredSuppliers: [],
       pendingInvoices: [],
       filteredInvoices: [],
       paymentMethods: [],
       popularBanks: [],
       statistics: {},
-      selectedSupplierId: '',
+      
+      // Autocomplete de proveedores
+      supplierSearchTerm: '',
+      selectedSupplier: null,
+      showSupplierDropdown: false,
+      
+      // Formulario de pago
       paymentForm: {
         date: '',
         method: '',
@@ -263,8 +453,28 @@ createApp({
         amount: 0,
         bank: '',
         accountNumber: '',
-        observations: ''
+        observations: '',
+        document: null,
+        documentName: '',
+        documentPreview: null
       },
+      
+      // Sistema de mensajes del modal
+      modalMessage: {
+        show: false,
+        type: 'info', // success, warning, danger, info
+        text: '',
+        icon: 'fa-info-circle'
+      },
+      
+      // Validaciones
+      formErrors: {
+        date: '',
+        method: '',
+        amount: '',
+        document: ''
+      },
+      
       currentDate: '',
       currentTime: ''
     }
@@ -273,31 +483,42 @@ createApp({
     selectedInvoicesCount() {
       return this.filteredInvoices.filter(inv => inv.selected).length;
     },
+    
+    selectedInvoicesForPayment() {
+      return this.filteredInvoices.filter(inv => inv.selected);
+    },
+    
     totalPaymentAmount() {
       return this.filteredInvoices
         .filter(inv => inv.selected)
         .reduce((sum, inv) => sum + parseFloat(inv.paymentAmount || 0), 0);
     },
+    
     totalBalanceAmount() {
       return this.filteredInvoices
         .filter(inv => inv.selected)
         .reduce((sum, inv) => sum + parseFloat(inv.balance || 0), 0);
     },
+    
     paymentDifference() {
       return this.totalBalanceAmount - this.totalPaymentAmount;
     },
+    
     canSavePayment() {
       return this.selectedInvoicesCount > 0 && 
              this.paymentForm.date && 
              this.paymentForm.method && 
              this.totalPaymentAmount > 0 &&
-             !this.saving;
+             !this.saving &&
+             this.validateForm();
     }
   },
+  
   mounted() {
     this.initializeDateTime();
     this.loadPaymentContextData();
   },
+  
   methods: {
     async loadPaymentContextData() {
       try {
@@ -307,6 +528,7 @@ createApp({
         
         if (data.success) {
           this.suppliers = data.suppliers;
+          this.filteredSuppliers = [...this.suppliers];
           this.pendingInvoices = data.pending_invoices.map(invoice => ({
             ...invoice,
             selected: false,
@@ -327,17 +549,54 @@ createApp({
       }
     },
     
+    // ===== AUTOCOMPLETE DE PROVEEDORES =====
+    filterSuppliers() {
+      if (this.supplierSearchTerm.trim() === '') {
+        this.filteredSuppliers = [...this.suppliers];
+      } else {
+        const searchTerm = this.supplierSearchTerm.toLowerCase();
+        this.filteredSuppliers = this.suppliers.filter(supplier => 
+          supplier.name.toLowerCase().includes(searchTerm) ||
+          (supplier.business_tax_id && supplier.business_tax_id.includes(searchTerm))
+        );
+      }
+      this.showSupplierDropdown = true;
+    },
+    
+    selectSupplier(supplier) {
+      this.selectedSupplier = supplier;
+      this.supplierSearchTerm = supplier.name;
+      this.showSupplierDropdown = false;
+      this.filterInvoicesBySupplier();
+    },
+    
+    clearSupplierFilter() {
+      this.selectedSupplier = null;
+      this.supplierSearchTerm = '';
+      this.showSupplierDropdown = false;
+      this.filteredInvoices = [...this.pendingInvoices];
+      this.updatePaymentFormAmount();
+    },
+    
+    hideSupplierDropdown() {
+      // Delay para permitir que el click en el dropdown se registre
+      setTimeout(() => {
+        this.showSupplierDropdown = false;
+      }, 150);
+    },
+    
     filterInvoicesBySupplier() {
-      if (this.selectedSupplierId === '') {
+      if (!this.selectedSupplier) {
         this.filteredInvoices = [...this.pendingInvoices];
       } else {
         this.filteredInvoices = this.pendingInvoices.filter(
-          invoice => invoice.partner_id == this.selectedSupplierId
+          invoice => invoice.partner_id == this.selectedSupplier.id
         );
       }
       this.updatePaymentFormAmount();
     },
     
+    // ===== MANEJO DE FACTURAS =====
     updatePaymentAmount(invoice) {
       if (invoice.selected) {
         invoice.paymentAmount = invoice.balance;
@@ -348,10 +607,17 @@ createApp({
     },
     
     validatePaymentAmount(invoice) {
-      if (parseFloat(invoice.paymentAmount) > parseFloat(invoice.balance)) {
-        invoice.paymentAmount = invoice.balance;
+      const amount = parseFloat(invoice.paymentAmount);
+      const balance = parseFloat(invoice.balance);
+      
+      if (amount > balance) {
+        invoice.paymentAmount = balance;
+        // Solo mostrar alerta si no estamos en el modal
+        if (!document.getElementById('paymentModal').classList.contains('show')) {
+          this.showWarning(`El monto no puede ser mayor al saldo ($${this.formatCurrency(balance)})`);
+        }
       }
-      if (parseFloat(invoice.paymentAmount) < 0) {
+      if (amount < 0) {
         invoice.paymentAmount = 0;
       }
       this.updatePaymentFormAmount();
@@ -377,11 +643,157 @@ createApp({
       this.updatePaymentFormAmount();
     },
     
+    // ===== MODAL =====
+    openPaymentModal() {
+      if (this.selectedInvoicesCount === 0) {
+        this.showModalWarning('Debe seleccionar al menos una factura para pagar');
+        return;
+      }
+      
+      this.clearFormErrors();
+      this.clearModalMessage();
+      this.updatePaymentFormAmount();
+      
+      // Limpiar el archivo previo
+      this.paymentForm.document = null;
+      this.paymentForm.documentName = '';
+      this.paymentForm.documentPreview = null;
+      if (this.$refs.documentFile) {
+        this.$refs.documentFile.value = '';
+      }
+      
+      // Abrir modal usando Bootstrap
+      const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+      modal.show();
+    },
+    
+    // ===== MANEJO DE ARCHIVOS =====
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (!file) {
+        this.paymentForm.document = null;
+        this.paymentForm.documentName = '';
+        this.paymentForm.documentPreview = null;
+        return;
+      }
+      
+      // Validar tamaño del archivo (máximo 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB en bytes
+      if (file.size > maxSize) {
+        this.showModalError('El archivo es demasiado grande. Máximo 5MB permitido.');
+        event.target.value = '';
+        return;
+      }
+      
+      // Validar tipo de archivo
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 
+                           'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(file.type)) {
+        this.showModalError('Tipo de archivo no permitido. Use JPG, PNG, PDF o DOC.');
+        event.target.value = '';
+        return;
+      }
+      
+      this.paymentForm.document = file;
+      this.paymentForm.documentName = file.name;
+      
+      // Crear preview para imágenes
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.paymentForm.documentPreview = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        this.paymentForm.documentPreview = 'document';
+      }
+      
+      this.clearModalMessage();
+    },
+    
+    // ===== SISTEMA DE MENSAJES DEL MODAL =====
+    showModalMessage(text, type = 'info') {
+      const icons = {
+        success: 'fa-check-circle',
+        warning: 'fa-exclamation-triangle',
+        danger: 'fa-exclamation-circle',
+        info: 'fa-info-circle'
+      };
+      
+      this.modalMessage = {
+        show: true,
+        type: type,
+        text: text,
+        icon: icons[type] || icons.info
+      };
+    },
+    
+    showModalSuccess(text) {
+      this.showModalMessage(text, 'success');
+    },
+    
+    showModalWarning(text) {
+      this.showModalMessage(text, 'warning');
+    },
+    
+    showModalError(text) {
+      this.showModalMessage(text, 'danger');
+    },
+    
+    clearModalMessage() {
+      this.modalMessage.show = false;
+    },
+    
+    // ===== VALIDACIONES =====
+    validateForm() {
+      this.clearFormErrors();
+      let isValid = true;
+      
+      if (!this.paymentForm.date) {
+        this.formErrors.date = 'La fecha es requerida';
+        isValid = false;
+      }
+      
+      if (!this.paymentForm.method) {
+        this.formErrors.method = 'El método de pago es requerido';
+        isValid = false;
+      }
+      
+      if (this.totalPaymentAmount <= 0) {
+        this.formErrors.amount = 'El monto debe ser mayor a cero';
+        isValid = false;
+      }
+      
+      // Validar que la fecha no sea futura
+      const paymentDate = new Date(this.paymentForm.date);
+      const today = new Date();
+      if (paymentDate > today) {
+        this.formErrors.date = 'La fecha no puede ser futura';
+        isValid = false;
+      }
+      
+      return isValid;
+    },
+    
+    clearFormErrors() {
+      this.formErrors = {
+        date: '',
+        method: '',
+        amount: '',
+        document: ''
+      };
+    },
+    
+    // ===== GUARDAR PAGO =====
     async savePayment() {
-      if (!this.canSavePayment) return;
+      if (!this.validateForm()) {
+        this.showModalError('Por favor, corrija los errores en el formulario');
+        return;
+      }
       
       try {
         this.saving = true;
+        this.clearModalMessage();
         
         const selectedInvoices = this.filteredInvoices.filter(inv => inv.selected);
         const invoicePayments = {};
@@ -397,7 +809,13 @@ createApp({
         formData.append('bank', this.paymentForm.bank);
         formData.append('nro_account', this.paymentForm.accountNumber);
         formData.append('nro_operation', this.paymentForm.reference);
+        formData.append('observations', this.paymentForm.observations);
         formData.append('invoice_payments', JSON.stringify(invoicePayments));
+        
+        // Agregar el archivo si existe
+        if (this.paymentForm.document) {
+          formData.append('document', this.paymentForm.document);
+        }
         
         const response = await fetch(window.location.href, {
           method: 'POST',
@@ -408,28 +826,38 @@ createApp({
         });
         
         if (response.ok) {
-          this.showSuccess('Pago registrado correctamente');
+          this.showModalSuccess('¡Pago registrado correctamente!');
+          
+          // Cerrar modal después de un momento
           setTimeout(() => {
-            window.location.href = '/pagos/';
+            const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+            modal.hide();
+            
+            // Redirigir después de cerrar el modal
+            setTimeout(() => {
+              window.location.href = '/pagos/';
+            }, 500);
           }, 1500);
         } else {
-          throw new Error('Error en la respuesta del servidor');
+          const errorData = await response.text();
+          throw new Error('Error en la respuesta del servidor: ' + errorData);
         }
         
       } catch (error) {
-        this.showError('Error al guardar el pago: ' + error.message);
+        this.showModalError('Error al guardar el pago: ' + error.message);
       } finally {
         this.saving = false;
       }
     },
     
+    // ===== UTILIDADES =====
     goBack() {
       window.location.href = '/pagos/';
     },
     
     initializeDateTime() {
       const now = new Date();
-      this.currentDate = now.toLocaleDateString('es-ES');
+      this.currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
       this.currentTime = now.toLocaleTimeString('es-ES', { 
         hour: '2-digit', 
         minute: '2-digit' 
@@ -449,15 +877,121 @@ createApp({
     },
     
     showError(message) {
-      // Puedes implementar tu sistema de notificaciones aquí
-      alert('Error: ' + message);
+      // Sistema de notificaciones mejorado
+      this.showNotification(message, 'error');
     },
     
     showSuccess(message) {
-      // Puedes implementar tu sistema de notificaciones aquí
-      alert('Éxito: ' + message);
+      this.showNotification(message, 'success');
+    },
+    
+    showWarning(message) {
+      this.showNotification(message, 'warning');
+    },
+    
+    showNotification(message, type) {
+      // Por ahora usamos alert, pero aquí podrías integrar un sistema de notificaciones más elegante
+      const icons = {
+        error: '❌',
+        success: '✅',
+        warning: '⚠️'
+      };
+      
+      alert(`${icons[type]} ${message}`);
     }
   }
 }).mount('#paymentApp');
 </script>
+
+<style>
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover-bg-light:hover {
+  background-color: #f8f9fa !important;
+}
+
+.hover-bg-secondary:hover {
+  background-color: #6c757d !important;
+  color: white !important;
+}
+
+.z-index-1000 {
+  z-index: 1000;
+}
+
+.my-hover-2:hover {
+  background-color: #e9ecef !important;
+}
+
+/* Mejorar el estilo del autocomplete */
+.position-relative .position-absolute {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: 1px solid #dee2e6;
+}
+
+/* Animación suave para el modal */
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out;
+}
+
+/* Estilo para campos con error */
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.text-danger.small {
+  font-size: 0.875em;
+  margin-top: 0.25rem;
+}
+
+/* Estilos para el sistema de mensajes del modal */
+.modal .alert {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  margin-bottom: 0;
+}
+
+.modal .alert .fas {
+  width: 16px;
+  text-align: center;
+}
+
+/* Animación suave para los mensajes */
+.modal .alert {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo para el input de archivo */
+.form-control[type="file"] {
+  padding: 0.375rem 0.75rem;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button {
+  background-color: #e9ecef;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  color: #495057;
+  cursor: pointer;
+  margin-right: 0.75rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button:hover {
+  background-color: #dee2e6;
+}
+</style>
 {% endblock %}
