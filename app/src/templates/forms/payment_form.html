@@ -1,341 +1,316 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-<div class="container">
-  <div class="bg-light py-4">
-    <form method="POST" id="paymentForm" action="">
-      {% csrf_token %}
-      <div class="bg-white shadow-lg border border-2 border-warning rounded-3 p-4 mx-auto">
-        <!-- Encabezado -->
-        <div class="row">
-          <div class="col text-center fs-2 text-kosmo-secondary">
-            {% if payment %}EDITAR PAGO{% else %}NUEVO PAGO{% endif %}
-          </div>
-        </div>
-      
-        <div class="row mb-4 align-items-center">
-          <div class="col-9">
-            <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
-          </div>
-          <div class="col-3">
-            <div class="border border-2 border-warning p-2 rounded">
-              <div class="d-flex justify-content-end align-items-center mb-1">
-                <span class="small fw-bold me-2">PAGO ID:</span>
-                <span class="text-danger fs-4">{% if payment %}{{ payment.id }}{% else %}Nuevo{% endif %}</span>
-              </div>
-              <div class="d-flex justify-content-end align-items-center border-top border-success pt-1">
-                <span class="small fw-bold me-2">FECHA:</span>
-                <input type="date" name="date" class="form-control form-control-sm" value="{{ payment.date|date:'Y-m-d' }}" required>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Información del proveedor -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <div class="border border-2 border-warning p-3 rounded">
-              <h6 class="fw-bold mb-3">Seleccionar Proveedor</h6>
-              <select id="partner-select" class="form-select mb-3" required>
-                <option value="">-- Seleccione un proveedor --</option>
-                {% for partner in partners %}
-                <option value="{{ partner.id }}">{{ partner.name }}</option>
-                {% endfor %}
-              </select>
-              <div id="partner-info" class="bg-light p-3 rounded" style="display: none;">
-                <p class="small mb-1"><strong>Dirección:</strong> <span id="partner-address"></span></p>
-                <p class="small mb-1"><strong>Ciudad - País:</strong> <span id="partner-location"></span></p>
-                <div class="d-flex justify-content-between">
-                  <p class="small mb-1"><strong>Email:</strong> <span id="partner-email"></span></p>
-                  <p class="small mb-1"><strong>Crédito:</strong> <span id="partner-credit"></span></p>
+  <div class="mx-auto" style="width: 80%;">
+    <div class="row pt-2">
+      <div class="col">
+        <!-- Encabezado Principal -->
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-12 rounded-1 shadow-sm p-2 bg-zinc-600 bg-gradient border-gray-300 text-white">
+              <div class="row pb-3 mb-3">
+                <div class="col-3 fs-4">
+                </div>
+                <div class="col-6 text-center fs-5 upper">
+                  <span>Registro de Pagos</span>
+                </div>
+                <div class="col-3 text-end fs-6">
+                  <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
+                    Fecha Registro: 01/07/2025 <span class="text-blue-700">16:30</span>
+                  </strong>
+                  <span class="pe-1 ps-1"></span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Información del pago -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <div class="border border-2 border-warning p-3 rounded">
-              <h6 class="fw-bold mb-3">Detalles del Pago</h6>
-              <div class="row mb-3">
-                <div class="col-md-6">
-                  <label for="method" class="form-label">Método de pago:</label>
-                  <select name="method" id="method" class="form-select" required>
-                    <option value="">-- Seleccione método --</option>
-                    {% for value, label in method_choices %}
-                      <option value="{{ value }}" {% if payment.method == value %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
+          <!-- Filtros adicionales -->
+          <div class="row pb-2 pt-2 fw-bold border pt-2 pb-2 mt-2 mb-2 shadow-sm">
+            <div class="col-4 text-start text-xl">
+                Estadísticas Enero
+            </div>
+            <div class="col-8 text-end text-xl">
+                <span class=""> Total facturas: 7 </span>
+                <span class="text-muted ps-1 pe-1">|</span>
+                <span class="text-cyan-800"> Total pendiente: $4,537.75 </span>
+                <span class="text-muted ps-1 pe-1">|</span>
+                <span class="text-danger"> Saldo Vencido: $2,201.25</span>
+                <span class="text-muted ps-1 pe-1">|</span>
+                <span class="text-yellow-600"> Por Vencer: $2,336.50</span>
+            </div>
+          </div>
+
+          <!-- Encabezados de tabla -->
+          <div class="row p-1 text-white">
+            <div class="col-1 border-end bg-gray-400 text-center">Sel.</div>
+            <div class="col-2 border-end bg-gray-400 text-center">Factura</div>
+            <div class="col-2 border-end bg-gray-400 text-center">Cliente</div>
+            <div class="col-1 border-end bg-gray-400 text-center">Fecha</div>
+            <div class="col-1 border-end bg-gray-400 text-center">Vence</div>
+            <div class="col-1 border-end bg-gray-400 text-center">Días</div>
+            <div class="col-1 border-end bg-sky-500 text-center">Total</div>
+            <div class="col-1 border-end bg-sky-500 text-center">Pagado</div>
+            <div class="col-1 border-end bg-sky-500 text-center">Saldo</div>
+            <div class="col-1 bg-lime-600 text-center">A Pagar</div>
+          </div>
+
+          <!-- Filas de facturas -->
+          <div class="row mb-1 border my-hover-2 bg-gray">
+            <div class="col-1 border-end d-flex align-items-center justify-content-center">
+              <input type="checkbox" class="form-check-input">
+            </div>
+            <div class="col-2 border-end d-flex align-items-center">
+              <div>
+                <div class="fw-semibold">001-000001</div>
+                <small class="text-muted">FAC_VENTA</small>
+              </div>
+            </div>
+            <div class="col-2 border-end d-flex align-items-center">
+              <div>
+                <div class="fw-semibold">A&C Wholesle Flower</div>
+                <small class="text-muted">390484522</small>
+              </div>
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              2025-05-06
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              2025-06-05
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              <span class="badge bg-yellow-300 text-dark">30</span>
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              $1,203.75
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              $0.00
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              <span class="fw-semibold text-danger">$1,203.75</span>
+            </div>
+            <div class="col-1 d-flex align-items-center">
+              <input type="number" step="0.01" class="form-control form-control-sm text-end" value="1203.75">
+            </div>
+          </div>
+
+          <div class="row mb-1 border my-hover-2">
+            <div class="col-1 border-end d-flex align-items-center justify-content-center">
+              <input type="checkbox" class="form-check-input">
+            </div>
+            <div class="col-2 border-end d-flex align-items-center">
+              <div>
+                <div class="fw-semibold">001-000002</div>
+                <small class="text-muted">FAC_VENTA</small>
+              </div>
+            </div>
+            <div class="col-2 border-end d-flex align-items-center">
+              <div>
+                <div class="fw-semibold">Aliance Floral Co</div>
+                <small class="text-muted">390484524</small>
+              </div>
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              2025-05-27
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              2025-06-26
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              <span class="badge bg-green-600">11</span>
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              $903.75
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              $0.00
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              <span class="fw-semibold text-danger">$903.75</span>
+            </div>
+            <div class="col-1 d-flex align-items-center">
+              <input type="number" step="0.01" class="form-control form-control-sm text-end" value="0.00">
+            </div>
+          </div>
+
+          <div class="row mb-1 border my-hover-2 bg-gray">
+            <div class="col-1 border-end d-flex align-items-center justify-content-center">
+              <input type="checkbox" class="form-check-input" checked>
+            </div>
+            <div class="col-2 border-end d-flex align-items-center">
+              <div>
+                <div class="fw-semibold">100-000004</div>
+                <small class="text-muted">FAC_VENTA</small>
+              </div>
+            </div>
+            <div class="col-2 border-end d-flex align-items-center">
+              <div>
+                <div class="fw-semibold">Premier Floral Corp</div>
+                <small class="text-muted">39048452</small>
+              </div>
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              2025-05-27
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              2025-07-11
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              <span class="badge bg-red-600 text-white">-5</span>
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              $997.50
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              $0.00
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              <span class="fw-semibold text-danger">$997.50</span>
+            </div>
+            <div class="col-1 d-flex align-items-center">
+              <input type="number" step="0.01" class="form-control form-control-sm text-end" value="997.50">
+            </div>
+          </div>
+
+          <div class="row mb-1 border my-hover-2">
+            <div class="col-1 border-end d-flex align-items-center justify-content-center">
+              <input type="checkbox" class="form-check-input">
+            </div>
+            <div class="col-2 border-end d-flex align-items-center">
+              <div>
+                <div class="fw-semibold">100-000006</div>
+                <small class="text-muted">FAC_VENTA</small>
+              </div>
+            </div>
+            <div class="col-2 border-end d-flex align-items-center">
+              <div>
+                <div class="fw-semibold">Global Flowers</div>
+                <small class="text-muted">390484526</small>
+              </div>
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              2025-05-27
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              2025-06-11
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-center">
+              <span class="badge bg-green-600">4</span>
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              $300.00
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              $0.00
+            </div>
+            <div class="col-1 border-end d-flex align-items-center text-end">
+              <span class="fw-semibold text-danger">$300.00</span>
+            </div>
+            <div class="col-1 d-flex align-items-center">
+              <input type="number" step="0.01" class="form-control form-control-sm text-end" value="0.00">
+            </div>
+          </div>
+
+          <!-- Resumen de totales -->
+          <div class="row">
+            <div class="col-8">
+              <div class="row shadow-sm p-2 border bg-transparent rounded-1 fs-5">
+                <div class="col-3 text-end fw-semibold">Facturas seleccionadas:</div>
+                <div class="col-2 text-end">2</div>
+                <div class="col-3 text-end fw-semibold">Total a pagar:</div>
+                <div class="col-4 text-end text-lime-600">$2,201.25</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="row bg-trasparent rounded-1 shadow-sm p-2 border">
+                <div class="col-6 text-end border-end fs-5 text-danger fw-semibold">Saldo Total:</div>
+                <div class="col-6 fs-5 text-danger text-end fw-semibold">
+                  $4,537.75
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulario de Pago -->
+          <div class="row mt-3 border-top pt-3">
+            <div class="col-12">
+              <div class="row bg-light border rounded-1 shadow-sm p-3">
+                <div class="col-12 mb-3">
+                  <h5 class="text-orange-700 fw-semibold mb-3">Información del Pago</h5>
+                </div>
+                
+                <div class="col-3">
+                  <label class="form-label fw-semibold">Fecha de Pago</label>
+                  <input type="date" class="form-control" value="2025-01-07">
+                </div>
+                
+                <div class="col-3">
+                  <label class="form-label fw-semibold">Método de Pago</label>
+                  <select class="form-select">
+                    <option value="">Seleccionar...</option>
+                    <option value="cash">Efectivo</option>
+                    <option value="transfer">Transferencia</option>
+                    <option value="check">Cheque</option>
+                    <option value="card">Tarjeta</option>
                   </select>
                 </div>
-                <div class="col-md-6">
-                  <label for="amount" class="form-label">Monto total:</label>
-                  <input type="number" step="0.01" name="amount" id="amount" class="form-control" value="{{ payment.amount|default:'0.00' }}" required>
+                
+                <div class="col-3">
+                  <label class="form-label fw-semibold">Referencia/Documento</label>
+                  <input type="text" class="form-control" placeholder="Núm. cheque, transferencia...">
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <label for="bank" class="form-label">Banco:</label>
-                  <input type="text" name="bank" id="bank" class="form-control" value="{{ payment.bank|default:'' }}">
+                
+                <div class="col-3">
+                  <label class="form-label fw-semibold">Monto Total</label>
+                  <input type="number" step="0.01" class="form-control text-end fw-semibold" value="2201.25" readonly>
                 </div>
-                <div class="col-md-4">
-                  <label for="nro_account" class="form-label">Número de cuenta:</label>
-                  <input type="text" name="nro_account" id="nro_account" class="form-control" value="{{ payment.nro_account|default:'' }}">
+                
+                <div class="col-6 mt-3">
+                  <label class="form-label fw-semibold">Observaciones</label>
+                  <textarea class="form-control" rows="2" placeholder="Observaciones adicionales..."></textarea>
                 </div>
-                <div class="col-md-4">
-                  <label for="nro_operation" class="form-label">Número de operación:</label>
-                  <input type="text" name="nro_operation" id="nro_operation" class="form-control" value="{{ payment.nro_operation|default:'' }}">
+                
+                <div class="col-6 mt-3">
+                  <label class="form-label fw-semibold">Cuenta Bancaria</label>
+                  <select class="form-select">
+                    <option value="">Seleccionar cuenta...</option>
+                    <option value="1">Banco de Bogotá - *****1234</option>
+                    <option value="2">Bancolombia - *****5678</option>
+                  </select>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Tabla de facturas -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <div class="border border-2 border-warning p-3 rounded">
-              <h6 class="fw-bold mb-3">Facturas pendientes</h6>
-              <div class="table-responsive">
-                <table class="table table-bordered table-sm" id="invoices-table">
-                  <thead class="bg-warning bg-opacity-25">
-                    <tr class="text-center small">
-                      <th>FACTURA</th>
-                      <th>FECHA</th>
-                      <th>VENCE</th>
-                      <th>TOTAL</th>
-                      <th>PAGADO</th>
-                      <th>SALDO</th>
-                      <th>A PAGAR</th>
-                      <th>ACCIÓN</th>
-                    </tr>
-                  </thead>
-                  <tbody id="invoice-list">
-                    <!-- Las facturas se cargarán dinámicamente con JavaScript -->
-                    <tr id="no-invoices">
-                      <td colspan="8" class="text-center">Seleccione un proveedor para ver las facturas pendientes</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+          <!-- Botones de Acción -->
+          <div class="row mt-3 border-top pt-3">
+            <div class="col-6">
+              <button type="button" class="btn btn-sm btn-default me-2">
+                <span>🔄</span>
+                Limpiar Selección
+              </button>
+              <button type="button" class="btn btn-sm btn-default">
+                <span>📋</span>
+                Guardar Borrador
+              </button>
             </div>
-          </div>
-        </div>
-
-        <!-- Facturas seleccionadas -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <div class="border border-2 border-warning p-3 rounded">
-              <h6 class="fw-bold mb-3">Facturas a pagar</h6>
-              <div class="table-responsive">
-                <table class="table table-bordered table-sm" id="selected-invoices-table">
-                  <thead class="bg-success bg-opacity-25">
-                    <tr class="text-center small">
-                      <th>FACTURA</th>
-                      <th>FECHA</th>
-                      <th>TOTAL</th>
-                      <th>SALDO</th>
-                      <th>MONTO A PAGAR</th>
-                      <th>ACCIÓN</th>
-                    </tr>
-                  </thead>
-                  <tbody id="selected-invoice-list">
-                    <tr id="no-selected-invoices">
-                      <td colspan="6" class="text-center">No hay facturas seleccionadas</td>
-                    </tr>
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <td colspan="4" class="text-end fw-bold">TOTAL:</td>
-                      <td class="text-end fw-bold" id="total-payment">0.00</td>
-                      <td></td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-              <input type="hidden" name="invoice_payments" id="invoice-payments-json" value="{}">
+            <div class="col-6 text-end d-flex gap-3 justify-content-end">
+              <button type="button" class="btn btn-sm btn-default">
+                <span>❌</span>
+                Cancelar
+              </button>
+              <button type="button" class="btn btn-sm btn-default" disabled>
+                <span>💰</span>
+                Procesar Pago
+              </button>
+              <button type="button" class="btn btn-sm btn-default">
+                <span>✅</span>
+                Confirmar y Registrar
+              </button>
             </div>
-          </div>
-        </div>
-        
-        <!-- Botones de acción -->
-        <div class="row">
-          <div class="col d-flex justify-content-end gap-3">
-            <button type="submit" class="btn btn-primary" id="save-button">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
-              Guardar pago
-            </button>
-            <a href="" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
-              Cancelar
-            </a>
           </div>
         </div>
       </div>
-    </form>
+    </div>
   </div>
-</div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const partnerSelect = document.getElementById('partner-select');
-    const invoicePaymentsJson = document.getElementById('invoice-payments-json');
-    const totalPaymentElement = document.getElementById('total-payment');
-    const amountInput = document.getElementById('amount');
-    
-    let selectedInvoices = {};
-    
-    // Cargar facturas cuando se selecciona un proveedor
-    partnerSelect.addEventListener('change', function() {
-      const partnerId = this.value;
-      if (partnerId) {
-        fetchPartnerInvoices(partnerId);
-        document.getElementById('partner-info').style.display = 'block';
-      } else {
-        document.getElementById('invoice-list').innerHTML = '<tr><td colspan="8" class="text-center">Seleccione un proveedor para ver las facturas pendientes</td></tr>';
-        document.getElementById('partner-info').style.display = 'none';
-      }
-    });
-    
-    function fetchPartnerInvoices(partnerId) {
-      fetch(`/api/payments/?action=get_partner_invoices&partner_id=${partnerId}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.invoices && data.invoices.length > 0) {
-            renderInvoicesTable(data.invoices);
-          } else {
-            document.getElementById('invoice-list').innerHTML = '<tr><td colspan="8" class="text-center">No hay facturas pendientes para este proveedor</td></tr>';
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching invoices:', error);
-          document.getElementById('invoice-list').innerHTML = '<tr><td colspan="8" class="text-center">Error al cargar facturas</td></tr>';
-        });
-    }
-    
-    function renderInvoicesTable(invoices) {
-      let html = '';
-      invoices.forEach(invoice => {
-        html += `
-          <tr data-invoice-id="${invoice.id}">
-            <td class="text-center">${invoice.serie}-${invoice.consecutive}</td>
-            <td class="text-center">${invoice.date}</td>
-            <td class="text-center">${invoice.due_date}</td>
-            <td class="text-end">${invoice.total_amount.toFixed(2)}</td>
-            <td class="text-end">${invoice.paid_amount.toFixed(2)}</td>
-            <td class="text-end">${invoice.balance.toFixed(2)}</td>
-            <td>
-              <input type="number" step="0.01" class="form-control form-control-sm payment-amount" 
-                     max="${invoice.balance.toFixed(2)}" value="${invoice.balance.toFixed(2)}">
-            </td>
-            <td class="text-center">
-              <button type="button" class="btn btn-sm btn-success add-invoice" data-invoice-id="${invoice.id}">
-                <i class="fas fa-plus"></i> Agregar
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-      document.getElementById('invoice-list').innerHTML = html;
-      
-      // Añadir evento a los botones de agregar
-      document.querySelectorAll('.add-invoice').forEach(button => {
-        button.addEventListener('click', function() {
-          const invoiceId = this.getAttribute('data-invoice-id');
-          const row = document.querySelector(`tr[data-invoice-id="${invoiceId}"]`);
-          const paymentAmount = row.querySelector('.payment-amount').value;
-          
-          addInvoiceToSelected(invoiceId, row, parseFloat(paymentAmount));
-        });
-      });
-    }
-    
-    function addInvoiceToSelected(invoiceId, sourceRow, paymentAmount) {
-      if (selectedInvoices[invoiceId]) {
-        // Ya existe, actualizar el monto
-        selectedInvoices[invoiceId] = paymentAmount;
-        document.querySelector(`#selected-invoice-${invoiceId} .payment-value`).textContent = paymentAmount.toFixed(2);
-      } else {
-        // Nuevo, agregar a la tabla
-        const serie = sourceRow.cells[0].textContent;
-        const date = sourceRow.cells[1].textContent;
-        const total = sourceRow.cells[3].textContent;
-        const balance = sourceRow.cells[5].textContent;
-        
-        selectedInvoices[invoiceId] = paymentAmount;
-        
-        if (document.getElementById('no-selected-invoices')) {
-          document.getElementById('no-selected-invoices').remove();
-        }
-        
-        const newRow = document.createElement('tr');
-        newRow.id = `selected-invoice-${invoiceId}`;
-        newRow.innerHTML = `
-          <td class="text-center">${serie}</td>
-          <td class="text-center">${date}</td>
-          <td class="text-end">${total}</td>
-          <td class="text-end">${balance}</td>
-          <td class="text-end payment-value">${paymentAmount.toFixed(2)}</td>
-          <td class="text-center">
-            <button type="button" class="btn btn-sm btn-danger remove-invoice" data-invoice-id="${invoiceId}">
-              <i class="fas fa-trash"></i> Quitar
-            </button>
-          </td>
-        `;
-        
-        document.getElementById('selected-invoice-list').appendChild(newRow);
-        
-        // Añadir evento al botón de quitar
-        newRow.querySelector('.remove-invoice').addEventListener('click', function() {
-          const invoiceId = this.getAttribute('data-invoice-id');
-          removeInvoiceFromSelected(invoiceId);
-        });
-      }
-      
-      updateTotalPayment();
-      updateInvoicePaymentsJson();
-    }
-    
-    function removeInvoiceFromSelected(invoiceId) {
-      if (selectedInvoices[invoiceId]) {
-        delete selectedInvoices[invoiceId];
-        document.getElementById(`selected-invoice-${invoiceId}`).remove();
-        
-        if (Object.keys(selectedInvoices).length === 0) {
-          document.getElementById('selected-invoice-list').innerHTML = `
-            <tr id="no-selected-invoices">
-              <td colspan="6" class="text-center">No hay facturas seleccionadas</td>
-            </tr>
-          `;
-        }
-        
-        updateTotalPayment();
-        updateInvoicePaymentsJson();
-      }
-    }
-    
-    function updateTotalPayment() {
-      let total = 0;
-      for (const invoiceId in selectedInvoices) {
-        total += selectedInvoices[invoiceId];
-      }
-      
-      totalPaymentElement.textContent = total.toFixed(2);
-      amountInput.value = total.toFixed(2);
-    }
-    
-    function updateInvoicePaymentsJson() {
-      invoicePaymentsJson.value = JSON.stringify(selectedInvoices);
-    }
-    
-    // Validar el formulario antes de enviar
-    document.getElementById('paymentForm').addEventListener('submit', function(e) {
-      if (Object.keys(selectedInvoices).length === 0) {
-        e.preventDefault();
-        alert('Debe seleccionar al menos una factura para realizar el pago');
-      }
-    });
-  });
-</script>
 {% endblock %}
