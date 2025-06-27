@@ -22,6 +22,7 @@ from .UpdateFutureOrderAPI import UpdateFutureOrderAPI
 from .users.SellersListAPI import SellersListAPI
 from .InvoicesForPaymentAPI import InvoicesForPaymentAPI
 from .UpdateProductAPI import UpdateProductAPI
+from .PaymentContextData import PaymentContextData
 
 
 __all__ = [
@@ -49,4 +50,5 @@ __all__ = [
     'SellersListAPI',
     'InvoicesForPaymentAPI',
     'UpdateProductAPI',
+    'PaymentContextData',
 ]
