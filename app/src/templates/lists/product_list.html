@@ -13,8 +13,8 @@
         </span>
         {% endif %}
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-sm btn-success" id="bulk-edit-btn" disabled>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <button type="button" class="btn btn-default" id="bulk-edit-btn" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                     <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
                     <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
@@ -22,7 +22,7 @@
                 </svg>
                 Editar Seleccionados
             </button>
-            <a href="{% url 'product_create' %}" class="btn btn-sm btn-default">
+            <a href="{% url 'product_create' %}" class="btn btn-default">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
                     <path d="M12 5l0 14" />
@@ -163,7 +163,7 @@
 <div class="modal fade" id="bulk-edit-modal" tabindex="-1" role="dialog" aria-labelledby="bulk-edit-modal-label" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header bg-secondary bg-gradient bg-opacity-75 text-white">
                 <h4 class="modal-title" id="bulk-edit-modal-label">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -214,16 +214,16 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <button type="button" class="btn btn-default" data-bs-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                         <path d="M18 6l-12 12" />
                         <path d="M6 6l12 12" />
                     </svg>
                     Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" id="save-bulk-edit">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <button type="button" class="btn btn-default" id="save-bulk-edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                         <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-16a2 2 0 0 1 2 -2" />
                         <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
@@ -239,7 +239,7 @@
 
 {% block style %}
 <style>
-/* Estilos adicionales para mejorar la apariencia */
+/* Estilos optimizados para la tabla de productos */
 .table-sm td {
     padding: 0.25rem !important;
     vertical-align: middle;
@@ -253,12 +253,7 @@
     line-height: 1.2;
 }
 
-.product-checkbox {
-    transform: scale(1.1);
-    cursor: pointer;
-}
-
-#select-all {
+.product-checkbox, #select-all {
     transform: scale(1.1);
     cursor: pointer;
 }
@@ -292,7 +287,7 @@ a.text-decoration-none:hover {
     color: #0d6efd !important;
 }
 
-/* Mejorar la apariencia de los badges */
+/* Personalización de badges */
 .badge.bg-info {
     background-color: #e3f2fd !important;
     color: #1976d2 !important;
@@ -305,27 +300,12 @@ a.text-decoration-none:hover {
     border: 1px solid #c8e6c9;
 }
 
-.badge.bg-primary {
-    background-color: #3b82f6 !important;
-    color: white !important;
-}
-
-.badge.bg-warning {
-    background-color: #f59e0b !important;
-    color: #1f2937 !important;
-}
-
-.badge.bg-secondary {
-    background-color: #6b7280 !important;
-    color: white !important;
-}
-
-/* Texto más pequeño para estadísticas */
+/* Texto de estadísticas */
 .text-success.fw-bold, .text-danger.fw-bold {
     font-size: 0.75rem;
 }
 
-/* Responsividad mejorada */
+/* Responsividad */
 @media (max-width: 1200px) {
     .mx-auto {
         width: 100% !important;
@@ -341,11 +321,6 @@ a.text-decoration-none:hover {
         font-size: 0.6rem;
         padding: 0.2em 0.4em;
     }
-}
-
-/* Tooltip para headers */
-th[title] {
-    cursor: help;
 }
 </style>
 {% endblock %}

@@ -1,152 +1,361 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-<div class="container container-xl mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2">
-    <div class="row">
-        <div class="col-6">
-            <span class="text-primary">
-                {{ title_section }}
-            </span>
-        </div>
-        <div class="col-6 d-flex justify-content-end gap-3">
-            {% if request.resolver_match.url_name != 'product_create' %}
-            <a href="{% url 'product_detail' request.resolver_match.kwargs.pk %}?action=delete" class="btn btn-sm btn-default">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                    <path d="M4 7l16 0" />
-                    <path d="M10 11l0 6" />
-                    <path d="M14 11l0 6" />
-                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                </svg>
-                Eliminar Producto
-            </a>
-            <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-default">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                    <path d="M5 12l14 0" />
-                    <path d="M5 12l6 6" />
-                    <path d="M5 12l6 -6" />
-                </svg>
-                Volver Ficha
-            </a>
-            {% endif %}
-            <a href="{% url 'product_list' %}" class="btn btn-sm btn-default">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-ban" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                    <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                    <path d="M5.7 5.7l12.6 12.6" />
-                </svg>
-                Cancelar
-            </a>
-        </div>
-    </div>
-</div>
-
-<div class="container mt-2">
-    <!-- Información del Producto -->
-    <div class="card mb-2">
-        <div class="card-header p-1 bg-secondary bg-gradient bg-opacity-75 text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
-                <path d="M12 9h.01" />
-                <path d="M11 12h1v4h1" />
-            </svg>
-            Información del Producto
-        </div>
-        <div class="card-body">
-          <form action="" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="row">
-                <div class="col">{{ form.errors }}</div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-3 border-end">
-                    {% if object.image %}
-                        <img id="image-preview" src="{{ object.image.url }}" alt="" class="img-fluid">
-                    {% else %}
-                        <img id="image-preview" src="/static/img/rosa_placeholder.jpg" alt="" class="img-fluid">
-                    {% endif %}
-                    <label for="image" class="text-muted">Imagen:</label>
-                    {{ form.image }}
-                </div>
-                <div class="col">
-                    <div class="row">
-                        <div class="col-6 d-flex flex-column">
-                            <div class="mb-1">
-                            <label for="name" class="text-muted">Nombre del Producto:</label>
-                            {{ form.name }}
-                            </div>
-                            <div class="mb-1">
-                                <label for="variety" class="text-muted">Variedad:</label>
-                                {{ form.variety }}
-                            </div>
-                            <div class="mb-1">
-                                <label for="default_profit_margin" class="text-muted">Rendimiento por Defecto:</label>
-                            {{ form.default_profit_margin }}
-                            </div>
-                            <div class="mb-1">
-                                <label for="default_rend" class="text-muted">
-                                    Colores: Ejem: BLANCO, ROJO, TINTURADO
-                                </label>
-                            {{ form.colors }}
-                            </div>
-                            <div class="mb-1">
-                                <label for="default_rend" class="text-muted">Notas:</label>
-                            {{ form.notes }}
+<!-- Header mejorado con gradiente y mejor espaciado -->
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h4 class="mb-0 text-white fw-bold">
+                                <i class="bi bi-box-seam me-2"></i>
+                                {{ title_section }}
+                            </h4>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                {% if request.resolver_match.url_name != 'product_create' %}
+                                <a href="{% url 'product_detail' request.resolver_match.kwargs.pk %}?action=delete" 
+                                   class="btn btn-sm btn-default hover-scale">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash me-1" viewBox="0 0 16 16">
+                                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                                    </svg>
+                                    Eliminar
+                                </a>
+                                <a href="{% url 'product_detail' product.id %}" 
+                                   class="btn btn-sm btn-default hover-scale">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                                    </svg>
+                                    Volver
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'product_list' %}" 
+                                   class="btn btn-sm btn-default hover-scale">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle me-1" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                    </svg>
+                                    Cancelar
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row bg-gray bg-gradient p-2 rounded border">
-                <div class="col text-end">
-                  <button class="btn btn-sm btn-default">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                      <path stroke="none" d="M0 0h24V0H0z" fill="none"/>
-                      <path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" />
-                      <path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-                      <path d="M14 4l0 4l-6 0l0 -4" />
-                    </svg>
-                    Guardar
-                  </button>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario principal mejorado -->
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-white border-0 py-4">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-gradient rounded-circle p-3 me-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path d="M8.93 6.588l-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                            </svg>
+                        </div>
+                        <h5 class="mb-0 fw-bold text-dark">Información del Producto</h5>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form action="" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Mostrar errores de forma elegante -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert">
+                            <div class="d-flex">
+                                <div class="me-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
+                                        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <strong>¡Oops! Hay algunos errores:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        {% for field, errors in form.errors.items %}
+                                            {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-4">
+                            <!-- Sección de imagen mejorada -->
+                            <div class="col-lg-4">
+                                <div class="position-relative">
+                                    <div class="card border-2 border-dashed border-primary rounded-4 h-100">
+                                        <div class="card-body text-center p-4">
+                                            <div class="image-preview-container position-relative mb-3">
+                                                {% if object.image %}
+                                                    <img id="image-preview" src="{{ object.image.url }}" alt="Vista previa" 
+                                                         class="img-fluid rounded-3 shadow-sm" style="max-height: 250px; object-fit: cover;">
+                                                {% else %}
+                                                    <img id="image-preview" src="/static/img/rosa_placeholder.jpg" alt="Vista previa" 
+                                                         class="img-fluid rounded-3 shadow-sm opacity-75" style="max-height: 250px; object-fit: cover;">
+                                                {% endif %}
+                                                <div class="position-absolute top-0 end-0 m-2">
+                                                    <span class="badge bg-primary rounded-pill">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-camera" viewBox="0 0 16 16">
+                                                            <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1v6zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2z"/>
+                                                            <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5zm0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+                                                        </svg>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            
+                                            <label for="id_image" class="form-label fw-semibold text-primary mb-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-upload me-1" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-3.886 2.239A3.5 3.5 0 0 0 3.5 10H6a.5.5 0 0 1 0 1H3.5A2.5 2.5 0 0 1 1 8.5c0-1.076.679-2.015 1.716-2.414A5.507 5.507 0 0 1 4.406 1.342z"/>
+                                                    <path fill-rule="evenodd" d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                                                </svg>
+                                                Imagen del Producto
+                                            </label>
+                                            {{ form.image }}
+                                            <small class="text-muted d-block mt-2">
+                                                Formatos permitidos: JPG, PNG, WEBP<br>
+                                                Tamaño máximo: 5MB
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Formulario de datos mejorado -->
+                            <div class="col-lg-8">
+                                <div class="row g-3">
+                                    <!-- Nombre del producto -->
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            {{ form.name }}
+                                            <label for="id_name" class="form-label">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-tag me-1" viewBox="0 0 16 16">
+                                                    <path d="M6 4.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1 0a.5.5 0 1 0-1 0 .5.5 0 0 0 1 0z"/>
+                                                    <path d="M2 1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 1 6.586V2a1 1 0 0 1 1-1zm0 5.586 7 7L13.586 9l-7-7H2v4.586z"/>
+                                                </svg>
+                                                Nombre del Producto
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Variedad -->
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            {{ form.variety }}
+                                            <label for="id_variety" class="form-label">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-flower1 me-1" viewBox="0 0 16 16">
+                                                    <path d="M6.174 1.184a2 2 0 0 1 3.652 0A2.99 2.99 0 0 1 12.99 3.01a2 2 0 0 1 1.826 3.164 2.99 2.99 0 0 1 0 3.652 2 2 0 0 1-1.826 3.164 2.99 2.99 0 0 1-3.164 1.826 2 2 0 0 1-3.652 0A2.99 2.99 0 0 1 3.01 12.99a2 2 0 0 1-1.826-3.164 2.99 2.99 0 0 1 0-3.652A2 2 0 0 1 3.01 3.01a2.99 2.99 0 0 1 3.164-1.826zM8 1a2 2 0 0 0-2 2 2 2 0 0 0 0 4 2 2 0 0 0 4 0 2 2 0 0 0 0-4 2 2 0 0 0-2-2z"/>
+                                                </svg>
+                                                Variedad
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rendimiento -->
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            {{ form.default_profit_margin }}
+                                            <label for="id_default_profit_margin" class="form-label">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-graph-up-arrow me-1" viewBox="0 0 16 16">
+                                                    <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z"/>
+                                                </svg>
+                                                Rendimiento por Defecto (USD)
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Colores -->
+                                    <div class="col-md-6">
+                                        <div class="form-floating">
+                                            {{ form.colors }}
+                                            <label for="id_colors" class="form-label">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-palette me-1" viewBox="0 0 16 16">
+                                                    <path d="M8 5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm4 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM5.5 7a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm.5 6a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z"/>
+                                                    <path d="M16 8c0 3.15-1.866 2.585-3.567 2.07C11.42 9.763 10.465 9.473 10 10c-.603.683-.475 1.819-.351 2.92C9.826 14.495 9.996 16 8 16a8 8 0 1 1 8-8z"/>
+                                                </svg>
+                                                Colores Disponibles
+                                            </label>
+                                        </div>
+                                        <small class="text-muted mt-1">Separa los colores con comas (ej: BLANCO, ROJO, TINTURADO)</small>
+                                    </div>
+
+                                    <!-- Notas -->
+                                    <div class="col-12">
+                                        <div class="form-floating">
+                                            {{ form.notes }}
+                                            <label for="id_notes" class="form-label">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-journal-text me-1" viewBox="0 0 16 16">
+                                                    <path d="M5 10.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0-2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5z"/>
+                                                    <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2z"/>
+                                                    <path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1z"/>
+                                                </svg>
+                                                Notas y Observaciones
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de guardar mejorado -->
+                        <div class="row mt-5">
+                            <div class="col-12">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-default rounded-3 shadow-sm hover-scale">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-check2-circle me-2" viewBox="0 0 16 16">
+                                            <path d="M2.5 8a5.5 5.5 0 0 1 8.25-4.764.5.5 0 0 0 .5-.866A6.5 6.5 0 1 0 14.5 8a.5.5 0 0 0-1 0 5.5 5.5 0 1 1-11 0z"/>
+                                            <path d="M15.354 3.354a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l7-7z"/>
+                                        </svg>
+                                        Guardar Producto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
-          </form>
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% if request.resolver_match.url_name != 'product_create' %}
-    {% block script %}
-    <script>
-        // Función para mostrar la vista previa de la imagen
-        function previewImage(event) {
-            var file = event.target.files[0];
+{% block script %}
+<style>
+    .hover-scale {
+        transition: all 0.3s ease;
+    }
+    .hover-scale:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .form-floating > .form-control {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .form-floating > .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        transform: translateY(-1px);
+    }
+    
+    .image-preview-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+    
+    .card {
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover {
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    #image-preview {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+    }
+    
+    #image-preview:hover {
+        transform: scale(1.02);
+    }
+</style>
+
+<script>
+    // Función mejorada para mostrar la vista previa de la imagen
+    function previewImage(event) {
+        var file = event.target.files[0];
+        if (file) {
             var reader = new FileReader();
             reader.onload = function(e) {
                 var preview = document.getElementById('image-preview');
                 preview.src = e.target.result;
-                preview.style.display = 'block'; // Mostrar la imagen
+                preview.style.display = 'block';
+                
+                // Añadir efecto de carga
+                preview.style.opacity = '0';
+                setTimeout(() => {
+                    preview.style.opacity = '1';
+                    preview.style.transition = 'opacity 0.5s ease';
+                }, 100);
             };
             reader.readAsDataURL(file);
         }
-    
-        // Asignar el evento de cambio al input de archivo
+    }
+
+    // Configuración del input de archivo
+    document.addEventListener('DOMContentLoaded', function() {
         var fileInput = document.querySelector('input[type="file"]');
-        fileInput.classList.add('form-control');
-        fileInput.addEventListener('change', previewImage);
-    </script>
-    <script>
-        var fileInput = document.querySelector('input[type="file"]');
-        fileInput.classList.add('form-control');
-    </script>
-    <script>
-        var url_update = "url 'product_add_many_to_many'";
-        var csrf_token = "{{ csrf_token }}";
-        var product_id = "{{ product.id }}";
-    </script>
-    {% endblock %}
-{% endif %}
+        if (fileInput) {
+            fileInput.classList.add('form-control');
+            fileInput.addEventListener('change', previewImage);
+            
+            // Agregar texto placeholder al input de archivo
+            if (!fileInput.files.length) {
+                fileInput.setAttribute('data-placeholder', 'Seleccionar imagen...');
+            }
+        }
+        
+        // Configurar validación de formulario
+        var form = document.querySelector('.needs-validation');
+        if (form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+        }
+        
+        // Añadir clases de Bootstrap a los campos del formulario
+        var formControls = document.querySelectorAll('input:not([type="file"]), select, textarea');
+        formControls.forEach(function(control) {
+            control.classList.add('form-control');
+        });
+        
+        // Configurar floating labels
+        var floatingInputs = document.querySelectorAll('.form-floating input, .form-floating select, .form-floating textarea');
+        floatingInputs.forEach(function(input) {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
