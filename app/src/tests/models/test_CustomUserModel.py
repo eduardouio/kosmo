@@ -5,7 +5,7 @@ from accounts.models import CustomUserModel
 
 @pytest.mark.django_db
 class TestCustomUserModel:
-    
+
     def test_create_user(self):
         """Test creación de usuario"""
         user = CustomUserModel.objects.create_user(
@@ -20,7 +20,7 @@ class TestCustomUserModel:
         assert user.roles == "ADMINISTRADOR"
         assert user.is_confirmed_mail is False
         assert user.check_password("testpass123")
-        
+
     def test_unique_email_constraint(self):
         """Test restricción unique del email"""
         CustomUserModel.objects.create_user(
@@ -32,7 +32,7 @@ class TestCustomUserModel:
                 email="test@example.com",
                 password="testpass456"
             )
-            
+
     def test_role_choices(self):
         """Test choices de roles"""
         # Administrador
@@ -42,7 +42,7 @@ class TestCustomUserModel:
             roles="ADMINISTRADOR"
         )
         assert admin.roles == "ADMINISTRADOR"
-        
+
         # Vendedor
         seller = CustomUserModel.objects.create_user(
             email="seller@example.com",
@@ -50,7 +50,7 @@ class TestCustomUserModel:
             roles="VENDEDOR"
         )
         assert seller.roles == "VENDEDOR"
-        
+
     def test_default_role(self):
         """Test rol por defecto"""
         user = CustomUserModel.objects.create_user(
@@ -58,7 +58,7 @@ class TestCustomUserModel:
             password="testpass123"
         )
         assert user.roles == "ADMINISTRADOR"
-        
+
     def test_get_sellers(self):
         """Test método classmethod get_sellers"""
         admin = CustomUserModel.objects.create_user(
@@ -76,39 +76,39 @@ class TestCustomUserModel:
             password="testpass123",
             roles="VENDEDOR"
         )
-        
+
         sellers = CustomUserModel.get_sellers()
         assert seller1 in sellers
         assert seller2 in sellers
         assert admin not in sellers
         assert sellers.count() == 2
-        
+
     def test_get_method(self):
         """Test método classmethod get"""
         user = CustomUserModel.objects.create_user(
             email="test@example.com",
             password="testpass123"
         )
-        
+
         found_user = CustomUserModel.get("test@example.com")
         assert found_user == user
-        
+
         not_found = CustomUserModel.get("nonexistent@example.com")
         assert not_found is None
-        
+
     def test_get_by_id(self):
         """Test método classmethod get_by_id"""
         user = CustomUserModel.objects.create_user(
             email="test@example.com",
             password="testpass123"
         )
-        
+
         found_user = CustomUserModel.get_by_id(user.id)
         assert found_user == user
-        
+
         not_found = CustomUserModel.get_by_id(99999)
         assert not_found is None
-        
+
     def test_str_method(self):
         """Test método __str__"""
         user = CustomUserModel.objects.create_user(
@@ -116,7 +116,7 @@ class TestCustomUserModel:
             password="testpass123"
         )
         assert str(user) == "test@example.com"
-        
+
     def test_optional_fields(self):
         """Test campos opcionales"""
         user = CustomUserModel.objects.create_user(
@@ -129,15 +129,15 @@ class TestCustomUserModel:
         assert user.phone == "123456789"
         assert user.notes == "Test notes"
         assert user.is_confirmed_mail is True
-        
+
     def test_username_field(self):
         """Test que email es el USERNAME_FIELD"""
         assert CustomUserModel.USERNAME_FIELD == "email"
-        
+
     def test_required_fields(self):
         """Test REQUIRED_FIELDS"""
         assert CustomUserModel.REQUIRED_FIELDS == []
-        
+
     def test_no_username(self):
         """Test que username es None"""
         user = CustomUserModel.objects.create_user(

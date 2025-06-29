@@ -4,7 +4,7 @@ from partners.models import Bank, Partner
 
 @pytest.mark.django_db
 class TestBank:
-    
+
     @pytest.fixture
     def partner(self):
         """Fixture para crear un partner"""
@@ -16,7 +16,7 @@ class TestBank:
             city="Quito",
             type_partner="CLIENTE"
         )
-        
+
     def test_create_bank(self, partner):
         """Test creación de banco"""
         bank = Bank.objects.create(
@@ -36,7 +36,7 @@ class TestBank:
         assert bank.swift_code == "BPICECEGXXX"
         assert bank.iban == "EC123456789"
         assert bank.national_bank is True
-        
+
     def test_uppercase_conversion(self, partner):
         """Test conversión a mayúsculas en save"""
         bank = Bank.objects.create(
@@ -54,7 +54,7 @@ class TestBank:
         assert bank.bank_name == "BANCO DEL PACÍFICO"
         assert bank.swift_code == "BPACECEGXXX"
         assert bank.iban == "EC987654321"
-        
+
     def test_national_bank_default(self, partner):
         """Test valor por defecto de national_bank"""
         bank = Bank.objects.create(
@@ -65,7 +65,7 @@ class TestBank:
             bank_name="Test Bank"
         )
         assert bank.national_bank is True
-        
+
     def test_international_bank(self, partner):
         """Test banco internacional"""
         bank = Bank.objects.create(
@@ -77,7 +77,7 @@ class TestBank:
             national_bank=False
         )
         assert bank.national_bank is False
-        
+
     def test_get_by_partner(self, partner):
         """Test método classmethod get_by_partner"""
         bank1 = Bank.objects.create(
@@ -94,12 +94,12 @@ class TestBank:
             account_number="987654321",
             bank_name="Bank 2"
         )
-        
+
         banks = Bank.get_by_partner(partner)
         assert bank1 in banks
         assert bank2 in banks
         assert banks.count() == 2
-        
+
     def test_str_method_national(self, partner):
         """Test método __str__ para banco nacional"""
         bank = Bank.objects.create(
@@ -111,7 +111,7 @@ class TestBank:
             national_bank=True
         )
         assert str(bank) == "Nac: BANCO PICHINCHA"
-        
+
     def test_str_method_international(self, partner):
         """Test método __str__ para banco internacional"""
         bank = Bank.objects.create(
@@ -123,7 +123,7 @@ class TestBank:
             national_bank=False
         )
         assert str(bank) == "Ext: WELLS FARGO"
-        
+
     def test_optional_fields(self, partner):
         """Test campos opcionales"""
         bank = Bank.objects.create(
@@ -135,7 +135,7 @@ class TestBank:
         )
         assert bank.swift_code is None
         assert bank.iban is None
-        
+
     def test_related_name(self, partner):
         """Test related_name 'banks'"""
         bank = Bank.objects.create(

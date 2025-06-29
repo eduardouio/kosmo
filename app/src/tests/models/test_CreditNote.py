@@ -8,7 +8,7 @@ from products.models import StockDay
 
 @pytest.mark.django_db
 class TestCreditNote:
-    
+
     @pytest.fixture
     def partner(self):
         """Fixture para crear un partner"""
@@ -20,12 +20,12 @@ class TestCreditNote:
             city="Quito",
             type_partner="CLIENTE"
         )
-        
+
     @pytest.fixture
     def stock_day(self):
         """Fixture para crear un stock day"""
         return StockDay.objects.create(date=date(2024, 1, 15))
-        
+
     @pytest.fixture
     def order(self, partner, stock_day):
         """Fixture para crear una orden"""
@@ -35,7 +35,7 @@ class TestCreditNote:
             type_document="ORD_VENTA",
             status="CONFIRMADO"
         )
-        
+
     @pytest.fixture
     def invoice(self, order, partner):
         """Fixture para crear una factura"""
@@ -45,7 +45,7 @@ class TestCreditNote:
             type_document="FAC_VENTA",
             total_price=Decimal("1000.00")
         )
-        
+
     def test_create_credit_note(self, invoice):
         """Test creación de nota de crédito"""
         credit_note = CreditNote.objects.create(
@@ -60,7 +60,7 @@ class TestCreditNote:
         assert credit_note.date == date(2024, 1, 20)
         assert credit_note.amount == Decimal("150.00")
         assert credit_note.reason == "PRODUCTO DEFECTUOSO"
-        
+
     def test_uppercase_conversion(self, invoice):
         """Test conversión a mayúsculas en save"""
         credit_note = CreditNote.objects.create(
@@ -72,7 +72,7 @@ class TestCreditNote:
         )
         assert credit_note.num_credit_note == "NC-002"
         assert credit_note.reason == "DESCUENTO POR VOLUMEN"
-        
+
     def test_str_method(self, invoice):
         """Test método __str__"""
         credit_note = CreditNote.objects.create(
@@ -85,7 +85,7 @@ class TestCreditNote:
         # El método __str__ concatena str(invoice) + ' ' + str(amount)
         expected_str = f"{str(invoice)} {str(credit_note.amount)}"
         assert str(credit_note) == expected_str
-        
+
     def test_foreign_key_cascade(self, invoice):
         """Test cascade al eliminar invoice"""
         credit_note = CreditNote.objects.create(
@@ -95,15 +95,15 @@ class TestCreditNote:
             amount=Decimal("100.00"),
             reason="Nota de crédito de prueba"
         )
-        
+
         credit_note_id = credit_note.id
-        
+
         # Eliminar invoice debería eliminar credit_note por CASCADE
         Invoice.objects.filter(id=invoice.id).delete()
-        
+
         with pytest.raises(CreditNote.DoesNotExist):
             CreditNote.objects.get(id=credit_note_id)
-            
+
     def test_decimal_field_precision(self, invoice):
         """Test precisión del campo amount"""
         credit_note = CreditNote.objects.create(
@@ -115,7 +115,7 @@ class TestCreditNote:
         )
         # Django mantiene precisión exacta del decimal
         assert credit_note.amount == Decimal("123.456")
-        
+
     def test_date_field(self, invoice):
         """Test campo de fecha"""
         test_date = date(2024, 6, 15)
@@ -128,7 +128,7 @@ class TestCreditNote:
         )
         assert credit_note.date == test_date
         assert isinstance(credit_note.date, date)
-        
+
     def test_text_field_reason(self, invoice):
         """Test campo TextField reason"""
         long_reason = "Esta es una razón muy larga para la nota " * 10
@@ -140,7 +140,7 @@ class TestCreditNote:
             reason=long_reason
         )
         assert credit_note.reason == long_reason.upper()
-        
+
     def test_auto_field_id(self, invoice):
         """Test que el ID es auto generado"""
         credit_note = CreditNote.objects.create(

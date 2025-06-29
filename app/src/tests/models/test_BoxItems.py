@@ -7,7 +7,7 @@ from partners.models import Partner
 
 @pytest.mark.django_db
 class TestBoxItems:
-    
+
     @pytest.fixture
     def stock_day(self):
         """Fixture para crear un stock day"""
@@ -16,7 +16,7 @@ class TestBoxItems:
         random_days = random.randint(1, 365)
         unique_date = base_date + timedelta(days=random_days)
         return StockDay.objects.create(date=unique_date)
-    
+
     @pytest.fixture
     def partner(self):
         """Fixture para crear un partner"""
@@ -30,7 +30,7 @@ class TestBoxItems:
             city="Quito",
             type_partner="PROVEEDOR"
         )
-        
+
     @pytest.fixture
     def product(self):
         """Fixture para crear un producto"""
@@ -40,7 +40,7 @@ class TestBoxItems:
             name=f"Rosa_{unique_id}",
             variety=f"Explorer_{unique_id}"
         )
-        
+
     @pytest.fixture
     def stock_detail(self, stock_day, partner):
         """Fixture para crear un stock detail"""
@@ -49,7 +49,7 @@ class TestBoxItems:
             partner=partner,
             box_model="HB"
         )
-        
+
     def test_create_box_item(self, stock_detail, product):
         """Test creación de box item"""
         box_item = BoxItems.objects.create(
@@ -70,7 +70,7 @@ class TestBoxItems:
         assert box_item.profit_margin == 0.08
         assert box_item.total_bunches == 5
         assert box_item.stems_bunch == 5
-        
+
     def test_default_values(self, stock_detail, product):
         """Test valores por defecto"""
         box_item = BoxItems.objects.create(
@@ -83,7 +83,7 @@ class TestBoxItems:
         assert box_item.profit_margin == 0.06
         assert box_item.total_bunches == 0
         assert box_item.stems_bunch == 0
-        
+
     def test_get_box_items(self, stock_detail, product):
         """Test método classmethod get_box_items"""
         box_item1 = BoxItems.objects.create(
@@ -92,7 +92,7 @@ class TestBoxItems:
             length=40,
             stem_cost_price=0.40
         )
-        
+
         # Crear otro producto para la misma caja
         import uuid
         unique_id2 = str(uuid.uuid4())[:8]
@@ -106,7 +106,7 @@ class TestBoxItems:
             length=50,
             stem_cost_price=0.35
         )
-        
+
         # Crear box item inactivo (no debería aparecer)
         inactive_item = BoxItems.objects.create(
             stock_detail=stock_detail,
@@ -116,13 +116,13 @@ class TestBoxItems:
         )
         inactive_item.is_active = False
         inactive_item.save()
-        
+
         box_items = BoxItems.get_box_items(stock_detail)
         assert box_item1 in box_items
         assert box_item2 in box_items
         assert inactive_item not in box_items
         assert box_items.count() == 2
-        
+
     def test_str_method(self, stock_detail, product):
         """Test método __str__"""
         box_item = BoxItems.objects.create(
@@ -132,7 +132,7 @@ class TestBoxItems:
             stem_cost_price=0.45
         )
         assert str(box_item) == product.name
-        
+
     def test_foreign_key_cascade(self, stock_detail, product):
         """Test cascade al eliminar stock_detail o product"""
         box_item = BoxItems.objects.create(
@@ -141,16 +141,16 @@ class TestBoxItems:
             length=50,
             stem_cost_price=0.45
         )
-        
+
         box_item_id = box_item.id
-        
+
         # Eliminar stock_detail debería eliminar box_item por CASCADE
         # Usar el delete() de Django, no del BaseModel
         StockDetail.objects.filter(id=stock_detail.id).delete()
-        
+
         with pytest.raises(BoxItems.DoesNotExist):
             BoxItems.objects.get(id=box_item_id)
-            
+
     def test_positive_length_field(self, stock_detail, product):
         """Test que length es PositiveSmallIntegerField"""
         box_item = BoxItems.objects.create(
@@ -161,7 +161,7 @@ class TestBoxItems:
         )
         assert box_item.length > 0
         assert isinstance(box_item.length, int)
-        
+
     def test_decimal_fields_precision(self, stock_detail, product):
         """Test precisión de campos decimales"""
         box_item = BoxItems.objects.create(
@@ -173,7 +173,7 @@ class TestBoxItems:
         )
         assert box_item.stem_cost_price == 12.34
         assert box_item.profit_margin == 0.12
-        
+
     def test_optional_fields_null(self, stock_detail, product):
         """Test que campos opcionales pueden ser null"""
         box_item = BoxItems.objects.create(
