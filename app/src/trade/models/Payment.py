@@ -114,9 +114,22 @@ class Payment(BaseModel):
         null=True
     )
 
+    def save(self, *args, **kwargs):
+        # Convertir campos de texto a mayúsculas
+        if self.payment_number:
+            self.payment_number = self.payment_number.upper()
+        if self.bank:
+            self.bank = self.bank.upper()
+        if self.nro_account:
+            self.nro_account = self.nro_account.upper()
+        if self.nro_operation:
+            self.nro_operation = self.nro_operation.upper()
+        super().save(*args, **kwargs)
+
     @property
     def total_invoices_amount(self):
-        """Calcula el total de las facturas asociadas a través de PaymentInvoice"""
+        """Calcula el total de las facturas asociadas
+        a través de PaymentInvoice"""
         return sum(pi.amount for pi in self.invoices.all())
 
     def clean(self):

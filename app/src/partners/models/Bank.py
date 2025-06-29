@@ -45,6 +45,22 @@ class Bank(BaseModel):
         default=True
     )
 
+    def save(self, *args, **kwargs):
+        # Convertir campos de texto a mayúsculas
+        if self.owner:
+            self.owner = self.owner.upper()
+        if self.id_owner:
+            self.id_owner = self.id_owner.upper()
+        if self.account_number:
+            self.account_number = self.account_number.upper()
+        if self.bank_name:
+            self.bank_name = self.bank_name.upper()
+        if self.swift_code:
+            self.swift_code = self.swift_code.upper()
+        if self.iban:
+            self.iban = self.iban.upper()
+        super().save(*args, **kwargs)
+
     @classmethod
     def get_by_partner(cls, partner):
         return cls.objects.filter(partner=partner)

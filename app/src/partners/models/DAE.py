@@ -41,6 +41,18 @@ class DAE(BaseModel):
         'Fecha de Fin',
     )
 
+    def save(self, *args, **kwargs):
+        # Convertir campos de texto a mayúsculas
+        if self.dae:
+            self.dae = self.dae.upper()
+        if self.awb:
+            self.awb = self.awb.upper()
+        if self.hawb:
+            self.hawb = self.hawb.upper()
+        if self.cargo_agency:
+            self.cargo_agency = self.cargo_agency.upper()
+        super().save(*args, **kwargs)
+
     @classmethod
     def get_last_by_partner(cls, partner):
         daes = cls.objects.filter(partner=partner, is_active=True)

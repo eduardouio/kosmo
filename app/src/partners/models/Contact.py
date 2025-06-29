@@ -52,6 +52,16 @@ class Contact(BaseModel):
         default=False
     )
 
+    def save(self, *args, **kwargs):
+        # Convertir campos de texto a mayúsculas
+        if self.name:
+            self.name = self.name.upper()
+        if self.position:
+            self.position = self.position.upper()
+        if self.phone:
+            self.phone = self.phone.upper()
+        super().save(*args, **kwargs)
+
     @classmethod
     def get_by_partner(cls, partner):
         return cls.objects.filter(partner=partner)

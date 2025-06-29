@@ -26,5 +26,13 @@ class CreditNote(models.Model):
         'Motivo de la nota de crédito'
     )
 
+    def save(self, *args, **kwargs):
+        # Convertir campos de texto a mayúsculas
+        if self.num_credit_note:
+            self.num_credit_note = self.num_credit_note.upper()
+        if self.reason:
+            self.reason = self.reason.upper()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return self.invoice + ' ' + self.amount
+        return str(self.invoice) + ' ' + str(self.amount)

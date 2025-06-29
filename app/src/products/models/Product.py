@@ -36,6 +36,16 @@ class Product(BaseModel):
         help_text='todo item tiene un rendimiento de 0.06 usd'
     )
 
+    def save(self, *args, **kwargs):
+        # Convertir campos de texto a mayúsculas
+        if self.name:
+            self.name = self.name.upper()
+        if self.variety:
+            self.variety = self.variety.upper()
+        if self.colors:
+            self.colors = self.colors.upper()
+        super().save(*args, **kwargs)
+
     class Meta:
         unique_together = ('name', 'variety')
 

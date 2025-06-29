@@ -27,10 +27,11 @@ class StockDay(BaseModel):
         unique=True
     )
 
-    def get_stock_day(self, date):
+    @classmethod
+    def get_stock_day(cls, date):
         loggin_event(f'Buscando stock por fecha {date}')
         try:
-            return self.objects.get(
+            return cls.objects.get(
                 date=date
             )
         except ObjectDoesNotExist:

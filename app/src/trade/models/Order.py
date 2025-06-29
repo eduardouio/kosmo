@@ -170,6 +170,14 @@ class Order(BaseModel):
         default=None
     )
 
+    def save(self, *args, **kwargs):
+        # Convertir campos de texto a mayúsculas
+        if self.num_order:
+            self.num_order = self.num_order.upper()
+        if self.num_invoice:
+            self.num_invoice = self.num_invoice.upper()
+        super().save(*args, **kwargs)
+
     @property
     def total_order(self):
         if self.type_document == 'ORD_COMPRA':
@@ -247,7 +255,8 @@ class Order(BaseModel):
 
     @classmethod
     def get_purchase_orders_by_sale_order(cls, sale_order):
-        """Obtener todas las órdenes de compra relacionadas con una orden de venta"""
+        """Obtener todas las órdenes de compra relacionadas
+        con una orden de venta"""
         return cls.objects.filter(
             parent_order=sale_order,
             type_document='ORD_COMPRA',

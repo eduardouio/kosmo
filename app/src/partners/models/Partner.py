@@ -214,6 +214,50 @@ class Partner(BaseModel):
         help_text="Años que el socio ha estado en el mercado"
     )
 
+    def save(self, *args, **kwargs):
+        # Convertir campos de texto a mayúsculas
+        if self.business_tax_id:
+            self.business_tax_id = self.business_tax_id.upper()
+        if self.name:
+            self.name = self.name.upper()
+        if self.short_name:
+            self.short_name = self.short_name.upper()
+        if self.address:
+            self.address = self.address.upper()
+        if self.country:
+            self.country = self.country.upper()
+        if self.area_code:
+            self.area_code = self.area_code.upper()
+        if self.city:
+            self.city = self.city.upper()
+        if self.zip_code:
+            self.zip_code = self.zip_code.upper()
+        if self.website:
+            self.website = self.website.lower()
+        if self.phone:
+            self.phone = self.phone.upper()
+        if self.skype:
+            self.skype = self.skype.upper()
+        if self.dispatch_address:
+            self.dispatch_address = self.dispatch_address.upper()
+        if self.cargo_reference:
+            self.cargo_reference = self.cargo_reference.upper()
+        if self.reference_1:
+            self.reference_1 = self.reference_1.upper()
+        if self.contact_reference_1:
+            self.contact_reference_1 = self.contact_reference_1.upper()
+        if self.phone_reference_1:
+            self.phone_reference_1 = self.phone_reference_1.upper()
+        if self.reference_2:
+            self.reference_2 = self.reference_2.upper()
+        if self.contact_reference_2:
+            self.contact_reference_2 = self.contact_reference_2.upper()
+        if self.phone_reference_2:
+            self.phone_reference_2 = self.phone_reference_2.upper()
+        if self.seller:
+            self.seller = self.seller.upper()
+        super().save(*args, **kwargs)
+
     @classmethod
     def get_customers(cls):
         return cls.objects.filter(

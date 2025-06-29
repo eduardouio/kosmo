@@ -197,6 +197,24 @@ class Invoice(BaseModel):
         default='PENDIENTE'
     )
 
+    def save(self, *args, **kwargs):
+        # Convertir campos de texto a mayúsculas
+        if self.marking:
+            self.marking = self.marking.upper()
+        if self.num_invoice:
+            self.num_invoice = self.num_invoice.upper()
+        if self.po_number:
+            self.po_number = self.po_number.upper()
+        if self.awb:
+            self.awb = self.awb.upper()
+        if self.dae_export:
+            self.dae_export = self.dae_export.upper()
+        if self.hawb:
+            self.hawb = self.hawb.upper()
+        if self.cargo_agency:
+            self.cargo_agency = self.cargo_agency.upper()
+        super().save(*args, **kwargs)
+
     @property
     def total_invoice(self):
         if self.type_document == 'FAC_VENTA':
@@ -298,7 +316,8 @@ class Invoice(BaseModel):
         invoice.total_margin = total_margin
         invoice.tot_stem_flower = total_stem_flower
         # FB = HB×(1/2) + QB×(1/4) + EB×(1/8)
-        invoice.fb_total = (hb_total * 0.5) + (qb_total * 0.25) + (eb_total * 0.125)
+        fb_calc = (hb_total * 0.5) + (qb_total * 0.25) + (eb_total * 0.125)
+        invoice.fb_total = fb_calc
         invoice.total_price = total_price
         invoice.total_bunches = total_bunches
 
@@ -475,7 +494,8 @@ class InvoiceBoxItems(BaseModel):
 
     @property
     def total_price_with_margin_and_quantity(self):
-        """Total del producto con margen incluido multiplicado por la cantidad de cajas"""
+        """Total del producto con margen incluido
+        multiplicado por la cantidad de cajas"""
         return self.total_price_with_margin * self.invoice_item.quantity
 
     @classmethod
