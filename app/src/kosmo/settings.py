@@ -208,4 +208,4 @@ if 'eduardo' in os.path.abspath(__file__):
     IS_IN_PRODUCTION = False
 
 JET_DEFAULT_THEME = 'default'
-JET_SIDE_MENU_COMPACT = False
+JET_SIDE_MENU_COMPACT = True
