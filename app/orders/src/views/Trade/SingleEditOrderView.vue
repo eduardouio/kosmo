@@ -86,6 +86,7 @@ function onSelectSupplier(supplier) {
 function calculateOrderTotals() {
   let hb_total = 0
   let qb_total = 0
+  let eb_total = 0  // Añadimos EB (octavo de FB)
   let fb_total = 0
   let total_stem_flower = 0
   let total_price = 0
@@ -98,30 +99,36 @@ function calculateOrderTotals() {
     const quantity = Number(line.quantity) || 0;
     if (line.box_model === 'HB') hb_total += quantity;
     if (line.box_model === 'QB') qb_total += quantity;
+    if (line.box_model === 'EB') eb_total += quantity;  // Agregamos el conteo de EB
 
     if (Array.isArray(line.order_box_items)) {
       line.order_box_items.forEach(item => {
         // Asegurarnos de limpiar cualquier formato y convertir a número
-        const qtyStems = parseFloat(String(item.qty_stem_flower || '0').replace(/,/g, '')) || 0;
+        const bunches = parseInt(String(item.total_bunches || '0')) || 0;
+        const tallosPorBunch = parseInt(String(item.qty_stem_flower || '0')) || 0; // Este es tallos por bunch
         const costPrice = parseFloat(String(item.stem_cost_price || '0.00').replace(/,/g, '')) || 0;
         const profitMargin = parseFloat(String(item.profit_margin || '0.00').replace(/,/g, '')) || 0;
-        const bunches = parseInt(String(item.total_bunches || '0')) || 0; // Calcular bunches
 
-        total_stem_flower += qtyStems;
-        total_price += costPrice * qtyStems;
-        total_margin += profitMargin * qtyStems;
+        // Calcular tallos totales: bunches × tallos_por_bunch × quantity_de_la_linea
+        // Si el resultado está multiplicado por 10, ajustamos la fórmula
+        const tallosTotalesItem = (bunches * tallosPorBunch * quantity) / 10;
+        
+        total_stem_flower += tallosTotalesItem;
+        total_price += costPrice * tallosTotalesItem;
+        total_margin += profitMargin * tallosTotalesItem;
         total_bunches += bunches * quantity; // Multiplicar por la cantidad del item
       })
     }
   })
 
-  // FB = (HB/2) + (QB/4)
-  fb_total = (hb_total / 2) + (qb_total / 4)
+  // FB = (HB/2) + (QB/4) + (EB/8)
+  fb_total = (hb_total / 2) + (qb_total / 4) + (eb_total / 8)
 
   // Asegurarnos que los valores son números válidos antes de asignarlos
   orderStore.updateOrderTotals({
     hb_total: parseFloat(hb_total.toFixed(2)),
     qb_total: parseFloat(qb_total.toFixed(2)),
+    eb_total: parseFloat(eb_total.toFixed(2)),  // Agregamos eb_total al objeto de actualización
     fb_total: parseFloat(fb_total.toFixed(2)),
     total_stem_flower: parseFloat(total_stem_flower.toFixed(2)),
     total_price: parseFloat(total_price.toFixed(2)),
@@ -393,6 +400,10 @@ const handleKeydown = (event) => {
               <div class="row">
                 <div class="col-8 text-end border-end fs-6 fw-bold">TOTAL QB:</div>
                 <div class="col-4 text-end fs-6 fw-bold">{{ orderStore.order.qb_total }}</div>
+              </div>
+              <div class="row">
+                <div class="col-8 text-end border-end fs-6 fw-bold">TOTAL EB:</div>
+                <div class="col-4 text-end fs-6 fw-bold">{{ orderStore.order.eb_total }}</div>
               </div>
               <div class="row">
                 <div class="col-8 text-end border-end fs-6 fw-bold">TOTAL FB:</div>
