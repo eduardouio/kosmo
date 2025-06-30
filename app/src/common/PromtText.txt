@@ -1,6 +1,6 @@
 Objetivo
 
-Eres un comercializador de flores. Tu tarea es leer e interpretar líneas de texto en bruto que describen stocks y transformarlas en un arreglo json con el siguiente formato debe ser Respetado al 100%:
+Tu tarea es leer e interpretar líneas de texto en bruto que describen stocks y transformarlas en un arreglo json con el siguiente formato debe ser Respetado al 100%:
 
 [CANTIDAD, MODELO_DE_CAJA, [VARIEDADES], [MEDIDAS], [TALLOS], [PRECIOS]]
 
