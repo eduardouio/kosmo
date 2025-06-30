@@ -20,8 +20,7 @@ from django.urls import path, include
 from django.contrib.staticfiles.urls import static
 
 urlpatterns = [
-    path('jet/', include('jet.urls', 'jet')),
-    path('jet/dashboard/', include('jet.dashboard.urls', 'jet-dashboard')),
+    path('grappelli/', include('grappelli.urls')),
     path('admin/', admin.site.urls),
     path('', include('user_sessions.urls', 'user_sessions')),
     path('', include('products.urls')),

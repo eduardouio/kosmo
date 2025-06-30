@@ -45,7 +45,7 @@ Este proyecto está desarrollado en **Django**, un framework de Python. Sigue es
 
 ### instalacion de dependencias
 ```bash
-pip install -r requirements.txt
+pip install -r requeriments.txt
 ```
 -- rm db.sqlite3
 ## eliminar migraciones
@@ -84,7 +84,7 @@ sudo systemctl restart nginx.service
 ```bash
 python3 -m venv venv 
 source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requeriments.txt
 playwright install 
 ```
 
