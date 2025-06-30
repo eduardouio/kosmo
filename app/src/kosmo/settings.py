@@ -32,7 +32,8 @@ ALLOWED_HOSTS = ['*',]
 # Application definition
 
 INSTALLED_APPS = [
-    'grappelli',
+    'jet.dashboard',
+    'jet',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     'user_sessions',
     'rest_framework',
     'django.contrib.humanize',
+    'simple_history',
     'accounts',
     'partners',
     'products',
@@ -60,6 +62,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -203,3 +206,6 @@ LOGGING = {
 IS_IN_PRODUCTION = True
 if 'eduardo' in os.path.abspath(__file__):
     IS_IN_PRODUCTION = False
+
+JET_DEFAULT_THEME = 'default'
+JET_SIDE_MENU_COMPACT = False
