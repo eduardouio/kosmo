@@ -1,5 +1,4 @@
 from django.contrib import admin
-from simple_history.admin import SimpleHistoryAdmin
 from django.contrib.auth.admin import UserAdmin
 
 from accounts.models import CustomUserModel
@@ -13,24 +12,29 @@ class CustomUserModelAdmin(UserAdmin):
     model = CustomUserModel
 
     fieldsets = (
-        ('Basico', {
+        ('Básico', {
             'fields': (
-                'email',  'password', 'is_active', 
+                'email', 'password', 'is_active',
             )
-        }
-        ),
+        }),
         ('Información Personal', {
             'fields': (
                 'first_name', 'last_name', 'phone'
             )
-        }
-        ),
+        }),
         ('Permisos', {
             'fields': (
                 'is_staff', 'is_superuser', 'groups', 'user_permissions'
             )
-        }
-        ),
+        }),
+        ('Información del Sistema', {
+            'classes': ('collapse',),
+            'fields': (
+                'is_confirmed_mail',
+                'date_joined',
+                'last_login'
+            )
+        })
     )
     add_fieldsets = (
         ('Básico', {
@@ -39,8 +43,7 @@ class CustomUserModelAdmin(UserAdmin):
                 'email', 'password1', 'password2',
                 'is_staff', 'is_active'
             )
-        }
-        ),
+        }),
     )
 
     list_display = (
@@ -49,15 +52,22 @@ class CustomUserModelAdmin(UserAdmin):
         'last_name',
         'is_active',
         'is_confirmed_mail',
+        'is_staff',
+        'is_superuser',
         'date_joined'
     )
 
     list_filter = (
         'is_active',
         'is_confirmed_mail',
+        'is_staff',
+        'is_superuser',
+        'date_joined'
     )
 
     search_fields = ('email', 'first_name', 'last_name', 'phone')
+
+    readonly_fields = ('date_joined', 'last_login')
 
     ordering = ('-date_joined',)
 
