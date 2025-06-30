@@ -10,6 +10,14 @@ import GenericProductModal from '@/components/common/GenericProductModal.vue'
 import Loader from '@/components/Sotcks/Loader.vue'
 import OrderLine from '@/components/trade/OrderLine.vue'
 
+import {
+    IconDeviceFloppy,
+    IconSettings,
+    IconPlus,
+    IconBan,
+    IconArrowLeft
+} from '@tabler/icons-vue';
+
 const route = useRoute()
 const baseStore = useBaseStore()
 const stagesToLoad = ref(3)
@@ -362,7 +370,7 @@ const handleKeydown = (event) => {
                   <tr>
                     <td colspan="4" class="text-end">
                       <button class="btn btn-default btn-sm" @click="addOrderLine">
-                        <IconPlus size="15" stroke="1.5" class="text-white"/>
+                        <IconPlus size="15" stroke="1.5" class="text-primary"/>
                         Agregar
                       </button>
                     </td>
@@ -379,44 +387,44 @@ const handleKeydown = (event) => {
           <div class="col-6">
             <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
               <div class="row">
-                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div>
-                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.hb_total }}</div>
+                <div class="col-8 text-end border-end fs-6 fw-bold">TOTAL HB:</div>
+                <div class="col-4 text-end fs-6 fw-bold">{{ orderStore.order.hb_total }}</div>
               </div>
               <div class="row">
-                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div>
-                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.qb_total }}</div>
+                <div class="col-8 text-end border-end fs-6 fw-bold">TOTAL QB:</div>
+                <div class="col-4 text-end fs-6 fw-bold">{{ orderStore.order.qb_total }}</div>
               </div>
               <div class="row">
-                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div>
-                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.fb_total }}</div>
+                <div class="col-8 text-end border-end fs-6 fw-bold">TOTAL FB:</div>
+                <div class="col-4 text-end fs-6 fw-bold">{{ orderStore.order.fb_total }}</div>
               </div>
               <div class="row">
-                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div>
-                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.total_stem_flower }}</div>
+                <div class="col-8 text-end border-end fs-6 fw-bold">TOTAL TALLOS:</div>
+                <div class="col-4 text-end fs-6 fw-bold">{{ orderStore.order.total_stem_flower }}</div>
               </div>
               <div class="row">
-                <div class="col-8 text-end border-end fs-5 fw-bold">TOTAL BUNCHES:</div>
-                <div class="col-4 text-end fs-5 fw-bold">{{ orderStore.order.total_bunches }}</div>
+                <div class="col-8 text-end border-end fs-6 fw-bold">TOTAL BUNCHES:</div>
+                <div class="col-4 text-end fs-6 fw-bold">{{ orderStore.order.total_bunches }}</div>
               </div>
             </div>
           </div>
           <div class="col-6">
             <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
               <div class="row mt-4">
-                <div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div>
-                <div class="col-5 text-end text-success fs-5">
+                <div class="col-7 text-end border-end text-success fs-6"><strong>Costo:</strong></div>
+                <div class="col-5 text-end text-success fs-6">
                   ${{ typeof orderStore.order.total_price === 'number' ? orderStore.order.total_price.toFixed(2) : '0.00' }}
                 </div>
               </div>
               <div class="row">
-                <div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div>
-                <div class="col-5 text-end text-success fs-5">
+                <div class="col-7 text-end border-end text-success fs-6"><strong>Margen:</strong></div>
+                <div class="col-5 text-end text-success fs-6">
                   ${{ typeof orderStore.order.total_margin === 'number' ? orderStore.order.total_margin.toFixed(2) : '0.00' }}
                 </div>
               </div>
               <div class="row mb-1">
-                <div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div>
-                <div class="col-5 text-end text-success fs-5">
+                <div class="col-7 text-end border-end text-success fs-6"><strong>Total Factura:</strong></div>
+                <div class="col-5 text-end text-success fs-6">
                   ${{
                     ((typeof orderStore.order.total_margin === 'number' ? orderStore.order.total_margin : 0) +
                      (typeof orderStore.order.total_price === 'number' ? orderStore.order.total_price : 0)).toFixed(2)
@@ -435,11 +443,19 @@ const handleKeydown = (event) => {
               {{ errorMessage }}
             </div>
           </div>
-          <div class="col-12 text-end" v-else>
-            <button class="btn btn-default" @click="updateOrder">
-              <IconDeviceFloppy size="20" stroke="1.5" class="text-primary"/> 
-              Actualizar Orden De Compra
+          <div class="col-12 d-flex justify-content-end gap-3" v-else>
+            <button class="btn btn-default btn-sm" @click="updateOrder">
+              <IconDeviceFloppy size="20" stroke="1.5" class="me-1"/>
+              Actualizar
             </button>
+            <a href="/trade/order/{{ orderStore.order.id }}" class="btn btn-default btn-sm">
+              <IconBan size="20" stroke="1.5" class="text-danger"/>
+              Cancelar
+            </a>
+            <a href="/trade/customer-orders/" class="btn btn-default btn-sm">
+              <IconArrowLeft size="20" stroke="1.5" class="me-1"/>
+              Lista de Pedidos
+            </a>
           </div>
         </div>
       </div>
