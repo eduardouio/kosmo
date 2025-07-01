@@ -14,15 +14,15 @@ class AllOrderDetailAPI(View):
                     id_stock_day
                 )
             )
-            orders = Order.get_sales_by_stock_day(id_stock_day)
+            orders = Order.get_purchases_by_stock_day(id_stock_day)
         else:
             loggin_event(
                 'Obteniendo todas las ventas de stock #{}'.format(id_stock_day)
             )
-            orders = Order.get_purchases_by_stock_day(id_stock_day)
+            orders = Order.get_sales_by_stock_day(id_stock_day)
 
         if len(orders) == 0:
-            return JsonResponse({"data": []}, status=200)
+            return JsonResponse([], status=200, safe=False)
 
         all_orders = []
         for order in orders:

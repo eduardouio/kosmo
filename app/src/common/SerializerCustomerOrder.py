@@ -6,6 +6,42 @@ class SerializerCustomerOrder():
 
     def get_line(self, order_item):
         stock_detail = StockDetail.get_by_id(order_item.id_stock_detail)
+        
+        # Validar que stock_detail existe
+        if stock_detail is None:
+            # Devolver estructura básica si no se encuentra el stock_detail
+            return {
+                'order_item_id': order_item.id,
+                'id_stock_detail': order_item.id_stock_detail,
+                'box_model': order_item.box_model,
+                'quantity': int(order_item.quantity),
+                'line_price': float(order_item.line_price),
+                'line_margin': float(order_item.line_margin),
+                'line_total': float(order_item.line_total),
+                'tot_stem_flower': order_item.tot_stem_flower,
+                'is_active': order_item.is_active,
+                'is_visible': True,
+                'is_selected': False,
+                'partner': {
+                    'partner': {
+                        'id': None,
+                        'name': 'Stock no encontrado',
+                        'short_name': 'N/A',
+                        'business_tax_id': '',
+                        'address': '',
+                        'city': '',
+                        'default_profit_margin': 0.0,
+                        'website': '',
+                        'credit_term': 0,
+                        'skype': '',
+                        'email': '',
+                        'phone': '',
+                        'is_active': False,
+                    },
+                },
+                'box_items': [],
+            }
+        
         item = {
             'order_item_id': order_item.id,
             'id_stock_detail': order_item.id_stock_detail,
