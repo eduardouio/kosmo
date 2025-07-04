@@ -25,13 +25,13 @@ onMounted(() => {
 });
   
 
-const calcTotalByProduct = (product) => {
+const calcTotalByProduct = (product, quantity = 1) => {
   const totalBunches = parseInt(product.total_bunches) || 0;
   const stemsBunch = parseInt(product.stems_bunch) || 25;
   const cost = parseFloat(product.stem_cost_price) || 0;
   const margin = parseFloat(product.margin) || 0;
   
-  return (totalBunches * stemsBunch * (cost + margin)).toFixed(2);
+  return (totalBunches * stemsBunch * (cost + margin) * quantity).toFixed(2);
 };
 
 const cancelOrder = () => {
@@ -536,7 +536,7 @@ const calculateTotalStemsForItem = (item) => {
                   <div class="col-1 p-1">
                     <div v-for="product in item.box_items" :key="product.id" class="mb-1">
                       <span class="fw-bold text-success">
-                        ${{ calcTotalByProduct(product) }}
+                        ${{ calcTotalByProduct(product, item.quantity) }}
                       </span>
                     </div>
                   </div>
