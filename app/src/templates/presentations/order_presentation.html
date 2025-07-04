@@ -130,7 +130,7 @@
                       <th class="bg-gray-200">LARGO CM</th>
                       <th class="bg-gray-200">T/B</th>
                       <th class="bg-gray-200">BUNCHES</th>
-                      <th class="bg-gray-200">TOTAL TALLOS (Línea)</th>
+                      <th class="bg-gray-200">TALLOS</th>
                       <th class="bg-gray-200">COSTO U TALLO</th>
                       {% if response_data.order.type_document == "ORD_VENTA" %}
                       <th class="bg-gray-200">MARGEN U TALLO</th>
@@ -151,7 +151,7 @@
                         <td class="text-end">{{ box_item.length }}</td>
                         <td class="text-end">{{ box_item.stems_bunch }}</td>
                         <td class="text-end">{{ box_item.total_bunches }}</td>
-                        <td class="text-end">{{ box_item.total_stem_flower }}</td> {# Total tallos para este box item específico (cant cajas * tallos por box item) #}
+                        <td class="text-end">{{ box_item.qty_stem_flower }}</td> {# Total tallos para este box item específico (cant cajas * tallos por box item) #}
                         <td class="text-end">{{ box_item.stem_cost_price }}</td>
                         {% if response_data.order.type_document == "ORD_VENTA" %}
                         <td class="text-end">{{ box_item.profit_margin }}</td>
