@@ -189,17 +189,89 @@ select * from trade_order to2
 
 select * from trade_orderitems to2 where to2.order_id = 10
 
-
+-- consulta a detalle de pedidos 
 select 
-to4.id 'OrdId', to4.type_document, pp2.name,
-to3.id 'OrdItm', to2.id 'IdBox', pp.variety , 
-to2.qty_stem_flower, to2.stem_cost_price, to2.profit_margin, 
-to3.id_stock_detail, to3.parent_order_item 'Parent' 
+to4.id 'OrdId',
+to4.serie || '-' || printf('%06d', to4.consecutive) as numero,
+to4.status,
+to3.quantity,
+to3.box_model,
+to4.type_document, pp2.name,
+pp.variety , 
+to2.qty_stem_flower,
+to2.stem_cost_price,
+to2.profit_margin, 
+to3.id_stock_detail,
+to3.total_bunches,
+to3.line_total,
+to3.line_price,
+to3.line_margin,
+to3.tot_stem_flower,
+to4.total_bunches,
+to4.total_price,
+to4.total_margin,
+to4.total_stem_flower,
+to4.eb_total,
+to4.qb_total,
+to4.hb_total,
+to4.fb_total
 from trade_orderboxitems to2
 left join products_product pp on (pp.id = to2.product_id)
 left join trade_orderitems to3 on (to3.id = to2.order_item_id)
 left join trade_order to4 on (to4.id = to3.order_id )
 left join partners_partner pp2 on (pp2.id = to4.partner_id)
+
+
+-- consulta de detalle de facturas 
+select 
+i.id 'InvId',
+i.serie || '-' || printf('%06d', i.consecutive) as numero,
+i.status,
+i.type_document,
+i.date,
+i.due_date,
+i.total_price,
+i.total_margin,
+i.comision_seler,
+pp.name as partner_name,
+pp.business_tax_id,
+ii.box_model,
+ii.quantity,
+ii.tot_stem_flower,
+ii.total_bunches,
+ii.line_price,
+ii.line_margin,
+ii.line_total,
+ibi.product_id,
+p.name as product_name,
+p.variety,
+ibi.length,
+ibi.qty_stem_flower,
+ibi.stem_cost_price,
+ibi.profit_margin,
+ibi.total_bunches as item_total_bunches,
+ibi.stems_bunch,
+i.tot_stem_flower as total_stem_flower,
+i.total_bunches as invoice_total_bunches,
+i.eb_total,
+i.qb_total,
+i.hb_total,
+i.fb_total,
+i.po_number,
+i.awb,
+i.hawb,
+i.dae_export,
+i.cargo_agency,
+i.delivery_date,
+i.weight,
+i.total_invoice
+from trade_invoice i
+left join partners_partner pp on (pp.id = i.partner_id)
+left join trade_invoiceitems ii on (ii.invoice_id = i.id)
+left join trade_invoiceboxitems ibi on (ibi.invoice_item_id = ii.id)
+left join products_product p on (p.id = ibi.product_id)
+where i.is_active = 1
+order by i.id desc
 
  
  -- confirmar todos los socios de negocio
