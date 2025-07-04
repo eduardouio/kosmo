@@ -498,6 +498,11 @@ class InvoiceBoxItems(BaseModel):
         multiplicado por la cantidad de cajas"""
         return self.total_price_with_margin * self.invoice_item.quantity
 
+    @property
+    def total_stems(self):
+        """Total de tallos para este box item específico (cant cajas * tallos por box item)"""
+        return self.qty_stem_flower * self.invoice_item.quantity
+
     @classmethod
     def disable_by_invoice_items(cls, invoice_item):
         box_items = cls.get_box_items(invoice_item)
