@@ -534,7 +534,7 @@ const calculateTotalStemsForItem = (item) => {
 
                   <!-- Total Column -->
                   <div class="col-1 p-1">
-                    <div v-for="product in item.box_items" :key="product.id" class="mb-1">
+                    <div v-for="product in item.box_items" :key="product.id" class="product-row mb-1 d-flex align-items-center justify-content-center h-100">
                       <span class="fw-bold text-success">
                         ${{ calcTotalByProduct(product, item.quantity) }}
                       </span>
