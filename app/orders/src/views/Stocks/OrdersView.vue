@@ -40,6 +40,12 @@ const getUrlReportCusOrder = (id) => {
     return urlReportOrder;
 };
 
+const formatSerieConsecutivo = (serie, consecutivo) => {
+    if (!serie || !consecutivo) return 'N/A';
+    const formattedConsecutivo = consecutivo.toString().padStart(6, '0');
+    return `${serie}-${formattedConsecutivo}`;
+};
+
 // ON MOUNTED
 onMounted(() => {
     baseStore.stagesLoaded = 0;
@@ -166,12 +172,11 @@ watch(() => ordersStore.selectedCustomer, () => {
                             <thead>
                                 <tr class="text-center">
                                     <th class="p-1 bg-teal-500 text-white">Nro</th>
+                                    <th class="p-1 bg-teal-500 text-white">Serie-Consecutivo</th>
                                     <th class="p-1 bg-teal-500 text-white">Fecha</th>
                                     <th class="p-1 bg-teal-500 text-white">Cliente</th>
                                     <th class="p-1 bg-teal-500 text-white">Tipo</th>
                                     <th class="p-1 bg-teal-500 text-white">Estado</th>
-                                    <th class="p-1 bg-teal-500 text-white">QB</th>
-                                    <th class="p-1 bg-teal-500 text-white">HB</th>
                                     <th class="p-1 bg-teal-500 text-white">Tallos</th>
                                     <th class="p-1 bg-teal-500 text-white">Reporte</th>
                                 </tr>
@@ -183,6 +188,9 @@ watch(() => ordersStore.selectedCustomer, () => {
                                         <span class="text-gray-200 ps-1 pe-1"> | </span>
                                         <IconFolderOpen size="20" stroke="1.5" class="text-teal-600"
                                             @click="selectOrder(item.order.id)" />
+                                    </td>
+                                    <td class="p-1 text-center">
+                                        {{ formatSerieConsecutivo(item.order.serie, item.order.consecutive) }}
                                     </td>
                                     <td class="p-1">
                                         {{ baseStore.formatDate(item.order.date) }}
@@ -207,8 +215,6 @@ watch(() => ordersStore.selectedCustomer, () => {
                                             {{ item.order.status }}
                                         </span>
                                     </td>
-                                    <td class="p-1 text-end">{{ item.order.qb_total }}</td>
-                                    <td class="p-1 text-end">{{ item.order.hb_total }}</td>
                                     <td class="p-1 text-end">{{ item.order.total_stem_flower }}</td>
                                     <td class="p-1 text-center">
                                         <a :href="getUrlReportCusOrder(item.order.id)">

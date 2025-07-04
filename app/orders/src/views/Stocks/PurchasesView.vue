@@ -49,6 +49,12 @@ const selectOrder = (id) => {
     router.push({ name: 'supplierOrderDetail', params: { id: id } });
 };
 
+const formatSerieConsecutivo = (serie, consecutivo) => {
+    if (!serie || !consecutivo) return 'N/A';
+    const formattedConsecutivo = consecutivo.toString().padStart(6, '0');
+    return `${serie}-${formattedConsecutivo}`;
+};
+
 // Cargar datos en `onMounted`
 onMounted(() => {
     baseStore.stagesLoaded = 0;
@@ -147,12 +153,11 @@ onUnmounted(() => {
                             <thead>
                                 <tr class="text-center">
                                     <th class="p-1 bg-orange-700 text-white">Nro</th>
+                                    <th class="p-1 bg-orange-700 text-white">Serie-Consecutivo</th>
                                     <th class="p-1 bg-orange-700 text-white">Fecha</th>
                                     <th class="p-1 bg-orange-700 text-white">Cliente</th>
                                     <th class="p-1 bg-orange-700 text-white">Tipo</th>
                                     <th class="p-1 bg-orange-700 text-white">Estado</th>
-                                    <th class="p-1 bg-orange-700 text-white">QB</th>
-                                    <th class="p-1 bg-orange-700 text-white">HB</th>
                                     <th class="p-1 bg-orange-700 text-white">Tallos</th>
                                     <th class="p-1 bg-orange-700 text-white">Total</th>
                                 </tr>
@@ -164,6 +169,9 @@ onUnmounted(() => {
                                         <span class="text-gray-200 ps-1 pe-1"> | </span>
                                         <IconFolderOpen size="20" stroke="1.5" class="text-orange-700"
                                             @click="selectOrder(item.order.id)" />
+                                    </td>
+                                    <td class="p-1 text-center">
+                                        {{ formatSerieConsecutivo(item.order.serie, item.order.consecutive) }}
                                     </td>
                                     <td class="p-1">{{ baseStore.formatDate(item.order.date) }}</td>
                                     <td class="p-1">{{ item.order.partner.name }}</td>
@@ -182,8 +190,6 @@ onUnmounted(() => {
                                             {{ item.order.status }}
                                         </span>
                                     </td>
-                                    <td class="p-1 text-end">{{ item.order.qb_total }}</td>
-                                    <td class="p-1 text-end">{{ item.order.hb_total }}</td>
                                     <td class="p-1 text-end">{{ item.order.total_stem_flower }}</td>
                                     <td class="p-1 text-end">{{ baseStore.formatCurrency(item.order.total_price) }}</td>
                                 </tr>
