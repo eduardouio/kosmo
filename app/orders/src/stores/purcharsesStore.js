@@ -17,7 +17,7 @@ export const usePurchaseStore = defineStore("purchaseStore", {
       }
       try {
         const response = await axios.get(
-          appConfig.urlOrdersByStock + "?type=sale",
+          appConfig.urlOrdersByStock + "?type=purchase",
           { headers: appConfig.headers }
         );
         this.sales = response.data;

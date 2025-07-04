@@ -78,7 +78,7 @@ export const useOrdersStore = defineStore("ordersStore", {
             
             try {
                 console.log('Cargando pedidos de clientes...' +  appConfig.urlOrdersByStock + '?type=sale');
-                const response = await axios.get(appConfig.urlOrdersByStock + '?type=purchase')
+                const response = await axios.get(appConfig.urlOrdersByStock + '?type=sale')
                 this.orders = response.data
                 baseStore.stagesLoaded++;
             } catch (error) {
