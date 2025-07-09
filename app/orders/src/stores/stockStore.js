@@ -207,60 +207,98 @@ export const useStockStore = defineStore('stockStore', {
 
             this.stockText = headerText;
 
-            selected.forEach(item => {
-                const checkRelation = (item) => {
-                    // Si no hay cliente seleccionado o es "Todos", mostrar todo
-                    if (!this.selectedCustomer || this.selectedCustomer.id === 'all') return true;
-                    if (!this.selectedCustomer.related_partners) return true;
-                    const partners = this.selectedCustomer.related_partners.map(p => p.id);
-                    return partners.includes(item.partner.id);
-                };
+            const checkRelation = (item) => {
+                // Si no hay cliente seleccionado o es "Todos", mostrar todo
+                if (!this.selectedCustomer || this.selectedCustomer.id === 'all') return true;
+                if (!this.selectedCustomer.related_partners) return true;
+                const partners = this.selectedCustomer.related_partners.map(p => p.id);
+                return partners.includes(item.partner.id);
+            };
 
-                if (checkRelation(item)) {
-                    const totalStem = item.box_items.reduce((acc, subItem) => acc + parseInt(subItem.qty_stem_flower || 0), 0);
-                    let line_text = `#${item.partner.id} ${item.quantity}${item.box_model} ${totalStem}`;
+            const formatStockLine = (item) => {
+                const totalStem = item.box_items.reduce((acc, subItem) => acc + parseInt(subItem.qty_stem_flower || 0), 0);
+                let line_text = `#${item.partner.id} ${item.quantity}${item.box_model} ${totalStem}`;
 
-                    const groupedBoxItems = Object.values(
-                        item.box_items.reduce((acc, subItem) => {
-                            const key = `${subItem.product_variety}-${subItem.length}`;
-                            if (!acc[key]) {
-                                acc[key] = { ...subItem };
-                            } else {
-                                acc[key].qty_stem_flower += parseInt(subItem.qty_stem_flower || 0);
-                            }
-                            return acc;
-                        }, {})
-                    );
-
-                    let costText = '';
-                    let currentVariety = null;
-                    groupedBoxItems.forEach(subItem => {
-                        let cost = parseFloat(subItem.stem_cost_price || 0) + parseFloat(subItem.margin || 0);
-                        cost = cost.toFixed(2);
-
-                        if (subItem.product_variety !== currentVariety) {
-                            line_text += ` ${subItem.product_variety}`;
-                            currentVariety = subItem.product_variety;
+                const groupedBoxItems = Object.values(
+                    item.box_items.reduce((acc, subItem) => {
+                        const key = `${subItem.product_variety}-${subItem.length}`;
+                        if (!acc[key]) {
+                            acc[key] = { ...subItem };
+                        } else {
+                            acc[key].qty_stem_flower += parseInt(subItem.qty_stem_flower || 0);
                         }
-                        
-                        line_text += ` ${subItem.length}X${subItem.qty_stem_flower || 0}`;
-                        if (parseFloat(subItem.stem_cost_price || 0) > 0){
-                            costText += ` $${cost}`;
-                        }
-                    });
+                        return acc;
+                    }, {})
+                );
 
-                    line_text += costText;
-                    this.stockText += line_text + `\n`;
-                }
-            });
+                let costText = '';
+                let currentVariety = null;
+                groupedBoxItems.forEach(subItem => {
+                    let cost = parseFloat(subItem.stem_cost_price || 0) + parseFloat(subItem.margin || 0);
+                    cost = cost.toFixed(2);
 
-            // Si después de filtrar no hay items válidos
-            if (this.stockText === headerText) {
+                    if (subItem.product_variety !== currentVariety) {
+                        line_text += ` ${subItem.product_variety}`;
+                        currentVariety = subItem.product_variety;
+                    }
+                    
+                    line_text += ` ${subItem.length}X${subItem.qty_stem_flower || 0}`;
+                    if (parseFloat(subItem.stem_cost_price || 0) > 0){
+                        costText += ` $${cost}`;
+                    }
+                });
+
+                line_text += costText;
+                return line_text;
+            };
+
+            // Filtrar items válidos
+            const validItems = selected.filter(item => checkRelation(item));
+            
+            if (validItems.length === 0) {
                 if (this.selectedCustomer && this.selectedCustomer.id === 'all') {
                     this.stockText = 'No hay productos seleccionados en el inventario';
                 } else {
                     this.stockText = 'Sin productos válidos para el cliente seleccionado';
                 }
+                return;
+            }
+
+            // Separar KOSMO FLOWERS del resto
+            const kosmoItems = validItems.filter(item => 
+                item.partner.name && item.partner.name.toUpperCase().includes('KOSMO FLOWERS')
+            );
+            const otherItems = validItems.filter(item => 
+                !item.partner.name || !item.partner.name.toUpperCase().includes('KOSMO FLOWERS')
+            );
+
+            // Agregar items de KOSMO FLOWERS primero
+            kosmoItems.forEach(item => {
+                this.stockText += formatStockLine(item) + '\n';
+            });
+
+            // Agrupar otros items por proveedor y agregar separadores
+            if (otherItems.length > 0) {
+                // Obtener proveedores únicos manteniendo el orden de aparición
+                const uniqueSuppliers = [];
+                const supplierMap = new Map();
+                
+                otherItems.forEach(item => {
+                    if (!supplierMap.has(item.partner.id)) {
+                        supplierMap.set(item.partner.id, item.partner);
+                        uniqueSuppliers.push(item.partner);
+                    }
+                });
+
+                // Agregar cada proveedor con su separador
+                uniqueSuppliers.forEach((supplier, index) => {
+                    this.stockText += `Stock Finca ${index + 1}\n`;
+                    
+                    const supplierItems = otherItems.filter(item => item.partner.id === supplier.id);
+                    supplierItems.forEach(item => {
+                        this.stockText += formatStockLine(item) + '\n';
+                    });
+                });
             }
         },
         updateValues(newValue, column) {
