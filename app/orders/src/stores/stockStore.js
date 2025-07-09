@@ -205,63 +205,108 @@ export const useStockStore = defineStore('stockStore', {
                 return;
             }
 
-            this.stockText = headerText;
+            // Function to check if item passes relation filter
+            const checkRelation = (item) => {
+                // Si no hay cliente seleccionado o es "Todos", mostrar todo
+                if (!this.selectedCustomer || this.selectedCustomer.id === 'all') return true;
+                if (!this.selectedCustomer.related_partners) return true;
+                const partners = this.selectedCustomer.related_partners.map(p => p.id);
+                return partners.includes(item.partner.id);
+            };
 
-            selected.forEach(item => {
-                const checkRelation = (item) => {
-                    // Si no hay cliente seleccionado o es "Todos", mostrar todo
-                    if (!this.selectedCustomer || this.selectedCustomer.id === 'all') return true;
-                    if (!this.selectedCustomer.related_partners) return true;
-                    const partners = this.selectedCustomer.related_partners.map(p => p.id);
-                    return partners.includes(item.partner.id);
-                };
-
-                if (checkRelation(item)) {
-                    const totalStem = item.box_items.reduce((acc, subItem) => acc + parseInt(subItem.qty_stem_flower || 0), 0);
-                    let line_text = `#${item.partner.id} ${item.quantity}${item.box_model} ${totalStem}`;
-
-                    const groupedBoxItems = Object.values(
-                        item.box_items.reduce((acc, subItem) => {
-                            const key = `${subItem.product_variety}-${subItem.length}`;
-                            if (!acc[key]) {
-                                acc[key] = { ...subItem };
-                            } else {
-                                acc[key].qty_stem_flower += parseInt(subItem.qty_stem_flower || 0);
-                            }
-                            return acc;
-                        }, {})
-                    );
-
-                    let costText = '';
-                    let currentVariety = null;
-                    groupedBoxItems.forEach(subItem => {
-                        let cost = parseFloat(subItem.stem_cost_price || 0) + parseFloat(subItem.margin || 0);
-                        cost = cost.toFixed(2);
-
-                        if (subItem.product_variety !== currentVariety) {
-                            line_text += ` ${subItem.product_variety}`;
-                            currentVariety = subItem.product_variety;
-                        }
-                        
-                        line_text += ` ${subItem.length}X${subItem.qty_stem_flower || 0}`;
-                        if (parseFloat(subItem.stem_cost_price || 0) > 0){
-                            costText += ` $${cost}`;
-                        }
-                    });
-
-                    line_text += costText;
-                    this.stockText += line_text + `\n`;
+            // Filter items by relation and group by supplier
+            const validItems = selected.filter(checkRelation);
+            const groupedBySupplier = {};
+            
+            validItems.forEach(item => {
+                const supplierId = item.partner.id;
+                const supplierName = item.partner.name;
+                
+                if (!groupedBySupplier[supplierId]) {
+                    groupedBySupplier[supplierId] = {
+                        id: supplierId,
+                        name: supplierName,
+                        items: []
+                    };
                 }
+                groupedBySupplier[supplierId].items.push(item);
             });
 
-            // Si después de filtrar no hay items válidos
-            if (this.stockText === headerText) {
+            // Function to format stock item line
+            const formatStockLine = (item) => {
+                const totalStem = item.box_items.reduce((acc, subItem) => acc + parseInt(subItem.qty_stem_flower || 0), 0);
+                let line_text = `#${item.partner.id} ${item.quantity}${item.box_model} ${totalStem}`;
+
+                const groupedBoxItems = Object.values(
+                    item.box_items.reduce((acc, subItem) => {
+                        const key = `${subItem.product_variety}-${subItem.length}`;
+                        if (!acc[key]) {
+                            acc[key] = { ...subItem };
+                        } else {
+                            acc[key].qty_stem_flower += parseInt(subItem.qty_stem_flower || 0);
+                        }
+                        return acc;
+                    }, {})
+                );
+
+                let costText = '';
+                let currentVariety = null;
+                groupedBoxItems.forEach(subItem => {
+                    let cost = parseFloat(subItem.stem_cost_price || 0) + parseFloat(subItem.margin || 0);
+                    cost = cost.toFixed(2);
+
+                    if (subItem.product_variety !== currentVariety) {
+                        line_text += ` ${subItem.product_variety}`;
+                        currentVariety = subItem.product_variety;
+                    }
+                    
+                    line_text += ` ${subItem.length}X${subItem.qty_stem_flower || 0}`;
+                    if (parseFloat(subItem.stem_cost_price || 0) > 0){
+                        costText += ` $${cost}`;
+                    }
+                });
+
+                line_text += costText;
+                return line_text;
+            };
+
+            this.stockText = headerText;
+
+            // Check if there are valid items after filtering
+            if (Object.keys(groupedBySupplier).length === 0) {
                 if (this.selectedCustomer && this.selectedCustomer.id === 'all') {
                     this.stockText = 'No hay productos seleccionados en el inventario';
                 } else {
                     this.stockText = 'Sin productos válidos para el cliente seleccionado';
                 }
+                return;
             }
+
+            // Convert grouped suppliers to array and sort by name for consistent ordering
+            const suppliers = Object.values(groupedBySupplier).sort((a, b) => a.name.localeCompare(b.name));
+            
+            // Find KOSMO FLOWERS supplier (check for various possible names)
+            const kosmoSupplier = suppliers.find(supplier => 
+                supplier.name.includes('KOSMO FLOWERS') || 
+                supplier.name.includes('EXPROSES S.A.') ||
+                supplier.name.includes('KOSMO') && supplier.name.includes('FLOWERS')
+            );
+
+            // First, show KOSMO FLOWERS items without header
+            if (kosmoSupplier) {
+                kosmoSupplier.items.forEach(item => {
+                    this.stockText += formatStockLine(item) + '\n';
+                });
+            }
+
+            // Then show other suppliers with "Stock Finca X" headers
+            const otherSuppliers = suppliers.filter(supplier => supplier !== kosmoSupplier);
+            otherSuppliers.forEach((supplier, index) => {
+                this.stockText += `Stock Finca ${index + 1}\n`;
+                supplier.items.forEach(item => {
+                    this.stockText += formatStockLine(item) + '\n';
+                });
+            });
         },
         updateValues(newValue, column) {
             let box_items = [];
