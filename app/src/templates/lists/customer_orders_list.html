@@ -5,6 +5,27 @@
 <div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2 d-flex justify-content-between">
     <div class="d-flex align-items-center gap-3">
         <div class="text-primary">Ordenes de Venta a Clientes</div>
+        <div class="d-flex gap-2">
+            <button id="exportExcel" class="btn btn-success btn-sm" title="Exportar a Excel">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <path d="M16 13a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2z"/>
+                    <path d="M10.3 21H7"/>
+                </svg>
+                Excel
+            </button>
+            <button id="exportPDF" class="btn btn-danger btn-sm" title="Exportar a PDF">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                </svg>
+                PDF
+            </button>
+        </div>
         <!-- Botón Confirmar (se muestra cuando hay selecciones) -->
         <button type="button" class="btn btn-success btn-sm" id="confirmButton" style="display: none;" data-bs-toggle="modal" data-bs-target="#confirmModal">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -156,6 +177,11 @@
 </div>
 
 {% block script %}
+<!-- Librerías para exportación -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
 <script>
 $(document).ready(function() {
     let selectedOrders = [];
@@ -400,6 +426,79 @@ $(document).ready(function() {
     window.getSelectedOrderIds = function() {
         return selectedOrders;
     };
+    
+    // Funcionalidad de exportación PDF y Excel
+    $('#exportExcel').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var table = $('#myTable')[0];
+        var wb = XLSX.utils.book_new();
+        var ws = XLSX.utils.table_to_sheet(table);
+        XLSX.utils.book_append_sheet(wb, ws, "Ordenes Clientes");
+        var fecha = new Date().toISOString().slice(0,10);
+        XLSX.writeFile(wb, "ordenes_clientes_" + fecha + ".xlsx");
+    });
+    
+    $('#exportPDF').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const { jsPDF } = window.jspdf;
+        var doc = new jsPDF('l', 'pt', 'a4');
+        
+        // Crear imagen del logo
+        var logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.onload = function() {
+            // Agregar logo (ajustar tamaño proporcional)
+            var logoWidth = 80;
+            var logoHeight = (logoImg.height * logoWidth) / logoImg.width;
+            doc.addImage(logoImg, 'PNG', 20, 20, logoWidth, logoHeight);
+            
+            // Agregar texto junto al logo
+            doc.setFontSize(16);
+            doc.text('Kosmo Flowers', 110, 35);
+            doc.setFontSize(12);
+            doc.text('Listado de Órdenes de Clientes', 110, 55);
+            var fecha = new Date().toLocaleDateString('es-ES');
+            doc.setFontSize(10);
+            doc.text('Generado el: ' + fecha, 110, 75);
+            
+            // Generar tabla
+            var table = $('#myTable')[0];
+            var headers = [];
+            var data = [];
+            
+            $(table).find('thead tr th').each(function() {
+                headers.push($(this).text().trim());
+            });
+            
+            $(table).find('tbody tr').each(function() {
+                var row = [];
+                $(this).find('td').each(function() {
+                    var cellText = $(this).text().trim().replace(/\s+/g, ' ');
+                    row.push(cellText);
+                });
+                data.push(row);
+            });
+            
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 100,
+                styles: { fontSize: 6, cellPadding: 2 },
+                headStyles: { fillColor: [52, 58, 64], textColor: 255, fontSize: 7, fontStyle: 'bold' },
+                margin: { top: 100, left: 15, right: 15 },
+            });
+            
+            var fechaArchivo = new Date().toISOString().slice(0,10);
+            doc.save("ordenes_clientes_" + fechaArchivo + ".pdf");
+        };
+        
+        // Cargar logo desde la ruta del servidor
+        logoImg.src = '/static/img/logo-kosmo.png';
+    });
 });
 </script>
 {% endblock %}
