@@ -158,69 +158,82 @@ $(document).ready(function() {
         const { jsPDF } = window.jspdf;
         var doc = new jsPDF('l', 'pt', 'a4'); // landscape, puntos, A4
         
-        // Título del documento
-        doc.setFontSize(16);
-        doc.text('Órdenes de Compra a Proveedores', 40, 40);
-        
-        // Agregar fecha de generación
-        var fecha = new Date().toLocaleDateString('es-ES');
-        doc.setFontSize(10);
-        doc.text('Generado el: ' + fecha, 40, 60);
-        
-        // Obtener datos de la tabla
-        var table = $('#myTable')[0];
-        var headers = [];
-        var data = [];
-        
-        // Extraer encabezados
-        $(table).find('thead tr th').each(function() {
-            headers.push($(this).text().trim());
-        });
-        
-        // Extraer datos
-        $(table).find('tbody tr').each(function() {
-            var row = [];
-            $(this).find('td').each(function() {
-                var cellText = $(this).text().trim();
-                // Limpiar el texto de espacios extra
-                cellText = cellText.replace(/\s+/g, ' ');
-                row.push(cellText);
+        // Crear imagen del logo
+        var logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.onload = function() {
+            // Agregar logo (ajustar tamaño proporcional)
+            var logoWidth = 80;
+            var logoHeight = (logoImg.height * logoWidth) / logoImg.width;
+            doc.addImage(logoImg, 'PNG', 20, 20, logoWidth, logoHeight);
+            
+            // Agregar texto junto al logo
+            doc.setFontSize(16);
+            doc.text('Kosmo Flowers', 110, 35);
+            doc.setFontSize(12);
+            doc.text('Órdenes de Compra a Proveedores', 110, 55);
+            var fecha = new Date().toLocaleDateString('es-ES');
+            doc.setFontSize(10);
+            doc.text('Generado el: ' + fecha, 110, 75);
+            
+            // Obtener datos de la tabla
+            var table = $('#myTable')[0];
+            var headers = [];
+            var data = [];
+            
+            // Extraer encabezados
+            $(table).find('thead tr th').each(function() {
+                headers.push($(this).text().trim());
             });
-            data.push(row);
-        });
+            
+            // Extraer datos
+            $(table).find('tbody tr').each(function() {
+                var row = [];
+                $(this).find('td').each(function() {
+                    var cellText = $(this).text().trim();
+                    // Limpiar el texto de espacios extra
+                    cellText = cellText.replace(/\s+/g, ' ');
+                    row.push(cellText);
+                });
+                data.push(row);
+            });
+            
+            // Generar la tabla en PDF
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 100,
+                styles: {
+                    fontSize: 8,
+                    cellPadding: 3,
+                },
+                headStyles: {
+                    fillColor: [52, 58, 64],
+                    textColor: 255,
+                    fontSize: 9,
+                    fontStyle: 'bold'
+                },
+                columnStyles: {
+                    0: { cellWidth: 30 }, // #
+                    1: { cellWidth: 80 }, // N. OC
+                    2: { cellWidth: 80 }, // OV Relacionada
+                    3: { cellWidth: 60 }, // Factura
+                    4: { cellWidth: 120 }, // Proveedor
+                    5: { cellWidth: 80 }, // Fecha
+                    6: { cellWidth: 50 }, // Tallos
+                    7: { cellWidth: 70 }, // Total
+                    8: { cellWidth: 80 }  // Estado
+                },
+                margin: { top: 100, left: 40, right: 40 },
+            });
+            
+            // Guardar el PDF
+            var fechaArchivo = new Date().toISOString().slice(0,10);
+            doc.save("ordenes_compra_proveedores_" + fechaArchivo + ".pdf");
+        };
         
-        // Generar la tabla en PDF
-        doc.autoTable({
-            head: [headers],
-            body: data,
-            startY: 80,
-            styles: {
-                fontSize: 8,
-                cellPadding: 3,
-            },
-            headStyles: {
-                fillColor: [52, 58, 64],
-                textColor: 255,
-                fontSize: 9,
-                fontStyle: 'bold'
-            },
-            columnStyles: {
-                0: { cellWidth: 30 }, // #
-                1: { cellWidth: 80 }, // N. OC
-                2: { cellWidth: 80 }, // OV Relacionada
-                3: { cellWidth: 60 }, // Factura
-                4: { cellWidth: 120 }, // Proveedor
-                5: { cellWidth: 80 }, // Fecha
-                6: { cellWidth: 50 }, // Tallos
-                7: { cellWidth: 70 }, // Total
-                8: { cellWidth: 80 }  // Estado
-            },
-            margin: { top: 80, left: 40, right: 40 },
-        });
-        
-        // Guardar el PDF
-        var fechaArchivo = new Date().toISOString().slice(0,10);
-        doc.save("ordenes_compra_proveedores_" + fechaArchivo + ".pdf");
+        // Cargar logo desde la ruta del servidor
+        logoImg.src = '/static/img/logo-kosmo.png';
     });
 });
 </script>
