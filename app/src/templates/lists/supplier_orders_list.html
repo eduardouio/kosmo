@@ -2,7 +2,30 @@
 {% load humanize %}
 {% block content %}
 <div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-2 d-flex justify-content-between">
-    <div class="text-primary">Ordenes de Compra a Proveedores</div>
+    <div class="d-flex align-items-center gap-3">
+        <div class="text-primary">Ordenes de Compra a Proveedores</div>
+        <div class="d-flex gap-2">
+            <button id="exportExcel" class="btn btn-success btn-sm" title="Exportar a Excel">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <path d="M16 13a2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2z"/>
+                    <path d="M10.3 21H7"/>
+                </svg>
+                Excel
+            </button>
+            <button id="exportPDF" class="btn btn-danger btn-sm" title="Exportar a PDF">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                </svg>
+                PDF
+            </button>
+        </div>
+    </div>
     <div class="d-flex justify-content-end gap-4">
         <div class="fw-bold">
             <span>Por Confirmar:</span>
@@ -100,4 +123,107 @@
         </tbody>
     </table>
 </div>
+
+{% block files_footer %}
+<!-- Librerías para exportación -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+{% endblock %}
+
+{% block script %}
+<script>
+$(document).ready(function() {
+    // Función para exportar a Excel
+    $('#exportExcel').click(function() {
+        // Obtener la tabla
+        var table = $('#myTable')[0];
+        
+        // Crear un nuevo workbook
+        var wb = XLSX.utils.book_new();
+        
+        // Convertir la tabla a worksheet
+        var ws = XLSX.utils.table_to_sheet(table);
+        
+        // Agregar la worksheet al workbook
+        XLSX.utils.book_append_sheet(wb, ws, "Órdenes de Compra");
+        
+        // Generar el archivo Excel
+        var fecha = new Date().toISOString().slice(0,10);
+        XLSX.writeFile(wb, "ordenes_compra_proveedores_" + fecha + ".xlsx");
+    });
+    
+    // Función para exportar a PDF
+    $('#exportPDF').click(function() {
+        const { jsPDF } = window.jspdf;
+        var doc = new jsPDF('l', 'pt', 'a4'); // landscape, puntos, A4
+        
+        // Título del documento
+        doc.setFontSize(16);
+        doc.text('Órdenes de Compra a Proveedores', 40, 40);
+        
+        // Agregar fecha de generación
+        var fecha = new Date().toLocaleDateString('es-ES');
+        doc.setFontSize(10);
+        doc.text('Generado el: ' + fecha, 40, 60);
+        
+        // Obtener datos de la tabla
+        var table = $('#myTable')[0];
+        var headers = [];
+        var data = [];
+        
+        // Extraer encabezados
+        $(table).find('thead tr th').each(function() {
+            headers.push($(this).text().trim());
+        });
+        
+        // Extraer datos
+        $(table).find('tbody tr').each(function() {
+            var row = [];
+            $(this).find('td').each(function() {
+                var cellText = $(this).text().trim();
+                // Limpiar el texto de espacios extra
+                cellText = cellText.replace(/\s+/g, ' ');
+                row.push(cellText);
+            });
+            data.push(row);
+        });
+        
+        // Generar la tabla en PDF
+        doc.autoTable({
+            head: [headers],
+            body: data,
+            startY: 80,
+            styles: {
+                fontSize: 8,
+                cellPadding: 3,
+            },
+            headStyles: {
+                fillColor: [52, 58, 64],
+                textColor: 255,
+                fontSize: 9,
+                fontStyle: 'bold'
+            },
+            columnStyles: {
+                0: { cellWidth: 30 }, // #
+                1: { cellWidth: 80 }, // N. OC
+                2: { cellWidth: 80 }, // OV Relacionada
+                3: { cellWidth: 60 }, // Factura
+                4: { cellWidth: 120 }, // Proveedor
+                5: { cellWidth: 80 }, // Fecha
+                6: { cellWidth: 50 }, // Tallos
+                7: { cellWidth: 70 }, // Total
+                8: { cellWidth: 80 }  // Estado
+            },
+            margin: { top: 80, left: 40, right: 40 },
+        });
+        
+        // Guardar el PDF
+        var fechaArchivo = new Date().toISOString().slice(0,10);
+        doc.save("ordenes_compra_proveedores_" + fechaArchivo + ".pdf");
+    });
+});
+</script>
+{% endblock %}
+
 {% endblock %}
