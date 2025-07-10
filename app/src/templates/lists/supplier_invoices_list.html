@@ -149,40 +149,57 @@ $(document).ready(function() {
     $('#exportPDF').click(function() {
         const { jsPDF } = window.jspdf;
         var doc = new jsPDF('l', 'pt', 'a4');
-        doc.setFontSize(16);
-        doc.text('Facturas de Compra', 40, 40);
-        var fecha = new Date().toLocaleDateString('es-ES');
-        doc.setFontSize(10);
-        doc.text('Generado el: ' + fecha, 40, 60);
         
-        var table = $('#myTable')[0];
-        var headers = [];
-        var data = [];
-        
-        $(table).find('thead tr th').each(function() {
-            headers.push($(this).text().trim());
-        });
-        
-        $(table).find('tbody tr').each(function() {
-            var row = [];
-            $(this).find('td').each(function() {
-                var cellText = $(this).text().trim().replace(/\s+/g, ' ');
-                row.push(cellText);
+        // Crear imagen del logo
+        var logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.onload = function() {
+            // Agregar logo (ajustar tamaño proporcional)
+            var logoWidth = 80;
+            var logoHeight = (logoImg.height * logoWidth) / logoImg.width;
+            doc.addImage(logoImg, 'PNG', 20, 20, logoWidth, logoHeight);
+            
+            // Agregar texto junto al logo
+            doc.setFontSize(16);
+            doc.text('Kosmo Flowers', 110, 35);
+            doc.setFontSize(12);
+            doc.text('Facturas de Compra', 110, 55);
+            var fecha = new Date().toLocaleDateString('es-ES');
+            doc.setFontSize(10);
+            doc.text('Generado el: ' + fecha, 110, 75);
+            
+            var table = $('#myTable')[0];
+            var headers = [];
+            var data = [];
+            
+            $(table).find('thead tr th').each(function() {
+                headers.push($(this).text().trim());
             });
-            data.push(row);
-        });
+            
+            $(table).find('tbody tr').each(function() {
+                var row = [];
+                $(this).find('td').each(function() {
+                    var cellText = $(this).text().trim().replace(/\s+/g, ' ');
+                    row.push(cellText);
+                });
+                data.push(row);
+            });
+            
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 100,
+                styles: { fontSize: 7, cellPadding: 2 },
+                headStyles: { fillColor: [52, 58, 64], textColor: 255, fontSize: 8, fontStyle: 'bold' },
+                margin: { top: 100, left: 30, right: 30 },
+            });
+            
+            var fechaArchivo = new Date().toISOString().slice(0,10);
+            doc.save("facturas_compra_" + fechaArchivo + ".pdf");
+        };
         
-        doc.autoTable({
-            head: [headers],
-            body: data,
-            startY: 80,
-            styles: { fontSize: 7, cellPadding: 2 },
-            headStyles: { fillColor: [52, 58, 64], textColor: 255, fontSize: 8, fontStyle: 'bold' },
-            margin: { top: 80, left: 30, right: 30 },
-        });
-        
-        var fechaArchivo = new Date().toISOString().slice(0,10);
-        doc.save("facturas_compra_" + fechaArchivo + ".pdf");
+        // Cargar logo desde la ruta del servidor
+        logoImg.src = '/static/img/logo-kosmo.png';
     });
 });
 </script>
