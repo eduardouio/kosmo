@@ -1,0 +1,148 @@
+{
+  "order": {
+    "serie": "100",
+    "consecutive": "000000",
+    "stock_day": 0,
+    "date": "14/07/2025 20:29",
+    "partner": null,
+    "type_document": "ORD_VENTA",
+    "parent_order": null,
+    "num_order": "",
+    "delivery_date": "",
+    "status": "PROMESA",
+    "discount": 0,
+    "total_price": 531.25,
+    "total_margin": 160,
+    "comision_seler": 0,
+    "qb_total": 6,
+    "hb_total": 0,
+    "fb_total": 1.5,
+    "total_stem_flower": 1625,
+    "total_bunches": 325,
+    "is_invoiced": false,
+    "id_invoice": 0,
+    "num_invoice": null,
+    "eb_total": 0
+  },
+  "customer": {
+    "id": 67,
+    "name": "Alwasys For You Inc",
+    "business_tax_id": "0000000001",
+    "address": "992 east 15 st Brooklyn",
+    "country": "Estados Unidos",
+    "city": "New York",
+    "website": "",
+    "credit_term": 30,
+    "consolidate": false,
+    "skype": "",
+    "email": "ymichailov@hotmail.com",
+    "phone": "",
+    "is_active": true,
+    "contact": {},
+    "related_partners": [],
+    "is_selected": false
+  },
+  "supplier": {
+    "id": 38,
+    "name": "ADONAI FLOWERS",
+    "short_name": "AF",
+    "business_tax_id": "1715694202001",
+    "address": "CAYAMBE",
+    "city": "CAYAMBE",
+    "website": "",
+    "credit_term": 45,
+    "is_profit_margin_included": false,
+    "default_profit_margin": "0.06",
+    "consolidate": false,
+    "skype": "",
+    "email": "contabilidad.adonaiflowers@gmail.com",
+    "phone": "",
+    "is_active": true,
+    "contact": {},
+    "is_selected": false,
+    "have_stock": false,
+    "related_partners": []
+  },
+  "orderLines": [
+    {
+      "quantity": 5,
+      "box_model": "QB",
+      "order_box_items": [
+        {
+          "total": "0.31",
+          "product": {
+            "id": 1,
+            "name": "ROSA",
+            "variety": "AKITO",
+            "image": "/media/products/AKITO.png",
+            "colors": "WHITE AND CREAM",
+            "default_profit_margin": "0.00"
+          },
+          "stem_cost_price": 0.31,
+          "profit_margin": 0.09,
+          "qty_stem_flower": 100,
+          "length": 50,
+          "total_bunches": 20,
+          "stems_bunch": 5
+        },
+        {
+          "total": "0.32",
+          "length": 60,
+          "product": {
+            "id": 6,
+            "name": "ROSA",
+            "variety": "MONDIAL",
+            "image": "/media/products/MONDIAL.png",
+            "colors": "WHITE AND CREAM",
+            "default_profit_margin": "0.00"
+          },
+          "stem_cost_price": 0.32,
+          "profit_margin": 0.09,
+          "qty_stem_flower": 100,
+          "total_bunches": 20,
+          "stems_bunch": 5
+        },
+        {
+          "total": "0.42",
+          "product": {
+            "id": 2,
+            "name": "ROSA",
+            "variety": "VENDELA",
+            "image": "/media/products/VENDELA.png",
+            "colors": "WHITE AND CREAM",
+            "default_profit_margin": "0.00"
+          },
+          "stem_cost_price": 0.32,
+          "profit_margin": 0.11,
+          "qty_stem_flower": 100,
+          "length": 60,
+          "total_bunches": 20,
+          "stems_bunch": 5
+        }
+      ]
+    },
+    {
+      "quantity": 1,
+      "box_model": "QB",
+      "order_box_items": [
+        {
+          "total": "0.56",
+          "product": {
+            "id": 6,
+            "name": "ROSA",
+            "variety": "MONDIAL",
+            "image": "/media/products/MONDIAL.png",
+            "colors": "WHITE AND CREAM",
+            "default_profit_margin": "0.00"
+          },
+          "stem_cost_price": 0.45,
+          "profit_margin": 0.12,
+          "qty_stem_flower": 125,
+          "length": 60,
+          "total_bunches": 25,
+          "stems_bunch": 5
+        }
+      ]
+    }
+  ]
+}
