@@ -1,0 +1,160 @@
+<div class="tab-pane fade" id="purchase-orders-tab-pane" role="tabpanel" aria-labelledby="purchase-orders-tab" tabindex="0">
+          {% if response_data.purchase_orders_details %}
+            {% for po in response_data.purchase_orders_details %}
+              <div class="mb-5">
+                <div class="row mb-3">
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="border border-2 border-warning p-3 rounded h-100">
+                      <h6 class="fw-bold mb-3">Información del Proveedor</h6>
+                      {% with po_supplier=po.partner %}
+                      <div class="form-control bg-light mb-2">{{ po_supplier.name }}</div>
+                      <p class="small mb-1"><strong>ID/RUC:</strong> {{ po_supplier.business_tax_id|default:'N/A' }}</p>
+                      <p class="small mb-1"><strong>Dirección:</strong> {{ po_supplier.address|default:'N/A' }}</p>
+                      <p class="small mb-1"><strong>Ciudad - País:</strong> {{ po_supplier.city|default:'N/A' }} - {{ po_supplier.country|default:'N/A' }}</p>
+                      <p class="small mb-1"><strong>Email:</strong> {{ po_supplier.email|default:'N/A' }}</p>
+                      <p class="small mb-1"><strong>Teléfono:</strong> {{ po_supplier.phone|default:'N/A' }}</p>
+                      {% endwith %}
+                    </div>
+                  </div>
+                  <div class="col-4 offset-md-2">
+                    <div class="border border-2 border-warning p-2 rounded">
+                      <div class="d-flex justify-content-end align-items-center mb-1">
+                        <span class="small fw-bold me-2">ORDEN DE COMPRA:</span>
+                        <span class="text-danger fs-4">{{ po.serie }}-{{ po.consecutive | stringformat:'06d' }}</span>
+                      </div>
+                      <div class="d-flex justify-content-end align-items-center border-top border-success pt-1 mb-1">
+                        <span class="small fw-bold me-2">FECHA:</span>
+                        <span class="fs-4">{{ po.date }}</span>
+                      </div>
+                      <div class="d-flex justify-content-end align-items-center border-top border-info pt-1">
+                        <span class="small fw-bold me-2">ESTADO:</span>
+                        <span class="badge 
+                          {% if po.status == 'PENDIENTE' %}bg-warning text-dark
+                          {% elif po.status == 'CONFIRMADO' %}bg-success
+                          {% elif po.status == 'MODIFICADO' %}bg-info
+                          {% elif po.status == 'FACTURADO' %}bg-primary
+                          {% elif po.status == 'CANCELADO' %}bg-danger
+                          {% elif po.status == 'PROMESA' %}bg-secondary
+                          {% else %}bg-light text-dark
+                          {% endif %} fs-6">{{ po.status }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Tabla de productos para Orden de Compra -->
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <div class="table-responsive">
+                      <table class="table table-bordered table-sm table-hover">
+                        <thead class="bg-warning bg-opacity-25">
+                          <tr class="text-center small">
+                            <th class="bg-gray-200">CANT</th>
+                            <th class="bg-gray-200">MODELO</th>
+                            <th class="bg-gray-200">VARIEDAD</th>
+                            <th class="bg-gray-200">LARGO CM</th>
+                            <th class="bg-gray-200">T/B</th>
+                            <th class="bg-gray-200">BUNCHES</th>
+                            <th class="bg-gray-200">TALLOS</th>
+                            <th class="bg-gray-200">COSTO U TALLO</th>
+                            <th class="bg-gray-200">TOTAL LÍNEA</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for line in po.orderLines %}
+                            {% for box_item in line.order_box_items %}
+                            <tr>
+                              {% if forloop.first %}
+                                <td rowspan="{{ line.order_box_items|length }}" class="align-middle text-center">{{ line.quantity }}</td>
+                                <td rowspan="{{ line.order_box_items|length }}" class="align-middle text-center">{{ line.box_model }}</td>
+                              {% endif %}
+                              <td>{{ box_item.product.variety }} ({{box_item.product.name}})</td>
+                              <td class="text-end">{{ box_item.length }}</td>
+                              <td class="text-end">{{ box_item.stems_bunch }}</td>
+                              <td class="text-end">{{ box_item.total_bunches }}</td>
+                              <td class="text-end">{{ box_item.qty_stem_flower }}</td>
+                              <td class="text-end">{{ box_item.stem_cost_price }}</td>
+                              <td class="text-end">{{ box_item.stem_cost_total_price_with_quantity }}</td>
+                            </tr>
+                            {% endfor %}
+                          {% empty %}
+                            <tr><td colspan="8" class="text-center">No hay ítems en esta orden.</td></tr>
+                          {% endfor %}
+                        </tbody>
+                        <tfoot>
+                          <tr class="bg-warning bg-opacity-10">
+                            <td colspan="8" class="text-end fw-bold">TOTAL GENERAL COMPRA:</td>
+                            <td class="text-end text-success fw-bold">${{ po.total_order }}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Totales para Orden de Compra -->
+                <div class="row mb-4">
+                  <div class="col-md-6 mb-3 mb-md-0">
+                    <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                      <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.eb_total }}</div></div>
+                      <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.hb_total }}</div></div>
+                      <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.qb_total }}</div></div>
+                      <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.fb_total }}</div></div>
+                      <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.total_stem_flower }}</div></div>
+                      <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL BUNCHES:</div><div class="col-4 text-end fs-5 fw-bold">{{ po.total_bunches }}</div></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Botones de acción para cada Orden de Compra -->
+                <div class="row mt-4">
+                  <div class="col d-flex justify-content-end gap-3">
+                    <!-- Botón Ingresar Factura - Solo si está confirmada y no facturada -->
+                    {% if po.status == 'CONFIRMADO' and not po.is_invoiced %}
+                      <form action="{% url 'generate_invoice_by_order' po.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-default btn-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-receipt-dollar">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2"/>
+                            <path d="M14.8 8a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1"/>
+                            <path d="M12 6v10"/>
+                          </svg>
+                          <span class="btn-text">Ingresar Factura</span>
+                        </button>
+                      </form>
+                    {% endif %}
+
+                    <!-- Botón Ver Factura - Solo si está facturada -->
+                    {% if po.is_invoiced and po.id_invoice %}
+                      <a href="{% url 'supplier_invoice_detail' po.id_invoice %}" class="btn btn-default btn-sm action-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                          <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
+                        </svg>
+                        <span class="btn-text">Ver Factura</span>
+                      </a>
+                    {% endif %}
+                    <!-- Botón PDF Orden Compra - Siempre disponible -->
+                    {% if po.id %}
+                    <a href="{% url 'report_supplier_order' po.id %}" class="btn btn-default btn-sm action-btn print-btn">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"/>
+                          <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"/>
+                          <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z"/>
+                        </svg>
+                      <span class="btn-text">Orden Compra</span>
+                    </a>
+                    {% endif %}
+                  </div>
+                </div>
+                
+              </div>
+            {% endfor %}
+          {% else %}
+            <p>No hay órdenes de compra relacionadas para esta orden de venta.</p>
+          {% endif %}
+        </div>

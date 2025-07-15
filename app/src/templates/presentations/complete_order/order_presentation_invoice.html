@@ -1,0 +1,199 @@
+ <div class="tab-pane fade" id="sale-invoices-tab-pane" role="tabpanel" aria-labelledby="sale-invoices-tab" tabindex="0">
+          {% for invoice in response_data.sale_invoices_details %}
+          <div class="mb-5">
+            <!-- Encabezado de Factura de Venta -->
+            <div class="row mb-4 align-items-center">
+              <div class="col-8">
+                <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
+              </div>
+              <div class="col-4">
+                <div class="border border-2 border-success p-2 rounded">
+                  <div class="d-flex justify-content-end align-items-center mb-1">
+                    <span class="small fw-bold me-2">FACTURA VENTA:</span>
+                    <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive | stringformat:'06d' }}</span>
+                  </div>
+                  {% if invoice.num_invoice %}
+                  <div class="d-flex justify-content-end align-items-center border-top border-warning pt-1 mb-1">
+                    <span class="small fw-bold me-2">No. FACTURA:</span>
+                    <span class="fs-4">{{ invoice.num_invoice }}</span>
+                  </div>
+                  {% endif %}
+                  <div class="d-flex justify-content-end align-items-center border-top border-success pt-1 mb-1">
+                    <span class="small fw-bold me-2">FECHA:</span>
+                    <span class="fs-4">{{ invoice.date }}</span>
+                  </div>
+                  {% if invoice.due_date %}
+                  <div class="d-flex justify-content-end align-items-center border-top border-primary pt-1 mb-1">
+                    <span class="small fw-bold me-2">VENCIMIENTO:</span>
+                    <span class="fs-4">{{ invoice.due_date }}</span>
+                  </div>
+                  {% endif %}
+                  <div class="d-flex justify-content-end align-items-center border-top border-info pt-1">
+                    <span class="small fw-bold me-2">ESTADO:</span>
+                    <span class="badge 
+                      {% if invoice.status == 'PENDIENTE' %}bg-warning text-dark
+                      {% elif invoice.status == 'PAGADO' %}bg-success
+                      {% elif invoice.status == 'ANULADO' %}bg-danger
+                      {% else %}bg-light text-dark
+                      {% endif %} fs-6">{{ invoice.status }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información del Cliente -->
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <div class="border border-2 border-success p-3 rounded h-100">
+                  <h6 class="fw-bold mb-3">Información del Cliente</h6>
+                  <div class="form-control bg-light mb-2">{{ invoice.partner.name }}</div>
+                  <p class="small mb-1"><strong>ID/RUC:</strong> {{ invoice.partner.business_tax_id|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>Dirección:</strong> {{ invoice.partner.address|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>Ciudad - País:</strong> {{ invoice.partner.city|default:'N/A' }} - {{ invoice.partner.country|default:'N/A' }}</p>
+                  <div class="d-flex justify-content-between">
+                    <p class="small mb-1"><strong>Email:</strong> {{ invoice.partner.email|default:'N/A' }}</p>
+                    <p class="small mb-1"><strong>Crédito:</strong> {{ invoice.partner.credit_term|default:'N/A' }} días</p>
+                  </div>
+                  <p class="small mb-1"><strong>PO Number:</strong> {{ invoice.po_number|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>Teléfono:</strong> {{ invoice.partner.phone|default:'N/A' }}</p>
+                </div>
+              </div>
+              
+              <!-- Información de envío -->
+              <div class="col-md-6">
+                <div class="border border-2 border-success p-3 rounded h-100">
+                  <h6 class="fw-bold mb-3">Información de Envío</h6>
+                  <p class="small mb-1"><strong>AWB:</strong> {{ invoice.awb|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>HAWB:</strong> {{ invoice.hawb|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>DAE Export:</strong> {{ invoice.dae_export|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>Agencia de Carga:</strong> {{ invoice.cargo_agency|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>Fecha de Entrega:</strong> {{ invoice.delivery_date|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>Peso:</strong> {{ invoice.weight|default:'N/A' }} KG</p>
+                  {% if invoice.days_to_due %}
+                  <p class="small mb-1"><strong>Días para vencimiento:</strong> 
+                    <span class="{% if invoice.is_dued %}text-danger{% elif invoice.days_to_due <= 7 %}text-warning{% else %}text-success{% endif %}">
+                      {% if invoice.is_dued %}-{{ invoice.days_overdue }}{% else %}{{ invoice.days_to_due }}{% endif %}
+                    </span>
+                  </p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabla de productos de factura de venta -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="table-responsive">
+                  <table class="table table-bordered table-sm table-hover">
+                    <thead class="bg-success bg-opacity-25">
+                      <tr class="text-center small">
+                        <th class="bg-gray-200">CANT</th>
+                        <th class="bg-gray-200">MODELO</th>
+                        <th class="bg-gray-200">VARIEDAD</th>
+                        <th class="bg-gray-200">LARGO CM</th>
+                        <th class="bg-gray-200">T/B</th>
+                        <th class="bg-gray-200">BUNCHES</th>
+                        <th class="bg-gray-200">TOTAL TALLOS</th>
+                        <th class="bg-gray-200">COSTO U TALLO</th>
+                        <th class="bg-gray-200">MARGEN U TALLO</th>
+                        <th class="bg-gray-200">PVP U TALLO</th>
+                        <th class="bg-gray-200">TOTAL LÍNEA</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for line in invoice.invoiceLines %}
+                        {% for box_item in line.invoice_box_items %}
+                        <tr>
+                          {% if forloop.first %}
+                            <td rowspan="{{ line.invoice_box_items|length }}" class="align-middle text-center">{{ line.quantity }}</td>
+                            <td rowspan="{{ line.invoice_box_items|length }}" class="align-middle text-center">{{ line.box_model }}</td>
+                          {% endif %}
+                          <td>{{ box_item.product.variety }} ({{box_item.product.name}})</td>
+                          <td class="text-end">{{ box_item.length }}</td>
+                          <td class="text-end">{{ box_item.stems_bunch }}</td>
+                          <td class="text-end">{{ box_item.total_bunches }}</td>
+                          <td class="text-end">{{ box_item.qty_stem_flower }}</td>
+                          <td class="text-end">${{ box_item.stem_cost_price }}</td>
+                          <td class="text-end">${{ box_item.profit_margin }}</td>
+                          <td class="text-end">${{ box_item.unit_price }}</td>
+                          <td class="text-end">${{ box_item.total_price_with_margin }}</td>
+                        </tr>
+                        {% endfor %}
+                      {% empty %}
+                        <tr><td colspan="11" class="text-center">No hay ítems en esta factura.</td></tr>
+                      {% endfor %}
+                    </tbody>
+                    <tfoot>
+                      <tr class="bg-success bg-opacity-10">
+                        <td colspan="10" class="text-end fw-bold">TOTAL GENERAL VENTA:</td>
+                        <td class="text-end text-success fw-bold">${{ invoice.total_invoice }}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Totales de factura de venta -->
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                  <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.eb_total }}</div></div>
+                  <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.hb_total }}</div></div>
+                  <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.qb_total }}</div></div>
+                  <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.fb_total }}</div></div>
+                  <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.tot_stem_flower }}</div></div>
+                  <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL BUNCHES:</div><div class="col-4 text-end fs-5 fw-bold">{{ invoice.total_bunches }}</div></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                  <div class="row mt-md-0 mt-3"><div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div><div class="col-5 text-end text-success fs-5">${{ invoice.total_price }}</div></div>
+                  <div class="row"><div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div><div class="col-5 text-end text-success fs-5">${{ invoice.total_margin }}</div></div>
+                  <div class="row mb-1"><div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div><div class="col-5 text-end text-success fs-5">${{ invoice.total_invoice }}</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botones de acción para facturas de venta -->
+            <div class="row mt-4">
+              <div class="col d-flex justify-content-end gap-3">
+                {% if invoice.status == 'PENDIENTE' %}
+                  <a href="{% url 'edit_invoice_form' invoice.id %}" class="btn btn-default btn-sm action-btn" data-action-url="{% url 'edit_invoice_form' invoice.id %}" data-confirm-text="Confirmar Modificación">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pencil"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
+                    <span class="btn-text">Modificar</span>
+                  </a>
+                  <a href="#" class="btn btn-default btn-sm action-btn delete-invoice-btn" 
+                     data-delete-url="{% url 'delete_invoice' invoice.id %}" 
+                     data-confirm-text="Esta acción es irreversible, ¿está seguro de continuar?">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ban"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M5.7 5.7l12.6 12.6" /></svg>
+                    <span class="btn-text">Eliminar Factura</span>
+                  </a>
+                {% else %}
+                  <a href="#" class="btn btn-default btn-sm action-btn" data-action-url="{% url 'cancel_invoice' invoice.id %}" data-confirm-text="Confirmar Anulación">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-ban"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M5.7 5.7l12.6 12.6" /></svg>
+                    <span class="btn-text">Ver Pago</span>
+                  </a>
+                {% endif %}
+                {% if invoice.order_id %}
+                <a href="{% url 'order_detail_presentation' invoice.order_id %}" class="btn btn-default btn-sm action-btn print-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-box"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /></svg>
+                  <span class="btn-text">Ficha Pedido</span>
+                </a>
+                {% endif %}
+                {% if invoice.id %}
+                <a href="{% url 'invoice_detail_presentation' invoice.id %}" class="btn btn-success btn-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                  <span class="btn-text">Ver Detalle</span>
+                </a>
+                <a href="{% url 'report_invoice' invoice.id %}" class="btn btn-success btn-sm action-btn print-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+                  <span class="btn-text">PDF Factura</span>
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% if not forloop.last %}<hr class="my-5">{% endif %}
+          {% endfor %}
+        </div>

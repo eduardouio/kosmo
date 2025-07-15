@@ -1,0 +1,235 @@
+   <div class="tab-pane fade show active" id="main-order-tab-pane" role="tabpanel" aria-labelledby="main-order-tab" tabindex="0">
+          <!-- Encabezado de la orden principal -->
+          <div class="row mb-4 align-items-center">
+            <div class="col-8">
+              <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
+            </div>
+            <div class="col-4">
+              <div class="border border-2 border-warning p-2 rounded">
+                <div class="d-flex justify-content-end align-items-center mb-1">
+                  <span class="small fw-bold me-2">PEDIDO PRINCIPAL:</span>
+                  <span class="text-danger fs-4">{{ response_data.order.serie }}-{{ response_data.order.consecutive | stringformat:'06d' }}</span>
+                </div>
+                <div class="d-flex justify-content-end align-items-center border-top border-success pt-1 mb-1">
+                  <span class="small fw-bold me-2">FECHA:</span>
+                  <span class="fs-4">{{ response_data.order.date }}</span>
+                </div>
+                <div class="d-flex justify-content-end align-items-center border-top border-info pt-1">
+                  <span class="small fw-bold me-2">ESTADO:</span>
+                  <span class="badge 
+                    {% if response_data.order.status == 'PENDIENTE' %}bg-warning text-dark
+                    {% elif response_data.order.status == 'CONFIRMADO' %}bg-success
+                    {% elif response_data.order.status == 'MODIFICADO' %}bg-info
+                    {% elif response_data.order.status == 'FACTURADO' %}bg-primary
+                    {% elif response_data.order.status == 'CANCELADO' %}bg-danger
+                    {% elif response_data.order.status == 'PROMESA' %}bg-secondary
+                    {% else %}bg-light text-dark
+                    {% endif %} fs-6">{{ response_data.order.status }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Información del cliente y proveedor para Orden Principal -->
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <div class="border border-2 border-warning p-3 rounded h-100">
+                <h6 class="fw-bold mb-3">
+                  Información del 
+                  {% if response_data.order.type_document == 'ORD_VENTA' %}Cliente{% else %}Proveedor{% endif %}
+                </h6>
+                {% with main_partner=response_data.customer %} {# Para OV es cliente, para OC es proveedor #}
+                <div class="form-control bg-light mb-2">{{ main_partner.name }}</div>
+                <p class="small mb-1"><strong>ID/RUC:</strong> {{ main_partner.business_tax_id|default:'N/A' }}</p>
+                <p class="small mb-1"><strong>Dirección:</strong> {{ main_partner.address|default:'N/A' }}</p>
+                <p class="small mb-1"><strong>Ciudad - País:</strong> {{ main_partner.city|default:'N/A' }} - {{ main_partner.country|default:'N/A' }}</p>
+                <div class="d-flex justify-content-between">
+                  <p class="small mb-1"><strong>Email:</strong> {{ main_partner.email|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>Crédito:</strong> {{ main_partner.credit_term|default:'N/A' }} días</p>
+                </div>
+                <p class="small mb-1"><strong>Skype:</strong> {{ main_partner.skype|default:'N/A' }}</p>
+                <p class="small mb-1"><strong>Teléfono:</strong> {{ main_partner.phone|default:'N/A' }}</p>
+                {% if main_partner.contact %}
+                <p class="small mb-1"><strong>Contacto:</strong> {{ main_partner.contact.name }} ({{ main_partner.contact.email }}, {{ main_partner.contact.phone }})</p>
+                {% endif %}
+                {% endwith %}
+              </div>
+            </div>
+            
+            {% if response_data.order.type_document == 'ORD_VENTA' and response_data.supplier %}
+            <div class="col-md-6">
+              <div class="border border-2 border-warning p-3 rounded h-100">
+                <h6 class="fw-bold mb-3">Información del Proveedor Principal</h6>
+                {% with supplier_info=response_data.supplier %}
+                <div class="form-control bg-light mb-2">{{ supplier_info.name }}</div>
+                <p class="small mb-1"><strong>ID/RUC:</strong> {{ supplier_info.business_tax_id|default:'N/A' }}</p>
+                <p class="small mb-1"><strong>Dirección:</strong> {{ supplier_info.address|default:'N/A' }}</p>
+                <p class="small mb-1"><strong>Ciudad - País:</strong> {{ supplier_info.city|default:'N/A' }} - {{ supplier_info.country|default:'N/A' }}</p>
+                <div class="d-flex justify-content-between">
+                  <p class="small mb-1"><strong>Email:</strong> {{ supplier_info.email|default:'N/A' }}</p>
+                  <p class="small mb-1"><strong>Crédito:</strong> {{ supplier_info.credit_term|default:'N/A' }} días</p>
+                </div>
+                {% endwith %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Tabla de productos para Orden Principal -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table class="table table-bordered table-sm table-hover">
+                  <thead class="bg-warning bg-opacity-25">
+                    <tr class="text-center small">
+                      <th class="bg-gray-200">CANT</th>
+                      <th class="bg-gray-200">MODELO</th>
+                      <th class="bg-gray-200">VARIEDAD</th>
+                      <th class="bg-gray-200">LARGO CM</th>
+                      <th class="bg-gray-200">T/B</th>
+                      <th class="bg-gray-200">BUNCHES</th>
+                      <th class="bg-gray-200">TALLOS</th>
+                      <th class="bg-gray-200">COSTO U TALLO</th>
+                      {% if response_data.order.type_document == "ORD_VENTA" %}
+                      <th class="bg-gray-200">MARGEN U TALLO</th>
+                      <th class="bg-gray-200">PVP U TALLO</th>
+                      {% endif %}
+                      <th class="bg-gray-200">TOTAL LÍNEA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for line in response_data.orderLines %}
+                      {% for box_item in line.order_box_items %}
+                      <tr>
+                        {% if forloop.first %}
+                          <td rowspan="{{ line.order_box_items|length }}" class="align-middle text-center">{{ line.quantity }}</td>
+                          <td rowspan="{{ line.order_box_items|length }}" class="align-middle text-center">{{ line.box_model }}</td>
+                        {% endif %}
+                        <td>{{ box_item.product.variety }} ({{box_item.product.name}})</td>
+                        <td class="text-end">{{ box_item.length }}</td>
+                        <td class="text-end">{{ box_item.stems_bunch }}</td>
+                        <td class="text-end">{{ box_item.total_bunches }}</td>
+                        <td class="text-end">{{ box_item.qty_stem_flower }}</td> {# Total tallos para este box item específico (cant cajas * tallos por box item) #}
+                        <td class="text-end">{{ box_item.stem_cost_price }}</td>
+                        {% if response_data.order.type_document == "ORD_VENTA" %}
+                        <td class="text-end">{{ box_item.profit_margin }}</td>
+                        <td class="text-end">{{ box_item.stem_cost_total }}</td> {# stem_cost_price + profit_margin #}
+                        <td class="text-end">{{ box_item.stem_cost_total_sale_with_quantity }}</td> {# Total venta de la línea #}
+                        {% else %} {# ORD_COMPRA #}
+                        <td class="text-end">{{ box_item.stem_cost_total_price_with_quantity }}</td> {# Total costo de la línea #}
+                        {% endif %}                   
+                      </tr>
+                      {% endfor %}
+                    {% empty %}
+                      <tr><td colspan="{% if response_data.order.type_document == "ORD_VENTA" %}11{% else %}8{% endif %}" class="text-center">No hay ítems en esta orden.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                  {% if response_data.order.type_document == "ORD_VENTA" %}
+                  <tfoot>
+                    <tr class="bg-warning bg-opacity-10">
+                      <td colspan="10" class="text-end fw-bold">TOTAL GENERAL VENTA:</td>
+                      <td class="text-end text-success fw-bold">${{ response_data.order.total_order }}</td>
+                    </tr>
+                  </tfoot>
+                  {% else %} {# ORD_COMPRA #}
+                  <tfoot>
+                    <tr class="bg-warning bg-opacity-10">
+                      <td colspan="7" class="text-end fw-bold">TOTAL GENERAL COMPRA:</td>
+                      <td class="text-end text-success fw-bold">${{ response_data.order.total_order }}</td> {# total_order para OC es el total_purchase_price #}
+                    </tr>
+                  </tfoot>
+                  {% endif %}
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Totales para Orden Principal -->
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+              <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL EB:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.eb_total }}</div></div>
+                <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL HB:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.hb_total }}</div></div>
+                <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL QB:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.qb_total }}</div></div>
+                <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL FB:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.fb_total }}</div></div>
+                <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL TALLOS:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.total_stem_flower }}</div></div>
+                <div class="row"><div class="col-8 text-end border-end fs-5 fw-bold">TOTAL BUNCHES:</div><div class="col-4 text-end fs-5 fw-bold">{{ response_data.order.total_bunches }}</div></div>
+              </div>
+            </div>
+            {% if response_data.order.type_document == "ORD_VENTA" %}
+            <div class="col-md-6">
+              <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                <div class="row mt-md-0 mt-3"><div class="col-7 text-end border-end text-success fs-5"><strong>Costo:</strong></div><div class="col-5 text-end text-success fs-5">${{ response_data.order.total_price }}</div></div>
+                <div class="row"><div class="col-7 text-end border-end text-success fs-5"><strong>Margen:</strong></div><div class="col-5 text-end text-success fs-5">${{ response_data.order.total_margin }}</div></div>
+                <div class="row mb-1"><div class="col-7 text-end border-end text-success fs-5"><strong>Total Factura:</strong></div><div class="col-5 text-end text-success fs-5">${{ response_data.order.total_order }}</div></div>
+              </div>
+            </div>
+            {% else %} {# ORD_COMPRA #}
+            <div class="col-md-6">
+              <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
+                <div class="row mt-md-0 mt-3"><div class="col-7 text-end border-end text-success fs-5"><strong>Total Compra:</strong></div><div class="col-5 text-end text-success fs-5">${{ response_data.order.total_order }}</div></div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+           <div class="row mt-4">
+         <div class="col d-flex justify-content-end gap-3">
+          {% if response_data.order.status in 'PENDIENTE,PROMESA' %}
+            <a href="/trade/1/#/order/{{ response_data.order.id }}/" class="btn btn-default btn-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-pencil"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" /><path d="M13.5 6.5l4 4" /></svg>
+              <span class="btn-text">Modificar</span>
+            </a>
+          {% endif %}
+          {% comment %} Lógica de botones para generar OC, facturar, confirmar, etc. {% endcomment %}
+          {% if response_data.order.type_document == 'ORD_VENTA' and response_data.order.status == 'CONFIRMADO' and not response_data.order.is_invoiced %}
+            <form action="{% url 'generate_invoice_by_order' response_data.order.id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-default btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-receipt-dollar"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16l-3 -2l-2 2l-2 -2l-2 2l-2 -2l-3 2" /><path d="M14.8 8a2 2 0 0 0 -1.8 -1h-2a2 2 0 1 0 0 4h2a2 2 0 1 1 0 4h-2a2 2 0 0 1 -1.8 -1" /><path d="M12 6v10" /></svg>
+                <span class="btn-text">Generar Factura</span>
+              </button>
+            </form>
+          {% endif %}
+          {% if not response_data.order.is_invoiced and response_data.order.status in 'PENDIENTE,MODIFICADO,PROMESA' %}
+            <a href="{% url 'aprove_purchase_order' response_data.order.id %}" class="btn btn-default btn-sm action-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18.333 6a3.667 3.667 0 0 1 3.667 3.667v8.666a3.667 3.667 0 0 1 -3.667 3.667h-8.666a3.667 3.667 0 0 1 -3.667 -3.667v-8.666a3.667 3.667 0 0 1 3.667 -3.667zm-3.333 -4c1.094 0 1.828 .533 2.374 1.514a1 1 0 1 1 -1.748 .972c-.221 -.398 -.342 -.486 -.626 -.486h-10c-.548 0 -1 .452 -1 1v9.998c0 .32 .154 .618 .407 .805l.1 .065a1 1 0 1 1 -.99 1.738a3 3 0 0 1 -1.517 -2.606v-10c0 -1.652 1.348 -3 3 -3zm1.293 9.293l-3.293 3.292l-1.293 -1.292a1 1 0 0 0 -1.414 1.414l2 2a1 1 0 0 0 1.414 0l4 -4a1 1 0 0 0 -1.414 -1.414" /></svg>
+              <span class="btn-text">
+                {% if response_data.order.type_document == 'ORD_VENTA' %}
+                  Confirmar Venta
+                {% else %}
+                  Confirmar Compra
+                {% endif %}
+              </span>
+            </a>
+          {% endif %}
+          
+          {% if response_data.order.is_invoiced and response_data.order.type_document == 'ORD_VENTA' %}
+            {% if response_data.order.id_invoice %}
+            <a href="{% url 'invoice_detail_presentation' response_data.order.id_invoice %}" class="btn btn-default btn-sm action-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+              <span class="btn-text">Ver Factura</span>
+            </a>
+            <a href="{% url 'report_invoice' response_data.order.id_invoice %}" class="btn btn-default btn-sm action-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+              <span class="btn-text">Imprimir Factura</span>
+            </a>
+            {% endif %}
+          {% endif %}
+          {% if response_data.order.type_document == 'ORD_VENTA' and response_data.order.id %}
+            <a href="{% url 'report_customer_order' response_data.order.id %}" class="btn btn-default btn-sm action-btn print-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                          <path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-14a2 2 0 0 0 -2 2v4a2 2 0 0 0 2 2h2"/>
+                          <path d="M17 9v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4"/>
+                          <path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z"/>
+                        </svg>
+              <span class="btn-text">Orden Venta</span>
+            </a>
+          {% elif response_data.order.type_document == 'ORD_COMPRA' and response_data.order.id %}
+            <a href="{% url 'report_supplier_order' response_data.order.id %}" class="btn btn-default btn-sm action-btn print-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-printer"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17h2a2 2 0 0 0 2 -2v-4a2 2 0 0 0 -2 -2h-6a2 2 0 0 0 -2 2v4" /><path d="M7 13m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" /></svg>
+              <span class="btn-text">PDF Orden Compra</span>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+        </div>
