@@ -9,38 +9,11 @@ from common.AppLoger import loggin_event
 
 
 class CreateOrderAPI(View):
-    def calculate_bunches_and_stems(self, qty_stem_flower):
-        """
-        Calcula total_bunches y stems_bunch basándose en qty_stem_flower
-        Reglas:
-        - Divide qty_stem_flower entre 25 para obtener bunches base
-        - Si el resultado es entero, usa 25 stems_bunch
-        - Si no es entero y el residuo >= 20, crea un bunch adicional
-        - Si no es entero y el residuo < 20, ajusta stems_bunch para que cuadre
-        """
-        if qty_stem_flower <= 0:
-            return 1, 25
-
-        bunches_base = qty_stem_flower // 25
-        residuo = qty_stem_flower % 25
-
-        if residuo == 0:
-
-            return bunches_base, 25
-        elif residuo >= 20:
-
-            return bunches_base + 1, qty_stem_flower // (bunches_base + 1)
-        else:
-
-            if bunches_base > 0:
-                return bunches_base, qty_stem_flower // bunches_base
-            else:
-
-                return 1, qty_stem_flower
 
     def post(self, request):
         loggin_event('Creando orden de cliente')
         order_data = json.loads(request.body)
+
         if not order_data:
             return JsonResponse({'error': 'No data provided'}, status=400)
 
@@ -73,8 +46,8 @@ class CreateOrderAPI(View):
                 product = Product.get_by_id(box_item['product_id'])
 
                 qty_stem_flower = box_item['qty_stem_flower']
-                total_bunches, stems_bunch = self.calculate_bunches_and_stems(
-                    qty_stem_flower)
+                total_bunches = box_item.get('total_bunches', 0)
+                stems_bunch = box_item.get('stems_bunch', 0)
 
                 OrderBoxItems.objects.create(
                     order_item=order_item,

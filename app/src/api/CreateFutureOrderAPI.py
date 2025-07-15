@@ -13,6 +13,7 @@ class CreateFutureOrderAPI(View):
     def post(self, request):
         data = json.loads(request.body)
         loggin_event('Recibiendo solicitud de creacion de orden Futura')
+        loggin_event(f'Datos recibidos: {data}')
 
         order_data = data.get('order', {})
         order_lines = data.get('orderLines', [])
@@ -105,7 +106,8 @@ class CreateFutureOrderAPI(View):
                 purchase_order.consecutive = Order.get_next_purchase_consecutive()
                 purchase_order.date = datetime.now()
                 purchase_order.type_document = 'ORD_COMPRA'
-                purchase_order.partner = supplier  # Proveedor
+                purchase_order.total_margin = order_data.get('total_margin', 0)
+                purchase_order.partner = supplier
                 purchase_order.num_order = order.num_order
                 purchase_order.status = 'PENDIENTE'
                 purchase_order.parent_order = order  # Referencia a la orden del cliente
@@ -124,14 +126,16 @@ class CreateFutureOrderAPI(View):
                     purchase_order_item.quantity = customer_order_item.quantity
                     purchase_order_item.tot_stem_flower = customer_order_item.tot_stem_flower
                     purchase_order_item.total_bunches = customer_order_item.total_bunches
-                    # Para la orden de compra solo interesa el precio de costo (no el margen)
                     purchase_order_item.line_price = customer_order_item.line_price
-                    purchase_order_item.line_total = customer_order_item.line_price
+                    purchase_order_item.line_margin = customer_order_item.line_margin
+                    purchase_order_item.line_commission = customer_order_item.line_commission
+                    purchase_order_item.line_total = customer_order_item.line_price + customer_order_item.line_margin
                     purchase_order_item.save()
 
                     # Copiar los ítems de cajas
                     customer_box_items = OrderBoxItems.get_by_order_item(
-                        customer_order_item)
+                        customer_order_item
+                    )
                     for customer_box_item in customer_box_items:
                         purchase_box_item = OrderBoxItems()
                         purchase_box_item.order_item = purchase_order_item
@@ -141,8 +145,7 @@ class CreateFutureOrderAPI(View):
                         purchase_box_item.stem_cost_price = customer_box_item.stem_cost_price
                         purchase_box_item.total_bunches = customer_box_item.total_bunches
                         purchase_box_item.stems_bunch = customer_box_item.stems_bunch
-                        # No copiar el profit_margin ya que es solo para la orden del cliente
-                        purchase_box_item.profit_margin = 0
+                        purchase_box_item.profit_margin = customer_box_item.profit_margin
                         purchase_box_item.save()
 
                         loggin_event(

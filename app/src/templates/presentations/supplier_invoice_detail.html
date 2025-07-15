@@ -129,29 +129,23 @@
                                         </div>
                                         <div class="col-8 border-end bg-blue-600 py-2">
                                             <div class="row g-0 text-center">
-                                                <div class="col" style="flex: 0 0 22%;">
+                                                <div class="col" style="flex: 0 0 32%;">
                                                     <small class="fw-bold">VARIEDAD</small>
                                                 </div>
-                                                <div class="col border-start" style="flex: 0 0 10%;">
+                                                <div class="col border-start" style="flex: 0 0 13%;">
                                                     <small class="fw-bold">LARGO</small>
                                                 </div>
-                                                <div class="col border-start" style="flex: 0 0 11%;">
+                                                <div class="col border-start" style="flex: 0 0 13%;">
                                                     <small class="fw-bold">BUNCHES</small>
                                                 </div>
-                                                <div class="col border-start" style="flex: 0 0 11%;">
+                                                <div class="col border-start" style="flex: 0 0 13%;">
                                                     <small class="fw-bold">T/BUNCH</small>
                                                 </div>
-                                                <div class="col border-start" style="flex: 0 0 11%;">
+                                                <div class="col border-start" style="flex: 0 0 13%;">
                                                     <small class="fw-bold">COSTO</small>
                                                 </div>
-                                                <div class="col border-start" style="flex: 0 0 11%;">
-                                                    <small class="fw-bold">MARGEN</small>
-                                                </div>
-                                                <div class="col border-start" style="flex: 0 0 11%;">
-                                                    <small class="fw-bold">PVP</small>
-                                                </div>
                                                 <div class="col border-start" style="flex: 0 0 13%;">
-                                                    <small class="fw-bold">TOTAL</small>
+                                                    <small class="fw-bold">TOTAL ITM</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -164,21 +158,21 @@
                                 <!-- Table Body -->
                                 <div class="table-body">
                                     {% for item in invoice_items %}
-                                    <div class="invoice-row {% cycle 'bg-gray-50' '' %}">
+                                    <div class="invoice-row%}">
                                         <div class="row g-0 align-items-center">
                                             <!-- Quantity -->
                                             <div class="col-1 border-end p-1 text-center">
-                                                <span class="fw-bold">{{ item.quantity }}</span>
+                                                <span class="">{{ item.quantity }}</span>
                                             </div>
 
                                             <!-- Model -->
                                             <div class="col-1 border-end p-1 text-center">
-                                                <span class="badge badge-soft-secondary">{{ item.box_model }}</span>
+                                                <span class="text-secondary fw-bold">{{ item.box_model }}</span>
                                             </div>
 
                                             <!-- Stems -->
                                             <div class="col-1 border-end p-1 text-center">
-                                                <span class="fw-bold text-primary">{{ item.tot_stem_flower }}</span>
+                                                <span class="text-primary">{{ item.tot_stem_flower }}</span>
                                             </div>
 
                                             <!-- Products -->
@@ -187,29 +181,23 @@
                                                 {% if box_item.invoice_item == item %}
                                                 <div class="product-row mb-1">
                                                     <div class="row g-1 align-items-center">
-                                                        <div class="col" style="flex: 0 0 22%;">
+                                                        <div class="col" style="flex: 0 0 32%;">
                                                             <small class="fw-medium">{{ box_item.product.variety }}</small>
                                                         </div>
-                                                        <div class="col text-center" style="flex: 0 0 10%;">
-                                                            <span class="badge badge-soft-info">{{ box_item.length }}</span>
-                                                        </div>
-                                                        <div class="col text-center" style="flex: 0 0 11%;">
-                                                            <span class="text-success fw-bold">{{ box_item.total_bunches }}</span>
-                                                        </div>
-                                                        <div class="col text-center" style="flex: 0 0 11%;">
-                                                            <span class="text-primary fw-bold">{{ box_item.stems_bunch }}</span>
-                                                        </div>
-                                                        <div class="col text-center" style="flex: 0 0 11%;">
-                                                            <span class="badge badge-soft-warning">${{ box_item.stem_cost_price|floatformat:2 }}</span>
-                                                        </div>
-                                                        <div class="col text-center" style="flex: 0 0 11%;">
-                                                            <span class="badge badge-soft-info">${{ box_item.profit_margin|floatformat:2 }}</span>
-                                                        </div>
-                                                        <div class="col text-center" style="flex: 0 0 11%;">
-                                                            <span class="badge badge-soft-success">${{ box_item.unit_price|floatformat:2 }}</span>
+                                                        <div class="col text-center" style="flex: 0 0 13%;">
+                                                            <span class="text-secondary">{{ box_item.length }}</span>
                                                         </div>
                                                         <div class="col text-center" style="flex: 0 0 13%;">
-                                                            <span class="fw-bold text-success">${{ box_item.total_price_with_margin_and_quantity|floatformat:2 }}</span>
+                                                            <span class="text-secondary">{{ box_item.total_bunches }}</span>
+                                                        </div>
+                                                        <div class="col text-center" style="flex: 0 0 13%;">
+                                                            <span class="text-secondary">{{ box_item.stems_bunch }}</span>
+                                                        </div>
+                                                        <div class="col text-center" style="flex: 0 0 13%;">
+                                                            <span class="text-secondary">{{ box_item.stem_cost_price|floatformat:2 }}</span>
+                                                        </div>
+                                                        <div class="col text-end" style="flex: 0 0 13%;">
+                                                            <span class="fw-bold text-secondary">{{ box_item.total_price_with_margin_and_quantity|floatformat:2 }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -291,12 +279,7 @@
                                             <small class="text-muted">Total Compra</small>
                                         </div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="p-2 bg-white rounded text-center border">
-                                            <div class="h6 mb-1 text-info">${{ invoice.total_margin|floatformat:2 }}</div>
-                                            <small class="text-muted">Margen Total</small>
-                                        </div>
-                                    </div>
+                                    <div class="col-md-4"></div>
                                     <div class="col-md-4">
                                         <div class="p-2 {% if invoice.status == 'PAGADO' %}bg-success{% else %}bg-yellow-300{% endif %} rounded text-center">
                                             <div class="h6 mb-1">{{ invoice.status }}</div>
@@ -364,7 +347,7 @@
                                         </a>
                                         {% endif %}
                                         {% if invoice.order %}
-                                        <a href="/trade/{{ invoice.order.stock_day.pk }}/#/order-detail/{{ invoice.order.parent_order.pk }}/" class="btn btn-default btn-sm">
+                                        <a href="{% url 'order_detail_presentation' invoice.order.parent_order.pk %}" class="btn btn-default btn-sm">
                                             <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.5"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-package"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-8 4.5" /></svg>
                                             Ver Orden Compra
                                         </a>
