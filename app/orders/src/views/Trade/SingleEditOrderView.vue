@@ -99,19 +99,24 @@ function calculateOrderTotals() {
     const quantity = Number(line.quantity) || 0;
     if (line.box_model === 'HB') hb_total += quantity;
     if (line.box_model === 'QB') qb_total += quantity;
-    if (line.box_model === 'EB') eb_total += quantity;  // Agregamos el conteo de EB
+    if (line.box_model === 'EB') eb_total += quantity;
 
     if (Array.isArray(line.order_box_items)) {
       line.order_box_items.forEach(item => {
-        // Asegurarnos de limpiar cualquier formato y convertir a número
         const bunches = parseInt(String(item.total_bunches || '0')) || 0;
-        const tallosPorBunch = parseInt(String(item.qty_stem_flower || '0')) || 0; // Este es tallos por bunch
+        const tallosPorBunch = parseInt(String(item.stems_bunch || '0')) || 0;
         const costPrice = parseFloat(String(item.stem_cost_price || '0.00').replace(/,/g, '')) || 0;
         const profitMargin = parseFloat(String(item.profit_margin || '0.00').replace(/,/g, '')) || 0;
+        const tallosTotalesItem = (bunches * tallosPorBunch * quantity);
 
-        // Calcular tallos totales: bunches × tallos_por_bunch × quantity_de_la_linea
-        // Si el resultado está multiplicado por 10, ajustamos la fórmula
-        const tallosTotalesItem = (bunches * tallosPorBunch * quantity) / 10;
+        console.log('Calculando totales para item:', {
+          bunches,
+          tallosPorBunch,
+          costPrice,
+          profitMargin,
+          tallosTotalesItem,
+          quantity
+        });
         
         total_stem_flower += tallosTotalesItem;
         total_price += costPrice * tallosTotalesItem;
@@ -120,11 +125,19 @@ function calculateOrderTotals() {
       })
     }
   })
+  console.log('Totales calculados:', {
+    hb_total,
+    qb_total,
+    eb_total,  // Agregamos eb_total al log
+    total_stem_flower,
+    total_price,
+    total_margin,
+    total_bunches
+  })
 
-  // FB = (HB/2) + (QB/4) + (EB/8)
   fb_total = (hb_total / 2) + (qb_total / 4) + (eb_total / 8)
 
-  // Asegurarnos que los valores son números válidos antes de asignarlos
+
   orderStore.updateOrderTotals({
     hb_total: parseFloat(hb_total.toFixed(2)),
     qb_total: parseFloat(qb_total.toFixed(2)),
@@ -424,7 +437,7 @@ const handleKeydown = (event) => {
               <div class="row mt-4">
                 <div class="col-7 text-end border-end text-success fs-6"><strong>Costo:</strong></div>
                 <div class="col-5 text-end text-success fs-6">
-                  ${{ typeof orderStore.order.total_price === 'number' ? orderStore.order.total_price.toFixed(2) : '0.00' }}
+                  ${{ orderStore.order.total_price }}
                 </div>
               </div>
               <div class="row">

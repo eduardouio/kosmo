@@ -180,6 +180,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
           url, 
           { headers: appConfig.headers }
         )
+        console.log('Orden cargada:', response.data)
         
         // Configurar datos de la orden en el store
         const data = response.data
@@ -218,6 +219,8 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
           id_invoice: data.order.id_invoice || 0,
           num_invoice: data.order.num_invoice || null
         }
+
+        console.log('Orden configurada:', this.order)
         
         // Configurar las líneas de la orden
         this.orderLines = []
@@ -253,6 +256,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
             this.orderLines.push(newLine)
           })
         }
+        console.log('Orden configurada:', this.order)
         
         this.hasError = false
         this.errorMessage = ''
@@ -268,6 +272,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
       }
     },
     updateOrderTotals(newValues) {
+      console.log('Actualizando totales de la orden con:', newValues)
       this.order = {
         ...this.order,
         ...newValues
