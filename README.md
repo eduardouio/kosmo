@@ -207,6 +207,8 @@ to3.line_total,
 to3.line_price,
 to3.line_margin,
 to3.tot_stem_flower,
+to3.line_commission,
+to3.tot_stem_flower,
 to4.total_bunches,
 to4.total_price,
 to4.total_margin,
@@ -245,12 +247,7 @@ ii.line_total,
 ibi.product_id,
 p.name as product_name,
 p.variety,
-ibi.length,
-ibi.qty_stem_flower,
-ibi.stem_cost_price,
-ibi.profit_margin,
-ibi.total_bunches as item_total_bunches,
-ibi.stems_bunch,
+ibi.*,
 i.tot_stem_flower as total_stem_flower,
 i.total_bunches as invoice_total_bunches,
 i.eb_total,
@@ -264,7 +261,7 @@ i.dae_export,
 i.cargo_agency,
 i.delivery_date,
 i.weight,
-i.total_invoice
+i.total_price
 from trade_invoice i
 left join partners_partner pp on (pp.id = i.partner_id)
 left join trade_invoiceitems ii on (ii.invoice_id = i.id)
@@ -272,7 +269,6 @@ left join trade_invoiceboxitems ibi on (ibi.invoice_item_id = ii.id)
 left join products_product p on (p.id = ibi.product_id)
 where i.is_active = 1
 order by i.id desc
-
  
  -- confirmar todos los socios de negocio
  
