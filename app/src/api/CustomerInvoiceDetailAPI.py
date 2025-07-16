@@ -42,30 +42,39 @@ class CustomerInvoiceDetailAPI(APIView):
         invoice_data = {
             "id": invoice.id,
             "serie": invoice.serie,
-            "consecutive": invoice.consecutive or "000000",
-            "num_invoice": invoice.num_invoice,
-            "date": invoice.date.strftime("%d/%m/%Y %H:%M") if invoice.date else "",
+            "consecutive": f"{invoice.consecutive:06d}",
+            "marking": invoice.marking,
+            "date": invoice.date.strftime("%Y-%m-%d") if invoice.date else "",
             "due_date": invoice.due_date.strftime("%Y-%m-%d") if invoice.due_date else "",
             "partner": invoice.partner.id,
             "type_document": invoice.type_document,
             "order_id": invoice.order.id if invoice.order else None,
+            "num_invoice": invoice.num_invoice,
             "status": invoice.status,
             "total_price": float(invoice.total_price),
             "total_margin": float(invoice.total_margin),
-            "total_invoice": float(invoice.total_invoice),
             "comision_seler": float(invoice.comision_seler),
             "qb_total": invoice.qb_total,
             "hb_total": invoice.hb_total,
             "eb_total": invoice.eb_total,
-            "fb_total": float(invoice.fb_total) if invoice.fb_total else 0,
+            "fb_total": float(invoice.fb_total),
+            "total_pieces": invoice.total_pieces,
             "tot_stem_flower": invoice.tot_stem_flower,
             "total_bunches": invoice.total_bunches,
+            "po_number": invoice.po_number,
             "awb": invoice.awb,
             "dae_export": invoice.dae_export,
             "hawb": invoice.hawb,
             "cargo_agency": invoice.cargo_agency,
             "delivery_date": invoice.delivery_date.strftime("%Y-%m-%d") if invoice.delivery_date else "",
-            "weight": float(invoice.weight) if invoice.weight else 0
+            "weight": float(invoice.weight) if invoice.weight else 0.0,
+            # Campos de BaseModel
+            "notes": invoice.notes,
+            "created_at": invoice.created_at.strftime("%Y-%m-%d %H:%M:%S") if invoice.created_at else "",
+            "updated_at": invoice.updated_at.strftime("%Y-%m-%d %H:%M:%S") if invoice.updated_at else "",
+            "is_active": invoice.is_active,
+            "id_user_created": invoice.id_user_created,
+            "id_user_updated": invoice.id_user_updated
         }
 
         # Obtener líneas de factura
@@ -80,6 +89,7 @@ class CustomerInvoiceDetailAPI(APIView):
                 product = box.product
 
                 box_item_data = {
+                    "id": box.id,
                     "product": {
                         "id": product.id,
                         "name": product.name,
@@ -94,13 +104,22 @@ class CustomerInvoiceDetailAPI(APIView):
                     "qty_stem_flower": box.qty_stem_flower,
                     "stem_cost_price": str(box.stem_cost_price),
                     "profit_margin": str(box.profit_margin),
+                    "commission": str(box.commission),
                     "total_stem_flower": box.qty_stem_flower * line.quantity,
-                    "total": str(box.stem_cost_price)
+                    "total": str(box.stem_cost_price),
+                    # Campos de BaseModel
+                    "notes": box.notes,
+                    "created_at": box.created_at.strftime("%Y-%m-%d %H:%M:%S") if box.created_at else "",
+                    "updated_at": box.updated_at.strftime("%Y-%m-%d %H:%M:%S") if box.updated_at else "",
+                    "is_active": box.is_active,
+                    "id_user_created": box.id_user_created,
+                    "id_user_updated": box.id_user_updated
                 }
 
                 invoice_box_items_data.append(box_item_data)
 
             line_data = {
+                "id": line.id,
                 "id_order_item": line.id_order_item,
                 "line_price": float(line.line_price),
                 "line_margin": float(line.line_margin),
@@ -110,7 +129,14 @@ class CustomerInvoiceDetailAPI(APIView):
                 "box_model": line.box_model,
                 "quantity": line.quantity,
                 "total_bunches": line.total_bunches,
-                "invoice_box_items": invoice_box_items_data
+                "invoice_box_items": invoice_box_items_data,
+                # Campos de BaseModel
+                "notes": line.notes,
+                "created_at": line.created_at.strftime("%Y-%m-%d %H:%M:%S") if line.created_at else "",
+                "updated_at": line.updated_at.strftime("%Y-%m-%d %H:%M:%S") if line.updated_at else "",
+                "is_active": line.is_active,
+                "id_user_created": line.id_user_created,
+                "id_user_updated": line.id_user_updated
             }
 
             invoice_lines_data.append(line_data)

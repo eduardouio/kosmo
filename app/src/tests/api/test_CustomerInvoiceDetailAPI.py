@@ -6,8 +6,14 @@ from django.test import Client
 from django.urls import reverse
 from products.models import Product, StockDay
 from partners.models import Partner
-from trade.models import Order, OrderItems, OrderBoxItems
-from trade.models.Invoice import Invoice, InvoiceItems, InvoiceBoxItems
+from trade.models import (
+    Order,
+    OrderItems,
+    OrderBoxItems,
+    Invoice,
+    InvoiceItems,
+    InvoiceBoxItems
+)
 
 
 @pytest.mark.django_db
@@ -99,7 +105,6 @@ class TestCustomerInvoiceDetailAPI:
             status='CONFIRMADO',
             total_price=Decimal('1000.00'),
             total_margin=Decimal('100.00'),
-            total_order=Decimal('1100.00'),
             qb_total=10,
             hb_total=5,
             eb_total=2,
@@ -118,8 +123,7 @@ class TestCustomerInvoiceDetailAPI:
             type_document='ORD_COMPRA',
             status='CONFIRMADO',
             total_price=Decimal('900.00'),
-            total_margin=Decimal('100.00'),
-            total_order=Decimal('1000.00')
+            total_margin=Decimal('100.00')
         )
 
         # Crear factura de venta
@@ -130,7 +134,6 @@ class TestCustomerInvoiceDetailAPI:
             consecutive=1,
             num_invoice='100-000001',
             type_document='FAC_VENTA',
-            type_invoice='NORMAL',
             date=datetime.now(),
             due_date=datetime.now() + timedelta(days=30),
             status='PENDIENTE',
@@ -203,19 +206,20 @@ class TestCustomerInvoiceDetailAPI:
 
     def test_get_invoice_detail_success(self):
         """Test exitoso para obtener detalles de una factura"""
-        url = reverse('customer-invoice-detail', kwargs={'invoice_id': self.invoice.id})
+        url = reverse('customer-invoice-detail',
+                      kwargs={'invoice_id': self.invoice.id})
         response = self.client.get(url)
-        
+
         assert response.status_code == 200
-        
+
         data = response.json()
-        
+
         # Verificar estructura de respuesta
         assert 'invoice' in data
         assert 'invoiceLines' in data
         assert 'customer' in data
         assert 'supplier' in data
-        
+
         # Verificar datos de la factura
         invoice_data = data['invoice']
         assert invoice_data['id'] == self.invoice.id
@@ -223,7 +227,7 @@ class TestCustomerInvoiceDetailAPI:
         assert invoice_data['consecutive'] == '000001'
         assert invoice_data['num_invoice'] == '100-000001'
         assert invoice_data['type_document'] == 'FAC_VENTA'
-        assert invoice_data['type_invoice'] == 'NORMAL'
+        assert invoice_data['type_document'] == 'FAC_VENTA'
         assert invoice_data['status'] == 'PENDIENTE'
         assert float(invoice_data['total_price']) == 1000.00
         assert float(invoice_data['total_margin']) == 100.00
@@ -235,13 +239,13 @@ class TestCustomerInvoiceDetailAPI:
         assert invoice_data['awb'] == 'TEST-AWB-123'
         assert invoice_data['dae_export'] == 'TEST-DAE-456'
         assert invoice_data['hawb'] == 'TEST-HAWB-789'
-        assert invoice_data['cargo_agency'] == 'Test Cargo'
+        assert invoice_data['cargo_agency'] == 'TEST CARGO'
         assert float(invoice_data['weight']) == 45.50
-        
+
         # Verificar líneas de factura
         invoice_lines = data['invoiceLines']
         assert len(invoice_lines) == 2
-        
+
         # Verificar primera línea
         line1 = invoice_lines[0]
         assert line1['id_order_item'] == 1
@@ -252,7 +256,7 @@ class TestCustomerInvoiceDetailAPI:
         assert float(line1['line_margin']) == 50.00
         assert float(line1['line_total']) == 550.00
         assert line1['total_bunches'] == 25
-        
+
         # Verificar box items de la primera línea
         box_items1 = line1['invoice_box_items']
         assert len(box_items1) == 1
@@ -265,27 +269,27 @@ class TestCustomerInvoiceDetailAPI:
         assert box_item1['total_bunches'] == 2
         assert float(box_item1['stem_cost_price']) == 2.00
         assert float(box_item1['profit_margin']) == 0.20
-        
+
         # Verificar datos del cliente
         customer_data = data['customer']
         assert customer_data['id'] == self.customer.id
-        assert customer_data['name'] == 'Test Customer Inc'
+        assert customer_data['name'] == 'TEST CUSTOMER INC'
         assert customer_data['business_tax_id'] == f'TEST_CUSTOMER_{id(self)}'
-        assert customer_data['address'] == '123 Test Street'
-        assert customer_data['country'] == 'Ecuador'
-        assert customer_data['city'] == 'Quito'
+        assert customer_data['address'] == '123 TEST STREET'
+        assert customer_data['country'] == 'ECUADOR'
+        assert customer_data['city'] == 'QUITO'
         assert customer_data['credit_term'] == 30
         assert customer_data['email'] == 'test@customer.com'
         assert customer_data['phone'] == '123456789'
-        
+
         # Verificar datos del proveedor
         supplier_data = data['supplier']
         assert supplier_data['id'] == self.supplier.id
-        assert supplier_data['name'] == 'Test Supplier Flowers'
+        assert supplier_data['name'] == 'TEST SUPPLIER FLOWERS'
         assert supplier_data['short_name'] == 'TSF'
         assert supplier_data['business_tax_id'] == f'TEST_SUPPLIER_{id(self)}'
-        assert supplier_data['address'] == 'Test Farm Address'
-        assert supplier_data['city'] == 'Test City'
+        assert supplier_data['address'] == 'TEST FARM ADDRESS'
+        assert supplier_data['city'] == 'TEST CITY'
         assert supplier_data['credit_term'] == 45
         assert supplier_data['email'] == 'test@supplier.com'
         assert supplier_data['phone'] == '987654321'
@@ -294,7 +298,7 @@ class TestCustomerInvoiceDetailAPI:
         """Test para factura no encontrada"""
         url = reverse('customer-invoice-detail', kwargs={'invoice_id': 99999})
         response = self.client.get(url)
-        
+
         assert response.status_code == 404
 
     def test_get_invoice_detail_inactive_invoice(self):
@@ -302,28 +306,30 @@ class TestCustomerInvoiceDetailAPI:
         # Desactivar la factura
         self.invoice.is_active = False
         self.invoice.save()
-        
-        url = reverse('customer-invoice-detail', kwargs={'invoice_id': self.invoice.id})
+
+        url = reverse('customer-invoice-detail',
+                      kwargs={'invoice_id': self.invoice.id})
         response = self.client.get(url)
-        
+
         assert response.status_code == 404
 
     def test_get_invoice_detail_with_default_supplier(self):
         """Test para factura sin proveedor específico (usa proveedor por defecto)"""
         # Eliminar la orden de compra relacionada
-        self.purchase_order.delete()
-        
-        url = reverse('customer-invoice-detail', kwargs={'invoice_id': self.invoice.id})
+        self.purchase_order.delete(id=self.purchase_order.id)
+
+        url = reverse('customer-invoice-detail',
+                      kwargs={'invoice_id': self.invoice.id})
         response = self.client.get(url)
-        
+
         assert response.status_code == 200
-        
+
         data = response.json()
         supplier_data = data['supplier']
-        
+
         # Debe usar el proveedor por defecto
         assert supplier_data['business_tax_id'] == '9999999999'
-        assert supplier_data['name'] == 'Default Supplier'
+        assert supplier_data['name'] == 'DEFAULT SUPPLIER'
 
     def test_get_invoice_detail_purchase_invoice(self):
         """Test para factura de compra"""
@@ -335,22 +341,22 @@ class TestCustomerInvoiceDetailAPI:
             consecutive=1,
             num_invoice='200-000001',
             type_document='FAC_COMPRA',
-            type_invoice='NORMAL',
             date=datetime.now(),
             due_date=datetime.now() + timedelta(days=45),
             status='PENDIENTE',
             total_price=Decimal('900.00'),
             total_margin=Decimal('100.00')
         )
-        
-        url = reverse('customer-invoice-detail', kwargs={'invoice_id': purchase_invoice.id})
+
+        url = reverse('customer-invoice-detail',
+                      kwargs={'invoice_id': purchase_invoice.id})
         response = self.client.get(url)
-        
+
         assert response.status_code == 200
-        
+
         data = response.json()
         invoice_data = data['invoice']
-        
+
         assert invoice_data['type_document'] == 'FAC_COMPRA'
         assert invoice_data['num_invoice'] == '200-000001'
         assert float(invoice_data['total_price']) == 900.00
