@@ -248,7 +248,7 @@ class Order(BaseModel):
         )
         if sup_orders.exists():
             return sup_orders
-            
+
         loggin_event(
             f"La orden {sale_order.pk} no tiene ordenes de proveedor", True)
         return None
@@ -289,6 +289,17 @@ class Order(BaseModel):
     @classmethod
     def rebuild_totals(self, order):
         loggin_event(f"Reconstruyendo totales de orden {order.id}")
+        loggin_event(f"Totales iniciales: "
+                     f"{order.total_price}"
+                     f"{order.total_margin}, "
+                     f"{order.total_order}, "
+                     f"{order.eb_total}, "
+                     f"{order.qb_total}, "
+                     f"{order.hb_total}, "
+                     f"{order.fb_total}, "
+                     f"{order.total_stem_flower}, "
+                     f"{order.total_bunches}"
+                     )
         total_price = 0
         total_margin = 0
         total_order = 0
@@ -306,7 +317,7 @@ class Order(BaseModel):
             total_margin += order_item.line_margin
             total_order += order_item.line_total
             total_stem_flower += order_item.tot_stem_flower
-            
+
             # Calcular total_bunches desde los box items
             for box_item in OrderBoxItems.get_box_items(order_item):
                 total_bunches += box_item.total_bunches * order_item.quantity
@@ -318,7 +329,6 @@ class Order(BaseModel):
             elif order_item.box_model == 'HB':
                 hb_total += (order_item.quantity)
 
-        # FB = HB×(1/2) + QB×(1/4) + EB×(1/8)
         fb_total = (hb_total * 0.5) + (qb_total * 0.25) + (eb_total * 0.125)
 
         order.eb_total = eb_total
@@ -330,6 +340,14 @@ class Order(BaseModel):
         order.total_price = total_price
         order.total_margin = total_margin
         order.total_bunches = total_bunches
+        loggin_event(
+            f"Totales reconstruidos: "
+            f"EB: {eb_total}, QB: {qb_total}, HB: {hb_total}, "
+            f"FB: {fb_total}, Total Price: {total_price}, "
+            f"Total Margin: {total_margin}, "
+            f"Total Stem Flower: {total_stem_flower}, "
+            f"Total Bunches: {total_bunches}"
+        )
         order.save()
 
 
@@ -620,7 +638,7 @@ class OrderBoxItems(BaseModel):
         line_cost_price = 0
         line_margin = 0
         total_bunches = 0
-        
+
         for box in OrderBoxItems.get_box_items(order_item):
             line_t_stem_flower += box.qty_stem_flower
             line_cost_price += box.stem_cost_price * box.qty_stem_flower

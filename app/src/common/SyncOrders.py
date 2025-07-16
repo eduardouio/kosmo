@@ -233,6 +233,9 @@ class SyncOrders:
 
         for ord in cus_order_items:
             stock_detail = StockDetail.get_by_id(ord.id_stock_detail)
+            # Saltar si no hay stock_detail asociado (puede ser None cuando id_stock_detail es None o 0)
+            if stock_detail is None:
+                continue
             _ = [i['supplier'] for i in details_by_supplier]
             if stock_detail.partner not in _:
                 details_by_supplier.append({
@@ -242,6 +245,9 @@ class SyncOrders:
 
         for ord in cus_order_items:
             stock_detail = StockDetail.get_by_id(ord.id_stock_detail)
+            # Saltar si no hay stock_detail asociado
+            if stock_detail is None:
+                continue
             for ord_sup in details_by_supplier:
                 if ord_sup['supplier'] == stock_detail.partner:
                     ord_sup['order_items'].append(ord)
