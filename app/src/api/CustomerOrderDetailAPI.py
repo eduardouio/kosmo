@@ -39,7 +39,6 @@ class CustomerOrderDetailAPI(APIView):
         # Construir respuesta JSON para el pedido
         order_data = {
             "serie": order.serie,
-            "serie_name": "ORD-VENTA" if order.serie == "200" else "ORD-COMPRA",
             "consecutive": order.consecutive or "000000",
             "stock_day": order.stock_day.id if order.stock_day else 0,
             "date": order.date.strftime("%d/%m/%Y %H:%M") if order.date else "",
@@ -52,6 +51,7 @@ class CustomerOrderDetailAPI(APIView):
             "discount": float(order.discount),
             "total_price": float(order.total_price),
             "total_margin": float(order.total_margin),
+            "total_order": float(order.total_order),
             "comision_seler": float(order.comision_seler),
             "qb_total": order.qb_total,
             "hb_total": order.hb_total,

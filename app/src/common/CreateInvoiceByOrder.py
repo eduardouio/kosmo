@@ -63,16 +63,7 @@ class CreateInvoiceByOrder:
 
     def gnerate_invoice_customer(self, order):
         loggin_event(f"Generando factura para la ORDEN VENTA {order.id}")
-        totals = {
-            'qb_total': 0,
-            'hb_total': 0,
-            'tot_stem_flower': 0,
-            'total_price': 0,
-            'total_margin': 0,
-            'fb_total': 0,
-            'total_pieces': 0,
-            'total_bunches': 0,  # Agregar total_bunches
-        }
+        
         days = order.partner.credit_term
         due_date = datetime.now() + timedelta(days=days)
         dae = DAE.get_last_by_partner(order.partner)
@@ -96,23 +87,16 @@ class CreateInvoiceByOrder:
             consecutive=consecutive,
             num_invoice=num_invoice
         )
-        # cargamos los items de la orden a la factura
+        
+        # Copiar los items de la orden a la factura
         for oi in OrderItems.get_by_order(order.id):
-            totals['qb_total'] += oi.qb_total
-            totals['hb_total'] += oi.hb_total
-            totals['total_pieces'] += oi.quantity
-            totals['tot_stem_flower'] += oi.tot_stem_flower
-            totals['total_price'] += oi.line_price
-            totals['total_margin'] += oi.line_margin
-            totals['total_bunches'] += oi.total_bunches  # Agregar bunches
-
             inv_item = InvoiceItems.objects.create(
                 invoice=invoice,
                 box_model=oi.box_model,
                 id_order_item=oi.id,
                 quantity=oi.quantity,
                 tot_stem_flower=oi.tot_stem_flower,
-                total_bunches=oi.total_bunches,  # Agregar total_bunches
+                total_bunches=oi.total_bunches,
                 line_price=oi.line_price,
                 line_margin=oi.line_margin,
                 line_total=oi.line_total
@@ -125,20 +109,25 @@ class CreateInvoiceByOrder:
                     length=obx.length,
                     qty_stem_flower=obx.qty_stem_flower,
                     stem_cost_price=obx.stem_cost_price,
+                    # Asegurarse de usar el profit_margin del ítem
                     profit_margin=obx.profit_margin,
-                    total_bunches=obx.total_bunches,  # Agregar total_bunches
-                    stems_bunch=obx.stems_bunch,  # Agregar stems_bunch
+                    total_bunches=obx.total_bunches,
+                    stems_bunch=obx.stems_bunch,
                 )
 
-        invoice.qb_total = totals['qb_total']
-        invoice.hb_total = totals['hb_total']
-        invoice.fb_total = ((totals['qb_total']/2)+totals['hb_total'])/2
-        invoice.tot_stem_flower = totals['tot_stem_flower']
-        invoice.total_price = totals['total_price']
-        invoice.total_margin = totals['total_margin']
-        invoice.total_pieces = totals['total_pieces']
-        invoice.total_bunches = totals['total_bunches']  # Agregar total_bunches
-
+        # Tomar los totales directamente de la orden
+        invoice.qb_total = order.qb_total
+        invoice.hb_total = order.hb_total
+        invoice.eb_total = order.eb_total
+        invoice.fb_total = order.fb_total
+        invoice.tot_stem_flower = order.total_stem_flower
+        invoice.total_price = order.total_price
+        invoice.total_margin = order.total_margin
+        # Calcular total_pieces de la orden
+        order_items = OrderItems.get_by_order(order.id)
+        total_pieces = sum(oi.quantity for oi in order_items)
+        invoice.total_pieces = total_pieces
+        invoice.total_bunches = order.total_bunches
         return invoice
 
     def generate_invoice_supplier(self, order):
@@ -154,7 +143,9 @@ class CreateInvoiceByOrder:
         due_date = datetime.now() + timedelta(days=days)
 
         # Crear número de factura con formato SinFact-{serie-consecutivo}
-        num_invoice = f"SinFact-{order.serie or '200'}-{str(order.consecutive or 0).zfill(6)}"
+        serie = order.serie or '200'
+        consecutive = str(order.consecutive or 0).zfill(6)
+        num_invoice = f"SinFact-{serie}-{consecutive}"
 
         invoice = Invoice.objects.create(
             order=order,
@@ -165,7 +156,16 @@ class CreateInvoiceByOrder:
             status='PENDIENTE',
             num_invoice=num_invoice,
             serie='',  # Serie en blanco
-            consecutive=None  # Consecutivo en blanco
+            consecutive=None,  # Consecutivo en blanco
+            # Añadir los totales directamente de la orden
+            total_price=order.total_price,
+            total_margin=order.total_margin,
+            qb_total=order.qb_total,
+            hb_total=order.hb_total,
+            fb_total=order.fb_total,
+            eb_total=order.eb_total,
+            tot_stem_flower=order.total_stem_flower,
+            total_bunches=order.total_bunches
         )
         # cargamos los items de la orden a la factura
         for oi in OrderItems.get_by_order(order.id):
@@ -178,7 +178,8 @@ class CreateInvoiceByOrder:
                 total_bunches=oi.total_bunches,  # Agregar total_bunches
                 line_price=oi.line_price,
                 line_margin=oi.line_margin,
-                line_total=oi.line_price
+                # Usar line_total en lugar de line_price
+                line_total=oi.line_total
             )
             order_box_items = OrderBoxItems.objects.filter(order_item=oi)
             for obx in order_box_items:

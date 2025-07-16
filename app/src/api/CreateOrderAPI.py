@@ -12,10 +12,40 @@ class CreateOrderAPI(View):
 
     def post(self, request):
         loggin_event('Creando orden de cliente')
-        order_data = json.loads(request.body)
+        
+        # Manejo de JSON vacío o inválido
+        try:
+            if not request.body:
+                return JsonResponse({'error': 'No data provided'}, status=400)
+            order_data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
         if not order_data:
             return JsonResponse({'error': 'No data provided'}, status=400)
+
+        # Validar campos requeridos
+        required_fields = ['customer', 'stock_day', 'order_detail']
+        for field in required_fields:
+            if field not in order_data:
+                return JsonResponse(
+                    {'error': f'Missing required field: {field}'}, 
+                    status=400
+                )
+
+        # Validar estructura de customer
+        if 'id' not in order_data['customer']:
+            return JsonResponse(
+                {'error': 'Missing customer id'}, 
+                status=400
+            )
+
+        # Validar estructura de stock_day
+        if 'id' not in order_data['stock_day']:
+            return JsonResponse(
+                {'error': 'Missing stock_day id'}, 
+                status=400
+            )
 
         customer = Partner.get_by_id(order_data['customer']['id'])
         if not customer:
@@ -35,9 +65,14 @@ class CreateOrderAPI(View):
         )
 
         for new_order_item in order_data['order_detail']:
+            # Manejar stock_detail_id: si es 0 o no existe, usar None
+            stock_detail_id = new_order_item.get('stock_detail_id')
+            if stock_detail_id == 0:
+                stock_detail_id = None
+                
             order_item = OrderItems.objects.create(
                 order=order,
-                id_stock_detail=new_order_item['stock_detail_id'],
+                id_stock_detail=stock_detail_id,
                 box_model=new_order_item['box_model'],
                 quantity=new_order_item['quantity'],
             )
