@@ -16,7 +16,7 @@ class CustomerOrderDetailAPI(APIView):
         """
         Obtiene detalles completos de un pedido por su ID
         """
-        order = get_object_or_404(Order, pk=order_id)
+        order = get_object_or_404(Order, pk=order_id, is_active=True)
 
         # Obtener el cliente y proveedor
         customer = order.partner
@@ -38,28 +38,34 @@ class CustomerOrderDetailAPI(APIView):
 
         # Construir respuesta JSON para el pedido
         order_data = {
+            "id": order.id,
             "serie": order.serie,
-            "consecutive": order.consecutive or "000000",
-            "stock_day": order.stock_day.id if order.stock_day else 0,
-            "date": order.date.strftime("%d/%m/%Y %H:%M") if order.date else "",
+            "consecutive": f"{order.consecutive:06d}",
+            "date": order.date.strftime("%Y-%m-%d") if order.date else "",
             "partner": order.partner.id,
             "type_document": order.type_document,
-            "parent_order": order.parent_order.id if order.parent_order else None,
-            "num_order": order.num_order,
-            "delivery_date": order.delivery_date.strftime("%Y-%m-%d") if order.delivery_date else "",
+            "order_id": order.id,
             "status": order.status,
-            "discount": float(order.discount),
             "total_price": float(order.total_price),
             "total_margin": float(order.total_margin),
             "total_order": float(order.total_order),
-            "comision_seler": float(order.comision_seler),
             "qb_total": order.qb_total,
             "hb_total": order.hb_total,
-            "fb_total": float(order.fb_total) if order.fb_total else 0,
+            "eb_total": order.eb_total,
+            "fb_total": float(order.fb_total),
             "total_stem_flower": order.total_stem_flower,
-            "is_invoiced": order.is_invoiced,
-            "id_invoice": order.id_invoice,
-            "num_invoice": order.num_invoice
+            "total_bunches": order.total_bunches,
+            "delivery_date": order.delivery_date.strftime("%Y-%m-%d") if order.delivery_date else "",
+            "parent_order": order.parent_order.id if order.parent_order else None,
+            "stock_day": order.stock_day.id if order.stock_day else None,
+            "comision_seler": float(order.comision_seler) if order.comision_seler else 0.0,
+            # Campos de BaseModel
+            "notes": order.notes,
+            "created_at": order.created_at.strftime("%Y-%m-%d %H:%M:%S") if order.created_at else "",
+            "updated_at": order.updated_at.strftime("%Y-%m-%d %H:%M:%S") if order.updated_at else "",
+            "is_active": order.is_active,
+            "id_user_created": order.id_user_created,
+            "id_user_updated": order.id_user_updated
         }
 
         # Obtener líneas de pedido
@@ -74,6 +80,7 @@ class CustomerOrderDetailAPI(APIView):
                 product = box.product
 
                 box_item_data = {
+                    "id": box.id,
                     "product": {
                         "id": product.id,
                         "name": product.name,
@@ -88,22 +95,42 @@ class CustomerOrderDetailAPI(APIView):
                     "qty_stem_flower": box.qty_stem_flower,
                     "stem_cost_price": str(box.stem_cost_price),
                     "profit_margin": str(box.profit_margin),
+                    "commission": str(box.commission),
                     "total_stem_flower": box.qty_stem_flower * line.quantity,
-                    "total": str(box.stem_cost_price)
+                    "total": str(box.stem_cost_price),
+                    # Campos de BaseModel
+                    "notes": box.notes,
+                    "created_at": box.created_at.strftime("%Y-%m-%d %H:%M:%S") if box.created_at else "",
+                    "updated_at": box.updated_at.strftime("%Y-%m-%d %H:%M:%S") if box.updated_at else "",
+                    "is_active": box.is_active,
+                    "id_user_created": box.id_user_created,
+                    "id_user_updated": box.id_user_updated
                 }
 
                 order_box_items_data.append(box_item_data)
 
             line_data = {
+                "id": line.id,
                 "id_stock_detail": line.id_stock_detail,
                 "line_price": float(line.line_price),
                 "line_margin": float(line.line_margin),
                 "line_total": float(line.line_total),
                 "line_commission": float(line.line_commission),
                 "tot_stem_flower": line.tot_stem_flower,
+                "total_bunches": line.total_bunches,
                 "box_model": line.box_model,
                 "quantity": line.quantity,
-                "order_box_items": order_box_items_data
+                "is_deleted": line.is_deleted,
+                "is_modified": line.is_modified,
+                "parent_order_item": line.parent_order_item,
+                "order_box_items": order_box_items_data,
+                # Campos de BaseModel
+                "notes": line.notes,
+                "created_at": line.created_at.strftime("%Y-%m-%d %H:%M:%S") if line.created_at else "",
+                "updated_at": line.updated_at.strftime("%Y-%m-%d %H:%M:%S") if line.updated_at else "",
+                "is_active": line.is_active,
+                "id_user_created": line.id_user_created,
+                "id_user_updated": line.id_user_updated
             }
 
             order_lines_data.append(line_data)
