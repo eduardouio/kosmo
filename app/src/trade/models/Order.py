@@ -287,19 +287,17 @@ class Order(BaseModel):
             OrderBoxItems.disable_by_order_items(order_item)
 
     @classmethod
-    def rebuild_totals(self, order):
+    def rebuild_totals(cls, order):
         loggin_event(f"Reconstruyendo totales de orden {order.id}")
-        loggin_event(f"Totales iniciales: "
-                     f"{order.total_price}"
-                     f"{order.total_margin}, "
-                     f"{order.total_order}, "
-                     f"{order.eb_total}, "
-                     f"{order.qb_total}, "
-                     f"{order.hb_total}, "
-                     f"{order.fb_total}, "
-                     f"{order.total_stem_flower}, "
-                     f"{order.total_bunches}"
-                     )
+        # Mostrar los totales actuales en un formato más legible para diagnóstico
+        loggin_event(
+            f"Totales iniciales: price={order.total_price}, "
+            f"margin={order.total_margin}, order_total={order.total_order}, "
+            f"EB={order.eb_total}, QB={order.qb_total}, HB={order.hb_total}, "
+            f"FB={order.fb_total}, stems={order.total_stem_flower}, bunches={order.total_bunches}"
+        )
+        
+        # Inicializar contadores
         total_price = 0
         total_margin = 0
         total_order = 0
@@ -309,9 +307,11 @@ class Order(BaseModel):
         total_bunches = 0
         total_stem_flower = 0
 
+        # Primero reconstruir cada item individual para garantizar que sus valores están actualizados
         for order_item in OrderItems.get_by_order(order):
             OrderItems.rebuild_order_item(order_item)
 
+        # Luego sumar todos los items para obtener los totales
         for order_item in OrderItems.get_by_order(order):
             total_price += order_item.line_price
             total_margin += order_item.line_margin
@@ -319,18 +319,25 @@ class Order(BaseModel):
             total_stem_flower += order_item.tot_stem_flower
 
             # Calcular total_bunches desde los box items
+            item_bunches = 0
             for box_item in OrderBoxItems.get_box_items(order_item):
-                total_bunches += box_item.total_bunches * order_item.quantity
-
+                item_bunches += box_item.total_bunches
+            
+            # Multiplicar por quantity a nivel de item
+            total_bunches += item_bunches * order_item.quantity
+            
+            # Contar cajas por tipo
             if order_item.box_model == 'EB':
-                eb_total += (order_item.quantity)
+                eb_total += order_item.quantity
             elif order_item.box_model == 'QB':
-                qb_total += (order_item.quantity)
+                qb_total += order_item.quantity
             elif order_item.box_model == 'HB':
-                hb_total += (order_item.quantity)
+                hb_total += order_item.quantity
 
+        # Calcular equivalente en FB (full boxes)
         fb_total = (hb_total * 0.5) + (qb_total * 0.25) + (eb_total * 0.125)
 
+        # Actualizar los valores en el orden
         order.eb_total = eb_total
         order.qb_total = qb_total
         order.hb_total = hb_total
@@ -338,15 +345,14 @@ class Order(BaseModel):
         order.total_margin = total_margin
         order.total_stem_flower = total_stem_flower
         order.total_price = total_price
-        order.total_margin = total_margin
+        # Se eliminó línea duplicada de total_margin
         order.total_bunches = total_bunches
+        
+        # Log de diagnóstico más claro y estructurado
         loggin_event(
-            f"Totales reconstruidos: "
-            f"EB: {eb_total}, QB: {qb_total}, HB: {hb_total}, "
-            f"FB: {fb_total}, Total Price: {total_price}, "
-            f"Total Margin: {total_margin}, "
-            f"Total Stem Flower: {total_stem_flower}, "
-            f"Total Bunches: {total_bunches}"
+            f"Totales reconstruidos: price={total_price}, margin={total_margin}, "
+            f"EB={eb_total}, QB={qb_total}, HB={hb_total}, FB={fb_total}, "
+            f"stems={total_stem_flower}, bunches={total_bunches}"
         )
         order.save()
 

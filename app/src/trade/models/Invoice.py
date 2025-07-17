@@ -286,6 +286,10 @@ class Invoice(BaseModel):
     @classmethod
     def rebuild_totals(cls, invoice):
         loggin_event(f"Reconstruyendo totales de factura {invoice.id}")
+        
+        # Mostrar los totales actuales para diagnóstico
+        loggin_event(f"Totales actuales: price={invoice.total_price}, margin={invoice.total_margin}, EB={invoice.eb_total}, QB={invoice.qb_total}, HB={invoice.hb_total}")
+        
         total_price = 0
         total_margin = 0
         eb_total = 0
@@ -294,12 +298,16 @@ class Invoice(BaseModel):
         total_stem_flower = 0
         total_bunches = 0
 
+        # Primero reconstruir cada item individual
         for invoice_item in InvoiceItems.get_invoice_items(invoice):
             InvoiceItems.rebuild_invoice_item(invoice_item)
 
+        # Luego sumar todos los items para obtener los totales
         for invoice_item in InvoiceItems.get_invoice_items(invoice):
-            total_price += invoice_item.line_price * invoice_item.quantity
-            total_margin += invoice_item.line_margin * invoice_item.quantity
+            # Para facturas generadas desde pedidos, usamos exactamente la misma lógica que en el pedido
+            # para garantizar consistencia en los totales
+            total_price += invoice_item.line_price
+            total_margin += invoice_item.line_margin
             total_stem_flower += invoice_item.tot_stem_flower
             total_bunches += invoice_item.total_bunches
 
@@ -321,6 +329,9 @@ class Invoice(BaseModel):
         invoice.total_price = total_price
         invoice.total_bunches = total_bunches
 
+        # Mostrar los totales recalculados para diagnóstico
+        loggin_event(f"Totales recalculados: price={total_price}, margin={total_margin}, EB={eb_total}, QB={qb_total}, HB={hb_total}, FB={fb_calc}")
+        
         invoice.save()
 
     def __str__(self):
