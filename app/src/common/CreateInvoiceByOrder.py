@@ -58,12 +58,13 @@ class CreateInvoiceByOrder:
         order.num_invoice = invoice.num_invoice
         order.save()
         loggin_event(f'Factura generada correctamente {invoice.id}')
-        Invoice.rebuild_totals(invoice)
+        # Se elimina el recálculo de totales para mantener los valores originales del pedido
+        # Invoice.rebuild_totals(invoice)
         return invoice
 
     def gnerate_invoice_customer(self, order):
         loggin_event(f"Generando factura para la ORDEN VENTA {order.id}")
-        
+
         days = order.partner.credit_term
         due_date = datetime.now() + timedelta(days=days)
         dae = DAE.get_last_by_partner(order.partner)
@@ -87,7 +88,7 @@ class CreateInvoiceByOrder:
             consecutive=consecutive,
             num_invoice=num_invoice
         )
-        
+
         # Copiar los items de la orden a la factura
         for oi in OrderItems.get_by_order(order.id):
             inv_item = InvoiceItems.objects.create(
