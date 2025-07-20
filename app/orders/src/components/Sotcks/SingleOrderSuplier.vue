@@ -6,44 +6,42 @@ import {
   IconCheckbox,
   IconCheck,
   IconPrinter,
-  IconFileDollar,
 } from '@tabler/icons-vue';
 
 const purchaseStore = usePurchaseStore();
 
-// Métodos simplificados - solo cálculos, sin modificaciones
 const calcAndGetProductQtyStemFlower = (product) => {
-  const bunches = parseInt(product.total_bunches) || 0;
-  const stemsPerBunch = parseInt(product.stems_bunch) || 25;
-  return bunches * stemsPerBunch;
-};
-
-const calcTotalByItem = (item) => {
-  let totalValue = 0;
-  if (item.box_items) {
-    totalValue = item.box_items.reduce((acc, boxItem) => {
-      const qty_stem_flower = calcAndGetProductQtyStemFlower(boxItem);
-      const cost_price = parseFloat(boxItem.stem_cost_price) || 0;
-      const margin = parseFloat(boxItem.margin) || 0;
-      return acc + (cost_price + margin) * qty_stem_flower;
-    }, 0);
-  }
-  const total = totalValue * (parseInt(item.quantity) || 0);
-  return total.toFixed(2);
+  // Convertimos a números y multiplicamos
+  const qty = parseFloat(product.qty_stem_flower) || 0;
+  const cost = parseFloat(product.stem_cost_price) || 0;
+  // Redondeamos a 2 decimales para evitar problemas de precisión de punto flotante
+  return parseFloat((qty * cost).toFixed(2));
 };
 
 const calcTotalStemFlower = (item) => {
   let totalStemsInItem = 0;
   if (item.box_items) {
     item.box_items.forEach(product => {
-      totalStemsInItem += calcAndGetProductQtyStemFlower(product);
+      totalStemsInItem += product.qty_stem_flower * product.stems_bunch;
     });
   }
   const total = totalStemsInItem * (parseInt(item.quantity) || 0);
   return total;
 };
 
-// Solo mantener la función de confirmar orden
+const calcLineStemFlower = (item) => {
+  let totalStemsInItem = 0;
+  if (item.box_items) {
+    item.box_items.forEach(product => {
+      totalStemsInItem += product.stems_bunch * product.total_bunches;
+    });
+  }
+  const total = totalStemsInItem * (parseInt(item.quantity) || 0);
+  item.tot_stem_flower = total;
+  return total;
+}
+
+// Función para confirmar orden
 const updateOrder = async (action) => {
   switch (action) {
     case 'confirm':
@@ -64,22 +62,7 @@ const getUrlReportSupOrder = (id) => {
   return urlReportSupOrder;
 };
 
-const getUrlReportinvoice = (id) => {
-  let urlInvoiceReport = appConfig.urlInvoiceReport.replace('{id_invoice}', id);
-  return urlInvoiceReport;
-};
-
 // Propiedades computadas - solo lectura
-const totalMargin = computed(() => {
-  if (!purchaseStore.selectedPurchase.order_details) return 0;
-  let total = 0;
-  purchaseStore.selectedPurchase.order_details.forEach((detail) => {
-    total += detail.box_items.reduce((acc, bItem) => {
-      return acc + parseFloat(bItem.margin) * parseFloat(bItem.qty_stem_flower);
-    }, 0) * detail.quantity;
-  });
-  return total.toFixed(2);
-});
 
 const totalCost = computed(() => {
   if (!purchaseStore.selectedPurchase.order_details) return 0;
@@ -285,30 +268,23 @@ watch(() => purchaseStore.selectedPurchase,
                       </div>
                       <div class="col-8 border-end bg-blue-600 py-2">
                         <div class="row g-0 text-center">
-                          <div class="col" style="flex: 0 0 22%;">
+                          <div class="col" style="flex: 0 0 28%;">
                             <small class="fw-bold">VARIEDAD</small>
                           </div>
-                          <div class="col border-start" style="flex: 0 0 10%;">
+                          <div class="col border-start" style="flex: 0 0 18%;">
                             <small class="fw-bold">LARGO</small>
                           </div>
-                          <div class="col border-start" style="flex: 0 0 11%;">
+                          <div class="col border-start" style="flex: 0 0 18%;">
                             <small class="fw-bold">BUNCHES</small>
                           </div>
-                          <div class="col border-start" style="flex: 0 0 11%;">
+                          <div class="col border-start" style="flex: 0 0 18%;">
                             <small class="fw-bold">T/BUNCH</small>
                           </div>
-                          <div class="col border-start" style="flex: 0 0 11%;">
+                          <div class="col border-start" style="flex: 0 0 18%;">
                             <small class="fw-bold">COSTO</small>
                           </div>
-                          <div class="col border-start" style="flex: 0 0 11%;">
-                            <small class="fw-bold">MARGEN</small>
-                          </div>
-                          <div class="col border-start" style="flex: 0 0 11%;">
-                            <small class="fw-bold">PVP</small>
-                          </div>
-                          <div class="col border-start" style="flex: 0 0 13%;">
-                            <small class="fw-bold">TOTAL</small>
-                          </div>
+
+
                         </div>
                       </div>
                       <div class="col-1 bg-green-600 text-center py-2">
@@ -337,41 +313,30 @@ watch(() => purchaseStore.selectedPurchase,
 
                         <!-- Stems -->
                         <div class="col-1 border-end p-1 text-center">
-                          <span class="fw-bold text-primary">{{ calcTotalStemFlower(item) }}</span>
+                          <span class="fw-bold text-primary">{{ calcLineStemFlower(item) }}</span>
                         </div>
 
                         <!-- Products -->
                         <div class="col-8 border-end p-1">
                           <div v-for="product in item.box_items" :key="product.id" class="product-row mb-1">
                             <div class="row g-1 align-items-center">
-                              <div class="col" style="flex: 0 0 22%;">
+                              <div class="col" style="flex: 0 0 28%;">
                                 <small class="fw-medium">{{ product.product_name }} {{ product.product_variety }}</small>
                               </div>
-                              <div class="col text-center" style="flex: 0 0 10%;">
+                              <div class="col text-center" style="flex: 0 0 18%;">
                                 <span class="badge badge-soft-info">{{ product.length }}</span>
                               </div>
-                              <div class="col text-center" style="flex: 0 0 11%;">
+                              <div class="col text-center" style="flex: 0 0 18%;">
                                 <span class="fw-medium">{{ product.total_bunches }}</span>
                               </div>
-                              <div class="col text-center" style="flex: 0 0 11%;">
+                              <div class="col text-center" style="flex: 0 0 18%;">
                                 <span class="fw-medium">{{ product.stems_bunch }}</span>
                               </div>
-                              <div class="col text-center" style="flex: 0 0 11%;">
+                              <div class="col text-center" style="flex: 0 0 18%;">
                                 <span class="fw-medium">${{ parseFloat(product.stem_cost_price).toFixed(2) }}</span>
                               </div>
-                              <div class="col text-center" style="flex: 0 0 11%;">
-                                <span class="fw-medium">${{ parseFloat(product.margin).toFixed(2) }}</span>
-                              </div>
-                              <div class="col text-center" style="flex: 0 0 11%;">
-                                <span class="badge badge-soft-success">
-                                  ${{ (parseFloat(product.stem_cost_price) + parseFloat(product.margin)).toFixed(2) }}
-                                </span>
-                              </div>
-                              <div class="col text-center" style="flex: 0 0 13%;">
-                                <span class="fw-bold text-success">
-                                  ${{ calcTotalByItem(item) }}
-                                </span>
-                              </div>
+
+
                             </div>
                           </div>
                         </div>
@@ -380,7 +345,8 @@ watch(() => purchaseStore.selectedPurchase,
                         <div class="col-1 p-1">
                           <div v-for="product in item.box_items" :key="product.id" class="mb-1 text-center">
                             <span class="fw-bold text-warning">
-                              ${{ purchaseStore.formatNumber(product.stem_cost_price * calcAndGetProductQtyStemFlower(product)) }}
+
+                              ${{ purchaseStore.formatNumber(calcAndGetProductQtyStemFlower(product) * item.quantity) }}
                             </span>
                           </div>
                         </div>
@@ -441,25 +407,14 @@ watch(() => purchaseStore.selectedPurchase,
                 </div>
                 <div class="card-body p-reduced">
                   <div class="row g-2">
-                    <div class="col-md-3">
+                    <div class="col-md-6">
                       <div class="p-2 bg-soft-secondary rounded text-center">
                         <div class="h6 mb-1 text-warning">${{ purchaseStore.formatNumber(totalCost) }}</div>
                         <small class="text-muted">Costo</small>
                       </div>
                     </div>
-                    <div class="col-md-3">
-                      <div class="p-2 bg-soft-secondary rounded text-center">
-                        <div class="h6 mb-1 text-info">${{ totalMargin }}</div>
-                        <small class="text-muted">Margen</small>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
-                      <div class="p-2 bg-soft-secondary rounded text-center">
-                        <div class="h6 mb-1 text-success">${{ purchaseStore.formatNumber(parseFloat(totalMargin) + parseFloat(totalCost)) }}</div>
-                        <small class="text-muted">Total Venta</small>
-                      </div>
-                    </div>
-                    <div class="col-md-3">
+
+                    <div class="col-md-6">
                       <div class="p-2 bg-soft-success rounded text-center">
                         <div class="h6 mb-1 text-success">${{ purchaseStore.formatNumber(totalCost) }}</div>
                         <small>Total Compra</small>
