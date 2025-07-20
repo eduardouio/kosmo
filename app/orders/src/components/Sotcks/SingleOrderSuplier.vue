@@ -6,6 +6,7 @@ import {
   IconCheckbox,
   IconCheck,
   IconPrinter,
+  IconFileDollar,
 } from '@tabler/icons-vue';
 
 const purchaseStore = usePurchaseStore();
@@ -124,7 +125,7 @@ const totalStems = computed(() => {
   if (!purchaseStore.selectedPurchase.order_details) return 0;
   let total = 0;
   purchaseStore.selectedPurchase.order_details.forEach((item) => {
-    total += calcTotalStemFlower(item) || 0;
+    total += calcLineStemFlower(item) || 0;
   });
   return total;
 });
