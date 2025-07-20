@@ -58,8 +58,8 @@ class CreateInvoiceByOrder:
         order.num_invoice = invoice.num_invoice
         order.save()
         loggin_event(f'Factura generada correctamente {invoice.id}')
-        # Se elimina el recálculo de totales para mantener los valores originales del pedido
-        # Invoice.rebuild_totals(invoice)
+        # Recalcular los totales para asegurar valores correctos
+        Invoice.rebuild_totals(invoice)
         return invoice
 
     def gnerate_invoice_customer(self, order):
