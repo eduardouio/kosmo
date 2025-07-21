@@ -501,7 +501,7 @@ class InvoiceBoxItems(BaseModel):
     @property
     def total_price_with_margin(self):
         """Total del producto con margen incluido"""
-        return self.unit_price * self.qty_stem_flower
+        return self.unit_price * self.qty_stem_flower * self.invoice_item.quantity
 
     @property
     def total_price_with_margin_and_quantity(self):

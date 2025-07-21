@@ -63,6 +63,11 @@ const getUrlReportSupOrder = (id) => {
   return urlReportSupOrder;
 };
 
+const getUrlReportinvoice = (id) => {
+  let urlInvoiceReport = appConfig.urlInvoiceReport.replace('{id_invoice}', id);
+  return urlInvoiceReport;
+};
+
 // Propiedades computadas - solo lectura
 
 const totalCost = computed(() => {
