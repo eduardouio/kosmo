@@ -22,8 +22,8 @@ from .UpdateFutureOrderAPI import UpdateFutureOrderAPI
 from .users.SellersListAPI import SellersListAPI
 from .InvoicesForPaymentAPI import InvoicesForPaymentAPI
 from .UpdateProductAPI import UpdateProductAPI
-from .PaymentContextData import PaymentContextData
-from .CollectionsContextAPI import CollectionsContextAPI
+from .trade.PaymentContextData import PaymentContextData
+from .trade.CollectionsContextAPI import CollectionsContextAPI
 from .CustomerInvoiceDetailAPI import CustomerInvoiceDetailAPI
 
 

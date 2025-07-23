@@ -5,9 +5,9 @@
 {% endblock %}
 
 {% block content %}
-  <div id="paymentApp" class="mx-auto" style="width: 80%;"          <!-- Lista de facturas seleccionadas -->
-          <div class="mb-3">
-            <h6>📋 Facturas Seleccionadas:</h6>   <div class="row pt-2">
+  <div id="paymentApp" class="mx-auto" style="width: 95%;">
+          <div class="mb-3 mt-3">
+      <div class="row pt-2">
       <div class="col">
         <!-- Loader mientras se cargan los datos -->
         <div v-if="loading" class="text-center py-5">
@@ -19,28 +19,11 @@
 
         <!-- Contenido principal -->
         <div v-else class="container-fluid">
-          <div class="row">
-            <div class="col-12 rounded-1 shadow-sm p-2 bg-zinc-600 bg-gradient border-gray-300 text-white">
-              <div class="row pb-3 mb-3">
-                <div class="col-3 fs-4">
-                  <span>💰 Pagos</span>
-                </div>
-                <div class="col-6 text-center fs-5 upper">
-                  <span>Registro de Pagos</span>
-                </div>
-                <div class="col-3 text-end fs-6">
-                  <strong class="border-gray-500 rounded-1 bg-white text-dark ps-2 pe-2">
-                    Fecha Registro: {% verbatim %}{{ currentDate }}{% endverbatim %} <span class="text-blue-700">{% verbatim %}{{ currentTime }}{% endverbatim %}</span>
-                  </strong>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <!-- Estadísticas -->
           <div class="row pb-2 pt-2 fw-bold border pt-2 pb-2 mt-2 mb-2 shadow-sm">
             <div class="col-4 text-start text-xl">
-                Estadísticas del Sistema
+                Listado de Obligaciones Pendientes
             </div>
             <div class="col-8 text-end text-xl">
                 <span>Total facturas pendientes: {% verbatim %}{{ statistics.pending_invoices.count }}{% endverbatim %}</span>

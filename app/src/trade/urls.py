@@ -48,6 +48,6 @@ urlpatterns = [
     path('trade/order/generate-invoice/<int:pk>/', CreateInvoiceByOrder.as_view(), name='generate_invoice_by_order'),
     path('cobros/', CollectionsList.as_view(), name='collections_list'),
     path('pagos/', PaymentsList.as_view(), name="payments_list"),
-    path('pagos/nuevo/', PaymentFormView.as_view(), name='payment_form'),
+    path('pagos/nuevo/', PaymentFormView.as_view(), name='payment_create'),
     path('cobros/nuevo/', CollectFormView.as_view(), name='collect_form'),
 ]

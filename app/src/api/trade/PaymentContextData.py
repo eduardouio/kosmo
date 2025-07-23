@@ -56,10 +56,10 @@ class PaymentContextData(View):
                         payment__is_active=True,
                         payment__type_transaction='EGRESO'
                     ).aggregate(total=Sum('amount'))
-                    
+
                     paid_amount = (paid_amount_result['total'] or
                                    Decimal('0.00'))
-                    
+
                     # Convertir a Decimal para cálculos precisos
                     total_amount = Decimal(str(invoice['total_price']))
                     balance = total_amount - paid_amount
@@ -68,7 +68,7 @@ class PaymentContextData(View):
                     # Tolerancia para errores de redondeo
                     if balance > Decimal('0.01'):
                         days_overdue = 0
-                        
+
                         # Calcular días vencidos si hay fecha vencimiento
                         if invoice['due_date']:
                             try:
@@ -76,7 +76,7 @@ class PaymentContextData(View):
                                     due_date = invoice['due_date'].date()
                                 else:
                                     due_date = invoice['due_date']
-                                
+
                                 if due_date < date.today():
                                     days_overdue = (
                                         date.today() - due_date
@@ -97,7 +97,7 @@ class PaymentContextData(View):
                         # Formatear fechas de manera segura
                         formatted_date = ''
                         formatted_due_date = ''
-                        
+
                         try:
                             if invoice['date']:
                                 if hasattr(invoice['date'], 'strftime'):
@@ -293,7 +293,7 @@ class PaymentContextData(View):
                 'ERROR',
                 f'PaymentContextData: Error general - {error_msg}'
             )
-            
+
             # Intentar obtener más información del error
             import traceback
             traceback_info = traceback.format_exc()
@@ -301,7 +301,7 @@ class PaymentContextData(View):
                 'ERROR',
                 f'PaymentContextData: Traceback completo - {traceback_info}'
             )
-            
+
             return JsonResponse({
                 'error': (
                     f'Error al obtener los datos del contexto de pagos: '
