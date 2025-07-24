@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from products.models import Product
 
 
+# catalogo/<int:pk>/eliminar/
 class ProductDeleteView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         product = Product.objects.get(pk=kwargs['pk'])

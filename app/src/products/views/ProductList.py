@@ -6,6 +6,7 @@ from products.models import Product
 from trade.models import Invoice, InvoiceBoxItems, Order, OrderBoxItems
 
 
+# catalogo/lista/
 class ProductListView(LoginRequiredMixin, ListView):
     model = Product
     template_name = 'lists/product_list.html'

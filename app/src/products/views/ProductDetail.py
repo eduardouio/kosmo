@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from products.models import Product
 
 
+# catalogo/<int:pk>/
 class ProductDetailView(LoginRequiredMixin, DetailView):
     model = Product
     template_name = 'presentations/product_presentation.html'

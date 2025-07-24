@@ -57,6 +57,7 @@ class ProductForm(forms.ModelForm):
         }
 
 
+# catalogo/nuevo/
 class ProductCreateView(LoginRequiredMixin, CreateView):
     model = Product
     form_class = ProductForm
@@ -73,6 +74,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         return url
 
 
+# catalogo/<int:pk>/actualizar/
 class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
