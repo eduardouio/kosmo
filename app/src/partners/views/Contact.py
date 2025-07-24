@@ -24,6 +24,7 @@ class ContactForm(forms.ModelForm):
         }
 
 
+# contactos/nuevo/<int:id_partner>/
 class ContactCreateView(LoginRequiredMixin, CreateView):
     model = Contact
     form_class = ContactForm
@@ -50,6 +51,7 @@ class ContactCreateView(LoginRequiredMixin, CreateView):
         return url
 
 
+# contactos/actualizar/<int:pk>/
 class ContactUpdateView(LoginRequiredMixin, UpdateView):
     model = Contact
     form_class = ContactForm
@@ -71,6 +73,7 @@ class ContactUpdateView(LoginRequiredMixin, UpdateView):
         return url
 
 
+# contactos/eliminar/<int:pk>/
 class ContactDeleteView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         contact = Contact.objects.get(pk=kwargs['pk'])
@@ -84,6 +87,7 @@ class ContactDeleteView(LoginRequiredMixin, RedirectView):
             return url + '?action=no_delete_related'
 
 
+# contactos/
 class ContactListView(LoginRequiredMixin, ListView):
     model = Contact
     template_name = 'lists/contact_list.html'
@@ -102,6 +106,7 @@ class ContactListView(LoginRequiredMixin, ListView):
         return context
 
 
+# contactos/<int:pk>/
 class ContactDetailView(LoginRequiredMixin, DetailView):
     model = Contact
     template_name = 'presentations/contact_presentation.html'

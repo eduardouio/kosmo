@@ -36,6 +36,7 @@ class BankForm(forms.ModelForm):
         }
 
 
+# bancos/nuevo/<int:id_partner>/
 class BankCreateView(LoginRequiredMixin, CreateView):
     model = Bank
     form_class = BankForm
@@ -61,6 +62,7 @@ class BankCreateView(LoginRequiredMixin, CreateView):
         return url
 
 
+# bancos/actualizar/<int:pk>/
 class BankUpdateView(LoginRequiredMixin, UpdateView):
     model = Bank
     form_class = BankForm
@@ -80,6 +82,7 @@ class BankUpdateView(LoginRequiredMixin, UpdateView):
         return url
 
 
+# bancos/eliminar/<int:pk>/
 class BankDeleteView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         bank = Bank.objects.get(pk=kwargs['pk'])
@@ -93,6 +96,7 @@ class BankDeleteView(LoginRequiredMixin, RedirectView):
             return url + '?action=no_delete_related'
 
 
+# bancos/
 class BankListView(LoginRequiredMixin, ListView):
     model = Bank
     template_name = 'lists/bank_list.html'
@@ -111,6 +115,7 @@ class BankListView(LoginRequiredMixin, ListView):
         return context
 
 
+# bancos/<int:pk>/
 class BankDetailView(LoginRequiredMixin, DetailView):
     model = Bank
     template_name = 'presentations/bank_presentation.html'

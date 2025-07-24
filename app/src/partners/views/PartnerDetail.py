@@ -6,6 +6,7 @@ from django.core.serializers import serialize
 from partners.models import Partner, Bank, Contact, DAE
 
 
+# socios/<int:pk>/
 class PartnerDetailView(LoginRequiredMixin, DetailView):
     model = Partner
     template_name = 'presentations/partner_presentation.html'

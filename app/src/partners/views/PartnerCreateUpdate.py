@@ -68,8 +68,9 @@ class PartnerForm(forms.ModelForm):
         sellers = CustomUserModel.get_sellers()
         seller_choices = [(seller.get_full_name() if seller.get_full_name() else seller.email, seller.get_full_name() if seller.get_full_name() else seller.email) for seller in sellers]
         self.fields['seller'].choices = [('', '---------')] + seller_choices
-        
 
+
+# socios/nuevo/
 class PartnerCreateView(LoginRequiredMixin, CreateView):
     model = Partner
     form_class = PartnerForm
@@ -92,6 +93,7 @@ class PartnerCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
+# socios/actualizar-parent/<int:pk>/
 class PartnerUpdateParent(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
@@ -105,6 +107,7 @@ class PartnerUpdateParent(LoginRequiredMixin, View):
         return JsonResponse({'status': 'ok'})
 
 
+# socios/actualizar/<int:pk>/
 class PartnerUpdateView(LoginRequiredMixin, UpdateView):
     model = Partner
     form_class = PartnerForm

@@ -4,6 +4,7 @@ from django.contrib import messages
 from partners.models import Partner, Contact, Bank
 
 
+# socios/auto-registro/
 class PartnerAutoRegister(TemplateView):
     template_name = 'forms/auto_register.html'
 

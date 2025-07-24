@@ -20,6 +20,7 @@ class DAEForm(forms.ModelForm):
         }
 
 
+# dae/nuevo/<int:id_partner>/
 class DAECreateView(LoginRequiredMixin, CreateView):
     model = DAE
     form_class = DAEForm
@@ -53,6 +54,7 @@ class DAECreateView(LoginRequiredMixin, CreateView):
         return url
 
 
+# dae/actualizar/<int:pk>/
 class DAEUpdateView(LoginRequiredMixin, UpdateView):
     model = DAE
     form_class = DAEForm
@@ -80,6 +82,7 @@ class DAEUpdateView(LoginRequiredMixin, UpdateView):
         return url
 
 
+# dae/eliminar/<int:pk>/
 class DAEDeleteView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         dae = DAE.objects.get(pk=kwargs['pk'])
@@ -93,6 +96,7 @@ class DAEDeleteView(LoginRequiredMixin, RedirectView):
             return url + '?action=no_delete_related'
 
 
+# dae/
 class DAEListView(LoginRequiredMixin, ListView):
     model = DAE
     template_name = 'lists/dae_list.html'
@@ -111,6 +115,7 @@ class DAEListView(LoginRequiredMixin, ListView):
         return context
 
 
+# dae/<int:pk>/
 class DAEDetailView(LoginRequiredMixin, DetailView):
     model = DAE
     template_name = 'presentations/dae_presentation.html'

@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from partners.models import Partner
 
 
+# socios/auto-registro/lista/
 class PartnerAutoRegisterList(LoginRequiredMixin, ListView):
     model = Partner
     template_name = 'lists/partner_list.html'

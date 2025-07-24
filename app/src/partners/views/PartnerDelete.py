@@ -6,6 +6,7 @@ from partners.models import Partner, Bank, Contact, DAE
 from trade.models import Order, Invoice
 
 
+# socios/eliminar/<int:pk>/
 class PartnerDeleteView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         partner = Partner.objects.get(pk=kwargs['pk'])
