@@ -76,30 +76,3 @@ class PaymentFormView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(request, f"Error al guardar el pago: {str(e)}")
             return redirect(request.path)
-
-
-class PaymentApiView(View):
-    def get(self, request):
-        action = request.GET.get('action')
-
-        if action == 'get_partner_invoices':
-            partner_id = request.GET.get('partner_id')
-            pending_invoices = InvoiceBalance.get_pending_invoices(partner_id)
-
-            invoices_data = []
-            for invoice_data in pending_invoices:
-                invoice = invoice_data['invoice']
-                invoices_data.append({
-                    'id': invoice.id,
-                    'serie': invoice.serie,
-                    'consecutive': invoice.consecutive,
-                    'date': invoice.date.strftime("%Y-%m-%d"),
-                    'due_date': invoice.due_date.strftime("%Y-%m-%d") if invoice.due_date else '',
-                    'total_amount': float(invoice_data['total_amount']),
-                    'paid_amount': float(invoice_data['paid_amount']),
-                    'balance': float(invoice_data['balance']),
-                })
-
-            return JsonResponse({'invoices': invoices_data})
-
-        return JsonResponse({'error': 'Acción no válida'})
