@@ -5,6 +5,7 @@ from datetime import datetime
 from django.db.models import Q
 
 
+# trade/supplier-orders/
 class SupplierOrdersList(ListView):
     model = Order
     template_name = 'lists/supplier_orders_list.html'

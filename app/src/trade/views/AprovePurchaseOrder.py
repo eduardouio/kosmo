@@ -7,6 +7,7 @@ from trade.models import Order
 from common.AppLoger import loggin_event
 
 
+# trade/order/aprove/<int:pk>/
 class AprovePurchaseOrderView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         order_id = self.kwargs.get('pk')

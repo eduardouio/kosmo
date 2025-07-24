@@ -8,6 +8,7 @@ from django.utils.dateparse import parse_date
 from decimal import Decimal
 
 
+# trade/supplier-invoice/update/<int:invoice_id>/
 class InvoiceSupplierUpdate(LoginRequiredMixin, TemplateView):
     template_name = "forms/invoice_supplier.html"
 

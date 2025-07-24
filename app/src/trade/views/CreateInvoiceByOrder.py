@@ -6,6 +6,7 @@ from api.CreateInvoiceAPI import CreateInvoiceAPI
 from trade.models import Order
 
 
+# trade/order/generate-invoice/<int:pk>/
 class CreateInvoiceByOrder(View):
     def post(self, request, *args, **kwargs):
         order_id = kwargs.get('pk')

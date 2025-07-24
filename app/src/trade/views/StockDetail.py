@@ -32,6 +32,7 @@ class StockDetailForm(forms.ModelForm):
         }
 
 
+# trade/<int:pk>/
 class DetailStockDetail(LoginRequiredMixin, TemplateView):
     template_name = 'presentations/stock_detail_presentation.html'
 
@@ -46,6 +47,7 @@ class DetailStockDetail(LoginRequiredMixin, TemplateView):
         return context
 
 
+# Crear un detalle de stock individual (sin URL específica en el archivo)
 class SingleStockDetailCreateView(LoginRequiredMixin, CreateView):
     model = StockDetail
     form_class = StockDetailForm
@@ -60,6 +62,7 @@ class SingleStockDetailCreateView(LoginRequiredMixin, CreateView):
         return reverse_lazy('stockdetail_detail', kwargs={'pk': self.object.pk}) + '?action=created'
 
 
+# trade/stock/detalle/actualizar/<int:pk>/
 class SingleStockDetailUpdateView(LoginRequiredMixin, UpdateView):
     model = StockDetail
     form_class = StockDetailForm

@@ -6,6 +6,7 @@ from django.db.models import Sum, Q
 from decimal import Decimal
 
 
+# pagos/
 class PaymentsList(LoginRequiredMixin, ListView):
     model = Payment
     template_name = 'lists/payments_list.html'

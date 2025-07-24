@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.formats import number_format
 
 
+# trade/supplier-invoices/
 class SupplierInvoiceList(ListView):
     model = Invoice
     template_name = 'lists/supplier_invoices_list.html'

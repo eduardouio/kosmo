@@ -8,6 +8,7 @@ from common import CreateInvoiceByOrder
 from datetime import datetime, timedelta
 
 
+# trade/aprove-batch-orders/
 class BatchOrderApprovalView(View):
     """
     Vista para aprobar múltiples órdenes de venta en lote y generar facturas

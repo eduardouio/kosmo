@@ -5,6 +5,7 @@ from trade.models import Invoice, InvoiceItems, InvoiceBoxItems
 from django.shortcuts import get_object_or_404
 
 
+# trade/supplier-invoice/<int:invoice_id>/
 class SupplierInvoiceDetail(LoginRequiredMixin, TemplateView):
     template_name = "presentations/supplier_invoice_detail.html"
 

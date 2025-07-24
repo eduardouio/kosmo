@@ -14,6 +14,7 @@ import json
 from decimal import Decimal
 
 
+# cobros/nuevo/
 class CollectFormView(LoginRequiredMixin, View):
     template_name = 'forms/collect_form.html'
 
@@ -70,6 +71,7 @@ class CollectFormView(LoginRequiredMixin, View):
             return redirect(request.path)
 
 
+# API auxiliar para CollectFormView
 class CollectionApiView(View):
     def get(self, request):
         action = request.GET.get('action')

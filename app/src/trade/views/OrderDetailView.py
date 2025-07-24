@@ -4,6 +4,7 @@ from trade.models import Order, OrderItems, OrderBoxItems, Invoice, InvoiceItems
 from partners.models import Partner
 
 
+# trade/order/<int:pk>/
 class OrderDetailView(LoginRequiredMixin, DetailView):
     model = Order
     template_name = 'presentations/order_presentation.html'

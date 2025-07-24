@@ -5,6 +5,7 @@ from django.http import Http404
 from trade.models import Invoice, Order
 
 
+# trade/invoice/delete/<int:pk>/
 class DeleteInvoiceView(LoginRequiredMixin, RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):

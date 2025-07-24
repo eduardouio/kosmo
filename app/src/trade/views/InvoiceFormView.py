@@ -6,6 +6,7 @@ from trade.models import Invoice, InvoiceItems, InvoiceBoxItems, STATUS_CHOICES
 from common.AppLoger import loggin_event
 
 
+# trade/invoice-form/<int:pk>/ y trade/invoice/update/<int:pk>/
 class InvoiceFormView(View):
     template_name = 'forms/invoice_form.html'
 

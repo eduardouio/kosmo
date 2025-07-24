@@ -15,6 +15,7 @@ class StockDayForm(forms.ModelForm):
         }
 
 
+# trade/stock/nuevo/
 class StockDayCreateView(LoginRequiredMixin, CreateView):
     model = StockDay
     form_class = StockDayForm
@@ -37,18 +38,19 @@ class StockDayCreateView(LoginRequiredMixin, CreateView):
         return url + '#/import/'
 
 
+# trade/stock/eliminar/<int:pk>/
 class StockDayDeleteView(LoginRequiredMixin, RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         stock_day = StockDay.objects.get(pk=kwargs['pk'])
         try:
             stock_day.delete()
-            url = reverse_lazy('stock_list')
-            return url + '?action=deleted'
+            return reverse_lazy('stock_list') + '?action=deleted'
         except Exception:
             url = reverse_lazy('stock_detail', kwargs={'pk': stock_day.pk})
             return url + '?action=no_delete'
 
 
+# trade/stock/
 class StockDayListView(LoginRequiredMixin, ListView):
     model = StockDay
     template_name = 'lists/stockday_list.html'
@@ -67,6 +69,7 @@ class StockDayListView(LoginRequiredMixin, ListView):
         return context
 
 
+# trade/stock/<int:pk>/
 class StockDayDetailView(LoginRequiredMixin, DetailView):
     model = StockDay
     template_name = 'presentations/stockday_presentation.html'

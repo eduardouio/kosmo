@@ -4,6 +4,7 @@ from django.db.models import Sum
 from datetime import datetime
 
 
+# trade/customer-orders/
 class CustomerOrdersList(ListView):
     model = Order
     template_name = 'lists/customer_orders_list.html'

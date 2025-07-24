@@ -4,6 +4,7 @@ from django.http import Http404
 from trade.models import Invoice, InvoiceItems, InvoiceBoxItems
 
 
+# trade/invoice/<int:pk>/
 class InvoiceDetailView(LoginRequiredMixin, DetailView):
     model = Invoice
     template_name = 'presentations/invoice_presentation.html'

@@ -7,6 +7,7 @@ from decimal import Decimal
 from trade.models import Invoice
 
 
+# cobros/
 class CollectionsList(LoginRequiredMixin, ListView):
     model = Payment
     template_name = 'lists/collections_list.html'
