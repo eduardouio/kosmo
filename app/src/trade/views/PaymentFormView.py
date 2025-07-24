@@ -15,6 +15,7 @@ import json
 from decimal import Decimal
 
 
+# pagos/nuevo/
 class PaymentFormView(LoginRequiredMixin, View):
     template_name = 'forms/payment_form.html'
 

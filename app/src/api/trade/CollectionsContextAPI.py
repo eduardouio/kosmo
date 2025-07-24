@@ -1,20 +1,70 @@
 from django.views.generic import View
 from django.http import JsonResponse
-from django.db.models import Sum
+from django.db.models import Sum, Count, Q
+from django.core.paginator import Paginator
 from decimal import Decimal
-from datetime import date
+from datetime import date, datetime, timedelta
+import json
 
 from partners.models import Partner
 from trade.models import Invoice, Payment, PaymentDetail
 from common.AppLoger import loggin_event
+from common.SaleInvoices import InvoiceBalance
 
 
 class CollectionsContextAPI(View):
     """
-    API para proporcionar datos de contexto para el formulario de cobros
+    API completa para manejar datos de cobros y contexto para aplicaciones Vue.js
+    Endpoints disponibles:
+    - GET: Obtener datos de contexto general de cobros
+    - POST: Crear o actualizar cobros
     """
 
     def get(self, request):
+        """
+        Obtiene datos de contexto según la acción solicitada
+        """
+        action = request.GET.get('action', 'context_data')
+        
+        if action == 'context_data':
+            return self._get_collections_context_data(request)
+        elif action == 'customer_invoices':
+            return self._get_customer_invoices(request)
+        elif action == 'collection_list':
+            return self._get_collection_list(request)
+        elif action == 'collection_detail':
+            return self._get_collection_detail(request)
+        elif action == 'collection_statistics':
+            return self._get_collection_statistics(request)
+        elif action == 'overdue_collections':
+            return self._get_overdue_collections(request)
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'Acción no válida'
+            }, status=400)
+
+    def post(self, request):
+        """
+        Maneja operaciones POST para cobros
+        """
+        action = request.POST.get('action', 'create_collection')
+        
+        if action == 'create_collection':
+            return self._create_collection(request)
+        elif action == 'update_collection':
+            return self._update_collection(request)
+        elif action == 'delete_collection':
+            return self._delete_collection(request)
+        elif action == 'apply_collection':
+            return self._apply_collection_to_invoices(request)
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': 'Acción POST no válida'
+            }, status=400)
+
+    def _get_collections_context_data(self, request):
         """
         Proporciona todos los datos necesarios para el formulario de cobros
         """
@@ -63,10 +113,6 @@ class CollectionsContextAPI(View):
                 'success': False,
                 'error': 'Error al obtener los datos de contexto de cobros'
             }
-
-            if request.user.is_superuser:
-                import traceback
-                response_data['debug_info'] = traceback.format_exc()
 
             return JsonResponse(response_data, status=500)
 
