@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from trade.models.Payment import Payment, METHOD_CHOICES
-from common.SaleInvoices import InvoiceBalance
+from common import InvoiceBalance
 from partners.models import Partner
 
 import json
