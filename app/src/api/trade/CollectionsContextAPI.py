@@ -1,15 +1,13 @@
 from django.views.generic import View
 from django.http import JsonResponse
-from django.db.models import Sum, Count, Q
-from django.core.paginator import Paginator
+from django.db.models import Sum
 from decimal import Decimal
-from datetime import date, datetime, timedelta
-import json
+from datetime import date
 
 from partners.models import Partner
 from trade.models import Invoice, Payment, PaymentDetail
 from common.AppLoger import loggin_event
-from common.SaleInvoices import InvoiceBalance
+from common import InvoiceBalance
 
 
 class CollectionsContextAPI(View):
@@ -126,7 +124,6 @@ class CollectionsContextAPI(View):
 
             customers = []
             for customer in customers_queryset:
-                # Contar facturas pendientes del cliente
                 pending_count = Invoice.objects.filter(
                     partner=customer,
                     type_invoice='VENTA',

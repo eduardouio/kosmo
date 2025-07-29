@@ -10,7 +10,7 @@ import traceback
 from partners.models import Partner
 from trade.models import Invoice, Payment, PaymentDetail
 from common.AppLoger import loggin_event
-from common.SaleInvoices import InvoiceBalance
+from common.InvoiceBalance import InvoiceBalance
 
 
 class PaymentContextData(View):
@@ -26,7 +26,7 @@ class PaymentContextData(View):
         Obtiene datos de contexto según la acción solicitada
         """
         action = request.GET.get('action', 'context_data')
-        
+
         if action == 'context_data':
             return self._get_payment_context_data(request)
         elif action == 'partner_invoices':

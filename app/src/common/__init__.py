@@ -12,6 +12,7 @@ from .GPTDirectProcessor import GPTDirectProcessor
 from .StatsSystem import StatsSystem
 from .InvoicesPaymentPending import InvoicesPaymentPending
 from .GPTGoogleProcessor import GPTGoogleProcessor
+from .InvoiceBalance import InvoiceBalance
 
 __all__ = [
     'EmailBackEndAuth',
@@ -27,5 +28,6 @@ __all__ = [
     'GPTDirectProcessor',
     'StatsSystem',
     'InvoicesPaymentPending',
-    'GPTGoogleProcessor'
+    'GPTGoogleProcessor',
+    'InvoiceBalance'
 ]
