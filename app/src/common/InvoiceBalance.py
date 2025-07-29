@@ -86,12 +86,12 @@ class InvoiceBalance:
             invoice_amounts (dict): Diccionario con {invoice_id: monto_a_aplicar}
         """
         try:
-            payment = Payment.objects.get(id=payment_id, is_active=True)
+            payment = Payment.objects.get(id=payment_id)
             total_applied = Decimal('0.00')
 
             for invoice_id, amount in invoice_amounts.items():
                 amount = Decimal(str(amount))
-                invoice = Invoice.objects.get(id=invoice_id, is_active=True)
+                invoice = Invoice.objects.get(id=invoice_id)
                 
                 # Crear o actualizar PaymentDetail
                 payment_detail, created = PaymentDetail.objects.get_or_create(
