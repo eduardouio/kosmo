@@ -91,7 +91,7 @@ class InvoiceBalance:
 
             for invoice_id, amount in invoice_amounts.items():
                 amount = Decimal(str(amount))
-                invoice = Invoice.objects.get(id=invoice_id)
+                invoice = Invoice.objects.get(id=invoice_id, is_active=True)
                 
                 # Crear o actualizar PaymentDetail
                 payment_detail, created = PaymentDetail.objects.get_or_create(
