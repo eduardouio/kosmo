@@ -8,11 +8,11 @@ from common.AppLoger import loggin_event
 
 
 class PaymentDeleteAPI(View):
-    
+
     def post(self, request):
         """Eliminar pagos (soft delete desactivando is_active)"""
         loggin_event('Eliminando pagos')
-        
+
         try:
             if not request.body:
                 return JsonResponse({'error': 'No data provided'}, status=400)
@@ -46,7 +46,7 @@ class PaymentDeleteAPI(View):
                 for payment_id in payment_ids:
                     try:
                         payment = Payment.objects.get(id=payment_id)
-                        
+
                         # Verificar que el pago se pueda eliminar
                         # No se pueden eliminar pagos confirmados o aprobados
                         if payment.status in ['CONFIRMADO', 'RECHAZADO']:
@@ -56,23 +56,24 @@ class PaymentDeleteAPI(View):
                                 'reason': f'Cannot delete payment with status: {payment.status}'
                             })
                             continue
-                        
+
                         # Realizar soft delete
                         payment.is_active = False
                         payment.save()
-                        
+
                         # También desactivar los detalles de pago asociados
                         PaymentDetail.objects.filter(payment=payment).update(
                             is_active=False
                         )
-                        
+
                         deleted_payments.append({
                             'id': payment.id,
                             'payment_number': payment.payment_number
                         })
-                        
-                        loggin_event(f'Pago eliminado: {payment.payment_number}')
-                        
+
+                        loggin_event(
+                            f'Pago eliminado: {payment.payment_number}')
+
                     except Payment.DoesNotExist:
                         not_found_payments.append(payment_id)
                         continue
@@ -81,13 +82,13 @@ class PaymentDeleteAPI(View):
                 response_data = {
                     'message': f'{len(deleted_payments)} payments deleted successfully'
                 }
-                
+
                 if deleted_payments:
                     response_data['deleted_payments'] = deleted_payments
-                    
+
                 if not_found_payments:
                     response_data['not_found_payments'] = not_found_payments
-                    
+
                 if cannot_delete_payments:
                     response_data['cannot_delete_payments'] = cannot_delete_payments
 
@@ -102,13 +103,14 @@ class PaymentDeleteAPI(View):
                 return JsonResponse(response_data, status=status_code)
 
         except Exception as e:
-            loggin_event(f'Error inesperado al eliminar pagos: {str(e)}', error=True)
+            loggin_event(
+                f'Error inesperado al eliminar pagos: {str(e)}', error=True)
             return JsonResponse({'error': 'Internal server error'}, status=500)
 
     def delete(self, request, payment_id):
         """Eliminar un pago específico por ID en la URL"""
         loggin_event(f'Eliminando pago {payment_id}')
-        
+
         try:
             payment = Payment.objects.get(id=payment_id)
         except Payment.DoesNotExist:
@@ -126,14 +128,14 @@ class PaymentDeleteAPI(View):
                 # Realizar soft delete
                 payment.is_active = False
                 payment.save()
-                
+
                 # También desactivar los detalles de pago asociados
                 PaymentDetail.objects.filter(payment=payment).update(
                     is_active=False
                 )
-                
+
                 loggin_event(f'Pago eliminado: {payment.payment_number}')
-                
+
                 return JsonResponse({
                     'message': 'Payment deleted successfully',
                     'payment_id': payment.id,
@@ -141,5 +143,6 @@ class PaymentDeleteAPI(View):
                 }, status=200)
 
         except Exception as e:
-            loggin_event(f'Error inesperado al eliminar pago: {str(e)}', error=True)
+            loggin_event(
+                f'Error inesperado al eliminar pago: {str(e)}', error=True)
             return JsonResponse({'error': 'Internal server error'}, status=500)

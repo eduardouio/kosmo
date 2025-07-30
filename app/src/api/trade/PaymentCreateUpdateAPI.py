@@ -10,11 +10,11 @@ from common.AppLoger import loggin_event
 
 
 class PaymentCreateUpdateAPI(View):
-    
+
     def post(self, request):
         """Crear un nuevo pago"""
         loggin_event('Creando nuevo pago')
-        
+
         try:
             if not request.body:
                 return JsonResponse({'error': 'No data provided'}, status=400)
@@ -47,7 +47,8 @@ class PaymentCreateUpdateAPI(View):
                 payment = Payment(
                     date=payment_data['date'],
                     due_date=payment_data.get('due_date'),
-                    type_transaction=payment_data.get('type_transaction', 'INGRESO'),
+                    type_transaction=payment_data.get(
+                        'type_transaction', 'INGRESO'),
                     amount=Decimal(str(payment_data['amount'])),
                     method=payment_data['method'],
                     status=payment_data.get('status', 'PENDIENTE'),
@@ -61,7 +62,7 @@ class PaymentCreateUpdateAPI(View):
 
                 # Generar número de pago automáticamente
                 payment.payment_number = Payment.get_next_payment_number()
-                
+
                 # Validar el pago antes de guardar
                 payment.full_clean()
                 payment.save()
@@ -70,23 +71,26 @@ class PaymentCreateUpdateAPI(View):
                 total_invoice_amount = Decimal('0')
                 for invoice_data in payment_data['invoices']:
                     if 'invoice_id' not in invoice_data or 'amount' not in invoice_data:
-                        raise ValidationError('Each invoice must have invoice_id and amount')
-                    
+                        raise ValidationError(
+                            'Each invoice must have invoice_id and amount')
+
                     try:
-                        invoice = Invoice.objects.get(id=invoice_data['invoice_id'])
+                        invoice = Invoice.objects.get(
+                            id=invoice_data['invoice_id'])
                     except Invoice.DoesNotExist:
-                        raise ValidationError(f"Invoice with id {invoice_data['invoice_id']} does not exist")
-                    
+                        raise ValidationError(
+                            f"Invoice with id {invoice_data['invoice_id']} does not exist")
+
                     payment_detail = PaymentDetail(
                         payment=payment,
                         invoice=invoice,
                         amount=Decimal(str(invoice_data['amount']))
                     )
-                    
+
                     # Validar el detalle de pago
                     payment_detail.full_clean()
                     payment_detail.save()
-                    
+
                     total_invoice_amount += payment_detail.amount
 
                 # Validar que el monto total del pago coincida con la suma de los detalles
@@ -95,8 +99,9 @@ class PaymentCreateUpdateAPI(View):
                         f'Payment amount ({payment.amount}) does not match sum of invoice amounts ({total_invoice_amount})'
                     )
 
-                loggin_event(f'Pago creado exitosamente: {payment.payment_number}')
-                
+                loggin_event(
+                    f'Pago creado exitosamente: {payment.payment_number}')
+
                 return JsonResponse({
                     'message': 'Payment created successfully',
                     'payment_id': payment.id,
@@ -104,16 +109,18 @@ class PaymentCreateUpdateAPI(View):
                 }, status=201)
 
         except ValidationError as e:
-            loggin_event(f'Error de validación al crear pago: {str(e)}', error=True)
+            loggin_event(
+                f'Error de validación al crear pago: {str(e)}', error=True)
             return JsonResponse({'error': str(e)}, status=400)
         except Exception as e:
-            loggin_event(f'Error inesperado al crear pago: {str(e)}', error=True)
+            loggin_event(
+                f'Error inesperado al crear pago: {str(e)}', error=True)
             return JsonResponse({'error': 'Internal server error'}, status=500)
 
     def put(self, request, payment_id):
         """Actualizar un pago existente"""
         loggin_event(f'Actualizando pago {payment_id}')
-        
+
         try:
             if not request.body:
                 return JsonResponse({'error': 'No data provided'}, status=400)
@@ -165,27 +172,30 @@ class PaymentCreateUpdateAPI(View):
                 if 'invoices' in payment_data:
                     # Eliminar detalles de pago existentes
                     PaymentDetail.objects.filter(payment=payment).delete()
-                    
+
                     # Crear nuevos detalles de pago
                     total_invoice_amount = Decimal('0')
                     for invoice_data in payment_data['invoices']:
                         if 'invoice_id' not in invoice_data or 'amount' not in invoice_data:
-                            raise ValidationError('Each invoice must have invoice_id and amount')
-                        
+                            raise ValidationError(
+                                'Each invoice must have invoice_id and amount')
+
                         try:
-                            invoice = Invoice.objects.get(id=invoice_data['invoice_id'])
+                            invoice = Invoice.objects.get(
+                                id=invoice_data['invoice_id'])
                         except Invoice.DoesNotExist:
-                            raise ValidationError(f"Invoice with id {invoice_data['invoice_id']} does not exist")
-                        
+                            raise ValidationError(
+                                f"Invoice with id {invoice_data['invoice_id']} does not exist")
+
                         payment_detail = PaymentDetail(
                             payment=payment,
                             invoice=invoice,
                             amount=Decimal(str(invoice_data['amount']))
                         )
-                        
+
                         payment_detail.full_clean()
                         payment_detail.save()
-                        
+
                         total_invoice_amount += payment_detail.amount
 
                     # Validar que el monto total del pago coincida con la suma de los detalles
@@ -198,8 +208,9 @@ class PaymentCreateUpdateAPI(View):
                 payment.full_clean()
                 payment.save()
 
-                loggin_event(f'Pago actualizado exitosamente: {payment.payment_number}')
-                
+                loggin_event(
+                    f'Pago actualizado exitosamente: {payment.payment_number}')
+
                 return JsonResponse({
                     'message': 'Payment updated successfully',
                     'payment_id': payment.id,
@@ -207,10 +218,12 @@ class PaymentCreateUpdateAPI(View):
                 }, status=200)
 
         except ValidationError as e:
-            loggin_event(f'Error de validación al actualizar pago: {str(e)}', error=True)
+            loggin_event(
+                f'Error de validación al actualizar pago: {str(e)}', error=True)
             return JsonResponse({'error': str(e)}, status=400)
         except Exception as e:
-            loggin_event(f'Error inesperado al actualizar pago: {str(e)}', error=True)
+            loggin_event(
+                f'Error inesperado al actualizar pago: {str(e)}', error=True)
             return JsonResponse({'error': 'Internal server error'}, status=500)
 
     def get(self, request, payment_id=None):
@@ -220,7 +233,7 @@ class PaymentCreateUpdateAPI(View):
             try:
                 payment = Payment.objects.get(id=payment_id)
                 payment_details = PaymentDetail.objects.filter(payment=payment)
-                
+
                 # Construir respuesta con detalles
                 invoices_data = []
                 for detail in payment_details:
@@ -229,7 +242,7 @@ class PaymentCreateUpdateAPI(View):
                         'invoice_number': detail.invoice.num_invoice,
                         'amount': str(detail.amount)
                     })
-                
+
                 payment_data = {
                     'id': payment.id,
                     'payment_number': payment.payment_number,
@@ -247,22 +260,22 @@ class PaymentCreateUpdateAPI(View):
                     'approval_date': payment.approval_date.isoformat() if payment.approval_date else None,
                     'invoices': invoices_data
                 }
-                
+
                 return JsonResponse(payment_data, status=200)
-                
+
             except Payment.DoesNotExist:
                 return JsonResponse({'error': 'Payment not found'}, status=404)
         else:
             # Listar pagos con paginación básica
             page = int(request.GET.get('page', 1))
             page_size = int(request.GET.get('page_size', 20))
-            
+
             start = (page - 1) * page_size
             end = start + page_size
-            
+
             payments = Payment.objects.all()[start:end]
             payments_data = []
-            
+
             for payment in payments:
                 payments_data.append({
                     'id': payment.id,
@@ -273,7 +286,7 @@ class PaymentCreateUpdateAPI(View):
                     'status': payment.status,
                     'total_invoices': payment.invoices.count()
                 })
-            
+
             return JsonResponse({
                 'payments': payments_data,
                 'page': page,

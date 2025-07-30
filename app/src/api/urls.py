@@ -28,8 +28,10 @@ from api import (
     CollectionsContextAPI,
     CustomerInvoiceDetailAPI,
 )
-from api.trade.PaymentCreateUpdateAPI import PaymentCreateUpdateAPI
-from api.trade.PaymentDeleteAPI import PaymentDeleteAPI
+from api.trade import (
+    PaymentCreateUpdateAPI,
+    PaymentDeleteAPI,
+)
 
 urlpatterns = [
     path('api/stock_detail/<int:stock_day_id>/', StockDetailAPI.as_view(), name='stock_detail'),
