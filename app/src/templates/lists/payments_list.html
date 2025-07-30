@@ -76,6 +76,7 @@
                 <th class="bg-secondary bg-opacity-25">Método</th>
                 <th class="bg-secondary bg-opacity-25">Estado</th>
                 <th class="bg-secondary bg-opacity-25">Facturas</th>
+                <th class="bg-secondary bg-opacity-25">Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -126,6 +127,23 @@
                             Sin facturas
                         {% endfor %}
                     </small>
+                </td>
+                <td class="p-1">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="{% url 'payment_detail' item.id %}" class="btn btn-outline-primary btn-sm" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        {% if item.status == 'PENDIENTE' or item.status == 'CONFIRMADO' %}
+                        <button type="button" class="btn btn-outline-warning btn-sm" 
+                                onclick="editPayment({{ item.id }})" title="Editar pago">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                onclick="deletePayment({{ item.id }})" title="Eliminar pago">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        {% endif %}
+                    </div>
                 </td>
             </tr>
             {% empty %}
@@ -225,5 +243,81 @@ $(document).ready(function() {
         logoImg.src = '/static/img/logo-kosmo.png';
     });
 });
+
+// Funciones para gestión de pagos usando la nueva API
+function editPayment(paymentId) {
+    // Redirigir a la página de creación de pagos con parámetro de edición
+    window.location.href = `/pagos/crear/?edit=${paymentId}`;
+}
+
+async function deletePayment(paymentId) {
+    if (!confirm('¿Está seguro de que desea eliminar este pago? Esta acción no se puede deshacer.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/payments/${paymentId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert('Pago eliminado correctamente');
+            // Recargar la página para reflejar los cambios
+            location.reload();
+        } else {
+            alert('Error al eliminar el pago: ' + (result.message || 'Error desconocido'));
+        }
+        
+    } catch (error) {
+        console.error('Error al eliminar pago:', error);
+        alert('Error de conexión al eliminar el pago');
+    }
+}
+
+// Función para eliminar múltiples pagos seleccionados
+async function deleteSelectedPayments() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][data-payment-id]:checked');
+    const paymentIds = Array.from(checkboxes).map(cb => parseInt(cb.dataset.paymentId));
+    
+    if (paymentIds.length === 0) {
+        alert('Por favor, seleccione al menos un pago para eliminar');
+        return;
+    }
+    
+    if (!confirm(`¿Está seguro de que desea eliminar ${paymentIds.length} pago(s)? Esta acción no se puede deshacer.`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/payments/bulk-delete/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                payment_ids: paymentIds
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert(`${result.deleted_count} pago(s) eliminado(s) correctamente`);
+            location.reload();
+        } else {
+            alert('Error al eliminar los pagos: ' + (result.message || 'Error desconocido'));
+        }
+        
+    } catch (error) {
+        console.error('Error al eliminar pagos múltiples:', error);
+        alert('Error de conexión al eliminar los pagos');
+    }
+}
 </script>
 {% endblock %}

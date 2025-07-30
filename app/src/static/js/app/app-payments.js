@@ -49,7 +49,11 @@ createApp({
       },
       
       currentDate: '',
-      currentTime: ''
+      currentTime: '',
+      
+      // Modo edición
+      isEditMode: false,
+      editingPaymentId: null
     }
   },
   computed: {
@@ -90,6 +94,9 @@ createApp({
   mounted() {
     this.initializeDateTime();
     this.loadPaymentContextData();
+    
+    // Verificar si se debe cargar un pago para edición
+    this.checkForEditMode();
   },
   
   methods: {
@@ -364,63 +371,325 @@ createApp({
         return;
       }
       
+      // Decidir si crear o actualizar según el modo
+      if (this.isEditMode) {
+        await this.updatePayment();
+      } else {
+        await this.createPayment();
+      }
+    },
+    
+    // Crear un nuevo pago
+    async createPayment() {
       try {
         this.saving = true;
         this.clearModalMessage();
         
         const selectedInvoices = this.filteredInvoices.filter(inv => inv.selected);
-        const invoicePayments = {};
         
-        selectedInvoices.forEach(invoice => {
-          invoicePayments[invoice.id] = parseFloat(invoice.paymentAmount);
-        });
+        // Preparar los datos para la nueva API REST
+        const paymentData = {
+          date: this.paymentForm.date,
+          method: this.paymentForm.method,
+          amount: parseFloat(this.paymentForm.amount),
+          bank: this.paymentForm.bank || '',
+          account_number: this.paymentForm.accountNumber || '',
+          reference: this.paymentForm.reference || '',
+          observations: this.paymentForm.observations || '',
+          invoices: selectedInvoices.map(invoice => ({
+            id: invoice.id,
+            amount: parseFloat(invoice.paymentAmount)
+          }))
+        };
         
-        const formData = new FormData();
-        formData.append('date', this.paymentForm.date);
-        formData.append('method', this.paymentForm.method);
-        formData.append('amount', this.paymentForm.amount);
-        formData.append('bank', this.paymentForm.bank);
-        formData.append('nro_account', this.paymentForm.accountNumber);
-        formData.append('nro_operation', this.paymentForm.reference);
-        formData.append('observations', this.paymentForm.observations);
-        formData.append('invoice_payments', JSON.stringify(invoicePayments));
-        
-        // Agregar el archivo si existe
-        if (this.paymentForm.document) {
-          formData.append('document', this.paymentForm.document);
-        }
-        
-        const response = await fetch(window.location.href, {
+        // Realizar petición a la nueva API
+        const response = await fetch('/api/payments/', {
           method: 'POST',
-          body: formData,
           headers: {
+            'Content-Type': 'application/json',
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          }
+          },
+          body: JSON.stringify(paymentData)
         });
+        
+        const result = await response.json();
         
         if (response.ok) {
           this.showModalSuccess('¡Pago registrado correctamente!');
+          
+          // Actualizar las facturas localmente con los nuevos datos
+          this.updateInvoicesAfterPayment(selectedInvoices, result.payment);
           
           // Cerrar modal después de un momento
           setTimeout(() => {
             const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
             modal.hide();
             
-            // Redirigir después de cerrar el modal
-            setTimeout(() => {
-              window.location.href = '/pagos/';
-            }, 500);
+            // Resetear formulario y selección
+            this.resetPaymentForm();
+            this.clearSelection();
           }, 1500);
         } else {
-          const errorData = await response.text();
-          throw new Error('Error en la respuesta del servidor: ' + errorData);
+          // Manejar errores de validación de la API
+          if (result.errors) {
+            this.formErrors = result.errors;
+            this.showModalError('Por favor, corrija los errores indicados en el formulario');
+          } else {
+            this.showModalError(result.message || 'Error al procesar el pago');
+          }
         }
         
       } catch (error) {
-        this.showModalError('Error al guardar el pago: ' + error.message);
+        console.error('Error al guardar pago:', error);
+        this.showModalError('Error de conexión. Intente nuevamente.');
       } finally {
         this.saving = false;
       }
+    },
+    
+    // Actualizar facturas después del pago exitoso
+    updateInvoicesAfterPayment(selectedInvoices, paymentData) {
+      selectedInvoices.forEach(invoice => {
+        const paidAmount = parseFloat(invoice.paymentAmount);
+        
+        // Actualizar el monto pagado y calcular nuevo balance
+        invoice.paid_amount = (parseFloat(invoice.paid_amount) || 0) + paidAmount;
+        invoice.balance = parseFloat(invoice.total_amount) - invoice.paid_amount;
+        
+        // Resetear el monto de pago y deseleccionar
+        invoice.paymentAmount = 0;
+        invoice.selected = false;
+      });
+      
+      // Recalcular estadísticas
+      this.updateStatistics();
+    },
+    
+    // Recalcular estadísticas después de cambios
+    updateStatistics() {
+      const pendingInvoices = this.invoices.filter(inv => inv.balance > 0);
+      const overdueInvoices = pendingInvoices.filter(inv => inv.days_overdue > 0);
+      const upcomingDueInvoices = pendingInvoices.filter(inv => inv.days_overdue <= 0 && inv.days_overdue >= -30);
+      
+      this.statistics = {
+        pending_invoices: {
+          count: pendingInvoices.length,
+          total_amount: pendingInvoices.reduce((sum, inv) => sum + parseFloat(inv.balance), 0)
+        },
+        overdue_payments: {
+          total_amount: overdueInvoices.reduce((sum, inv) => sum + parseFloat(inv.balance), 0)
+        },
+        upcoming_due_invoices: {
+          total_amount: upcomingDueInvoices.reduce((sum, inv) => sum + parseFloat(inv.balance), 0)
+        }
+      };
+    },
+    
+    // ===== GESTIÓN DE ELIMINACIÓN DE PAGOS =====
+    
+    // Eliminar un pago individual
+    async deletePayment(paymentId) {
+      if (!confirm('¿Está seguro de que desea eliminar este pago? Esta acción no se puede deshacer.')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/payments/${paymentId}/`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          this.showSuccess('Pago eliminado correctamente');
+          // Recargar datos para reflejar los cambios
+          await this.loadPaymentContextData();
+        } else {
+          this.showError(result.message || 'Error al eliminar el pago');
+        }
+        
+      } catch (error) {
+        console.error('Error al eliminar pago:', error);
+        this.showError('Error de conexión al eliminar el pago');
+      }
+    },
+    
+    // Eliminar múltiples pagos (bulk delete)
+    async deleteMultiplePayments(paymentIds) {
+      if (!paymentIds || paymentIds.length === 0) {
+        this.showWarning('No hay pagos seleccionados para eliminar');
+        return;
+      }
+      
+      if (!confirm(`¿Está seguro de que desea eliminar ${paymentIds.length} pago(s)? Esta acción no se puede deshacer.`)) {
+        return;
+      }
+      
+      try {
+        const response = await fetch('/api/payments/bulk-delete/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          },
+          body: JSON.stringify({
+            payment_ids: paymentIds
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          this.showSuccess(`${result.deleted_count} pago(s) eliminado(s) correctamente`);
+          // Recargar datos para reflejar los cambios
+          await this.loadPaymentContextData();
+        } else {
+          this.showError(result.message || 'Error al eliminar los pagos');
+        }
+        
+      } catch (error) {
+        console.error('Error al eliminar pagos múltiples:', error);
+        this.showError('Error de conexión al eliminar los pagos');
+      }
+    },
+    
+    // ===== GESTIÓN DE EDICIÓN DE PAGOS =====
+    
+    // Cargar un pago existente para edición
+    async loadPaymentForEdit(paymentId) {
+      try {
+        const response = await fetch(`/api/payments/${paymentId}/`, {
+          method: 'GET',
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        });
+        
+        if (response.ok) {
+          const payment = await response.json();
+          
+          // Cargar datos del pago en el formulario
+          this.paymentForm = {
+            id: payment.id,
+            date: payment.date,
+            method: payment.method,
+            amount: payment.amount,
+            reference: payment.reference || '',
+            bank: payment.bank || '',
+            accountNumber: payment.account_number || '',
+            observations: payment.observations || '',
+            document: null,
+            documentName: '',
+            documentPreview: null
+          };
+          
+          // Marcar que estamos en modo edición
+          this.isEditMode = true;
+          this.editingPaymentId = paymentId;
+          
+          // Seleccionar las facturas relacionadas con este pago
+          if (payment.payment_details) {
+            payment.payment_details.forEach(detail => {
+              const invoice = this.invoices.find(inv => inv.id === detail.invoice_id);
+              if (invoice) {
+                invoice.selected = true;
+                invoice.paymentAmount = detail.amount;
+              }
+            });
+          }
+          
+          this.updatePaymentFormAmount();
+          
+          // Abrir el modal
+          const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+          modal.show();
+          
+        } else {
+          this.showError('No se pudo cargar el pago para edición');
+        }
+        
+      } catch (error) {
+        console.error('Error al cargar pago para edición:', error);
+        this.showError('Error de conexión al cargar el pago');
+      }
+    },
+    
+    // Actualizar un pago existente
+    async updatePayment() {
+      if (!this.validateForm()) {
+        this.showModalError('Por favor, corrija los errores en el formulario');
+        return;
+      }
+      
+      try {
+        this.saving = true;
+        this.clearModalMessage();
+        
+        const selectedInvoices = this.filteredInvoices.filter(inv => inv.selected);
+        
+        const paymentData = {
+          date: this.paymentForm.date,
+          method: this.paymentForm.method,
+          amount: parseFloat(this.paymentForm.amount),
+          bank: this.paymentForm.bank || '',
+          account_number: this.paymentForm.accountNumber || '',
+          reference: this.paymentForm.reference || '',
+          observations: this.paymentForm.observations || '',
+          invoices: selectedInvoices.map(invoice => ({
+            id: invoice.id,
+            amount: parseFloat(invoice.paymentAmount)
+          }))
+        };
+        
+        const response = await fetch(`/api/payments/${this.editingPaymentId}/`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          },
+          body: JSON.stringify(paymentData)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          this.showModalSuccess('¡Pago actualizado correctamente!');
+          
+          // Recargar datos para reflejar cambios
+          await this.loadPaymentContextData();
+          
+          setTimeout(() => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+            modal.hide();
+            this.exitEditMode();
+          }, 1500);
+          
+        } else {
+          if (result.errors) {
+            this.formErrors = result.errors;
+            this.showModalError('Por favor, corrija los errores indicados');
+          } else {
+            this.showModalError(result.message || 'Error al actualizar el pago');
+          }
+        }
+        
+      } catch (error) {
+        console.error('Error al actualizar pago:', error);
+        this.showModalError('Error de conexión al actualizar el pago');
+      } finally {
+        this.saving = false;
+      }
+    },
+    
+    // Salir del modo edición
+    exitEditMode() {
+      this.isEditMode = false;
+      this.editingPaymentId = null;
+      this.resetPaymentForm();
+      this.clearSelection();
     },
     
     // ===== UTILIDADES =====
@@ -440,6 +709,19 @@ createApp({
     formatDate(dateString) {
       if (!dateString) return '-';
       return new Date(dateString).toLocaleDateString('es-ES');
+    },
+    
+    // Verificar si se debe cargar un pago para edición desde URL
+    checkForEditMode() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const editPaymentId = urlParams.get('edit');
+      
+      if (editPaymentId) {
+        // Cargar el pago para edición después de que se carguen los datos de contexto
+        setTimeout(() => {
+          this.loadPaymentForEdit(editPaymentId);
+        }, 1000); // Dar tiempo para que se carguen las facturas
+      }
     },
     
     formatCurrency(amount) {

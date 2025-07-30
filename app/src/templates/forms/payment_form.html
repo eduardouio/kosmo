@@ -213,7 +213,9 @@
       <div class="modal-content">
         <div class="modal-header bg-success text-white">
           <h5 class="modal-title" id="paymentModalLabel">
-            <i class="fas fa-money-bill-wave"></i> Registrar Pago
+            <i class="fas fa-money-bill-wave"></i> 
+            <span v-if="isEditMode">Editar Pago</span>
+            <span v-else>Registrar Pago</span>
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -391,10 +393,13 @@
           <button type="button" @click="savePayment" :disabled="!canSavePayment" class="btn btn-success">
             <span v-if="saving">
               <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-              Guardando...
+              <span v-if="isEditMode">Actualizando...</span>
+              <span v-else>Guardando...</span>
             </span>
             <span v-else>
-              <i class="fas fa-check"></i> Confirmar y Registrar
+              <i class="fas fa-check"></i> 
+              <span v-if="isEditMode">Actualizar Pago</span>
+              <span v-else>Confirmar y Registrar</span>
             </span>
           </button>
         </div>
