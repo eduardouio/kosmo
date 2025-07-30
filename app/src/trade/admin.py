@@ -4,6 +4,7 @@ from trade.models import (
     Order, OrderItems, Invoice, InvoiceItems,
     CreditNote, Payment, OrderBoxItems, InvoiceBoxItems
 )
+from trade.models.Payment import PaymentDetail
 
 
 class OrderAdmin(SimpleHistoryAdmin):
@@ -445,6 +446,13 @@ class InvoiceItemsAdmin(SimpleHistoryAdmin):
     inlines = [InvoiceBoxItemsInlineAdmin]
 
 
+class PaymentDetailInline(admin.TabularInline):
+    model = PaymentDetail
+    fields = ('invoice', 'amount')
+    readonly_fields = ('invoice', 'amount')
+    extra = 0
+
+
 class PaymentAdmin(SimpleHistoryAdmin):
     list_display = (
         'id',
@@ -497,6 +505,7 @@ class PaymentAdmin(SimpleHistoryAdmin):
             )
         })
     )
+    inlines = [PaymentDetailInline]
 
 
 class CreditNoteAdmin(SimpleHistoryAdmin):

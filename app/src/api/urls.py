@@ -28,6 +28,8 @@ from api import (
     CollectionsContextAPI,
     CustomerInvoiceDetailAPI,
 )
+from api.trade.PaymentCreateUpdateAPI import PaymentCreateUpdateAPI
+from api.trade.PaymentDeleteAPI import PaymentDeleteAPI
 
 urlpatterns = [
     path('api/stock_detail/<int:stock_day_id>/', StockDetailAPI.as_view(), name='stock_detail'),
@@ -59,4 +61,9 @@ urlpatterns = [
     path('api/products/bulk-update/', UpdateProductAPI.as_view(), name='update_product_api'),
     path('api/payments/context-data/', PaymentContextData.as_view(), name='payment_context_data'),
     path('api/collections/context-data/', CollectionsContextAPI.as_view(), name='collections_context_data'),
+    # Payment APIs
+    path('api/payments/', PaymentCreateUpdateAPI.as_view(), name='payment_create_list'),
+    path('api/payments/<int:payment_id>/', PaymentCreateUpdateAPI.as_view(), name='payment_detail_update'),
+    path('api/payments/delete/', PaymentDeleteAPI.as_view(), name='payment_delete_bulk'),
+    path('api/payments/<int:payment_id>/delete/', PaymentDeleteAPI.as_view(), name='payment_delete'),
 ]
