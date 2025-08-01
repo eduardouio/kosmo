@@ -33,7 +33,6 @@ class Payment(BaseModel):
     payment_number = models.CharField(
         'Número de Pago',
         max_length=50,
-        unique=True,
         blank=True,
         null=True
     )
@@ -181,7 +180,8 @@ class Payment(BaseModel):
 
         if last_collection and last_collection.payment_number:
             try:
-                last_number = int(last_collection.payment_number.split('-')[-1])
+                last_number = int(
+                    last_collection.payment_number.split('-')[-1])
                 return f"COL-{last_number + 1:06d}"
             except (ValueError, IndexError):
                 pass
@@ -195,6 +195,7 @@ class Payment(BaseModel):
         ordering = ['-date', '-id']
         verbose_name = 'Pago'
         verbose_name_plural = 'Pagos'
+        unique_together = ('bank', 'nro_account', 'payment_number')
 
 
 class PaymentDetail(BaseModel):
@@ -227,11 +228,11 @@ class PaymentDetail(BaseModel):
     def clean(self):
         """Validaciones personalizadas"""
         super().clean()
-        
+
         # Validar que el monto sea positivo
         if self.amount is not None and self.amount <= 0:
             raise ValidationError('El monto debe ser mayor a cero')
-        
+
         # Validar que el monto no exceda el total de la factura
         if self.invoice and self.amount and self.amount > self.invoice.total_invoice:
             raise ValidationError(
