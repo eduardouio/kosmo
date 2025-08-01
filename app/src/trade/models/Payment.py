@@ -158,7 +158,8 @@ class Payment(BaseModel):
     def get_next_payment_number(cls):
         """Genera el siguiente número de pago"""
         last_payment = cls.objects.filter(
-            payment_number__isnull=False
+            payment_number__isnull=False,
+            type_transaction='EGRESO'
         ).order_by('-id').first()
 
         if last_payment and last_payment.payment_number:
@@ -169,6 +170,23 @@ class Payment(BaseModel):
                 pass
 
         return "PAY-000001"
+
+    @classmethod
+    def get_next_collection_number(cls):
+        """Genera el siguiente número de cobro"""
+        last_collection = cls.objects.filter(
+            payment_number__isnull=False,
+            type_transaction='INGRESO'
+        ).order_by('-id').first()
+
+        if last_collection and last_collection.payment_number:
+            try:
+                last_number = int(last_collection.payment_number.split('-')[-1])
+                return f"COL-{last_number + 1:06d}"
+            except (ValueError, IndexError):
+                pass
+
+        return "COL-000001"
 
     def __str__(self):
         return f"Pago {self.payment_number or self.id} - {self.amount}"
