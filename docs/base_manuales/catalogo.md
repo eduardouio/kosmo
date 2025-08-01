@@ -42,14 +42,27 @@ En esta pantalla usted puede:
 
 Para crear un nuevo producto:
 1. Complete el formulario con los siguientes datos:
-   - **Nombre:** Nombre de la flor (se convertirá a mayúsculas automáticamente)
-   - **Variedad:** Variedad específica de la flor (se convertirá a mayúsculas)
+   - **Nombre:** Nombre de la flor (se convertirá a mayúsculas automáticamente) - *Campo obligatorio*
+   - **Variedad:** Variedad específica de la flor (se convertirá a mayúsculas) - *Campo obligatorio*
    - **Imagen:** Foto del producto (opcional pero recomendado)
-   - **Colores:** Lista de colores disponibles, separados por comas
+   - **Colores:** Lista de colores disponibles, separados por comas (ej: "ROJO,AMARILLO,BLANCO")
    - **Rendimiento por defecto:** Valor monetario de rendimiento (predeterminado: 0.06 USD)
    - **Notas:** Información adicional relevante
 2. Haga clic en "Guardar"
 3. Será redirigido a la vista de detalle del producto creado
+
+**Detalle de los campos del modelo:**
+
+| Campo | Descripción | Tipo | Obligatorio | Valor predeterminado |
+|-------|-------------|------|-------------|----------------------|
+| Nombre | Nombre principal de la flor | Texto (máx. 255 caracteres) | Sí | Ninguno |
+| Variedad | Variedad específica de la flor | Texto (máx. 255 caracteres) | Sí | Ninguno |
+| Imagen | Fotografía del producto | Archivo de imagen | No | Ninguno |
+| Colores | Colores disponibles, separados por comas | Texto (máx. 255 caracteres) | No | "NO DEFINIDO" |
+| Rendimiento por defecto | Margen de ganancia por tallo | Número decimal | No | 0.06 |
+| Notas | Información adicional sobre el producto | Texto largo | No | Ninguno |
+
+**Importante:** La combinación de "Nombre" + "Variedad" debe ser única en el sistema. No se pueden crear dos productos con el mismo nombre y variedad.
 
 **Consejo práctico:** Proporcione nombres y variedades descriptivos para facilitar la búsqueda posterior. Las imágenes de alta calidad ayudan a identificar visualmente los productos.
 
