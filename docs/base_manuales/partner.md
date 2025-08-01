@@ -55,13 +55,13 @@ Esta pantalla funciona de manera similar a la lista de clientes, pero enfocada e
 
 Para registrar un nuevo cliente o proveedor:
 1. Complete el formulario con la siguiente información:
-   - **RUC/Identificación fiscal:** Número de identificación tributaria
-   - **Nombre:** Nombre completo de la empresa o persona
+   - **RUC/Identificación fiscal:** Número de identificación tributaria - *Campo obligatorio*
+   - **Nombre:** Nombre completo de la empresa o persona - *Campo obligatorio*
+   - **Tipo de socio:** Seleccione CLIENTE o PROVEEDOR - *Campo obligatorio*
    - **Nombre corto:** Abreviatura o alias para identificación rápida
-   - **Tipo de socio:** Seleccione CLIENTE o PROVEEDOR
-   - **Dirección:** Dirección completa de la oficina principal
-   - **País:** País donde se encuentra el socio
-   - **Ciudad:** Ciudad de operación
+   - **Dirección:** Dirección completa de la oficina principal - *Campo obligatorio*
+   - **País:** País donde se encuentra el socio - *Campo obligatorio*
+   - **Ciudad:** Ciudad de operación - *Campo obligatorio*
    - **Datos de contacto:** Teléfono, correo electrónico, sitio web
    - **Términos de crédito:** Días de plazo para pago (0 para prepago)
    - **Rendimiento por defecto:** Margen de ganancia estándar
@@ -70,6 +70,38 @@ Para registrar un nuevo cliente o proveedor:
 
 2. Haga clic en "Guardar" para registrar el nuevo socio
 3. Será redirigido a la vista de detalle donde podrá completar información adicional
+
+**Detalle de los campos del modelo:**
+
+| Campo | Descripción | Tipo | Obligatorio | Valor predeterminado |
+|-------|-------------|------|-------------|----------------------|
+| RUC | Número de identificación fiscal | Texto (máx. 15 caracteres) | Sí | Ninguno |
+| Nombre | Nombre de la empresa o persona | Texto (máx. 255 caracteres) | Sí | Ninguno |
+| Tipo de Socio | Clasificación como CLIENTE o PROVEEDOR | Selección | Sí | Ninguno |
+| Estado | Estado de aprobación del socio | Selección | No | "APROBADO" |
+| Fecha de Aprobación | Fecha en que se aprobó al socio | Fecha | No | Ninguno |
+| Nombre Corto | Alias o abreviatura | Texto (máx. 50 caracteres) | No | Ninguno |
+| Dirección | Ubicación principal | Texto (máx. 255 caracteres) | Sí | Ninguno |
+| País | País de residencia | Texto (máx. 50 caracteres) | Sí | Ninguno |
+| Ciudad | Ciudad principal | Texto (máx. 50 caracteres) | Sí | Ninguno |
+| Código de Área | Prefijo telefónico | Texto (máx. 10 caracteres) | No | Ninguno |
+| Código Postal | Código postal o ZIP | Texto (máx. 10 caracteres) | No | Ninguno |
+| Sitio Web | Dirección web | Texto (máx. 255 caracteres) | No | Ninguno |
+| Margen Incluido | Si el margen está incluido en precio | Booleano | No | False |
+| Rendimiento por defecto | Margen de ganancia estándar | Número decimal | No | 0.00 |
+| Plazo de crédito | Días de crédito otorgados | Número entero | No | 0 |
+| Teléfono | Teléfono principal | Texto (máx. 20 caracteres) | No | Ninguno |
+| Teams | Usuario de Microsoft Teams | Texto (máx. 50 caracteres) | No | Ninguno |
+| Dirección de Envío | Dirección para despachos | Texto (máx. 255 caracteres) | No | Ninguno |
+| Correo Electrónico | Email principal | Correo electrónico | No | Ninguno |
+| Correo de Pago | Email para facturas/pagos | Correo electrónico | No | Ninguno |
+| Días de Envío | Días para despacho | Número entero | No | Ninguno |
+| Referencia de Carga | Transportista preferido | Texto (máx. 255 caracteres) | No | Ninguno |
+| Años en el mercado | Experiencia en el sector | Número entero | No | 0 |
+| Consolidado | Si acepta envíos consolidados | Booleano | No | False |
+| Vendedor | Representante asignado | Texto (máx. 100 caracteres) | No | Ninguno |
+
+**Nota importante:** Los campos marcados como obligatorios deben completarse para poder guardar el registro. El sistema convertirá automáticamente a mayúsculas la mayoría de los campos de texto.
 
 **Nota importante:** Los campos marcados con * son obligatorios. Complete la mayor cantidad de información posible para facilitar las operaciones futuras.
 
@@ -122,6 +154,8 @@ Si intenta eliminar un socio con dependencias, verá un mensaje: "No es posible 
 ### 7. Gestión de Cuentas Bancarias
 **Ruta de acceso:** Menú Principal > Socios > [Nombre del Socio] > Sección Bancos
 
+![Gestión de Bancos]
+
 En esta sección puede:
 - **Ver todas las cuentas bancarias** registradas para el socio
 - **Agregar nuevas cuentas** con información detallada
@@ -130,13 +164,35 @@ En esta sección puede:
 
 Para agregar una nueva cuenta bancaria:
 1. En la vista de detalle del socio, haga clic en "Agregar Banco"
-2. Complete la información bancaria requerida
+2. Complete el formulario con la siguiente información:
+   - **Propietario:** Nombre del titular de la cuenta - *Campo obligatorio*
+   - **DNI/RUC/CI:** Identificación del titular - *Campo obligatorio*
+   - **Nombre del Banco:** Entidad bancaria - *Campo obligatorio*
+   - **Número de Cuenta:** Número de cuenta completo - *Campo obligatorio*
+   - **Banco Nacional:** Marque si es un banco del país
+   - **Código SWIFT:** Para transferencias internacionales
+   - **IBAN:** Código internacional de cuenta bancaria
+
 3. Haga clic en "Guardar"
 
-**Consejo práctico:** Mantenga actualizada la información bancaria para facilitar los pagos y cobros.
+**Detalle de los campos del modelo Banco:**
+
+| Campo | Descripción | Tipo | Obligatorio | Valor predeterminado |
+|-------|-------------|------|-------------|----------------------|
+| Propietario | Nombre del titular de la cuenta | Texto (máx. 255 caracteres) | Sí | Ninguno |
+| DNI/RUC/CI | Identificación fiscal del titular | Texto (máx. 15 caracteres) | Sí | Ninguno |
+| Número de Cuenta | Número completo de la cuenta | Texto (máx. 50 caracteres) | Sí | Ninguno |
+| Nombre del Banco | Entidad bancaria | Texto (máx. 100 caracteres) | Sí | Ninguno |
+| Código SWIFT | Código para transferencias internacionales | Texto (máx. 50 caracteres) | No | Ninguno |
+| IBAN | Código internacional de cuenta | Texto (máx. 50 caracteres) | No | Ninguno |
+| Banco Nacional | Si es un banco del país local | Booleano | No | True |
+
+**Consejo práctico:** Para transferencias internacionales, asegúrese de incluir los códigos SWIFT e IBAN correctos para evitar rechazos o demoras en los pagos.
 
 ### 8. Gestión de Contactos
 **Ruta de acceso:** Menú Principal > Socios > [Nombre del Socio] > Sección Contactos
+
+![Gestión de Contactos]
 
 Esta funcionalidad le permite:
 - **Registrar personas de contacto** dentro de la empresa del socio
@@ -146,19 +202,64 @@ Esta funcionalidad le permite:
 
 Para agregar un nuevo contacto:
 1. En la vista de detalle del socio, haga clic en "Agregar Contacto"
-2. Complete los datos personales y profesionales del contacto
+2. Complete el formulario con los siguientes datos:
+   - **Nombre:** Nombre completo del contacto - *Campo obligatorio*
+   - **Tipo de Contacto:** Rol dentro de la empresa (COMERCIAL, FINANCIERO, LOGÍSTICA, GERENCIA, OTRO) - *Campo obligatorio*
+   - **Cargo:** Posición que ocupa en la empresa
+   - **Teléfono:** Número de contacto directo
+   - **Correo Electrónico:** Dirección de email profesional
+   - **Principal:** Marque si es el contacto primario
+
 3. Haga clic en "Guardar"
 
-**Consejo práctico:** Asegúrese de registrar múltiples contactos con diferentes roles para garantizar siempre tener a quien dirigirse.
+**Detalle de los campos del modelo Contacto:**
+
+| Campo | Descripción | Tipo | Obligatorio | Valor predeterminado |
+|-------|-------------|------|-------------|----------------------|
+| Nombre | Nombre completo del contacto | Texto (máx. 255 caracteres) | Sí | Ninguno |
+| Tipo de Contacto | Categoría funcional | Selección | No | "COMERCIAL" |
+| Cargo | Posición en la empresa | Texto (máx. 255 caracteres) | No | Ninguno |
+| Teléfono | Número telefónico | Texto (máx. 20 caracteres) | No | Ninguno |
+| Correo Electrónico | Email de contacto | Correo electrónico | No | Ninguno |
+| Principal | Si es el contacto principal | Booleano | No | False |
+
+**Consejo práctico:** Designe siempre un contacto como "Principal" para cada socio, esto facilitará saber a quién dirigirse primero cuando sea necesario.
 
 ### 9. Gestión de DAE (Declaración Aduanera de Exportación)
 **Ruta de acceso:** Menú Principal > Socios > [Nombre del Socio] > Sección DAE
+
+![Gestión de DAE]
 
 Para clientes internacionales, puede:
 - **Registrar documentos DAE** necesarios para exportación
 - **Asociar DAE específicos** a facturas y envíos
 - **Mantener un historial** de documentos aduaneros
 - **Facilitar procesos de exportación** con toda la documentación a mano
+
+Para agregar un nuevo DAE:
+1. En la vista de detalle del socio, haga clic en "Agregar DAE"
+2. Complete el formulario con la siguiente información:
+   - **DAE:** Número de Declaración Aduanera de Exportación - *Campo obligatorio*
+   - **Fecha de Inicio:** Fecha desde la que es válido el documento - *Campo obligatorio*
+   - **Fecha de Fin:** Fecha de vencimiento del documento - *Campo obligatorio*
+   - **MAWB:** Número de guía aérea principal (Master Air Waybill)
+   - **HAWB:** Número de guía aérea secundaria (House Air Waybill)
+   - **Agencia de Carga:** Empresa responsable del transporte
+
+3. Haga clic en "Guardar"
+
+**Detalle de los campos del modelo DAE:**
+
+| Campo | Descripción | Tipo | Obligatorio | Valor predeterminado |
+|-------|-------------|------|-------------|----------------------|
+| DAE | Número de Declaración Aduanera | Texto (máx. 50 caracteres) | Sí | Ninguno |
+| Fecha de Inicio | Fecha de emisión | Fecha | Sí | Ninguno |
+| Fecha de Fin | Fecha de vencimiento | Fecha | Sí | Ninguno |
+| MAWB | Guía aérea principal | Texto (máx. 50 caracteres) | No | Ninguno |
+| HAWB | Guía aérea secundaria | Texto (máx. 50 caracteres) | No | Ninguno |
+| Agencia de Carga | Empresa transportista | Texto (máx. 50 caracteres) | No | Ninguno |
+
+**Importante:** El número DAE debe ser único en el sistema. Verifique siempre que la fecha de vencimiento sea correcta para evitar problemas en aduana.
 
 ## Operaciones Frecuentes y Consejos Prácticos
 
