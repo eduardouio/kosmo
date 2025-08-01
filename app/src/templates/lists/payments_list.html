@@ -294,7 +294,7 @@ async function deleteSelectedPayments() {
     }
     
     try {
-        const response = await fetch('/api/payments/bulk-delete/', {
+        const response = await fetch('/api/payments/delete/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
