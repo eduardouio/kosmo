@@ -415,44 +415,88 @@ class Command(BaseCommand):
             print('Ya existen pagos')
             return True
 
+        # Importar PaymentDetail para crear los detalles correctamente
+        from trade.models import PaymentDetail
+
         sales_invoices = Invoice.get_by_type('FAC_VENTA')
         purchase_invoices = Invoice.get_by_type('FAC_COMPRA')
 
-        # cobros en ventas
+        # Lista de bancos ficticios
+        banks = [
+            'BANCO PICHINCHA',
+            'BANCO INTERNACIONAL',
+            'BANCO DEL AUSTRO',
+            'BANCO GUAYAQUIL',
+            'BANCO LOJA'
+        ]
+
+        # cobros en ventas (INGRESOS)
         for i in range(random.randint(10, 25)):
-            invoices = [
+            # Seleccionar facturas aleatorias
+            selected_invoices = [
                 sales_invoices[random.randint(0, sales_invoices.count() - 1)],
                 sales_invoices[random.randint(0, sales_invoices.count() - 1)],
             ]
+            
+            # Calcular monto total de las facturas
+            total_amount = sum(invoice.total_invoice for invoice in selected_invoices)
+            
+            # Crear el pago principal
+            bank = random.choice(banks)
+            account_number = faker.iban()
+            
             payment = Payment.objects.create(
+                payment_number=Payment.get_next_collection_number(),
                 date=faker.date_this_year(),
-                amount=random.randint(10, 50),
-                method='EFECTIVO',
+                type_transaction='INGRESO',
+                amount=total_amount,
+                method=random.choice(['TRANSF', 'EFECTIVO', 'CHEQUE']),
+                bank=bank,
+                nro_account=account_number,
+                nro_operation=faker.uuid4()[:20] if random.choice([True, False]) else None,
             )
 
-            for i in invoices:
-                payment.invoices.add(i)
-                payment.save()
+            # Crear los detalles de pago
+            for invoice in selected_invoices:
+                PaymentDetail.objects.create(
+                    payment=payment,
+                    invoice=invoice,
+                    amount=invoice.total_invoice
+                )
 
-        # pagos en compras
+        # pagos en compras (EGRESOS)
         for i in range(random.randint(10, 25)):
-            invoices = [
-                purchase_invoices[random.randint(
-                    0, purchase_invoices.count() - 1)
-                ],
-                purchase_invoices[random.randint(
-                    0, purchase_invoices.count() - 1)
-                ],
+            # Seleccionar facturas aleatorias
+            selected_invoices = [
+                purchase_invoices[random.randint(0, purchase_invoices.count() - 1)],
+                purchase_invoices[random.randint(0, purchase_invoices.count() - 1)],
             ]
+            
+            # Calcular monto total de las facturas
+            total_amount = sum(invoice.total_invoice for invoice in selected_invoices)
+            
+            # Crear el pago principal
+            bank = random.choice(banks)
+            account_number = faker.iban()
+            
             payment = Payment.objects.create(
+                payment_number=Payment.get_next_payment_number(),
                 date=faker.date_this_year(),
-                amount=random.randint(10, 50),
-                method='EFECTIVO',
+                type_transaction='EGRESO',
+                amount=total_amount,
+                method=random.choice(['TRANSF', 'EFECTIVO', 'CHEQUE']),
+                bank=bank,
+                nro_account=account_number,
+                nro_operation=faker.uuid4()[:20] if random.choice([True, False]) else None,
             )
 
-            for i in invoices:
-                payment.invoices.add(i)
-                payment.save()
+            # Crear los detalles de pago
+            for invoice in selected_invoices:
+                PaymentDetail.objects.create(
+                    payment=payment,
+                    invoice=invoice,
+                    amount=invoice.total_invoice
+                )
 
     def load_images(self):
         sql = '''
