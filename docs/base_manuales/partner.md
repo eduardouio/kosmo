@@ -289,11 +289,65 @@ Para configurar términos financieros personalizados:
 Estos parámetros influyen directamente en facturas, pagos y cálculos de rentabilidad.
 
 ### Auto-registro de Socios
-El sistema permite que nuevos socios se registren de forma autónoma:
-1. Acceda a "Socios > Auto-registro > Lista" para ver solicitudes pendientes
-2. Revise la información proporcionada por cada potencial socio
-3. Apruebe o rechace las solicitudes según sus criterios comerciales
-4. Los socios aprobados pasarán automáticamente a su lista de clientes o proveedores
+
+El sistema permite que nuevos socios se registren de forma autónoma sin necesidad de intervención inicial de los administradores. Esta funcionalidad facilita la expansión de su red de negocios y reduce la carga administrativa.
+
+#### Proceso de Auto-registro (Perspectiva del Nuevo Socio)
+
+**Ruta de acceso:** Página pública > "Registro de Socios"
+
+1. El potencial socio completa un formulario web con su información básica:
+   - Información de la empresa (nombre, RUC, dirección, país, etc.)
+   - Datos de contacto (teléfono, correo electrónico, Teams)
+   - Referencias comerciales
+   - Información de operación (días de despacho, consolidado, etc.)
+   - Contactos principales (gerencia, ventas, pagos)
+
+2. Al completar el registro:
+   - Se crea un nuevo registro en el sistema con estatus "PENDIENTE"
+   - El campo `is_verified` se establece como "False"
+   - Se muestra un mensaje de confirmación al solicitante
+   - Los administradores reciben una notificación de nueva solicitud
+
+#### Gestión de Solicitudes (Perspectiva del Administrador)
+
+**Ruta de acceso:** Menú Principal > Socios > Auto-registro > Lista
+
+![Lista de Auto-registros]
+
+1. Visualización de solicitudes pendientes:
+   - La lista muestra todos los socios con `is_verified = False`
+   - Se pueden filtrar por tipo (cliente/proveedor), país, u otros criterios
+
+2. Revisión de información:
+   - Haga clic en el nombre del solicitante para ver todos los detalles proporcionados
+   - Verifique las referencias comerciales y la información de contacto
+   - Evalúe si cumple con los requisitos para ser socio de negocio
+
+3. Proceso de verificación:
+   - Para aprobar: Edite el socio y cambie el campo "Verificado" a "Sí"
+   - Para rechazar: Cambie el estado a "RECHAZADO" o elimine la solicitud
+   - Opcionalmente, contacte al solicitante para obtener información adicional
+
+4. Finalización del proceso:
+   - Los socios verificados aparecerán en las listas regulares de clientes o proveedores
+   - Pueden comenzar a operar en el sistema según sus permisos asignados
+
+#### Consideraciones importantes
+
+- **Seguridad:** Las solicitudes no verificadas no tienen acceso a información sensible del sistema
+- **Validación:** Es recomendable verificar la legitimidad de cada solicitud antes de aprobarla
+- **Seguimiento:** El sistema mantiene un registro de cuándo y quién verificó cada solicitud
+- **Personalización:** Puede establecer campos obligatorios adicionales en el formulario de auto-registro
+
+**Ejemplo de validación:**
+```python
+# Verificar socio
+partner.is_verified = True
+partner.status = 'APROBADO'
+partner.date_aproved = datetime.now().date()
+partner.save()
+```
 
 ## Preguntas Frecuentes
 
