@@ -393,26 +393,45 @@ createApp({
           method: this.paymentForm.method,
           amount: parseFloat(this.paymentForm.amount),
           bank: this.paymentForm.bank || '',
-          account_number: this.paymentForm.accountNumber || '',
-          reference: this.paymentForm.reference || '',
+          nro_account: this.paymentForm.accountNumber || '',
+          nro_operation: this.paymentForm.reference || '',
           observations: this.paymentForm.observations || '',
           invoices: selectedInvoices.map(invoice => ({
-            id: invoice.id,
+            invoice_id: invoice.id,
             amount: parseFloat(invoice.paymentAmount)
           }))
         };
+        
+        // Debug: Log de los datos que se van a enviar
+        console.log('Enviando datos al API:', paymentData);
+        
+        // Obtener token CSRF de manera más robusta
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value 
+                         || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                         || '';
+        
+        if (!csrfToken) {
+          console.error('No se encontró el token CSRF');
+          this.showModalError('Error: No se pudo obtener el token de seguridad');
+          return;
+        }
+        
+        console.log('Token CSRF encontrado:', csrfToken.substring(0, 10) + '...');
         
         // Realizar petición a la nueva API
         const response = await fetch('/api/payments/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            'X-CSRFToken': csrfToken
           },
           body: JSON.stringify(paymentData)
         });
         
         const result = await response.json();
+        
+        // Debug: Log de la respuesta del servidor
+        console.log('Respuesta del API:', { status: response.status, result });
         
         if (response.ok) {
           this.showModalSuccess('¡Pago registrado correctamente!');
@@ -431,11 +450,13 @@ createApp({
           }, 1500);
         } else {
           // Manejar errores de validación de la API
+          console.error('Error del API:', result);
           if (result.errors) {
             this.formErrors = result.errors;
             this.showModalError('Por favor, corrija los errores indicados en el formulario');
           } else {
-            this.showModalError(result.message || 'Error al procesar el pago');
+            const errorMessage = result.error || result.message || 'Error al procesar el pago';
+            this.showModalError(`Error: ${errorMessage}`);
           }
         }
         
@@ -467,7 +488,7 @@ createApp({
     
     // Recalcular estadísticas después de cambios
     updateStatistics() {
-      const pendingInvoices = this.invoices.filter(inv => inv.balance > 0);
+      const pendingInvoices = this.pendingInvoices.filter(inv => inv.balance > 0);
       const overdueInvoices = pendingInvoices.filter(inv => inv.days_overdue > 0);
       const upcomingDueInvoices = pendingInvoices.filter(inv => inv.days_overdue <= 0 && inv.days_overdue >= -30);
       
@@ -529,7 +550,7 @@ createApp({
       }
       
       try {
-        const response = await fetch('/api/payments/bulk-delete/', {
+        const response = await fetch('/api/payments/delete/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -593,7 +614,7 @@ createApp({
           // Seleccionar las facturas relacionadas con este pago
           if (payment.payment_details) {
             payment.payment_details.forEach(detail => {
-              const invoice = this.invoices.find(inv => inv.id === detail.invoice_id);
+              const invoice = this.pendingInvoices.find(inv => inv.id === detail.invoice_id);
               if (invoice) {
                 invoice.selected = true;
                 invoice.paymentAmount = detail.amount;
@@ -635,11 +656,11 @@ createApp({
           method: this.paymentForm.method,
           amount: parseFloat(this.paymentForm.amount),
           bank: this.paymentForm.bank || '',
-          account_number: this.paymentForm.accountNumber || '',
-          reference: this.paymentForm.reference || '',
+          nro_account: this.paymentForm.accountNumber || '',
+          nro_operation: this.paymentForm.reference || '',
           observations: this.paymentForm.observations || '',
           invoices: selectedInvoices.map(invoice => ({
-            id: invoice.id,
+            invoice_id: invoice.id,
             amount: parseFloat(invoice.paymentAmount)
           }))
         };
@@ -690,6 +711,23 @@ createApp({
       this.editingPaymentId = null;
       this.resetPaymentForm();
       this.clearSelection();
+    },
+    
+    // Resetear el formulario de pago
+    resetPaymentForm() {
+      this.paymentForm = {
+        date: this.currentDate,
+        method: '',
+        reference: '',
+        amount: 0,
+        bank: '',
+        accountNumber: '',
+        observations: '',
+        document: null,
+        documentName: '',
+        documentPreview: null
+      };
+      this.clearFormErrors();
     },
     
     // ===== UTILIDADES =====
