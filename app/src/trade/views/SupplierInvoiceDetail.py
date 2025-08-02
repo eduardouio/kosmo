@@ -17,7 +17,7 @@ class SupplierInvoiceDetail(LoginRequiredMixin, TemplateView):
         try:
             # Obtener la factura usando get_object_or_404 para mejor manejo de errores
             invoice = get_object_or_404(Invoice, pk=invoice_id, is_active=True)
-            
+
             # Verificar que sea una factura de compra
             if invoice.type_document != 'FAC_COMPRA':
                 loggin_event(
@@ -43,7 +43,8 @@ class SupplierInvoiceDetail(LoginRequiredMixin, TemplateView):
             context['title_page'] = f'Factura de Proveedor {invoice.serie}-{invoice.consecutive or "000000"}'
 
         except Exception as e:
-            loggin_event(f'Error al cargar factura de proveedor {invoice_id}: {str(e)}')
+            loggin_event(
+                f'Error al cargar factura de proveedor {invoice_id}: {str(e)}')
             context['error'] = f'Error al cargar la factura: {str(e)}'
             context['title_page'] = 'Error - Factura de Proveedor'
 
