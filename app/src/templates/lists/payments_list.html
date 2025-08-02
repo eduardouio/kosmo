@@ -83,7 +83,7 @@
             {% for item in object_list %}
             <tr>
                 <td class="p-0 d-flex justify-content-start gap-3">
-                    <a href="{% url 'payment_detail' item.id %}" class="text-primary d-flex justify-content-center gap-2">
+                    <a href="javascript:void(0);" onclick="editPayment({{ item.id }})" class="text-primary d-flex justify-content-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crosshair" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
                             <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
@@ -130,9 +130,9 @@
                 </td>
                 <td class="p-1">
                     <div class="btn-group btn-group-sm" role="group">
-                        <a href="{% url 'payment_detail' item.id %}" class="btn btn-outline-primary btn-sm" title="Ver detalles">
+                        <button class="btn btn-outline-primary btn-sm" onclick="editPayment({{ item.id }})" title="Ver detalles">
                             <i class="fas fa-eye"></i>
-                        </a>
+                        </button>
                         {% if item.status == 'PENDIENTE' or item.status == 'CONFIRMADO' %}
                         <button type="button" class="btn btn-outline-warning btn-sm" 
                                 onclick="editPayment({{ item.id }})" title="Editar pago">
@@ -247,7 +247,7 @@ $(document).ready(function() {
 // Funciones para gestión de pagos usando la nueva API
 function editPayment(paymentId) {
     // Redirigir a la página de creación de pagos con parámetro de edición
-    window.location.href = `/pagos/crear/?edit=${paymentId}`;
+    window.location.href = `/pagos/nuevo/?edit=${paymentId}`;
 }
 
 async function deletePayment(paymentId) {
