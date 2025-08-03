@@ -448,32 +448,56 @@ class InvoiceItemsAdmin(SimpleHistoryAdmin):
 
 class PaymentDetailInline(admin.TabularInline):
     model = PaymentDetail
-    fields = ('invoice', 'amount')
-    readonly_fields = ('invoice', 'amount')
+    fields = ('invoice', 'amount', 'is_active', 'created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at')
     extra = 0
+    verbose_name = "Factura Asociada"
+    verbose_name_plural = "Facturas Asociadas"
+
+    def get_queryset(self, request):
+        """Incluir detalles de pago inactivos en admin"""
+        return super().get_queryset(request).select_related('invoice')
 
 
 class PaymentAdmin(SimpleHistoryAdmin):
     list_display = (
         'id',
+        'payment_number',
         'date',
+        'due_date',
+        'type_transaction',
         'amount',
         'method',
-        'nro_operation',
+        'status',
         'bank',
-        'is_active'
+        'nro_operation',
+        'processed_by',
+        'approved_by',
+        'is_active',
+        'created_at'
     )
     search_fields = (
         'id',
+        'payment_number',
         'nro_operation',
+        'nro_account',
         'bank',
-        'method'
+        'method',
+        'status',
+        'processed_by__username',
+        'approved_by__username'
     )
     list_filter = (
+        'type_transaction',
         'method',
+        'status',
         'bank',
         'is_active',
-        'date'
+        'date',
+        'due_date',
+        'approval_date',
+        'processed_by',
+        'approved_by'
     )
     readonly_fields = (
         'id',
@@ -481,19 +505,43 @@ class PaymentAdmin(SimpleHistoryAdmin):
         'updated_at',
         'id_user_created',
         'id_user_updated',
-        'user_creator'
+        'user_creator',
+        'total_invoices_amount'
     )
     fieldsets = (
-        ('Información del Pago', {
+        ('Información Básica del Pago', {
             'fields': (
+                'payment_number',
                 'date',
+                'due_date',
+                'type_transaction',
                 'amount',
-                'method',
-                'nro_operation',
-                'bank'
+                'status'
             )
         }),
-        ('Datos del Sistema', {
+        ('Información del Método de Pago', {
+            'fields': (
+                'method',
+                'bank',
+                'nro_account',
+                'nro_operation',
+                'document'
+            )
+        }),
+        ('Información de Aprobación', {
+            'fields': (
+                'processed_by',
+                'approved_by',
+                'approval_date'
+            )
+        }),
+        ('Totales Calculados (Solo Lectura)', {
+            'classes': ('collapse',),
+            'fields': (
+                'total_invoices_amount',
+            )
+        }),
+        ('Datos del Sistema (BaseModel)', {
             'classes': ('collapse',),
             'fields': (
                 'notes',
@@ -501,11 +549,55 @@ class PaymentAdmin(SimpleHistoryAdmin):
                 'created_at',
                 'updated_at',
                 'id_user_created',
-                'id_user_updated'
+                'id_user_updated',
+                'user_creator'
             )
         })
     )
     inlines = [PaymentDetailInline]
+    actions = [
+        'activate_payments', 'deactivate_payments', 'mark_as_confirmed',
+        'convert_to_egreso', 'convert_to_ingreso'
+    ]
+
+    def get_queryset(self, request):
+        """Sobrescribir queryset para incluir pagos inactivos en admin"""
+        return self.model.objects.all()
+
+    def total_invoices_amount(self, obj):
+        """Mostrar el total de facturas asociadas"""
+        return f"${obj.total_invoices_amount:,.2f}"
+    total_invoices_amount.short_description = "Total Facturas"
+
+    def activate_payments(self, request, queryset):
+        """Acción para activar pagos seleccionados"""
+        updated = queryset.update(is_active=True)
+        self.message_user(request, f'{updated} pago(s) activado(s).')
+    activate_payments.short_description = "Activar pagos seleccionados"
+
+    def deactivate_payments(self, request, queryset):
+        """Acción para desactivar pagos seleccionados"""
+        updated = queryset.update(is_active=False)
+        self.message_user(request, f'{updated} pago(s) desactivado(s).')
+    deactivate_payments.short_description = "Desactivar pagos seleccionados"
+
+    def mark_as_confirmed(self, request, queryset):
+        """Acción para marcar pagos como confirmados"""
+        updated = queryset.update(status='CONFIRMADO')
+        self.message_user(request, f'{updated} pago(s) confirmado(s).')
+    mark_as_confirmed.short_description = "Marcar como confirmados"
+
+    def convert_to_egreso(self, request, queryset):
+        """Acción para convertir pagos a EGRESO (pagos realizados)"""
+        updated = queryset.update(type_transaction='EGRESO')
+        self.message_user(request, f'{updated} pago(s) a EGRESO.')
+    convert_to_egreso.short_description = "Convertir a EGRESO (Pagos)"
+
+    def convert_to_ingreso(self, request, queryset):
+        """Acción para convertir pagos a INGRESO (cobros recibidos)"""
+        updated = queryset.update(type_transaction='INGRESO')
+        self.message_user(request, f'{updated} pago(s) a INGRESO.')
+    convert_to_ingreso.short_description = "Convertir a INGRESO (Cobros)"
 
 
 class CreditNoteAdmin(SimpleHistoryAdmin):

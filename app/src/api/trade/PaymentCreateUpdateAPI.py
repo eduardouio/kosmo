@@ -44,7 +44,7 @@ class PaymentCreateUpdateAPI(View):
                 date=payment_data['date'],
                 due_date=payment_data.get('due_date'),
                 type_transaction=payment_data.get(
-                    'type_transaction', 'INGRESO'),
+                    'type_transaction', 'EGRESO'),
                 amount=Decimal(str(payment_data['amount'])),
                 method=payment_data['method'],
                 status=payment_data.get('status', 'PENDIENTE'),
