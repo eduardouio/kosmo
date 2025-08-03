@@ -48,7 +48,7 @@ class Payment(BaseModel):
         'Tipo de Transacción',
         max_length=10,
         choices=TYPE,
-        default='INGRESO'
+        default='EGRESO'
     )
     amount = models.DecimalField(
         'Monto',

@@ -15,8 +15,7 @@ class PaymentsList(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """Filtra solo los pagos (egresos)"""
         return Payment.objects.filter(
-            type_transaction='EGRESO',
-            is_active=True
+            type_transaction='EGRESO'
         ).order_by('-date')
 
     def get_context_data(self, **kwargs):
