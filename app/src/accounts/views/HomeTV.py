@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from trade.models import Order, Invoice
 from products.models import StockDay, StockDetail
 from common.AppLoger import loggin_event
-from common import StatsSystem
+from common.StatsSystem import StatsSystem
 
 
 class HomeTV(LoginRequiredMixin, TemplateView):
@@ -23,7 +23,7 @@ class HomeTV(LoginRequiredMixin, TemplateView):
     def get_stats(self):
         last_stock = StockDay.objects.filter(
             is_active=True
-        ).order_by('-date').first()       
+        ).order_by('-date').first()
 
         total_orders = Order.objects.filter(
             type_document='ORD_VENTA',

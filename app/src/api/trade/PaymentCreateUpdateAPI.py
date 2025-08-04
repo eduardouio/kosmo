@@ -4,6 +4,7 @@ from django.views import View
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from decimal import Decimal
+from django.conf import settings
 
 from trade.models import Payment, PaymentDetail, Invoice
 from common.AppLoger import loggin_event
@@ -39,6 +40,9 @@ class PaymentCreateUpdateAPI(View):
             )
 
         with transaction.atomic():
+            # Obtener configuración bancaria por defecto
+            bank_config = settings.BANK_ACCOUNT
+
             # Crear el pago principal
             payment = Payment(
                 date=payment_data['date'],
@@ -48,8 +52,10 @@ class PaymentCreateUpdateAPI(View):
                 amount=Decimal(str(payment_data['amount'])),
                 method=payment_data['method'],
                 status=payment_data.get('status', 'PENDIENTE'),
-                bank=payment_data.get('bank'),
-                nro_account=payment_data.get('nro_account'),
+                bank=payment_data.get(
+                    'bank', bank_config.get('bank_name', '')),
+                nro_account=payment_data.get(
+                    'nro_account', bank_config.get('account_number', '')),
                 nro_operation=payment_data.get('nro_operation'),
                 processed_by_id=payment_data.get('processed_by_id'),
                 approved_by_id=payment_data.get('approved_by_id'),
@@ -155,7 +161,8 @@ class PaymentCreateUpdateAPI(View):
                         raise ValidationError(
                             'Each invoice must have invoice_id and amount')
 
-                    invoice = Invoice.objects.get(id=invoice_data['invoice_id'])
+                    invoice = Invoice.objects.get(
+                        id=invoice_data['invoice_id'])
 
                     payment_detail = PaymentDetail(
                         payment=payment,
