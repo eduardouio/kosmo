@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
-from common import BaseModel
+from common.BaseModel import BaseModel
 from partners.models import Partner
 from products.models import Product
 from common.AppLoger import loggin_event
