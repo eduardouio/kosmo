@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
-from common import BaseModel
+from common.BaseModel import BaseModel
 
 PARTNER_TYPE_CHOICES = [
     ('CLIENTE', 'CLIENTE'),

@@ -1,6 +1,6 @@
 from django.db import models
 from .Partner import Partner
-from common import BaseModel
+from common.BaseModel import BaseModel
 
 
 class DAE(BaseModel):

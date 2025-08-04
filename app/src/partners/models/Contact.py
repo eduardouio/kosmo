@@ -1,5 +1,5 @@
 from django.db import models
-from common import BaseModel
+from common.BaseModel import BaseModel
 from .Partner import Partner
 
 COTACT_TYPE_CHOICES = (

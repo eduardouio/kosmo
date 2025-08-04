@@ -4,6 +4,7 @@ from .PaymentCreateUpdateAPI import PaymentCreateUpdateAPI
 from .PaymentDeleteAPI import PaymentDeleteAPI
 from .CollectionsCreateUpdateAPI import CollectionsCreateUpdateAPI
 from .CollectionsDeleteAPI import CollectionsDeleteAPI
+from .BankConfigAPI import BankConfigAPI
 
 __all__ = [
     'CollectionsContextAPI',
@@ -12,4 +13,5 @@ __all__ = [
     'PaymentDeleteAPI',
     'CollectionsCreateUpdateAPI',
     'CollectionsDeleteAPI',
+    'BankConfigAPI',
 ]

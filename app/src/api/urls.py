@@ -33,6 +33,7 @@ from api.trade import (
     PaymentDeleteAPI,
     CollectionsCreateUpdateAPI,
     CollectionsDeleteAPI,
+    BankConfigAPI,
 )
 
 urlpatterns = [
@@ -65,6 +66,7 @@ urlpatterns = [
     path('api/products/bulk-update/', UpdateProductAPI.as_view(), name='update_product_api'),
     path('api/payments/context-data/', PaymentContextData.as_view(), name='payment_context_data'),
     path('api/collections/context-data/', CollectionsContextAPI.as_view(), name='collections_context_data'),
+    path('api/bank-config/', BankConfigAPI.as_view(), name='bank_config'),
     # Payment APIs
     path('api/payments/', PaymentCreateUpdateAPI.as_view(), name='payment_create_list'),
     path('api/payments/<int:payment_id>/', PaymentCreateUpdateAPI.as_view(), name='payment_detail_update'),
