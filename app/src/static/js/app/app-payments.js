@@ -12,6 +12,12 @@ createApp({
       paymentMethods: [],
       popularBanks: [],
       statistics: {},
+      bankConfig: {
+        bank_name: '',
+        account_number: '',
+        account_type: '',
+        account_holder: ''
+      },
       
       // Autocomplete de proveedores
       supplierSearchTerm: '',
@@ -93,6 +99,7 @@ createApp({
   
   mounted() {
     this.initializeDateTime();
+    this.loadBankConfig();
     this.loadPaymentContextData();
     
     // Verificar si se debe cargar un pago para edición
@@ -100,6 +107,26 @@ createApp({
   },
   
   methods: {
+    async loadBankConfig() {
+      try {
+        const response = await fetch('/api/bank-config/');
+        const data = await response.json();
+        
+        if (data.success) {
+          // Guardar configuración bancaria
+          this.bankConfig = data.data;
+          
+          // Configurar los valores bancarios por defecto en el formulario
+          this.paymentForm.bank = data.data.bank_name;
+          this.paymentForm.accountNumber = data.data.account_number;
+        } else {
+          console.warn('No se pudo cargar la configuración bancaria:', data.error);
+        }
+      } catch (error) {
+        console.warn('Error al cargar configuración bancaria:', error.message);
+      }
+    },
+
     async loadPaymentContextData() {
       try {
         this.loading = true;
@@ -720,8 +747,8 @@ createApp({
         method: '',
         reference: '',
         amount: 0,
-        bank: '',
-        accountNumber: '',
+        bank: this.bankConfig.bank_name || '',
+        accountNumber: this.bankConfig.account_number || '',
         observations: '',
         document: null,
         documentName: '',
