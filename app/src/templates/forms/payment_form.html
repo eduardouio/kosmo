@@ -230,6 +230,36 @@
         </div>
         
         <div class="modal-body">
+          <!-- Información de la cuenta bancaria configurada -->
+          <div v-if="bankConfig.bank_name" class="row mb-3">
+            <div class="col-12">
+              <div class="alert alert-info">
+                <h6 class="alert-heading mb-2">
+                  <i class="fas fa-info-circle"></i> Cuenta Bancaria Configurada
+                </h6>
+                <div class="row">
+                  <div class="col-6">
+                    <small class="text-muted">Banco:</small><br>
+                    <strong>{% verbatim %}{{ bankConfig.bank_name }}{% endverbatim %}</strong>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted">Nº Cuenta:</small><br>
+                    <strong>{% verbatim %}{{ bankConfig.account_number }}{% endverbatim %}</strong>
+                  </div>
+                  <div class="col-6 mt-2" v-if="bankConfig.account_type">
+                    <small class="text-muted">Tipo:</small><br>
+                    <strong>{% verbatim %}{{ bankConfig.account_type }}{% endverbatim %}</strong>
+                  </div>
+                  <div class="col-6 mt-2" v-if="bankConfig.account_holder">
+                    <small class="text-muted">Titular:</small><br>
+                    <strong>{% verbatim %}{{ bankConfig.account_holder }}{% endverbatim %}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulario de pago -->
           <!-- Resumen del pago -->
           <div class="alert alert-info mb-3">
             <div class="row">

@@ -1,5 +1,5 @@
 from django.db import models
-from common import BaseModel
+from common.BaseModel import BaseModel
 from trade.models import Order
 from products.models import Product
 from common.AppLoger import loggin_event
