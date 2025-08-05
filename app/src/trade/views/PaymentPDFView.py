@@ -59,16 +59,6 @@ class PaymentPDFView(LoginRequiredMixin, View):
             textColor=orange_color
         )
 
-        # Estilo para números importantes
-        number_style = ParagraphStyle(
-            'NumberStyle',
-            parent=styles['Normal'],
-            fontSize=12,
-            fontName='Helvetica-Bold',
-            alignment=TA_RIGHT,
-            textColor=red_color
-        )
-
         # Estilo para secciones
         section_style = ParagraphStyle(
             'SectionStyle',
@@ -100,10 +90,10 @@ class PaymentPDFView(LoginRequiredMixin, View):
             # Descargar el logo temporalmente
             urllib.request.urlretrieve(logo_url, temp_logo_path)
 
-            # Crear imagen del logo
+            # Crear imagen del logo con proporción correcta
             logo_img = Image(temp_logo_path)
-            logo_img.drawHeight = 0.5*inch
-            logo_img.drawWidth = 1*inch
+            logo_img.drawHeight = 0.7*inch
+            logo_img.drawWidth = 1.8*inch
 
             # Crear tabla con logo y texto
             logo_content = Table([
@@ -124,15 +114,9 @@ class PaymentPDFView(LoginRequiredMixin, View):
         header_data = [
             [
                 logo_content,
-                Paragraph("COMPROBANTE DE PAGO", header_style)
-            ],
-            [
                 Paragraph(
-                    "Roses Grown by: KOSMO FLOWERS<br/>"
-                    "Address: Tupigachi - Tabacundo", normal_compact),
-                Paragraph(
-                    f"<b>No. {payment.payment_number or payment.id}</b><br/>"
-                    f"{payment.date.strftime('%d/%m/%Y')}", number_style)
+                    f"COMPROBANTE DE PAGO <br/> No. {payment.payment_number or payment.id}<br/>"
+                    f"{payment.date.strftime('%d/%m/%Y')}", header_style)
             ]
         ]
 
@@ -305,11 +289,15 @@ class PaymentPDFView(LoginRequiredMixin, View):
                     Paragraph(f"Documento adjunto: {payment.document.name}", normal_compact))
                 story.append(Spacer(1, 10))
 
-        # PIE DE PÁGINA compacto
+        # PIE DE PÁGINA compacto con dirección
         footer_data = [
             [
                 "KOSMO FLOWERS - COMPROBANTE DE PAGO",
                 f"Generado: {payment.date.strftime('%d/%m/%Y')}"
+            ],
+            [
+                "Tupigachi - Tabacundo",
+                ""
             ]
         ]
 
