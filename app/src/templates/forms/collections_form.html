@@ -240,50 +240,17 @@
         </div>
         
         <div class="modal-body">
-          <!-- Información de la cuenta bancaria configurada -->
           <!-- Formulario de cobro -->
           <!-- Resumen del cobro -->
           <div class="alert alert-info mb-3">
-            <h5 class="fw-bold">Resumen del Cobro</h5>
-            <div class="table-responsive">
-              <table class="table table-sm table-hover">
-                <thead>
-                  <tr class="table-primary">
-                    <th>Factura</th>
-                    <th>Cliente</th>
-                    <th>Vence</th>
-                    <th>Saldo</th>
-                    <th>Monto a Cobrar</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="invoice in selectedInvoicesForCollection" :key="invoice.id">
-                    <td>${ invoice.number || 'N/A' }</td>
-                    <td>${ invoice.customer_name }</td>
-                    <td>${ formatDate(invoice.due_date) }</td>
-                    <td class="text-end">${ formatCurrency(invoice.balance) }</td>
-                    <td class="text-end fw-bold text-success">
-                      ${ formatCurrency(invoice.collectionAmount) }
-                    </td>
-                  </tr>
-                  <tr class="table-light">
-                    <td colspan="3" class="text-end fw-bold">Total a Cobrar:</td>
-                    <td class="text-end fw-bold">${ formatCurrency(totalBalanceAmount) }</td>
-                    <td class="text-end fw-bold text-success">${ formatCurrency(totalCollectionAmount) }</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="row">
+              <div class="col-6">
+                <strong>Facturas a Cobrar:</strong> ${ selectedInvoicesCount }
+              </div>
+              <div class="col-6 text-end">
+                <strong>Total:</strong> ${ formatCurrency(totalCollectionAmount) }
+              </div>
             </div>
-          </div>
-          
-          <div class="alert alert-warning" v-if="collectionDifference !== 0">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            <span v-if="collectionDifference > 0">
-              El monto total a cobrar es menor que el saldo pendiente. Faltan cobrar ${ formatCurrency(collectionDifference) }
-            </span>
-            <span v-else>
-              El monto total a cobrar es mayor que el saldo pendiente. Hay un excedente de ${ formatCurrency(Math.abs(collectionDifference)) }
-            </span>
           </div>
 
           <!-- Lista de facturas seleccionadas -->
@@ -415,15 +382,7 @@
               </div>
 
               <div class="col-12 mt-3">
-                <label class="form-label fw-semibold">
-                  <i class="fas fa-sticky-note"></i> Observaciones
-                </label>
-                <textarea v-model="collectionForm.observations" 
-                         class="form-control" 
-                         rows="2" 
-                         placeholder="Observaciones adicionales..."
-                         maxlength="500"></textarea>
-                <small class="text-muted">${ collectionForm.observations.length }/500 caracteres</small>
+                <!-- Campo de observaciones removido - para mantener consistencia con payment_form -->
               </div>
             </div>
           </form>
