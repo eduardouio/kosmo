@@ -23,6 +23,12 @@ createApp({
       // Métodos de pago y bancos
       collectionMethods: [],
       popularBanks: [],
+      bankConfig: {
+        bank_name: '',
+        account_number: '',
+        account_type: '',
+        account_holder: ''
+      },
       
       // Estadísticas con valores por defecto
       statistics: {
@@ -132,30 +138,21 @@ createApp({
   methods: {
     async loadBankConfig() {
       try {
-        const response = await fetch('/api/bank-config/', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          }
-        });
+        const response = await fetch('/api/bank-config/');
+        const data = await response.json();
         
-        if (response.ok) {
-          const data = await response.json();
-          if (data.config) {
-            this.bankConfig = data.config;
-            
-            // Pre-llenar campos del formulario si hay configuración
-            if (this.bankConfig.bank_name) {
-              this.collectionForm.bank = this.bankConfig.bank_name;
-            }
-            if (this.bankConfig.account_number) {
-              this.collectionForm.nro_account = this.bankConfig.account_number;
-            }
-          }
+        if (data.success) {
+          // Guardar configuración bancaria
+          this.bankConfig = data.data;
+          
+          // Configurar los valores bancarios por defecto en el formulario
+          this.collectionForm.bank = data.data.bank_name;
+          this.collectionForm.nro_account = data.data.account_number;
+        } else {
+          console.warn('No se pudo cargar la configuración bancaria:', data.error);
         }
       } catch (error) {
-        console.error('Error loading bank config:', error);
+        console.warn('Error al cargar configuración bancaria:', error.message);
       }
     },
 

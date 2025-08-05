@@ -81,6 +81,9 @@ class CollectionsContextAPI(View):
             # Obtener métodos de pago
             payment_methods = self._get_payment_methods()
 
+            # Obtener bancos populares
+            popular_banks = self._get_popular_banks()
+
             # Calcular estadísticas
             statistics = self._calculate_statistics(pending_invoices)
 
@@ -89,6 +92,7 @@ class CollectionsContextAPI(View):
                 'customers': customers,
                 'invoices': pending_invoices,
                 'payment_methods': payment_methods,
+                'popular_banks': popular_banks,
                 'statistics': statistics,
                 'current_date': date.today().strftime('%Y-%m-%d')
             }
@@ -380,3 +384,31 @@ class CollectionsContextAPI(View):
                     'total_amount': 0
                 }
             }
+
+    def _get_popular_banks(self):
+        """Obtiene los bancos más utilizados en cobros recientes"""
+        try:
+            from django.db.models import Count
+            from datetime import date, timedelta
+            
+            # Obtener cobros de los últimos 6 meses
+            today = date.today()
+            six_months_ago = today - timedelta(days=180)
+            
+            popular_banks = Payment.objects.filter(
+                type_transaction='INGRESO',
+                date__gte=six_months_ago,
+                bank__isnull=False,
+                is_active=True
+            ).values('bank').annotate(
+                count=Count('id')
+            ).order_by('-count')[:10]
+
+            return list(popular_banks)
+
+        except Exception as e:
+            loggin_event(
+                'ERROR',
+                f'CollectionsContextAPI _get_popular_banks error: {str(e)}'
+            )
+            return []
