@@ -1,0 +1,301 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+    .filter-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .stats-card {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    .stats-card h4 {
+        margin: 0;
+        font-size: 2rem;
+    }
+    .stats-card small {
+        opacity: 0.8;
+    }
+    .table-responsive {
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .btn-export {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        border: none;
+        color: white;
+    }
+    .btn-export:hover {
+        background: linear-gradient(45deg, #0056b3, #004085);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block files_header %}
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-chart-line me-2"></i>
+                Reporte de Ventas
+            </h2>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row">
+        <div class="col-12">
+            <div class="filter-card">
+                <form method="GET" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="date_from" class="form-label">Fecha Desde</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" 
+                                   value="{{ filters.date_from }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date_to" class="form-label">Fecha Hasta</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" 
+                                   value="{{ filters.date_to }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="customer_id" class="form-label">Cliente</label>
+                            <select class="form-select" id="customer_id" name="customer_id">
+                                <option value="">Todos los clientes</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}" 
+                                        {% if filters.customer_id|stringformat:"s" == customer.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ customer.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Estado</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">Todos los estados</option>
+                                {% for status_key, status_label in status_choices %}
+                                <option value="{{ status_key }}" 
+                                        {% if filters.status == status_key %}selected{% endif %}>
+                                    {{ status_label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search me-1"></i>Filtrar
+                            </button>
+                            <button type="button" class="btn btn-secondary me-2" onclick="clearFilters()">
+                                <i class="fas fa-times me-1"></i>Limpiar
+                            </button>
+                            <button type="button" class="btn btn-export" onclick="exportReport()">
+                                <i class="fas fa-download me-1"></i>Exportar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h4>{{ total_orders }}</h4>
+                <small>Total Órdenes</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h4>${{ total_amount|floatformat:2 }}</h4>
+                <small>Total Ventas</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h4>${{ total_margin|floatformat:2 }}</h4>
+                <small>Margen Total</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h4>{{ customer_summary|length }}</h4>
+                <small>Clientes Activos</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen por Estado -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Resumen por Estado</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Top Clientes</h5>
+                </div>
+                <div class="card-body">
+                    {% for customer in customer_summary %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <span>{{ customer.partner__name|truncatechars:25 }}</span>
+                            <small class="text-muted d-block">Margen: ${{ customer.margin|floatformat:2 }}</small>
+                        </div>
+                        <span class="badge bg-success">${{ customer.total|floatformat:2 }}</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No hay datos disponibles</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Órdenes -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Órdenes de Venta</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="salesTable">
+                            <thead>
+                                <tr>
+                                    <th>Nº Orden</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Estado</th>
+                                    <th>Total</th>
+                                    <th>Margen</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in sales_orders %}
+                                <tr>
+                                    <td>{{ order.serie }}-{{ order.consecutive|stringformat:"04d" }}</td>
+                                    <td>{{ order.date|date:"d/m/Y" }}</td>
+                                    <td>{{ order.partner.name|truncatechars:40 }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if order.status == 'CONFIRMADO' %}bg-success
+                                            {% elif order.status == 'PENDIENTE' %}bg-warning
+                                            {% elif order.status == 'CANCELADO' %}bg-danger
+                                            {% elif order.status == 'FACTURADO' %}bg-info
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>${{ order.total_price|floatformat:2 }}</td>
+                                    <td>${{ order.total_margin|floatformat:2 }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-primary" 
+                                           title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">
+                                        No se encontraron órdenes de venta con los filtros seleccionados
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block files_footer %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block script %}
+<script>
+    // Inicializar DataTable
+    $(document).ready(function() {
+        $('#salesTable').DataTable({
+            responsive: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+            },
+            order: [[1, 'desc']] // Ordenar por fecha desc
+        });
+    });
+
+    // Gráfico de estados
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    const statusData = [
+        {% for item in status_summary %}
+        {
+            label: '{{ item.status }}',
+            data: {{ item.count }},
+            total: {{ item.total|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: statusData.map(item => item.label),
+            datasets: [{
+                data: statusData.map(item => item.data),
+                backgroundColor: [
+                    '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6c757d'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Funciones auxiliares
+    function clearFilters() {
+        document.getElementById('filterForm').reset();
+        document.getElementById('filterForm').submit();
+    }
+
+    function exportReport() {
+        // Implementar exportación
+        alert('Función de exportación por implementar');
+    }
+</script>
+{% endblock %}
