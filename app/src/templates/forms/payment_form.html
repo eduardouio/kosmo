@@ -110,12 +110,16 @@
           <!-- Filas de facturas -->
           <div v-if="filteredInvoices.length === 0" class="row mb-1 border">
             <div class="col-12 text-center py-4 text-muted">
-              <i class="fas fa-inbox fa-2x mb-2"></i>
-              <p>No hay facturas pendientes por pagar</p>
+              <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+              <p><strong>¡Excelente!</strong></p>
+              <p v-if="selectedSupplier">No hay facturas pendientes para <strong>{% verbatim %}{{ selectedSupplier.name }}{% endverbatim %}</strong></p>
+              <p v-else>No hay facturas pendientes por pagar</p>
+              <small>Todas las facturas han sido pagadas completamente.</small>
             </div>
           </div>
 
           <div v-for="(invoice, index) in filteredInvoices" :key="invoice.id" 
+               v-show="parseFloat(invoice.balance) > 0"
                :class="['row', 'mb-1', 'border', 'my-hover-2', index % 2 === 0 ? 'bg-gray' : '']">
             <div class="col-1 border-end d-flex align-items-center justify-content-center">
               <input type="checkbox" v-model="invoice.selected" @change="updatePaymentAmount(invoice)" class="form-check-input">
@@ -230,35 +234,6 @@
         </div>
         
         <div class="modal-body">
-          <!-- Información de la cuenta bancaria configurada -->
-          <div v-if="bankConfig.bank_name" class="row mb-3">
-            <div class="col-12">
-              <div class="alert alert-info">
-                <h6 class="alert-heading mb-2">
-                  <i class="fas fa-info-circle"></i> Cuenta Bancaria Configurada
-                </h6>
-                <div class="row">
-                  <div class="col-6">
-                    <small class="text-muted">Banco:</small><br>
-                    <strong>{% verbatim %}{{ bankConfig.bank_name }}{% endverbatim %}</strong>
-                  </div>
-                  <div class="col-6">
-                    <small class="text-muted">Nº Cuenta:</small><br>
-                    <strong>{% verbatim %}{{ bankConfig.account_number }}{% endverbatim %}</strong>
-                  </div>
-                  <div class="col-6 mt-2" v-if="bankConfig.account_type">
-                    <small class="text-muted">Tipo:</small><br>
-                    <strong>{% verbatim %}{{ bankConfig.account_type }}{% endverbatim %}</strong>
-                  </div>
-                  <div class="col-6 mt-2" v-if="bankConfig.account_holder">
-                    <small class="text-muted">Titular:</small><br>
-                    <strong>{% verbatim %}{{ bankConfig.account_holder }}{% endverbatim %}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Formulario de pago -->
           <!-- Resumen del pago -->
           <div class="alert alert-info mb-3">
