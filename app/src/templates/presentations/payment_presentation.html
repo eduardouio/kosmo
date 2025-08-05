@@ -92,6 +92,21 @@
         min-width: 120px;
     }
     
+    .btn-action:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .btn-void {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-void:hover:not(:disabled) {
+        background-color: #dc3545 !important;
+        color: white !important;
+        border-color: #dc3545 !important;
+    }
+    
     @media (max-width: 768px) {
         .col-lg-4, .col-lg-8 {
             margin-bottom: 1rem;
@@ -146,6 +161,18 @@
             </div>
         </div>
     </div>
+
+    <!-- Mensaje informativo para pagos anulados -->
+    {% if payment.status == 'ANULADO' %}
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Pago Anulado:</strong> Este pago ha sido anulado. Los saldos de las facturas asociadas han sido restaurados y las facturas han vuelto a estado pendiente si corresponde.
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <div class="row">
         <!-- Información del Pago -->
@@ -379,8 +406,8 @@
                     </a>
                     
                     {% if payment.status == 'PENDIENTE' or payment.status == 'CONFIRMADO' %}
-                    <button class="btn btn-default btn-action text-danger onclick="deletePayment({{ payment.id }})">
-                        <i class="fas fa-trash me-1"></i>
+                    <button class="btn btn-default btn-action btn-void text-danger" onclick="voidPayment({{ payment.id }})">
+                        <i class="fas fa-ban me-1"></i>
                         Anular Pago
                     </button>
                     {% endif %}
@@ -429,33 +456,80 @@ function openImageModal(imageUrl) {
     modal.show();
 }
 
-// Función para eliminar pago
-async function deletePayment(paymentId) {
-    if (!confirm('¿Está seguro de que desea eliminar este pago? Esta acción no se puede deshacer.')) {
+// Función para anular pago
+async function voidPayment(paymentId) {
+    // Mostrar un diálogo de confirmación más detallado
+    const confirmMessage = `¿Está seguro de que desea anular este pago?
+
+Esta acción:
+• Cambiará el estado del pago a ANULADO
+• Revertirá los saldos de las facturas asociadas
+• Las facturas volverán a estado PENDIENTE si corresponde
+• El pago seguirá visible para auditoría pero no se podrá modificar
+
+Esta acción no se puede deshacer.`;
+
+    if (!confirm(confirmMessage)) {
         return;
     }
+    
+    // Mostrar indicador de carga
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Anulando...';
     
     try {
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         const response = await fetch(`/api/payments/${paymentId}/delete/`, {
             method: 'DELETE',
             headers: {
-                'X-CSRFToken': csrfToken
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
             }
         });
         
         const result = await response.json();
         
         if (response.ok) {
-            alert('Pago eliminado correctamente');
-            window.location.href = '{% url "payments_list" %}';
+            // Mostrar mensaje de éxito
+            const successAlert = document.createElement('div');
+            successAlert.className = 'alert alert-success alert-dismissible fade show';
+            successAlert.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Pago anulado correctamente.</strong> Los saldos de las facturas han sido restaurados.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insertar el alert al inicio del contenedor
+            const container = document.querySelector('.container');
+            container.insertBefore(successAlert, container.firstChild);
+            
+            // Recargar la página después de 2 segundos para mostrar el estado actualizado
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+            
         } else {
-            alert('Error al eliminar el pago: ' + (result.message || 'Error desconocido'));
+            // Restaurar el botón y mostrar error
+            button.disabled = false;
+            button.innerHTML = originalText;
+            
+            let errorMessage = 'Error desconocido';
+            if (result.error) {
+                errorMessage = result.error;
+            }
+            
+            alert('Error al anular el pago: ' + errorMessage);
         }
         
     } catch (error) {
-        console.error('Error al eliminar pago:', error);
-        alert('Error de conexión al eliminar el pago');
+        // Restaurar el botón y mostrar error de conexión
+        button.disabled = false;
+        button.innerHTML = originalText;
+        
+        console.error('Error al anular pago:', error);
+        alert('Error de conexión al anular el pago. Por favor, intente nuevamente.');
     }
 }
 
