@@ -79,12 +79,17 @@ class BalanceReportView(View):
         ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
 
         # === CÁLCULOS DE BALANCE ===
+        # La utilidad bruta es la diferencia entre ventas y compras
         utilidad_bruta = total_ventas - total_compras
+        
+        # La rentabilidad sobre ventas (margen bruto)
         rentabilidad = (utilidad_bruta / total_ventas *
                         100) if total_ventas > 0 else 0
+        
+        # Flujo de efectivo real
         flujo_efectivo = ingresos - egresos
 
-        # Margen de contribución
+        # Margen de contribución real (basado en el margen calculado en ventas)
         margen_contribucion = (
             total_margen / total_ventas * 100) if total_ventas > 0 else 0
 
@@ -119,10 +124,15 @@ class BalanceReportView(View):
 
         # === INDICADORES KPI ===
         kpis = {
-            'roi': (utilidad_bruta / total_compras * 100) if total_compras > 0 else 0,
-            'ticket_promedio_venta': (total_ventas / count_ventas) if count_ventas > 0 else 0,
-            'ticket_promedio_compra': (total_compras / count_compras) if count_compras > 0 else 0,
-            'ratio_ventas_compras': (total_ventas / total_compras) if total_compras > 0 else 0,
+            # ROI basado en margen real vs inversión
+            'roi': (total_margen / total_compras * 100
+                    ) if total_compras > 0 else 0,
+            'ticket_promedio_venta': (
+                total_ventas / count_ventas) if count_ventas > 0 else 0,
+            'ticket_promedio_compra': (
+                total_compras / count_compras) if count_compras > 0 else 0,
+            'ratio_ventas_compras': (
+                total_ventas / total_compras) if total_compras > 0 else 0,
         }
 
         context = {
