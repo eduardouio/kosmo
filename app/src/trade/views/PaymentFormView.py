@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.urls import reverse
 from django.views import View
@@ -16,33 +16,21 @@ from decimal import Decimal
 class PaymentFormView(LoginRequiredMixin, View):
     template_name = 'forms/payment_form.html'
 
-    def get(self, request, payment_id=None):
+    def get(self, request):
         context = {
             'method_choices': METHOD_CHOICES,
             'partners': Partner.objects.filter(is_active=True)
         }
 
-        if payment_id:
-            payment = get_object_or_404(Payment, id=payment_id)
-            context['payment'] = payment
-
-            # Obtener las facturas asociadas a este pago
-            invoices_in_payment = payment.invoices.all()
-            context['invoices_in_payment'] = invoices_in_payment
-
         return render(request, self.template_name, context)
 
-    def post(self, request, payment_id=None):
+    def post(self, request):
         data = request.POST
 
         try:
-            # Crear o actualizar pago
-            if payment_id:
-                payment = get_object_or_404(Payment, id=payment_id)
-                payment.invoices.clear()  # Eliminar asociaciones anteriores
-            else:
-                payment = Payment()
-                payment.created_by = request.user
+            # Crear nuevo pago
+            payment = Payment()
+            payment.created_by = request.user
 
             # Actualizar datos del pago
             payment.date = data.get('date')
@@ -68,7 +56,7 @@ class PaymentFormView(LoginRequiredMixin, View):
                     payment.id, invoice_payments)
 
             messages.success(request, "Pago guardado correctamente")
-            return redirect(reverse('payment_detail', kwargs={'payment_id': payment.id}))
+            return redirect(reverse('payment_detail', kwargs={'pk': payment.id}))
 
         except Exception as e:
             messages.error(request, f"Error al guardar el pago: {str(e)}")

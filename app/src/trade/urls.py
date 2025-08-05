@@ -67,7 +67,6 @@ urlpatterns = [
     path('api/collections/<int:collection_id>/delete/', CollectionsDeleteAPI.as_view(), name='collections_delete_api'),
     path('api/collections/delete/', CollectionsDeleteAPI.as_view(), name='collections_bulk_delete_api'),
     path('api/payments/', PaymentCreateUpdateAPI.as_view(), name='payments_create_api'),
-    path('api/payments/<int:payment_id>/', PaymentCreateUpdateAPI.as_view(), name='payments_update_api'),
     path('api/payments/<int:payment_id>/delete/', PaymentDeleteAPI.as_view(), name='payments_delete_api'),
     path('api/payments/delete/', PaymentDeleteAPI.as_view(), name='payments_bulk_delete_api'),
     path('trade/payment/<int:pk>/', PaymentDetailView.as_view(), name='payment_detail'),

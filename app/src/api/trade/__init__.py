@@ -1,17 +1,17 @@
 from .CollectionsContextAPI import CollectionsContextAPI
 from .PaymentContextData import PaymentContextData
 from .PaymentCreateUpdateAPI import PaymentCreateUpdateAPI
-from .PaymentDeleteAPI import PaymentDeleteAPI
+from .PaymentVoidAPI import PaymentVoidAPI
 from .CollectionsCreateUpdateAPI import CollectionsCreateUpdateAPI
-from .CollectionsDeleteAPI import CollectionsDeleteAPI
+from .CollectionsVoidAPI import CollectionsVoidAPI
 from .BankConfigAPI import BankConfigAPI
 
 __all__ = [
     'CollectionsContextAPI',
     'PaymentContextData',
     'PaymentCreateUpdateAPI',
-    'PaymentDeleteAPI',
+    'PaymentVoidAPI',
     'CollectionsCreateUpdateAPI',
-    'CollectionsDeleteAPI',
+    'CollectionsVoidAPI',
     'BankConfigAPI',
 ]
