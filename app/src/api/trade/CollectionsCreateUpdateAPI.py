@@ -75,7 +75,7 @@ class CollectionsCreateUpdateAPI(View):
                     type_transaction='INGRESO',  # Los cobros son ingresos
                     amount=collection_amount,
                     method=data['method'],
-                    status=data.get('status', 'PENDIENTE'),
+                    status=data.get('status', 'CONFIRMADO'),
                     bank=data.get('bank'),
                     nro_account=data.get('nro_account'),
                     nro_operation=data.get('nro_operation'),

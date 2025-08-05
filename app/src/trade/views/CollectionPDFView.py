@@ -9,7 +9,7 @@ from reportlab.platypus import (
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.lib.enums import TA_LEFT
 from io import BytesIO
 import os
 import urllib.request
@@ -41,234 +41,292 @@ class CollectionPDFView(LoginRequiredMixin, View):
         )
         story = []
 
-        # Estilos
+        # Colores del tema (verde para cobros)
+        green_color = colors.HexColor('#10b981')   # Verde principal
+        orange_color = colors.HexColor('#fb923c')  # Naranja para acentos
+        gray_color = colors.HexColor('#6b7280')    # Gris texto secundario
+
+        # Estilos compactos
         styles = getSampleStyleSheet()
-        title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Title'],
-            fontSize=18,
-            spaceAfter=0.1*inch,
-            alignment=TA_CENTER,
-            textColor=colors.HexColor('#2c3e50')
-        )
 
+        # Estilo para el logo/header (fuente más pequeña)
         header_style = ParagraphStyle(
-            'CustomHeader',
-            parent=styles['Heading2'],
-            fontSize=14,
-            spaceBefore=0.15*inch,
-            spaceAfter=0.1*inch,
-            textColor=colors.HexColor('#34495e')
+            'HeaderStyle',
+            parent=styles['Normal'],
+            fontSize=9,
+            fontName='Helvetica-Bold',
+            alignment=TA_LEFT,
+            spaceAfter=5,
+            textColor=green_color
         )
 
-        normal_style = ParagraphStyle(
-            'CustomNormal',
+        # Estilo para secciones
+        section_style = ParagraphStyle(
+            'SectionStyle',
             parent=styles['Normal'],
             fontSize=10,
-            spaceAfter=0.05*inch
+            fontName='Helvetica-Bold',
+            alignment=TA_LEFT,
+            spaceBefore=8,
+            spaceAfter=5,
+            textColor=gray_color
         )
 
-        bold_style = ParagraphStyle(
-            'CustomBold',
+        # Estilo para texto normal compacto
+        normal_compact = ParagraphStyle(
+            'NormalCompact',
             parent=styles['Normal'],
-            fontSize=10,
-            spaceAfter=0.05*inch,
-            fontName='Helvetica-Bold'
+            fontSize=9,
+            alignment=TA_LEFT,
+            spaceAfter=2
         )
 
-        # Logo y título
+        # HEADER - Logo y Título (con logo de Kosmo)
+        temp_logo_path = None
         try:
-            logo_path = os.path.join(os.path.dirname(
-                __file__), '../../static/img/logo-kosmo.png')
-            if os.path.exists(logo_path):
-                logo = Image(logo_path, width=1.5*inch, height=0.7*inch)
-                logo.hAlign = 'CENTER'
-                story.append(logo)
-                story.append(Spacer(1, 0.1*inch))
+            # Intentar cargar el logo de Kosmo
+            logo_url = "https://app.kosmoflowers.com/static/img/logo-kosmo.png"
+            temp_logo_path = "/tmp/kosmo_logo.png"
+
+            # Descargar el logo temporalmente
+            urllib.request.urlretrieve(logo_url, temp_logo_path)
+
+            # Crear imagen del logo con proporción correcta
+            logo_img = Image(temp_logo_path)
+            logo_img.drawHeight = 0.7*inch
+            logo_img.drawWidth = 1.8*inch
+
+            # Crear tabla con logo y texto
+            logo_content = Table([
+                [logo_img]
+            ], colWidths=[5*inch])
+            logo_content.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+                ('ALIGN', (1, 0), (1, 0), 'LEFT'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ]))
+
         except Exception:
-            pass
+            # Si falla la descarga, usar solo texto
+            logo_content = Paragraph("🌹 KOSMO FLOWERS", header_style)
 
-        # Título principal
-        title = Paragraph("COMPROBANTE DE COBRO", title_style)
-        story.append(title)
-        story.append(Spacer(1, 0.2*inch))
-
-        # Información del cobro
-        collection_info_data = [
-            ['Número de Cobro:',
-                collection.payment_number or f"C-{collection.id}"],
-            ['Fecha del Cobro:', collection.date.strftime('%d/%m/%Y')],
-            ['Estado:', collection.get_status_display()],
-            ['Monto Total:', f"$ {collection.amount:,.2f}"],
-            ['Método de Cobro:', collection.get_method_display()],
+        header_data = [
+            [
+                logo_content,
+                Paragraph(
+                    f"COMPROBANTE DE COBRO <br/> No. {collection.payment_number or collection.id}<br/>"
+                    f"{collection.date.strftime('%d/%m/%Y')}", header_style)
+            ]
         ]
 
-        if collection.due_date:
-            collection_info_data.append(
-                ['Fecha de Vencimiento:', collection.due_date.strftime('%d/%m/%Y')])
-
-        if collection.bank:
-            collection_info_data.append(['Banco:', collection.bank])
-
-        if collection.nro_account:
-            collection_info_data.append(
-                ['Nro. de Cuenta:', collection.nro_account])
-
-        if collection.nro_operation:
-            collection_info_data.append(
-                ['Nro. de Operación:', collection.nro_operation])
-
-        # Tabla de información del cobro
-        collection_table = Table(collection_info_data,
-                                 colWidths=[2.5*inch, 3*inch])
-        collection_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#ecf0f1')),
-            ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2c3e50')),
-            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        header_table = Table(header_data, colWidths=[3.5*inch, 3.5*inch])
+        header_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('BOX', (0, 0), (-1, -1), 0.25, green_color),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, green_color),
             ('LEFTPADDING', (0, 0), (-1, -1), 8),
             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#bdc3c7')),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
         ]))
+        story.append(header_table)
+        story.append(Spacer(1, 10))
 
-        story.append(collection_table)
-        story.append(Spacer(1, 0.3*inch))
+        # INFORMACIÓN DEL COBRO (tabla estructurada)
+        collection_info_data = [
+            ["Método de Cobro:", collection.get_method_display(), "Monto Total:",
+             f"${collection.amount:,.2f}"],
+            ["Estado:", collection.get_status_display(), "Fecha:",
+             collection.date.strftime('%d/%m/%Y')],
+            ["Tipo:", collection.get_type_transaction_display(), "Banco:",
+             collection.bank or ""],
+            ["Operación:", collection.nro_operation or "", "Cuenta:",
+             collection.nro_account or ""],
+        ]
 
-        # Facturas cobradas
-        if collection_details.exists():
-            header = Paragraph("FACTURAS COBRADAS", header_style)
-            story.append(header)
+        collection_info_table = Table(
+            collection_info_data, colWidths=[1.2*inch, 2.3*inch, 1.2*inch, 2.3*inch])
+        collection_info_table.setStyle(TableStyle([
+            # Etiquetas en negrita (columnas 0 y 2)
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), gray_color),
+            ('TEXTCOLOR', (2, 0), (2, -1), gray_color),
 
-            # Encabezados de la tabla de facturas
-            invoices_data = [['Cliente', 'Factura', 'Monto Cobrado']]
+            # Valores (columnas 1 y 3)
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+            ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),
 
-            total_applied = 0
+            # Alineación
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+            # Bordes y espaciado
+            ('BOX', (0, 0), (-1, -1), 0.25, green_color),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, green_color),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+        ]))
+        story.append(collection_info_table)
+        story.append(Spacer(1, 10))
+
+        # FACTURAS COBRADAS (tabla compacta)
+        if collection_details:
+            # Encabezado de facturas
+            story.append(
+                Paragraph(f"FACTURAS COBRADAS ({len(collection_details)})", section_style))
+
+            # Datos de la tabla
+            invoice_data = [
+                ["CLIENTE", "FACTURA", "FECHA", "MONTO"]
+            ]
+
+            total_invoices_amount = 0
             for detail in collection_details:
-                invoices_data.append([
-                    # Truncar nombre largo
-                    detail.invoice.partner.name[:30],
+                invoice_data.append([
+                    detail.invoice.partner.name[:25] + "..." if len(
+                        detail.invoice.partner.name) > 25 else detail.invoice.partner.name,
                     detail.invoice.num_invoice,
-                    f"$ {detail.amount:,.2f}"
+                    detail.invoice.date.strftime("%d/%m/%Y"),
+                    f"${detail.amount:,.2f}"
                 ])
-                total_applied += detail.amount
+                total_invoices_amount += detail.amount
 
             # Fila de total
-            invoices_data.append(
-                ['', 'TOTAL APLICADO:', f"$ {total_applied:,.2f}"])
+            invoice_data.append([
+                "TOTAL COBRADO:",
+                "",
+                "",
+                f"${total_invoices_amount:,.2f}"
+            ])
 
-            # Crear tabla de facturas
-            invoices_table = Table(invoices_data, colWidths=[
-                                   2.5*inch, 1.5*inch, 1.5*inch])
-            invoices_table.setStyle(TableStyle([
-                # Encabezados
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#3498db')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            invoice_table = Table(invoice_data, colWidths=[
+                                  3*inch, 1.5*inch, 1*inch, 1.5*inch])
+            invoice_table.setStyle(TableStyle([
+                # Encabezado - texto con color en lugar de fondo
+                ('TEXTCOLOR', (0, 0), (-1, 0), green_color),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
                 ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
 
                 # Datos
                 ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-                ('FONTSIZE', (0, 1), (-1, -2), 9),
-                ('ALIGN', (0, 1), (1, -2), 'LEFT'),
-                ('ALIGN', (2, 1), (2, -2), 'RIGHT'),
+                ('FONTSIZE', (0, 1), (-1, -2), 8),
+                ('ALIGN', (1, 1), (1, -1), 'CENTER'),
+                ('ALIGN', (2, 1), (2, -1), 'CENTER'),
+                ('ALIGN', (3, 1), (3, -1), 'RIGHT'),
 
-                # Fila de total
-                ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#ecf0f1')),
+                # Fila total - texto con color en lugar de fondo
+                ('TEXTCOLOR', (0, -1), (-1, -1), orange_color),
                 ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, -1), (-1, -1), 10),
-                ('ALIGN', (0, -1), (1, -1), 'RIGHT'),
-                ('ALIGN', (2, -1), (2, -1), 'RIGHT'),
+                ('FONTSIZE', (0, -1), (-1, -1), 9),
+                ('ALIGN', (3, -1), (3, -1), 'RIGHT'),
 
-                # Estilos generales
+                # Bordes más finos
+                ('GRID', (0, 0), (-1, -1), 0.25, colors.black),
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('LEFTPADDING', (0, 0), (-1, -1), 8),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-                ('TOPPADDING', (0, 0), (-1, -1), 6),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#bdc3c7')),
+                ('LEFTPADDING', (0, 0), (-1, -1), 5),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+                ('TOPPADDING', (0, 0), (-1, -1), 4),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
             ]))
+            story.append(invoice_table)
+            story.append(Spacer(1, 10))
 
-            story.append(invoices_table)
-            story.append(Spacer(1, 0.2*inch))
+        # COMPROBANTE ADJUNTO (si existe)
+        if collection.document:
+            story.append(Paragraph("COMPROBANTE ADJUNTO", section_style))
 
-        # Información adicional
-        if collection.processed_by or collection.approved_by:
-            story.append(Spacer(1, 0.2*inch))
+            # Crear tabla para el comprobante
+            try:
+                document_path = collection.document.path
+                if os.path.exists(document_path) and collection.document.name.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    # Imagen compacta
+                    img = Image(document_path)
+                    img.drawHeight = 3.5*inch  # Más pequeña
+                    img.drawWidth = 5*inch     # Más pequeña
 
-            additional_info = []
+                    document_data = [
+                        [img]
+                    ]
+                else:
+                    document_data = [
+                        [f"Archivo: {collection.document.name}"]
+                    ]
 
-            if collection.processed_by:
-                processed_by_name = (
-                    collection.processed_by.get_full_name() or
-                    collection.processed_by.username
-                )
-                additional_info.append(['Procesado por:', processed_by_name])
-
-            if collection.approved_by:
-                approved_by_name = (
-                    collection.approved_by.get_full_name() or
-                    collection.approved_by.username
-                )
-                additional_info.append(['Aprobado por:', approved_by_name])
-
-                if collection.approval_date:
-                    additional_info.append([
-                        'Fecha de Aprobación:',
-                        collection.approval_date.strftime('%d/%m/%Y %H:%M')
-                    ])
-
-            if additional_info:
-                additional_table = Table(
-                    additional_info, colWidths=[2*inch, 3*inch])
-                additional_table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#ecf0f1')),
-                    ('TEXTCOLOR', (0, 0), (0, -1), colors.HexColor('#2c3e50')),
-                    ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, -1), 9),
-                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                    ('LEFTPADDING', (0, 0), (-1, -1), 8),
-                    ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-                    ('TOPPADDING', (0, 0), (-1, -1), 4),
-                    ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#bdc3c7')),
+                document_table = Table(document_data, colWidths=[7*inch])
+                document_table.setStyle(TableStyle([
+                    ('TEXTCOLOR', (0, 0), (-1, 0), gray_color),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 9),
+                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                    ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 5),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 5),
+                    ('TOPPADDING', (0, 0), (-1, -1), 5),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
                 ]))
+                story.append(document_table)
+                story.append(Spacer(1, 10))
 
-                story.append(additional_table)
+            except Exception:
+                # Si hay error con la imagen, mostrar solo texto
+                story.append(
+                    Paragraph(f"Documento adjunto: {collection.document.name}", normal_compact))
+                story.append(Spacer(1, 10))
 
-        # Pie de página
-        story.append(Spacer(1, 0.3*inch))
+        # PIE DE PÁGINA compacto con dirección
+        footer_data = [
+            [
+                "KOSMO FLOWERS - COMPROBANTE DE COBRO",
+                f"Generado: {collection.date.strftime('%d/%m/%Y')}"
+            ],
+            [
+                "Tupigachi - Tabacundo",
+                ""
+            ]
+        ]
 
-        footer_style = ParagraphStyle(
-            'Footer',
-            parent=styles['Normal'],
-            fontSize=8,
-            alignment=TA_CENTER,
-            textColor=colors.HexColor('#7f8c8d')
-        )
+        footer_table = Table(footer_data, colWidths=[5*inch, 2*inch])
+        footer_table.setStyle(TableStyle([
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('TEXTCOLOR', (0, 0), (-1, -1), gray_color),
+            ('TOPPADDING', (0, 0), (-1, -1), 5),
+            ('LINEABOVE', (0, 0), (-1, -1), 0.25, green_color),
+        ]))
+        story.append(footer_table)
 
-        footer_text = f"""
-        <b>KOSMO FLOWERS</b><br/>
-        Documento generado automáticamente el {collection.created_at.strftime('%d/%m/%Y %H:%M')}<br/>
-        Este comprobante es válido como soporte de cobro
-        """
-
-        footer = Paragraph(footer_text, footer_style)
-        story.append(footer)
-
-        # Generar el PDF
+        # Construir el PDF
         doc.build(story)
-        buffer.seek(0)
 
-        # Preparar la respuesta HTTP
+        # Limpiar archivo temporal del logo si existe
+        if temp_logo_path and os.path.exists(temp_logo_path):
+            try:
+                os.remove(temp_logo_path)
+            except Exception:
+                pass  # Ignorar errores de limpieza
+
+        # Preparar la respuesta
+        buffer.seek(0)
+        
+        # Crear response con headers apropiados para descarga
         response = HttpResponse(
             buffer.getvalue(), content_type='application/pdf')
-        filename = f"cobro_{collection.payment_number or collection.id}_{collection.date.strftime('%Y%m%d')}.pdf"
+        
+        # Configurar headers para forzar descarga
+        filename = f"comprobante_cobro_{collection.payment_number or collection.id}.pdf"
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Length'] = len(buffer.getvalue())
+        response['Cache-Control'] = 'no-cache'
+        response['Pragma'] = 'no-cache'
 
         return response
