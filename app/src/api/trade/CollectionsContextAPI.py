@@ -285,14 +285,15 @@ class CollectionsContextAPI(View):
     def _get_payment_methods(self):
         """Obtiene los métodos de pago disponibles"""
         try:
-            # Métodos de pago predefinidos
+            # Métodos de pago que coinciden con METHOD_CHOICES del modelo Payment
             methods = [
-                {'value': 'cash', 'label': 'Efectivo'},
-                {'value': 'transfer', 'label': 'Transferencia Bancaria'},
-                {'value': 'check', 'label': 'Cheque'},
-                {'value': 'card', 'label': 'Tarjeta de Crédito/Débito'},
-                {'value': 'electronic', 'label': 'Pago Electrónico'},
-                {'value': 'other', 'label': 'Otro'}
+                {'value': 'TRANSF', 'label': 'Transferencia Bancaria'},
+                {'value': 'EFECTIVO', 'label': 'Efectivo'},
+                {'value': 'CHEQUE', 'label': 'Cheque'},
+                {'value': 'TC', 'label': 'Tarjeta de Crédito'},
+                {'value': 'TD', 'label': 'Tarjeta de Débito'},
+                {'value': 'NC', 'label': 'Nota de Crédito'},
+                {'value': 'OTRO', 'label': 'Otro'}
             ]
 
             return methods

@@ -46,14 +46,6 @@ createApp({
         }
       },
       
-      // Configuración bancaria
-      bankConfig: {
-        bank_name: '',
-        account_number: '',
-        account_type: '',
-        account_holder: ''
-      },
-      
       // Formulario de cobro
       collectionForm: {
         date: new Date().toISOString().split('T')[0],
@@ -169,6 +161,13 @@ createApp({
         if (response.ok) {
           const data = await response.json();
           
+          console.log('Datos cargados:', {
+            customers: data.customers?.length || 0,
+            invoices: data.invoices?.length || 0,
+            sampleCustomer: data.customers?.[0] || 'No customers',
+            sampleInvoice: data.invoices?.[0] || 'No invoices'
+          });
+          
           this.customers = data.customers || [];
           this.filteredCustomers = [...this.customers];
           this.pendingInvoices = data.invoices || [];
@@ -213,6 +212,7 @@ createApp({
     },
     
     selectCustomer(customer) {
+      console.log('Cliente seleccionado:', customer);
       this.selectedCustomer = customer;
       this.customerSearchTerm = customer.name;
       this.showCustomerDropdown = false;
@@ -235,9 +235,26 @@ createApp({
     
     filterInvoicesByCustomer() {
       if (this.selectedCustomer) {
-        this.filteredInvoices = this.pendingInvoices.filter(invoice => 
-          invoice.partner_id === this.selectedCustomer.id
-        );
+        console.log('Filtrando por cliente:', {
+          selectedCustomer: this.selectedCustomer,
+          totalInvoices: this.pendingInvoices.length,
+          sampleInvoice: this.pendingInvoices[0] || 'No hay facturas'
+        });
+        
+        this.filteredInvoices = this.pendingInvoices.filter(invoice => {
+          // Convertir ambos valores a string para comparación segura
+          const invoiceCustomerId = String(invoice.customer_id);
+          const selectedCustomerId = String(this.selectedCustomer.id);
+          const matches = invoiceCustomerId === selectedCustomerId;
+          
+          if (matches) {
+            console.log('Factura coincide:', invoice);
+          }
+          
+          return matches;
+        });
+        
+        console.log('Facturas filtradas:', this.filteredInvoices.length);
       } else {
         this.filteredInvoices = [...this.pendingInvoices];
       }
