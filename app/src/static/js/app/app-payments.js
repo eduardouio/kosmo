@@ -502,6 +502,22 @@ createApp({
           // Actualizar las facturas localmente con los nuevos datos
           this.updateInvoicesAfterPayment(selectedInvoices, result.payment);
           
+          // Debug: Verificar datos del pago antes de descargar PDF
+          console.log('Datos del pago creado:', result.payment);
+          console.log('ID del pago para PDF:', result.payment?.id);
+          
+          // Descargar automáticamente el PDF del pago
+          if (result.payment && result.payment.id) {
+            console.log('Iniciando descarga automática del PDF...');
+            // Delay pequeño para asegurar que el pago se haya guardado completamente
+            setTimeout(() => {
+              this.downloadPaymentPDF(result.payment.id);
+            }, 500);
+          } else {
+            console.warn('No se pudo obtener el ID del pago para descargar el PDF:', result);
+            this.showWarning('El pago se creó correctamente, pero no se pudo obtener el ID para descargar el PDF automáticamente.');
+          }
+          
           // Cerrar modal después de un momento
           setTimeout(() => {
             const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
@@ -925,6 +941,85 @@ createApp({
       };
       
       alert(`${icons[type]} ${message}`);
+    },
+    
+    // ===== DESCARGA DE PDF =====
+    
+    /**
+     * Descarga automáticamente el PDF del comprobante de pago
+     * @param {number} paymentId - ID del pago para descargar el PDF
+     */
+    downloadPaymentPDF(paymentId) {
+      try {
+        console.log(`Iniciando descarga del PDF para el pago ID: ${paymentId}`);
+        
+        // Verificar que el paymentId es válido
+        if (!paymentId) {
+          console.error('ID de pago no válido:', paymentId);
+          this.showWarning('No se pudo obtener el ID del pago para descargar el PDF.');
+          return;
+        }
+        
+        // Crear URL del PDF
+        const pdfUrl = `/trade/payment/${paymentId}/pdf/`;
+        console.log(`URL del PDF: ${pdfUrl}`);
+        
+        // Método principal: Descarga directa via enlace
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = `comprobante_pago_${paymentId}.pdf`;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        
+        // Estilo invisible
+        link.style.display = 'none';
+        
+        // Agregar al DOM
+        document.body.appendChild(link);
+        
+        // Simular clic para iniciar descarga
+        link.click();
+        console.log(`Descarga del PDF iniciada para el pago ${paymentId}`);
+        
+        // Remover el enlace del DOM después de un momento
+        setTimeout(() => {
+          if (document.body.contains(link)) {
+            document.body.removeChild(link);
+          }
+        }, 1000);
+        
+      } catch (error) {
+        console.error('Error al descargar el PDF del pago:', error);
+        this.showWarning('El pago se creó correctamente, pero hubo un problema al descargar el PDF automáticamente. Puede descargarlo manualmente desde la lista de pagos.');
+        
+        // Método de respaldo solo en caso de error: abrir en nueva ventana
+        try {
+          const pdfUrl = `/trade/payment/${paymentId}/pdf/`;
+          console.log('Ejecutando método de respaldo: nueva ventana');
+          window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+        } catch (fallbackError) {
+          console.error('Error en método de respaldo:', fallbackError);
+        }
+      }
+    },
+
+    /**
+     * Función de prueba para descargar PDF manualmente
+     * @param {number} paymentId - ID del pago para descargar el PDF
+     */
+    testDownloadPDF(paymentId) {
+      console.log('=== PRUEBA DE DESCARGA DE PDF ===');
+      console.log(`ID de pago: ${paymentId}`);
+      
+      if (!paymentId) {
+        const testId = prompt('Ingrese el ID del pago para probar la descarga:');
+        if (testId) {
+          this.downloadPaymentPDF(parseInt(testId));
+        }
+        return;
+      }
+      
+      this.downloadPaymentPDF(paymentId);
     }
   }
 }).mount('#paymentApp');
