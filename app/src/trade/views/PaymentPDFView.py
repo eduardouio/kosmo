@@ -12,15 +12,17 @@ from reportlab.lib.units import inch
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from io import BytesIO
 import os
+import urllib.request
 
 from trade.models import Payment, PaymentDetail
 
 
 class PaymentPDFView(LoginRequiredMixin, View):
-    
+
     def get(self, request, pk):
         """Generar PDF del comprobante de pago en formato compacto"""
-        payment = get_object_or_404(Payment, pk=pk)        # Obtener detalles del pago
+        payment = get_object_or_404(
+            Payment, pk=pk)        # Obtener detalles del pago
         payment_details = PaymentDetail.objects.filter(
             payment=payment
         ).select_related('invoice', 'invoice__partner').order_by('invoice__num_invoice')
@@ -30,10 +32,10 @@ class PaymentPDFView(LoginRequiredMixin, View):
         doc = SimpleDocTemplate(
             buffer,
             pagesize=A4,
-            topMargin=0.5*inch,
-            bottomMargin=0.5*inch,
+            topMargin=0.3*inch,
+            bottomMargin=0.3*inch,
             leftMargin=0.5*inch,
-            rightMargin=0.5*inch
+            rightMargin=0.3*inch
         )
         story = []
 
@@ -89,11 +91,39 @@ class PaymentPDFView(LoginRequiredMixin, View):
         )
 
         # HEADER - Logo y Título (con logo de Kosmo)
-        logo_text = "🌹 KOSMO FLOWERS"
-            
+        temp_logo_path = None
+        try:
+            # Intentar cargar el logo de Kosmo
+            logo_url = "https://app.kosmoflowers.com/static/img/logo-kosmo.png"
+            temp_logo_path = "/tmp/kosmo_logo.png"
+
+            # Descargar el logo temporalmente
+            urllib.request.urlretrieve(logo_url, temp_logo_path)
+
+            # Crear imagen del logo
+            logo_img = Image(temp_logo_path)
+            logo_img.drawHeight = 0.5*inch
+            logo_img.drawWidth = 1*inch
+
+            # Crear tabla con logo y texto
+            logo_content = Table([
+                [logo_img]
+            ], colWidths=[5*inch])
+            logo_content.setStyle(TableStyle([
+                ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+                ('ALIGN', (1, 0), (1, 0), 'LEFT'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 0),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ]))
+
+        except Exception:
+            # Si falla la descarga, usar solo texto
+            logo_content = Paragraph("🌹 KOSMO FLOWERS", header_style)
+
         header_data = [
             [
-                Paragraph(logo_text, header_style),
+                logo_content,
                 Paragraph("COMPROBANTE DE PAGO", header_style)
             ],
             [
@@ -123,8 +153,10 @@ class PaymentPDFView(LoginRequiredMixin, View):
 
         # INFORMACIÓN DEL PAGO (tabla estructurada)
         payment_info_data = [
-            ["Método de Pago:", payment.get_method_display(), "Monto Total:", f"${payment.amount:,.2f}"],
-            ["Estado:", payment.get_status_display(), "Fecha:", payment.date.strftime('%d/%m/%Y')],
+            ["Método de Pago:", payment.get_method_display(), "Monto Total:",
+             f"${payment.amount:,.2f}"],
+            ["Estado:", payment.get_status_display(), "Fecha:",
+             payment.date.strftime('%d/%m/%Y')],
             ["Tipo:", payment.get_type_transaction_display(), "", ""],
         ]
 
@@ -134,7 +166,8 @@ class PaymentPDFView(LoginRequiredMixin, View):
         if payment.nro_account:
             payment_info_data.append(["Cuenta:", payment.nro_account, "", ""])
         if payment.nro_operation:
-            payment_info_data.append(["Operación:", payment.nro_operation, "", ""])
+            payment_info_data.append(
+                ["Operación:", payment.nro_operation, "", ""])
 
         payment_info_table = Table(
             payment_info_data, colWidths=[1.2*inch, 2.3*inch, 1.2*inch, 2.3*inch])
@@ -145,15 +178,15 @@ class PaymentPDFView(LoginRequiredMixin, View):
             ('FONTSIZE', (0, 0), (-1, -1), 9),
             ('TEXTCOLOR', (0, 0), (0, -1), gray_color),
             ('TEXTCOLOR', (2, 0), (2, -1), gray_color),
-            
+
             # Valores (columnas 1 y 3)
             ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
             ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),
-            
+
             # Alineación
             ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            
+
             # Bordes y espaciado
             ('BOX', (0, 0), (-1, -1), 0.25, orange_color),
             ('INNERGRID', (0, 0), (-1, -1), 0.25, orange_color),
@@ -293,6 +326,13 @@ class PaymentPDFView(LoginRequiredMixin, View):
 
         # Construir el PDF
         doc.build(story)
+
+        # Limpiar archivo temporal del logo si existe
+        if temp_logo_path and os.path.exists(temp_logo_path):
+            try:
+                os.remove(temp_logo_path)
+            except Exception:
+                pass  # Ignorar errores de limpieza
 
         # Preparar la respuesta
         buffer.seek(0)
