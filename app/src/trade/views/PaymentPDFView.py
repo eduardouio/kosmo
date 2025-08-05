@@ -249,16 +249,14 @@ class PaymentPDFView(LoginRequiredMixin, View):
                 if os.path.exists(document_path) and payment.document.name.lower().endswith(('.png', '.jpg', '.jpeg')):
                     # Imagen compacta
                     img = Image(document_path)
-                    img.drawHeight = 1.5*inch  # Más pequeña
-                    img.drawWidth = 2*inch     # Más pequeña
+                    img.drawHeight = 3.5*inch  # Más pequeña
+                    img.drawWidth = 5*inch     # Más pequeña
 
                     document_data = [
-                        ["IMAGEN DEL COMPROBANTE"],
                         [img]
                     ]
                 else:
                     document_data = [
-                        ["DOCUMENTO ADJUNTO"],
                         [f"Archivo: {payment.document.name}"]
                     ]
 
@@ -318,8 +316,16 @@ class PaymentPDFView(LoginRequiredMixin, View):
 
         # Preparar la respuesta
         buffer.seek(0)
+        
+        # Crear response con headers apropiados para descarga
         response = HttpResponse(
             buffer.getvalue(), content_type='application/pdf')
-        response['Content-Disposition'] = f'inline; filename="comprobante_pago_{payment.payment_number or payment.id}.pdf"'
+        
+        # Configurar headers para forzar descarga
+        filename = f"comprobante_pago_{payment.payment_number or payment.id}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        response['Content-Length'] = len(buffer.getvalue())
+        response['Cache-Control'] = 'no-cache'
+        response['Pragma'] = 'no-cache'
 
         return response
