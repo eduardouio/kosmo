@@ -24,6 +24,7 @@ from trade.views import (
     PaymentFormView,
     CollectFormView,
     PaymentDetailView,
+    PaymentPDFView,
 )
 
 # Importar APIs
@@ -70,4 +71,5 @@ urlpatterns = [
     path('api/payments/<int:payment_id>/delete/', PaymentDeleteAPI.as_view(), name='payments_delete_api'),
     path('api/payments/delete/', PaymentDeleteAPI.as_view(), name='payments_bulk_delete_api'),
     path('trade/payment/<int:pk>/', PaymentDetailView.as_view(), name='payment_detail'),
+    path('trade/payment/<int:pk>/pdf/', PaymentPDFView.as_view(), name='payment_pdf'),
 ]
