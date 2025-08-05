@@ -51,7 +51,7 @@ class PaymentCreateUpdateAPI(View):
                     'type_transaction', 'EGRESO'),
                 amount=Decimal(str(payment_data['amount'])),
                 method=payment_data['method'],
-                status=payment_data.get('status', 'PENDIENTE'),
+                status=payment_data.get('status', 'CONFIRMADO'),
                 bank=payment_data.get(
                     'bank', bank_config.get('bank_name', '')),
                 nro_account=payment_data.get(
