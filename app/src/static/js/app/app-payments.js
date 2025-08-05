@@ -54,11 +54,7 @@ createApp({
       },
       
       currentDate: '',
-      currentTime: '',
-      
-      // Modo edición
-      isEditMode: false,
-      editingPaymentId: null
+      currentTime: ''
     }
   },
   computed: {
@@ -100,9 +96,6 @@ createApp({
     this.initializeDateTime();
     this.loadBankConfig();
     this.loadPaymentContextData();
-    
-    // Verificar si se debe cargar un pago para edición
-    this.checkForEditMode();
   },
   
   methods: {
@@ -396,12 +389,8 @@ createApp({
         return;
       }
       
-      // Decidir si crear o actualizar según el modo
-      if (this.isEditMode) {
-        await this.updatePayment();
-      } else {
-        await this.createPayment();
-      }
+      // Crear nuevo pago
+      await this.createPayment();
     },
     
     // Crear un nuevo pago
@@ -702,184 +691,6 @@ createApp({
       }
     },
     
-    // ===== GESTIÓN DE EDICIÓN DE PAGOS =====
-    
-    // Cargar un pago existente para edición
-    async loadPaymentForEdit(paymentId) {
-      try {
-        const response = await fetch(`/api/payments/${paymentId}/`, {
-          method: 'GET',
-          headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          }
-        });
-        
-        if (response.ok) {
-          const payment = await response.json();
-          
-          // Cargar datos del pago en el formulario
-          this.paymentForm = {
-            id: payment.id,
-            date: payment.date,
-            method: payment.method,
-            amount: payment.amount,
-            reference: payment.reference || '',
-            bank: payment.bank || '',
-            accountNumber: payment.account_number || '',
-            document: null,
-            documentName: '',
-            documentPreview: null
-          };
-          
-          // Marcar que estamos en modo edición
-          this.isEditMode = true;
-          this.editingPaymentId = paymentId;
-          
-          // Seleccionar las facturas relacionadas con este pago
-          if (payment.payment_details) {
-            payment.payment_details.forEach(detail => {
-              const invoice = this.pendingInvoices.find(inv => inv.id === detail.invoice_id);
-              if (invoice) {
-                invoice.selected = true;
-                invoice.paymentAmount = detail.amount;
-              }
-            });
-          }
-          
-          this.updatePaymentFormAmount();
-          
-          // Abrir el modal
-          const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
-          modal.show();
-          
-        } else {
-          this.showError('No se pudo cargar el pago para edición');
-        }
-        
-      } catch (error) {
-        console.error('Error al cargar pago para edición:', error);
-        this.showError('Error de conexión al cargar el pago');
-      }
-    },
-    
-    // Actualizar un pago existente
-    async updatePayment() {
-      if (!this.validateForm()) {
-        this.showModalError('Por favor, corrija los errores en el formulario');
-        return;
-      }
-      
-      try {
-        this.saving = true;
-        this.clearModalMessage();
-        
-        const selectedInvoices = this.filteredInvoices.filter(inv => inv.selected);
-        
-        const paymentData = {
-          date: this.paymentForm.date,
-          method: this.paymentForm.method,
-          amount: parseFloat(this.paymentForm.amount),
-          bank: this.paymentForm.bank || '',
-          nro_account: this.paymentForm.accountNumber || '',
-          nro_operation: this.paymentForm.reference || '',
-          invoices: selectedInvoices.map(invoice => ({
-            invoice_id: invoice.id,
-            amount: parseFloat(invoice.paymentAmount)
-          }))
-        };
-        
-        // Obtener token CSRF
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-        
-        // Preparar la petición
-        let requestOptions = {
-          method: 'PUT',
-          headers: {
-            'X-CSRFToken': csrfToken
-          }
-        };
-        
-        // Si hay archivo adjunto, usar FormData
-        if (this.paymentForm.document) {
-          const formData = new FormData();
-          
-          // Agregar todos los campos del pago
-          Object.keys(paymentData).forEach(key => {
-            if (key === 'invoices') {
-              formData.append(key, JSON.stringify(paymentData[key]));
-            } else {
-              formData.append(key, paymentData[key]);
-            }
-          });
-          
-          // Agregar el archivo
-          formData.append('document', this.paymentForm.document);
-          
-          requestOptions.body = formData;
-          // No establecer Content-Type para FormData
-        } else {
-          // Sin archivo, usar JSON tradicional
-          requestOptions.headers['Content-Type'] = 'application/json';
-          requestOptions.body = JSON.stringify(paymentData);
-        }
-        
-        const response = await fetch(`/api/payments/${this.editingPaymentId}/`, requestOptions);
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-          this.showModalSuccess('¡Pago actualizado correctamente!');
-          
-          // Recargar datos para reflejar cambios
-          await this.loadPaymentContextData();
-          
-          setTimeout(() => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
-            modal.hide();
-            this.exitEditMode();
-          }, 1500);
-          
-        } else {
-          if (result.errors) {
-            this.formErrors = result.errors;
-            this.showModalError('Por favor, corrija los errores indicados');
-          } else {
-            this.showModalError(result.message || 'Error al actualizar el pago');
-          }
-        }
-        
-      } catch (error) {
-        console.error('Error al actualizar pago:', error);
-        this.showModalError('Error de conexión al actualizar el pago');
-      } finally {
-        this.saving = false;
-      }
-    },
-    
-    // Salir del modo edición
-    exitEditMode() {
-      this.isEditMode = false;
-      this.editingPaymentId = null;
-      this.resetPaymentForm();
-      this.clearSelection();
-    },
-    
-    // Resetear el formulario de pago
-    resetPaymentForm() {
-      this.paymentForm = {
-        date: this.currentDate,
-        method: '',
-        reference: '',
-        amount: 0,
-        bank: this.bankConfig.bank_name || '',
-        accountNumber: this.bankConfig.account_number || '',
-        document: null,
-        documentName: '',
-        documentPreview: null
-      };
-      this.clearFormErrors();
-    },
-    
     // ===== UTILIDADES =====
     goBack() {
       window.location.href = '/pagos/';
@@ -897,19 +708,6 @@ createApp({
     formatDate(dateString) {
       if (!dateString) return '-';
       return new Date(dateString).toLocaleDateString('es-ES');
-    },
-    
-    // Verificar si se debe cargar un pago para edición desde URL
-    checkForEditMode() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const editPaymentId = urlParams.get('edit');
-      
-      if (editPaymentId) {
-        // Cargar el pago para edición después de que se carguen los datos de contexto
-        setTimeout(() => {
-          this.loadPaymentForEdit(editPaymentId);
-        }, 1000); // Dar tiempo para que se carguen las facturas
-      }
     },
     
     formatCurrency(amount) {

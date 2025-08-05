@@ -9,7 +9,14 @@
           <div class="mb-3 mt-3">
       <div class="row pt-2">
       <div class="col">
-        <!-- Loader mientras se cargan los datos -->
+        <!-- Loader mientras se ca            <span v-if="saving">
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+              Guardando...
+            </span>
+            <span v-else>
+              <i class="fas fa-check"></i> 
+              Confirmar y Registrar
+            </span>atos -->
         <div v-if="loading" class="text-center py-5">
           <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Cargando...</span>
@@ -218,8 +225,7 @@
         <div class="modal-header bg-success text-white">
           <h5 class="modal-title" id="paymentModalLabel">
             <i class="fas fa-money-bill-wave"></i> 
-            <span v-if="isEditMode">Editar Pago</span>
-            <span v-else>Registrar Pago</span>
+            Registrar Pago
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
