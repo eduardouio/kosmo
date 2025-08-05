@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from common.secrets import MAIL_PASS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -208,3 +209,23 @@ if 'eduardo' in os.path.abspath(__file__):
 
 JET_DEFAULT_THEME = 'default'
 JET_SIDE_MENU_COMPACT = True
+
+# Datos bancarios para pagos y cobros
+BANK_ACCOUNT = {
+    'bank_name': 'Banco Pacifico',
+    'account_number': '1067343082',
+    'account_type': 'Corriente',
+    'account_holder': 'Kosmo Flowers SAS',
+    'bank_address': 'P. Icaza y Pedro Carbo',
+    'bank_email': 'info@kosmoflowers.com'
+}
+
+
+# Correo electrónico para notificaciones
+EMAIL_SETTINGS = {
+    'host': 'smtp.kosmoflowers.com',
+    'port': 587,
+    'username': 'app-kosmoflowers@dev-7.com',
+    'password': MAIL_PASS,
+    'use_tls': True
+}
