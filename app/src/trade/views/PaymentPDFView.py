@@ -141,17 +141,11 @@ class PaymentPDFView(LoginRequiredMixin, View):
              f"${payment.amount:,.2f}"],
             ["Estado:", payment.get_status_display(), "Fecha:",
              payment.date.strftime('%d/%m/%Y')],
-            ["Tipo:", payment.get_type_transaction_display(), "", ""],
+            ["Tipo:", payment.get_type_transaction_display(), "Banco:",
+             payment.bank or ""],
+            ["Operación:", payment.nro_operation or "", "Cuenta:",
+             payment.nro_account or ""],
         ]
-
-        # Agregar información bancaria si existe
-        if payment.bank:
-            payment_info_data.append(["Banco:", payment.bank, "", ""])
-        if payment.nro_account:
-            payment_info_data.append(["Cuenta:", payment.nro_account, "", ""])
-        if payment.nro_operation:
-            payment_info_data.append(
-                ["Operación:", payment.nro_operation, "", ""])
 
         payment_info_table = Table(
             payment_info_data, colWidths=[1.2*inch, 2.3*inch, 1.2*inch, 2.3*inch])
