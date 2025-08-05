@@ -1,0 +1,352 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+    .filter-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .stats-card {
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        color: white;
+    }
+    .stats-card.facturado {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    }
+    .stats-card.cobrado {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    .stats-card.pendiente {
+        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    }
+    .stats-card.vencido {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    }
+    .stats-card h4 {
+        margin: 0;
+        font-size: 2rem;
+    }
+    .stats-card small {
+        opacity: 0.8;
+    }
+    .table-responsive {
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .btn-export {
+        background: linear-gradient(45deg, #6f42c1, #6610f2);
+        border: none;
+        color: white;
+    }
+    .btn-export:hover {
+        background: linear-gradient(45deg, #6610f2, #5a0fb0);
+        color: white;
+    }
+    .overdue {
+        background-color: #ffe6e6 !important;
+    }
+</style>
+{% endblock %}
+
+{% block files_header %}
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-file-invoice-dollar me-2"></i>
+                Reporte de Cobros
+            </h2>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row">
+        <div class="col-12">
+            <div class="filter-card">
+                <form method="GET" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="date_from" class="form-label">Fecha Desde</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" 
+                                   value="{{ filters.date_from }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="date_to" class="form-label">Fecha Hasta</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" 
+                                   value="{{ filters.date_to }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="customer_id" class="form-label">Cliente</label>
+                            <select class="form-select" id="customer_id" name="customer_id">
+                                <option value="">Todos los clientes</option>
+                                {% for customer in customers %}
+                                <option value="{{ customer.id }}" 
+                                        {% if filters.customer_id|stringformat:"s" == customer.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ customer.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="status" class="form-label">Estado</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">Todos los estados</option>
+                                {% for status_key, status_label in status_choices %}
+                                <option value="{{ status_key }}" 
+                                        {% if filters.status == status_key %}selected{% endif %}>
+                                    {{ status_label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search me-1"></i>Filtrar
+                            </button>
+                            <button type="button" class="btn btn-secondary me-2" onclick="clearFilters()">
+                                <i class="fas fa-times me-1"></i>Limpiar
+                            </button>
+                            <button type="button" class="btn btn-export" onclick="exportReport()">
+                                <i class="fas fa-download me-1"></i>Exportar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stats-card facturado">
+                <h4>${{ total_facturado|floatformat:2 }}</h4>
+                <small>Total Facturado</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card cobrado">
+                <h4>${{ total_cobrado|floatformat:2 }}</h4>
+                <small>Total Cobrado</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card pendiente">
+                <h4>${{ total_pendiente|floatformat:2 }}</h4>
+                <small>Pendiente de Cobro</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card vencido">
+                <h4>${{ total_vencido|floatformat:2 }}</h4>
+                <small>Vencido</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Estado de Cobranza</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Top Clientes por Facturación</h5>
+                </div>
+                <div class="card-body">
+                    {% for customer in customer_summary %}
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span>{{ customer.partner__name|truncatechars:30 }}</span>
+                        <span class="badge bg-primary">${{ customer.total|floatformat:2 }}</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No hay datos disponibles</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Facturas -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Facturas de Venta</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="collectionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Nº Factura</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Vencimiento</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Días Venc.</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invoice in invoices %}
+                                <tr {% if invoice.status == 'PENDIENTE' and invoice.due_date and invoice.due_date < today %}class="overdue"{% endif %}>
+                                    <td>{{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}</td>
+                                    <td>{{ invoice.date|date:"d/m/Y" }}</td>
+                                    <td>{{ invoice.partner.name|truncatechars:40 }}</td>
+                                    <td>
+                                        {% if invoice.due_date %}
+                                            {{ invoice.due_date|date:"d/m/Y" }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>${{ invoice.total_price|floatformat:2 }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if invoice.status == 'PAGADO' %}bg-success
+                                            {% elif invoice.status == 'PENDIENTE' %}bg-warning
+                                            {% elif invoice.status == 'ANULADO' %}bg-danger
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ invoice.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if invoice.status == 'PENDIENTE' and invoice.due_date %}
+                                            {% now "Y-m-d" as today %}
+                                            {% if invoice.due_date|date:"Y-m-d" < today %}
+                                                <span class="text-danger">
+                                                    {% widthratio invoice.due_date|timesince:"days" 1 1 %} días
+                                                </span>
+                                            {% else %}
+                                                <span class="text-success">-</span>
+                                            {% endif %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-primary" 
+                                           title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if invoice.status == 'PENDIENTE' %}
+                                        <a href="#" class="btn btn-sm btn-outline-success" 
+                                           title="Registrar pago">
+                                            <i class="fas fa-money-bill"></i>
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">
+                                        No se encontraron facturas con los filtros seleccionados
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block files_footer %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block script %}
+<script>
+    // Inicializar DataTable
+    $(document).ready(function() {
+        $('#collectionsTable').DataTable({
+            responsive: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+            },
+            order: [[1, 'desc']], // Ordenar por fecha desc
+            columnDefs: [
+                {
+                    targets: 6, // Columna de días vencidos
+                    type: 'num'
+                }
+            ]
+        });
+    });
+
+    // Gráfico de estados
+    const ctx = document.getElementById('statusChart').getContext('2d');
+    const statusData = [
+        {% for item in status_summary %}
+        {
+            label: '{{ item.status }}',
+            data: {{ item.total|default:0 }},
+            count: {{ item.count }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: statusData.map(item => item.label),
+            datasets: [{
+                data: statusData.map(item => item.data),
+                backgroundColor: [
+                    '#28a745', '#ffc107', '#dc3545', '#6c757d'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const item = statusData[context.dataIndex];
+                            return item.label + ': $' + item.data.toFixed(2) + ' (' + item.count + ' facturas)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Funciones auxiliares
+    function clearFilters() {
+        document.getElementById('filterForm').reset();
+        document.getElementById('filterForm').submit();
+    }
+
+    function exportReport() {
+        // Implementar exportación
+        alert('Función de exportación por implementar');
+    }
+</script>
+{% endblock %}
