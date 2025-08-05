@@ -27,6 +27,7 @@ from .PaymentFormView import PaymentFormView
 from .CollectionFormView import CollectionFormView
 from .PaymentDetailView import PaymentDetailView
 from .PaymentPDFView import PaymentPDFView
+from .CollectionDetailView import CollectionDetailView
 
 __all__ = [
     'StockDayListView',
@@ -55,4 +56,5 @@ __all__ = [
     'PaymentDetailView',
     'PaymentPDFView',
     'CollectionFormView',
+    'CollectionDetailView',
 ]
