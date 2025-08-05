@@ -23,7 +23,7 @@ class CollectionsContextAPI(View):
         Obtiene datos de contexto según la acción solicitada
         """
         action = request.GET.get('action', 'context_data')
-        
+
         if action == 'context_data':
             return self._get_collections_context_data(request)
         elif action == 'customer_invoices':
@@ -47,7 +47,7 @@ class CollectionsContextAPI(View):
         Maneja operaciones POST para cobros
         """
         action = request.POST.get('action', 'create_collection')
-        
+
         if action == 'create_collection':
             return self._create_collection(request)
         elif action == 'update_collection':
@@ -287,10 +287,18 @@ class CollectionsContextAPI(View):
         try:
             if not pending_invoices:
                 return {
-                    'total_invoices': 0,
-                    'total_pending': 0,
-                    'overdue_amount': 0,
-                    'due_soon_amount': 0
+                    'pending_invoices': {
+                        'count': 0,
+                        'total_amount': 0
+                    },
+                    'overdue_collections': {
+                        'count': 0,
+                        'total_amount': 0
+                    },
+                    'upcoming_due_invoices': {
+                        'count': 0,
+                        'total_amount': 0
+                    }
                 }
 
             total_pending_amount = sum(
@@ -311,17 +319,26 @@ class CollectionsContextAPI(View):
             due_soon_amount = sum(inv['balance'] for inv in upcoming_due)
 
             statistics = {
-                'total_invoices': len(pending_invoices),
-                'total_pending': float(total_pending_amount),
-                'overdue_amount': float(overdue_amount),
-                'due_soon_amount': float(due_soon_amount)
+                'pending_invoices': {
+                    'count': len(pending_invoices),
+                    'total_amount': float(total_pending_amount)
+                },
+                'overdue_collections': {
+                    'count': len(overdue_invoices),
+                    'total_amount': float(overdue_amount)
+                },
+                'upcoming_due_invoices': {
+                    'count': len(upcoming_due),
+                    'total_amount': float(due_soon_amount)
+                }
             }
 
             loggin_event(
                 'INFO',
                 f'CollectionsContextAPI estadísticas: '
-                f'{statistics["total_invoices"]} facturas, '
-                f'${statistics["total_pending"]:.2f} pendiente'
+                f'{statistics["pending_invoices"]["count"]} facturas, '
+                f'${statistics["pending_invoices"]["total_amount"]:.2f} '
+                f'pendiente'
             )
 
             return statistics
@@ -332,8 +349,16 @@ class CollectionsContextAPI(View):
                 f'CollectionsContextAPI _calculate_statistics error: {str(e)}'
             )
             return {
-                'total_invoices': 0,
-                'total_pending': 0,
-                'overdue_amount': 0,
-                'due_soon_amount': 0
+                'pending_invoices': {
+                    'count': 0,
+                    'total_amount': 0
+                },
+                'overdue_collections': {
+                    'count': 0,
+                    'total_amount': 0
+                },
+                'upcoming_due_invoices': {
+                    'count': 0,
+                    'total_amount': 0
+                }
             }
