@@ -130,10 +130,20 @@ class PaymentCreateUpdateAPI(View):
             loggin_event(
                 f'Pago creado exitosamente: {payment.payment_number}')
 
+            # Devolver información completa del pago creado
             return JsonResponse({
                 'message': 'Payment created successfully',
-                'payment_id': payment.id,
-                'payment_number': payment.payment_number
+                'payment': {
+                    'id': payment.id,
+                    'payment_number': payment.payment_number,
+                    'date': payment.date.isoformat() if payment.date else None,
+                    'amount': str(payment.amount),
+                    'method': payment.method,
+                    'status': payment.status,
+                    'bank': payment.bank,
+                    'nro_account': payment.nro_account,
+                    'nro_operation': payment.nro_operation
+                }
             }, status=201)
 
     def put(self, request, payment_id):
@@ -250,10 +260,20 @@ class PaymentCreateUpdateAPI(View):
             loggin_event(
                 f'Pago actualizado exitosamente: {payment.payment_number}')
 
+            # Devolver información completa del pago actualizado
             return JsonResponse({
                 'message': 'Payment updated successfully',
-                'payment_id': payment.id,
-                'payment_number': payment.payment_number
+                'payment': {
+                    'id': payment.id,
+                    'payment_number': payment.payment_number,
+                    'date': payment.date.isoformat() if payment.date else None,
+                    'amount': str(payment.amount),
+                    'method': payment.method,
+                    'status': payment.status,
+                    'bank': payment.bank,
+                    'nro_account': payment.nro_account,
+                    'nro_operation': payment.nro_operation
+                }
             }, status=200)
 
     def get(self, request, payment_id=None):
