@@ -232,17 +232,14 @@ class CollectionsContextAPI(View):
                     )
                     continue
 
-            # Ordenar facturas: primero las vencidas (days_overdue > 0),
-            # ordenadas por días vencidos descendente,
-            # luego las no vencidas por fecha de vencimiento
+            # Ordenar facturas por proximidad al vencimiento:
+            # Las más próximas a vencer primero (incluyendo vencidas)
             def sort_key(invoice_data):
                 days_overdue = invoice_data['days_overdue']
-                if days_overdue > 0:
-                    # Facturas vencidas: ordenar por días vencidos desc
-                    return (0, -days_overdue)
-                else:
-                    # Facturas no vencidas: ordenar por días hasta vencer
-                    return (1, days_overdue)
+                # Usar days_overdue directamente como clave de ordenamiento
+                # Valores negativos (por vencer) tendrán prioridad sobre positivos (vencidas)
+                # Dentro de cada grupo, se ordenará por proximidad
+                return -days_overdue  # Invertir para que las más próximas sean primero
             
             pending_invoices.sort(key=sort_key)
 

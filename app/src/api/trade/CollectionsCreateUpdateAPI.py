@@ -16,10 +16,29 @@ class CollectionsCreateUpdateAPI(View):
         loggin_event('Creando nuevo cobro')
 
         try:
-            if not request.body:
-                return JsonResponse({'error': 'No data provided'}, status=400)
-
-            data = json.loads(request.body)
+            # Detectar si es JSON o FormData
+            content_type = request.content_type
+            
+            if 'application/json' in content_type:
+                # Datos JSON
+                if not request.body:
+                    return JsonResponse({'error': 'No data provided'}, status=400)
+                
+                data = json.loads(request.body)
+                document_file = None
+            else:
+                # FormData (para compatibilidad con archivos)
+                data = request.POST.dict()
+                document_file = request.FILES.get('document')
+                
+                # Convertir invoice_collections de JSON string a dict
+                if 'invoice_collections' in data:
+                    invoice_collections = json.loads(data['invoice_collections'])
+                    data['invoices'] = [
+                        {'invoice_id': int(inv_id), 'amount': str(amount)}
+                        for inv_id, amount in invoice_collections.items()
+                    ]
+                
             loggin_event(f'Datos recibidos para cobro: {data}')
 
             # Validación de campos requeridos
@@ -64,6 +83,10 @@ class CollectionsCreateUpdateAPI(View):
                     approved_by_id=data.get('approved_by'),
                     approval_date=data.get('approval_date')
                 )
+
+                # Agregar archivo adjunto si existe
+                if 'application/json' not in content_type and document_file:
+                    collection.document = document_file
 
                 # Validar el cobro
                 collection.full_clean()
