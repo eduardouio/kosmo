@@ -7,7 +7,7 @@ from trade.models import Payment, PaymentDetail
 
 class PaymentDetailView(LoginRequiredMixin, DetailView):
     model = Payment
-    template_name = "presentations/payment_detail.html"
+    template_name = "presentations/payment_presentation.html"
     context_object_name = "payment"
 
     def get_context_data(self, **kwargs):
