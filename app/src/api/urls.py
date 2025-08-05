@@ -34,6 +34,7 @@ from api.trade import (
     CollectionsCreateUpdateAPI,
     CollectionsVoidAPI,
     BankConfigAPI,
+    CollectionsContextAPI,
 )
 
 urlpatterns = [
@@ -78,4 +79,5 @@ urlpatterns = [
     path('api/collections/<int:collection_id>/', CollectionsCreateUpdateAPI.as_view(), name='collection_detail_update'),
     path('api/collections/delete/', CollectionsVoidAPI.as_view(), name='collection_delete_bulk'),
     path('api/collections/<int:collection_id>/delete/', CollectionsVoidAPI.as_view(), name='collection_delete'),
+    path('api/collections-context/', CollectionsContextAPI.as_view(), name='collections_context_data'),
 ]

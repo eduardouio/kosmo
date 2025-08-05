@@ -5,6 +5,7 @@ from .PaymentVoidAPI import PaymentVoidAPI
 from .CollectionsCreateUpdateAPI import CollectionsCreateUpdateAPI
 from .CollectionsVoidAPI import CollectionsVoidAPI
 from .BankConfigAPI import BankConfigAPI
+from .CollectionsContextAPI import CollectionsContextAPI
 
 __all__ = [
     'CollectionsContextAPI',
@@ -14,4 +15,5 @@ __all__ = [
     'CollectionsCreateUpdateAPI',
     'CollectionsVoidAPI',
     'BankConfigAPI',
+    'CollectionsContextAPI',
 ]
