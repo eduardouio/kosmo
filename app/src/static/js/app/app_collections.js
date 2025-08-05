@@ -1,16 +1,30 @@
 const { createApp } = Vue;
 
 createApp({
+  delimiters: ['${', '}'], // Configuración para usar los selectores personalizados
   data() {
     return {
+      // Estados de carga
       loading: true,
       saving: false,
+      isEditMode: false, // Para saber si estamos editando o creando un cobro
+      
+      // Datos de clientes
       customers: [],
       filteredCustomers: [],
+      customerSearchTerm: '',
+      selectedCustomer: null,
+      showCustomerDropdown: false,
+      
+      // Datos de facturas
       pendingInvoices: [],
       filteredInvoices: [],
+      
+      // Métodos de pago y bancos
       collectionMethods: [],
       popularBanks: [],
+      
+      // Estadísticas con valores por defecto
       statistics: {
         pending_invoices: {
           count: 0,
@@ -25,6 +39,8 @@ createApp({
           total_amount: 0
         }
       },
+      
+      // Configuración bancaria
       bankConfig: {
         bank_name: '',
         account_number: '',
@@ -32,14 +48,9 @@ createApp({
         account_holder: ''
       },
       
-      // Autocomplete de clientes
-      customerSearchTerm: '',
-      selectedCustomer: null,
-      showCustomerDropdown: false,
-      
       // Formulario de cobro
       collectionForm: {
-        date: '',
+        date: new Date().toISOString().split('T')[0],
         method: '',
         nro_operation: '',
         amount: 0,
@@ -68,7 +79,8 @@ createApp({
       },
       
       currentDate: '',
-      currentTime: ''
+      currentTime: '',
+      collectionModal: null // Instancia del modal Bootstrap
     }
   },
   computed: {
@@ -98,11 +110,11 @@ createApp({
     
     canSaveCollection() {
       return this.selectedInvoicesCount > 0 && 
-             this.collectionForm.date && 
-             this.collectionForm.method && 
-             this.totalCollectionAmount > 0 &&
-             !this.saving &&
-             this.validateForm();
+              this.collectionForm.date && 
+              this.collectionForm.method && 
+              this.totalCollectionAmount > 0 &&
+              !this.saving &&
+              this.validateForm();
     }
   },
   
@@ -110,6 +122,11 @@ createApp({
     this.initializeDateTime();
     this.loadBankConfig();
     this.loadCollectionContextData();
+    
+    // Inicializar el modal después de que el DOM esté completamente cargado
+    this.$nextTick(() => {
+      this.collectionModal = new bootstrap.Modal(document.getElementById('collectionModal'));
+    });
   },
   
   methods: {
@@ -291,8 +308,12 @@ createApp({
       this.clearModalMessage();
       this.clearFormErrors();
       
-      const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
-      modal.show();
+      // Usar la instancia del modal ya creada
+      if (this.collectionModal) {
+        this.collectionModal.show();
+      } else {
+        console.error('El modal no se ha inicializado correctamente');
+      }
     },
     
     // ===== MANEJO DE ARCHIVOS =====
@@ -308,7 +329,7 @@ createApp({
         
         // Validar tipo de archivo
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 
-                             'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                              'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
         if (!allowedTypes.includes(file.type)) {
           this.showModalError('Tipo de archivo no permitido. Use JPG, PNG, PDF o DOC');
           this.$refs.documentFile.value = '';

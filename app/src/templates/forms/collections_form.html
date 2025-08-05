@@ -5,12 +5,13 @@
 {% endblock %}
 
 {% block content %}
-  <div id="collectionsApp" class="mx-auto" style="width: 95%;">
+<div id="collectionsApp">
+  <div class="mx-auto" style="width: 95%;">
     <div class="mb-3 mt-3">
       <div class="row pt-2">
         <div class="col">
           <!-- Loader mientras se cargan los datos -->
-          <div v-if="loading" class="text-center py-5">
+          <div v-if="loading === true" class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
               <span class="visually-hidden">Cargando...</span>
             </div>
@@ -19,6 +20,11 @@
 
           <!-- Contenido principal -->
           <div v-else class="container-fluid">
+            <!-- Mensaje de error si no se pudieron cargar los datos -->
+            <div v-if="!statistics || !statistics.pending_invoices" class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              No se pudieron cargar los datos de las facturas. Por favor, intente recargar la página.
+            </div>
 
             <!-- Estadísticas -->
             <div class="row pb-2 pt-2 fw-bold border pt-2 pb-2 mt-2 mb-2 shadow-sm">
@@ -26,13 +32,13 @@
                   Listado de Facturas Pendientes de Cobro
               </div>
               <div class="col-8 text-end text-xl">
-                  <span>Total facturas pendientes: {% verbatim %}{{ statistics.pending_invoices.count }}{% endverbatim %}</span>
+                  <span>Total facturas pendientes: ${ statistics.pending_invoices.count }</span>
                   <span class="text-muted ps-1 pe-1">|</span>
-                  <span class="text-cyan-800">Total pendiente: {% verbatim %}{{ formatCurrency(statistics.pending_invoices.total_amount) }}{% endverbatim %}</span>
+                  <span class="text-cyan-800">Total pendiente: ${ formatCurrency(statistics.pending_invoices.total_amount) }</span>
                   <span class="text-muted ps-1 pe-1">|</span>
-                  <span class="text-danger">Saldo Vencido: {% verbatim %}{{ formatCurrency(statistics.overdue_collections.total_amount) }}{% endverbatim %}</span>
+                  <span class="text-danger">Saldo Vencido: ${ formatCurrency(statistics.overdue_collections.total_amount) }</span>
                   <span class="text-muted ps-1 pe-1">|</span>
-                  <span class="text-yellow-600">Por Vencer: {% verbatim %}{{ formatCurrency(statistics.upcoming_due_invoices.total_amount) }}{% endverbatim %}</span>
+                  <span class="text-yellow-600">Por Vencer: ${ formatCurrency(statistics.upcoming_due_invoices.total_amount) }</span>
               </div>
             </div>
 
@@ -59,8 +65,8 @@
                          :key="customer.id"
                          @mousedown="selectCustomer(customer)"
                          class="p-2 cursor-pointer hover-bg-light border-bottom">
-                      <div class="fw-semibold">{% verbatim %}{{ customer.name }}{% endverbatim %}</div>
-                      <small class="text-muted">RUT: {% verbatim %}{{ customer.business_tax_id }}{% endverbatim %}</small>
+                      <div class="fw-semibold">${ customer.name }</div>
+                      <small class="text-muted">RUT: ${ customer.business_tax_id }</small>
                     </div>
                     <div v-if="customerSearchTerm && filteredCustomers.length === 0" 
                          class="p-2 text-muted text-center">
@@ -76,19 +82,19 @@
                 <!-- Cliente seleccionado -->
                 <div v-if="selectedCustomer" class="mt-2">
                   <span class="badge bg-primary">
-                    {% verbatim %}{{ selectedCustomer.name }}{% endverbatim %}
+                    ${ selectedCustomer.name }
                     <i @click="clearCustomerFilter" class="fas fa-times ms-1 cursor-pointer"></i>
                   </span>
                 </div>
               </div>
               <div class="col-8 text-end pt-4">
                 <span class="badge bg-info">
-                  Facturas mostradas: {% verbatim %}{{ filteredInvoices.length }}{% endverbatim %}
+                  Facturas mostradas: ${ filteredInvoices.length }
                 </span>
                 <button @click="openCollectionModal" 
                         :disabled="selectedInvoicesCount === 0"
                         class="btn btn-success btn-sm ms-2">
-                  <i class="fas fa-plus"></i> Registrar Cobro ({% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %})
+                  <i class="fas fa-plus"></i> Registrar Cobro (${ selectedInvoicesCount })
                 </button>
               </div>
             </div>
@@ -112,7 +118,7 @@
               <div class="col-12 text-center py-4 text-muted">
                 <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
                 <p><strong>¡Excelente!</strong></p>
-                <p v-if="selectedCustomer">No hay facturas pendientes para <strong>{% verbatim %}{{ selectedCustomer.name }}{% endverbatim %}</strong></p>
+                <p v-if="selectedCustomer">No hay facturas pendientes para <strong>${ selectedCustomer.name }</strong></p>
                 <p v-else>No hay facturas pendientes por cobrar</p>
                 <small>Todas las facturas han sido cobradas completamente.</small>
               </div>
@@ -126,35 +132,35 @@
               </div>
               <div class="col-2 border-end d-flex align-items-center">
                 <div>
-                  <div class="fw-semibold">{% verbatim %}{{ invoice.number || 'Sin número' }}{% endverbatim %}</div>
-                  <small class="text-muted">{% verbatim %}{{ invoice.type || 'FAC_VENTA' }}{% endverbatim %}</small>
+                  <div class="fw-semibold">${ invoice.number || 'Sin número' }</div>
+                  <small class="text-muted">${ invoice.type || 'FAC_VENTA' }</small>
                 </div>
               </div>
               <div class="col-2 border-end d-flex align-items-center">
                 <div>
-                  <div class="fw-semibold">{% verbatim %}{{ invoice.customer_name || 'Sin cliente' }}{% endverbatim %}</div>
-                  <small class="text-muted">ID: {% verbatim %}{{ invoice.customer_id }}{% endverbatim %}</small>
+                  <div class="fw-semibold">${ invoice.customer_name || 'Sin cliente' }</div>
+                  <small class="text-muted">ID: ${ invoice.customer_id }</small>
                 </div>
               </div>
               <div class="col-1 border-end d-flex align-items-center text-center">
-                {% verbatim %}{{ formatDate(invoice.date) }}{% endverbatim %}
+                ${ formatDate(invoice.date) }
               </div>
               <div class="col-1 border-end d-flex align-items-center text-center">
-                {% verbatim %}{{ formatDate(invoice.due_date) }}{% endverbatim %}
+                ${ formatDate(invoice.due_date) }
               </div>
               <div class="col-1 border-end d-flex align-items-center text-center">
-                <span v-if="invoice.days_overdue > 0" class="badge bg-danger">{% verbatim %}{{ invoice.days_overdue }}{% endverbatim %}</span>
+                <span v-if="invoice.days_overdue > 0" class="badge bg-danger">${ invoice.days_overdue }</span>
                 <span v-else-if="invoice.days_overdue === 0" class="badge bg-warning text-dark">Hoy</span>
-                <span v-else class="badge bg-success">{% verbatim %}{{ Math.abs(invoice.days_overdue) }}{% endverbatim %}</span>
+                <span v-else class="badge bg-success">${ Math.abs(invoice.days_overdue) }</span>
               </div>
               <div class="col-1 border-end d-flex align-items-center text-end">
-                {% verbatim %}{{ formatCurrency(invoice.total_amount) }}{% endverbatim %}
+                ${ formatCurrency(invoice.total_amount) }
               </div>
               <div class="col-1 border-end d-flex align-items-center text-end">
-                {% verbatim %}{{ formatCurrency(invoice.paid_amount) }}{% endverbatim %}
+                ${ formatCurrency(invoice.paid_amount) }
               </div>
               <div class="col-1 border-end d-flex align-items-center text-end">
-                <span class="fw-semibold text-danger">{% verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</span>
+                <span class="fw-semibold text-danger">${ formatCurrency(invoice.balance) }</span>
               </div>
               <div class="col-1 d-flex align-items-center">
                 <input type="number" step="0.01" v-model="invoice.collectionAmount" 
@@ -171,18 +177,18 @@
                 <div class="alert alert-info">
                   <div class="row">
                     <div class="col-3">
-                      <strong>Facturas Seleccionadas:</strong> {% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %}
+                      <strong>Facturas Seleccionadas:</strong> ${ selectedInvoicesCount }
                     </div>
                     <div class="col-3">
-                      <strong>Total a Cobrar:</strong> {% verbatim %}{{ formatCurrency(totalCollectionAmount) }}{% endverbatim %}
+                      <strong>Total a Cobrar:</strong> ${ formatCurrency(totalCollectionAmount) }
                     </div>
                     <div class="col-3">
-                      <strong>Saldo Total:</strong> {% verbatim %}{{ formatCurrency(totalBalanceAmount) }}{% endverbatim %}
+                      <strong>Saldo Total:</strong> ${ formatCurrency(totalBalanceAmount) }
                     </div>
                     <div class="col-3">
                       <strong>Diferencia:</strong> 
                       <span :class="collectionDifference >= 0 ? 'text-success' : 'text-danger'">
-                        {% verbatim %}{{ formatCurrency(Math.abs(collectionDifference)) }}{% endverbatim %}
+                        ${ formatCurrency(Math.abs(collectionDifference)) }
                       </span>
                     </div>
                   </div>
@@ -238,14 +244,46 @@
           <!-- Formulario de cobro -->
           <!-- Resumen del cobro -->
           <div class="alert alert-info mb-3">
-            <div class="row">
-              <div class="col-6">
-                <strong>Facturas a Cobrar:</strong> <span v-text="selectedInvoicesCount"></span>
-              </div>
-              <div class="col-6 text-end">
-                <strong>Total:</strong> <span v-text="formatCurrency(totalCollectionAmount)"></span>
-              </div>
+            <h5 class="fw-bold">Resumen del Cobro</h5>
+            <div class="table-responsive">
+              <table class="table table-sm table-hover">
+                <thead>
+                  <tr class="table-primary">
+                    <th>Factura</th>
+                    <th>Cliente</th>
+                    <th>Vence</th>
+                    <th>Saldo</th>
+                    <th>Monto a Cobrar</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="invoice in selectedInvoicesForCollection" :key="invoice.id">
+                    <td>${ invoice.number || 'N/A' }</td>
+                    <td>${ invoice.customer_name }</td>
+                    <td>${ formatDate(invoice.due_date) }</td>
+                    <td class="text-end">${ formatCurrency(invoice.balance) }</td>
+                    <td class="text-end fw-bold text-success">
+                      ${ formatCurrency(invoice.collectionAmount) }
+                    </td>
+                  </tr>
+                  <tr class="table-light">
+                    <td colspan="3" class="text-end fw-bold">Total a Cobrar:</td>
+                    <td class="text-end fw-bold">${ formatCurrency(totalBalanceAmount) }</td>
+                    <td class="text-end fw-bold text-success">${ formatCurrency(totalCollectionAmount) }</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
+          </div>
+          
+          <div class="alert alert-warning" v-if="collectionDifference !== 0">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span v-if="collectionDifference > 0">
+              El monto total a cobrar es menor que el saldo pendiente. Faltan cobrar ${ formatCurrency(collectionDifference) }
+            </span>
+            <span v-else>
+              El monto total a cobrar es mayor que el saldo pendiente. Hay un excedente de ${ formatCurrency(Math.abs(collectionDifference)) }
+            </span>
           </div>
 
           <!-- Lista de facturas seleccionadas -->
@@ -264,11 +302,11 @@
                 <tbody>
                   <tr v-for="invoice in selectedInvoicesForCollection" :key="invoice.id">
                     <td>
-                      <strong><span v-text="invoice.serie"></span>-<span v-text="invoice.consecutive"></span></strong>
-                      <br><small class="text-muted"><span v-text="invoice.num_invoice || 'FAC_VENTA'"></span></small>
+                      <strong>${ invoice.number || 'Sin número' }</strong>
+                      <br><small class="text-muted">${ invoice.type || 'FAC_VENTA' }</small>
                     </td>
-                    <td><span v-text="invoice.partner_name"></span></td>
-                    <td class="text-end"><span v-text="formatCurrency(invoice.balance)"></span></td>
+                    <td>${ invoice.customer_name || 'Sin cliente' }</td>
+                    <td class="text-end">${ formatCurrency(invoice.balance) }</td>
                     <td class="text-end">
                       <input type="number" step="0.01" v-model="invoice.collectionAmount" 
                              @input="validateCollectionAmount(invoice); updateCollectionFormAmount()"
@@ -385,7 +423,7 @@
                          rows="2" 
                          placeholder="Observaciones adicionales..."
                          maxlength="500"></textarea>
-                <small class="text-muted">{% verbatim %}{{ collectionForm.observations.length }}{% endverbatim %}/500 caracteres</small>
+                <small class="text-muted">${ collectionForm.observations.length }/500 caracteres</small>
               </div>
             </div>
           </form>
@@ -411,9 +449,9 @@
       </div>
     </div>
   </div>
-
   <!-- CSRF Token for POST requests -->
   {% csrf_token %}
+</div>
 {% endblock %}
 
 {% block script %}
