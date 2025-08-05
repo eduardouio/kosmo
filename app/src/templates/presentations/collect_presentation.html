@@ -19,27 +19,26 @@
     
     .info-card {
         border: none;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        margin-bottom: 1rem;
     }
     
     .info-card .card-header {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-bottom: 1px solid #dee2e6;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
         font-weight: 600;
-        color: #495057;
+        border-radius: 8px 8px 0 0;
+        padding: 0.5rem 0.75rem;
     }
     
     .info-card .card-body {
-        padding: 1.25rem;
+        padding: 0.75rem;
     }
     
     .detail-row {
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #f8f9fa;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        border-bottom: 1px solid #f1f3f4;
+        padding: 0.4rem 0;
     }
     
     .detail-row:last-child {
@@ -49,60 +48,65 @@
     .detail-label {
         font-weight: 600;
         color: #6c757d;
-        margin-bottom: 0;
+        font-size: 0.9rem;
     }
     
     .detail-value {
-        color: #212529;
-        margin-bottom: 0;
-        text-align: right;
+        font-size: 1rem;
+        color: #333;
     }
     
     .amount-highlight {
-        font-size: 1.1rem;
-        font-weight: bold;
+        font-size: 1.2rem;
+        font-weight: 700;
         color: #28a745;
     }
     
     .invoice-item {
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #f8f9fa;
+        background-color: #f8f9fa;
+        border-left: 4px solid #28a745;
+        padding: 0.5rem;
+        margin-bottom: 0.4rem;
+        border-radius: 0 5px 5px 0;
     }
     
     .invoice-item:last-child {
-        border-bottom: none;
+        margin-bottom: 0;
     }
     
     .customer-name {
         font-weight: 600;
-        color: #495057;
-        margin-bottom: 0.25rem;
+        color: #28a745;
+        font-size: 1.1rem;
     }
     
     .invoice-number {
-        color: #007bff;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.2s ease;
+        background-color: #e9ecef;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
     }
     
     .invoice-number:hover {
-        color: #0056b3;
-        text-decoration: underline;
+        background-color: #28a745;
+        color: white !important;
+        text-decoration: none !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(40,167,69,0.3);
     }
     
     .invoice-number i {
-        transition: transform 0.2s ease;
+        transition: transform 0.3s ease;
     }
     
     .invoice-number:hover i {
-        transform: translateX(2px);
+        transform: scale(1.1);
     }
     
     .btn-action {
-        margin: 0.25rem;
         min-width: 120px;
-        font-weight: 500;
     }
     
     .btn-action:disabled {
@@ -111,35 +115,26 @@
     }
     
     .btn-void {
-        background-color: #dc3545;
-        border-color: #dc3545;
-        color: white;
+        transition: all 0.3s ease;
     }
     
     .btn-void:hover:not(:disabled) {
-        background-color: #c82333;
-        border-color: #bd2130;
-        color: white;
+        background-color: #dc3545 !important;
+        color: white !important;
+        border-color: #dc3545 !important;
     }
     
     @media (max-width: 768px) {
+        .col-lg-4, .col-lg-8 {
+            margin-bottom: 1rem;
+        }
+        
         .collection-header h2 {
             font-size: 1.5rem;
         }
         
-        .detail-row {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .detail-value {
-            text-align: left;
-            margin-top: 0.25rem;
-        }
-        
-        .btn-action {
-            width: 100%;
-            margin: 0.25rem 0;
+        .amount-highlight {
+            font-size: 1.1rem;
         }
     }
 </style>
@@ -151,25 +146,33 @@
     <div class="row mb-2">
         <div class="col-12">
             <div class="card info-card">
-                <div class="card-header collection-header d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2 class="mb-0">
-                            <i class="fas fa-receipt me-2"></i>
-                            Cobro #{{ collection.payment_number|default:collection.id }}
-                        </h2>
-                        {% if collection.date %}
-                            <small class="text-muted">{{ collection.date|date:"d/m/Y" }}</small>
-                        {% endif %}
-                    </div>
-                    <div>
-                        <span class="badge status-badge 
-                            {% if collection.status == 'CONFIRMADO' %}bg-success
-                            {% elif collection.status == 'PENDIENTE' %}bg-warning text-dark
-                            {% elif collection.status == 'RECHAZADO' %}bg-danger
-                            {% elif collection.status == 'ANULADO' %}bg-secondary
-                            {% endif %}">
-                            {{ collection.get_status_display }}
-                        </span>
+                <div class="card-header collection-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 class="mb-1">
+                                <i class="fas fa-receipt me-2"></i>
+                                Cobro {{ collection.payment_number|default:collection.id }}
+                            </h3>
+                            <p class="mb-0 text-muted small">
+                                <i class="fas fa-calendar me-1"></i>
+                                Registrado el {{ collection.date|date:"d/m/Y" }}
+                            </p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge status-badge
+                                {% if collection.status == 'CONFIRMADO' %}bg-success
+                                {% elif collection.status == 'PENDIENTE' %}bg-warning text-dark
+                                {% elif collection.status == 'RECHAZADO' %}bg-danger
+                                {% elif collection.status == 'ANULADO' %}bg-secondary
+                                {% endif %}">
+                                {{ collection.get_status_display }}
+                            </span>
+                            <div class="mt-2">
+                                <span class="amount-highlight">
+                                    ${{ collection.amount|floatformat:2 }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -180,10 +183,9 @@
     {% if collection.status == 'ANULADO' %}
     <div class="row mb-3">
         <div class="col-12">
-            <div class="alert alert-warning" role="alert">
+            <div class="alert alert-warning">
                 <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>Cobro Anulado:</strong> Este cobro ha sido anulado y no tiene efecto sobre los saldos de las facturas. 
-                Se mantiene visible únicamente para propósitos de auditoría.
+                <strong>Cobro Anulado:</strong> Este cobro ha sido anulado. Los saldos de las facturas asociadas han sido restaurados y las facturas han vuelto a estado pendiente si corresponde.
             </div>
         </div>
     </div>
@@ -191,123 +193,221 @@
 
     <div class="row">
         <!-- Información del Cobro -->
-        <div class="col-md-6">
+        <div class="col-lg-4">
             <div class="card info-card">
                 <div class="card-header">
-                    <i class="fas fa-info-circle me-2"></i>Información del Cobro
+                    <i class="fas fa-info-circle me-2"></i>
+                    Información del Cobro
                 </div>
                 <div class="card-body">
                     <div class="detail-row">
-                        <p class="detail-label">Fecha del Cobro:</p>
-                        <p class="detail-value">{{ collection.date|date:"d/m/Y" }}</p>
+                        <div class="detail-label">Número de Cobro</div>
+                        <div class="detail-value">{{ collection.payment_number|default:"Sin número asignado" }}</div>
                     </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Fecha de Cobro</div>
+                        <div class="detail-value">{{ collection.date|date:"d/m/Y" }}</div>
+                    </div>
+                    
                     {% if collection.due_date %}
                     <div class="detail-row">
-                        <p class="detail-label">Fecha de Vencimiento:</p>
-                        <p class="detail-value">{{ collection.due_date|date:"d/m/Y" }}</p>
+                        <div class="detail-label">Fecha de Vencimiento</div>
+                        <div class="detail-value">{{ collection.due_date|date:"d/m/Y" }}</div>
                     </div>
                     {% endif %}
+                    
                     <div class="detail-row">
-                        <p class="detail-label">Monto Total:</p>
-                        <p class="detail-value amount-highlight">$ {{ collection.amount|floatformat:2 }}</p>
+                        <div class="detail-label">Tipo de Transacción</div>
+                        <div class="detail-value">
+                            <span class="badge {% if collection.type_transaction == 'INGRESO' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ collection.get_type_transaction_display }}
+                            </span>
+                        </div>
                     </div>
+                    
                     <div class="detail-row">
-                        <p class="detail-label">Método de Cobro:</p>
-                        <p class="detail-value">{{ collection.get_method_display }}</p>
+                        <div class="detail-label">Método de Cobro</div>
+                        <div class="detail-value">{{ collection.get_method_display }}</div>
                     </div>
+                    
+                    <div class="detail-row">
+                        <div class="detail-label">Monto Total</div>
+                        <div class="detail-value amount-highlight">${{ collection.amount|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Bancaria -->
+            {% if collection.bank or collection.nro_account or collection.nro_operation %}
+            <div class="card info-card">
+                <div class="card-header">
+                    <i class="fas fa-university me-2"></i>
+                    Información Bancaria
+                </div>
+                <div class="card-body">
                     {% if collection.bank %}
                     <div class="detail-row">
-                        <p class="detail-label">Banco:</p>
-                        <p class="detail-value">{{ collection.bank }}</p>
+                        <div class="detail-label">Banco</div>
+                        <div class="detail-value">{{ collection.bank }}</div>
                     </div>
                     {% endif %}
+                    
                     {% if collection.nro_account %}
                     <div class="detail-row">
-                        <p class="detail-label">Número de Cuenta:</p>
-                        <p class="detail-value">{{ collection.nro_account }}</p>
+                        <div class="detail-label">Número de Cuenta</div>
+                        <div class="detail-value">{{ collection.nro_account }}</div>
                     </div>
                     {% endif %}
+                    
                     {% if collection.nro_operation %}
                     <div class="detail-row">
-                        <p class="detail-label">Número de Operación:</p>
-                        <p class="detail-value">{{ collection.nro_operation }}</p>
-                    </div>
-                    {% endif %}
-                    {% if collection.processed_by %}
-                    <div class="detail-row">
-                        <p class="detail-label">Procesado por:</p>
-                        <p class="detail-value">{{ collection.processed_by.get_full_name|default:collection.processed_by.username }}</p>
-                    </div>
-                    {% endif %}
-                    {% if collection.approved_by %}
-                    <div class="detail-row">
-                        <p class="detail-label">Aprobado por:</p>
-                        <p class="detail-value">{{ collection.approved_by.get_full_name|default:collection.approved_by.username }}</p>
-                    </div>
-                    {% endif %}
-                    {% if collection.approval_date %}
-                    <div class="detail-row">
-                        <p class="detail-label">Fecha de Aprobación:</p>
-                        <p class="detail-value">{{ collection.approval_date|date:"d/m/Y H:i" }}</p>
+                        <div class="detail-label">Número de Operación</div>
+                        <div class="detail-value">
+                            <span class="invoice-number">{{ collection.nro_operation }}</span>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
             </div>
+            {% endif %}
+
+            <!-- Documento Adjunto -->
+            {% if collection.document %}
+            <div class="card info-card">
+                <div class="card-header">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Comprobante Adjunto
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-2">
+                        {% if collection.document.url|slice:"-4:" == ".pdf" %}
+                            <i class="fas fa-file-pdf fa-2x text-danger mb-2"></i>
+                            <div class="mb-2">
+                                <small class="text-muted">Documento PDF</small>
+                            </div>
+                        {% else %}
+                            <div class="mb-2">
+                                <img src="{{ collection.document.url }}" 
+                                     alt="Comprobante" 
+                                     class="img-fluid rounded shadow-sm" 
+                                     style="max-height: 180px; max-width: 100%; cursor: pointer; border: 1px solid #dee2e6;"
+                                     onclick="openImageModal('{{ collection.document.url }}')">
+                            </div>
+                            <small class="text-muted">Click para ampliar</small>
+                        {% endif %}
+                    </div>
+                    <div class="d-grid gap-1">
+                        <a href="{{ collection.document.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-external-link-alt me-1"></i>
+                            Abrir en Nueva Pestaña
+                        </a>
+                        <a href="{{ collection.document.url }}" download class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-download me-1"></i>
+                            Descargar Comprobante
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         <!-- Facturas Cobradas -->
-        <div class="col-md-6">
+        <div class="col-lg-8">
             <div class="card info-card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-file-invoice-dollar me-2"></i>Facturas Cobradas</span>
-                    <span class="badge bg-primary">{{ invoices_count }} factura{{ invoices_count|pluralize }}</span>
+                    <div>
+                        <i class="fas fa-file-invoice-dollar me-2"></i>
+                        Facturas Cobradas ({{ invoices_count }})
+                    </div>
+                    <div>
+                        <span class="badge bg-info">
+                            Total: ${{ total_invoices_amount|floatformat:2 }}
+                        </span>
+                    </div>
                 </div>
                 <div class="card-body">
                     {% if collection_details %}
                         {% for detail in collection_details %}
                         <div class="invoice-item">
-                            <p class="customer-name">{{ detail.invoice.partner.business_name|truncatechars:30 }}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <a href="{% url 'invoice_detail_presentation' detail.invoice.id %}" class="invoice-number">
-                                    <i class="fas fa-file-invoice me-1"></i>
-                                    {{ detail.invoice.num_invoice }}
-                                </a>
-                                <span class="text-success fw-bold">$ {{ detail.amount|floatformat:2 }}</span>
+                            <div class="row align-items-center">
+                                <div class="col-lg-6">
+                                    <div class="customer-name">
+                                        {{ detail.invoice.partner.business_name }}
+                                    </div>
+                                    <div class="mt-1">
+                                        <a href="{% url 'invoice_detail_presentation' detail.invoice.id %}" 
+                                           target="_blank" 
+                                           class="invoice-number text-decoration-none"
+                                           title="Click para ver detalles de la factura {{ detail.invoice.num_invoice }}">
+                                            <i class="fas fa-file-invoice me-1"></i>
+                                            {{ detail.invoice.num_invoice }}
+                                            <i class="fas fa-external-link-alt ms-1" style="font-size: 0.7em;"></i>
+                                        </a>
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Click en el número para ver detalles
+                                    </small>
+                                </div>
+                                <div class="col-lg-3 text-lg-center mt-2 mt-lg-0">
+                                    <small class="text-muted d-block">Fecha Factura</small>
+                                    <strong>{{ detail.invoice.date|date:"d/m/Y" }}</strong>
+                                </div>
+                                <div class="col-lg-3 text-lg-end mt-2 mt-lg-0">
+                                    <small class="text-muted d-block">Monto Cobrado</small>
+                                    <strong class="text-success">${{ detail.amount|floatformat:2 }}</strong>
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
-                        
-                        {% if invoices_count > 1 %}
-                        <div class="invoice-item border-top pt-3 mt-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong>Total Aplicado a Facturas:</strong>
-                                <strong class="text-success">$ {{ total_invoices_amount|floatformat:2 }}</strong>
-                            </div>
-                        </div>
-                        {% endif %}
                     {% else %}
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-inbox fa-2x mb-3 d-block"></i>
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-inbox fa-2x mb-2"></i>
                             <p>No hay facturas asociadas a este cobro</p>
                         </div>
                     {% endif %}
                 </div>
             </div>
 
-            <!-- Comprobante adjunto -->
-            {% if collection.document %}
+            <!-- Información de Usuario -->
+            {% if collection.processed_by or collection.approved_by %}
             <div class="card info-card">
                 <div class="card-header">
-                    <i class="fas fa-paperclip me-2"></i>Comprobante
+                    <i class="fas fa-users me-2"></i>
+                    Información de Procesamiento
                 </div>
-                <div class="card-body text-center">
-                    <img src="{{ collection.document.url }}" alt="Comprobante" class="img-fluid rounded shadow-sm" 
-                         style="max-height: 200px; cursor: pointer;" 
-                         onclick="openImageModal('{{ collection.document.url }}')">
-                    <div class="mt-3">
-                        <a href="{{ collection.document.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
-                            <i class="fas fa-external-link-alt me-1"></i>Ver en pantalla completa
-                        </a>
+                <div class="card-body">
+                    <div class="row">
+                        {% if collection.processed_by %}
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div class="detail-label">Procesado por</div>
+                                <div class="detail-value">
+                                    <i class="fas fa-user me-1"></i>
+                                    {{ collection.processed_by.get_full_name|default:collection.processed_by.username }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if collection.approved_by %}
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div class="detail-label">Aprobado por</div>
+                                <div class="detail-value">
+                                    <i class="fas fa-user-check me-1"></i>
+                                    {{ collection.approved_by.get_full_name|default:collection.approved_by.username }}
+                                </div>
+                            </div>
+                            {% if collection.approval_date %}
+                            <div class="detail-row">
+                                <div class="detail-label">Fecha de Aprobación</div>
+                                <div class="detail-value">{{ collection.approval_date|date:"d/m/Y H:i" }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -317,31 +417,27 @@
 
     <!-- Botones de Acción -->
     <div class="row mt-2">
-        <div class="col-12 text-center">
-            <div class="d-flex flex-wrap justify-content-center">
-                <a href="{% url 'collections_list' %}" class="btn btn-secondary btn-action">
-                    <i class="fas fa-arrow-left me-1"></i>Volver al Listado
-                </a>
-                
-                <a href="{% url 'collection_form' collection.id %}" class="btn btn-primary btn-action">
-                    <i class="fas fa-edit me-1"></i>Editar Cobro
-                </a>
-                
-                <a href="/trade/collection/{{ collection.id }}/pdf/" target="_blank" class="btn btn-info btn-action">
-                    <i class="fas fa-file-pdf me-1"></i>Descargar PDF
-                </a>
-                
-                <button type="button" onclick="window.print()" class="btn btn-outline-secondary btn-action">
-                    <i class="fas fa-print me-1"></i>Imprimir
-                </button>
-                
-                {% if collection.status != 'ANULADO' %}
-                <button type="button" onclick="voidCollection({{ collection.id }})" 
-                        class="btn btn-void btn-action"
-                        {% if collection.status == 'CONFIRMADO' %}title="Solo administradores pueden anular cobros confirmados"{% endif %}>
-                    <i class="fas fa-ban me-1"></i>Anular Cobro
-                </button>
-                {% endif %}
+        <div class="col-12">
+            <div class="d-flex gap-2 justify-content-between flex-wrap">
+                <div>
+                    <a href="{% url 'collections_list' %}" class="btn btn-secondary btn-action">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Volver a Lista
+                    </a>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'collection_pdf' collection.id %}" target="_blank" class="btn btn-default btn-action">
+                        <i class="fas fa-file-pdf me-1"></i>
+                        Generar PDF
+                    </a>
+                    
+                    {% if collection.status == 'PENDIENTE' or collection.status == 'CONFIRMADO' %}
+                    <button class="btn btn-default btn-action btn-void text-danger" onclick="voidCollection({{ collection.id }})">
+                        <i class="fas fa-ban me-1"></i>
+                        Anular Cobro
+                    </button>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
@@ -352,15 +448,19 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="imageModalLabel">Comprobante de Cobro</h5>
+                <h5 class="modal-title" id="imageModalLabel">
+                    <i class="fas fa-receipt me-2"></i>
+                    Comprobante de Cobro
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body text-center">
-                <img id="modalImage" src="" alt="Comprobante" class="img-fluid">
+                <img id="modalImage" src="" alt="Comprobante" class="img-fluid rounded">
             </div>
             <div class="modal-footer">
                 <a id="downloadLink" href="" download class="btn btn-primary">
-                    <i class="fas fa-download me-1"></i>Descargar
+                    <i class="fas fa-download me-1"></i>
+                    Descargar
                 </a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
@@ -406,77 +506,78 @@ Esta acción no se puede deshacer.`;
     button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Anulando...';
     
     try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         const response = await fetch(`/api/collections/${collectionId}/void/`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
             }
         });
         
         const result = await response.json();
         
         if (response.ok) {
-            alert('Cobro anulado correctamente');
-            // Recargar la página para mostrar el nuevo estado
-            window.location.reload();
+            // Mostrar mensaje de éxito
+            const successAlert = document.createElement('div');
+            successAlert.className = 'alert alert-success alert-dismissible fade show';
+            successAlert.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Cobro anulado correctamente.</strong> Los saldos de las facturas han sido restaurados.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            // Insertar el alert al inicio del contenedor
+            const container = document.querySelector('.container');
+            container.insertBefore(successAlert, container.firstChild);
+            
+            // Recargar la página después de 2 segundos para mostrar el estado actualizado
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+            
         } else {
-            alert('Error al anular el cobro: ' + (result.message || result.error || 'Error desconocido'));
-            // Restaurar el botón
+            // Restaurar el botón y mostrar error
             button.disabled = false;
             button.innerHTML = originalText;
+            
+            let errorMessage = 'Error desconocido';
+            if (result.error) {
+                errorMessage = result.error;
+            }
+            
+            alert('Error al anular el cobro: ' + errorMessage);
         }
         
     } catch (error) {
-        console.error('Error al anular cobro:', error);
-        alert('Error de conexión al anular el cobro');
-        // Restaurar el botón
+        // Restaurar el botón y mostrar error de conexión
         button.disabled = false;
         button.innerHTML = originalText;
+        
+        console.error('Error al anular cobro:', error);
+        alert('Error de conexión al anular el cobro. Por favor, intente nuevamente.');
     }
 }
 
 // Estilos para impresión
 const printStyles = `
     @media print {
-        .btn-action, .navbar, .footer, .btn-close {
+        .btn, .card-header, nav, footer {
             display: none !important;
         }
-        .container {
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
+        
         .card {
-            border: 1px solid #000 !important;
+            border: 1px solid #ddd !important;
             box-shadow: none !important;
-            break-inside: avoid;
         }
-        .card-header {
+        
+        .collection-header {
             background: #f8f9fa !important;
-            -webkit-print-color-adjust: exact;
-        }
-        .status-badge {
-            border: 1px solid #000 !important;
-            -webkit-print-color-adjust: exact;
-        }
-        .amount-highlight {
-            font-size: 1.2rem !important;
-            font-weight: bold !important;
-        }
-        .invoice-number {
             color: #000 !important;
-            text-decoration: none !important;
         }
-        body {
-            font-size: 12pt !important;
-            line-height: 1.4 !important;
-        }
-        h2 {
-            font-size: 16pt !important;
-        }
-        .detail-label, .detail-value {
-            font-size: 11pt !important;
+        
+        .amount-highlight {
+            color: #000 !important;
         }
     }
 `;
