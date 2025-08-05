@@ -17,7 +17,7 @@ from .OrderDetailView import OrderDetailView
 from .InvoiceFormView import InvoiceFormView
 from .AprovePurchaseOrder import AprovePurchaseOrderView
 from .CreateInvoiceByOrder import CreateInvoiceByOrder
-from .CollectionsList import CollectionsList
+from .CollectionsListView import CollectionsListView
 from .PaymentsList import PaymentsList
 from .DeleteInvoiceView import DeleteInvoiceView
 from .SupplierInvoiceDetail import SupplierInvoiceDetail
@@ -43,8 +43,8 @@ __all__ = [
     'OrderDetailView',
     'InvoiceFormView',
     'AprovePurchaseOrderView',
-    'CreateInvoiceByOrder',
-    'CollectionsList',
+    'CreateInvoiceByOrder',  
+    'CollectionsListView',
     'PaymentsList',
     'DeleteInvoiceView',
     'SupplierInvoiceDetail',
@@ -54,4 +54,5 @@ __all__ = [
     'CollectFormView',
     'PaymentDetailView',
     'PaymentPDFView',
+    'CollectionFormView',
 ]

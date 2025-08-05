@@ -48,20 +48,20 @@
         </div>
         <div class="d-flex justify-content-end gap-4">
             <div class="fw-bold">
-                <span>Vencidos:</span>
-                <span class="text-danger"> $ {{ vencidos|floatformat:2 }} </span>
+                <span>N. Cobros Realizados:</span>
+                <span class="text-primary"> {{ cobros_mes_count|default:0 }} </span>
             </div>
             <div class="fw-bold">
-                <span>FC Cobradas:</span>
-                <span class="text-success">$ {{ fc_cobradas|floatformat:2 }}</span>
+                <span>Cobros del mes:</span>
+                <span class="text-success">$ {{ cobros_mes|floatformat:2 }}</span>
             </div>
             <div class="fw-bold">
-                <span>FC Por Cobrar:</span>
-                <span class="text-orange-600"> {{ fc_por_cobrar }} Facturas</span>
+                <span>Total Pendiente:</span>
+                <span class="text-warning"> $ {{ total_pendiente|floatformat:2 }} </span>
             </div>
             <div class="fw-bold">
-                <span>Cobros Mes:</span>
-                <span class="text-success"> $ {{ cobros_mes|floatformat:2 }} </span>
+                <span>Total Confirmado:</span>
+                <span class="text-success"> $ {{ total_confirmado|floatformat:2 }} </span>
             </div>        
         </div>
     </div>
@@ -73,66 +73,63 @@
             <tr>
                 <th class="bg-secondary bg-opacity-25">#</th>
                 <th class="bg-secondary bg-opacity-25">Número</th>
-                <th class="bg-secondary bg-opacity-25">Fecha</th>
-                <th class="bg-secondary bg-opacity-25">Vencimiento</th>                
+                <th class="bg-secondary bg-opacity-25">Fecha</th>              
                 <th class="bg-secondary bg-opacity-25">Monto</th>
                 <th class="bg-secondary bg-opacity-25">Método</th>
-                <th class="bg-secondary bg-opacity-25">Estado</th>
                 <th class="bg-secondary bg-opacity-25">Banco</th>
-                <th class="bg-secondary bg-opacity-25">No. Operación</th>
-                <th class="bg-secondary bg-opacity-25">Facturas</th>
+                <th class="bg-secondary bg-opacity-25">Comprobante</th>
+                <th class="bg-secondary bg-opacity-25">Estado</th>
+                <th class="bg-secondary bg-opacity-25">Cliente/Facturas</th>
+                <th class="bg-secondary bg-opacity-25">Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for item in object_list %}
             <tr>
-                <td class="p-0 d-flex justify-content-start gap-3">
-                    <a href="{% url 'collection_detail' item.id %}" class="text-primary d-flex justify-content-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crosshair" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-                            <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-                            <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-                            <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-                            <path d="M9 12l6 0" />
-                            <path d="M12 9l0 6" />
-                        </svg>
+                <td class="p-1">
+                    <a href="javascript:void(0);" onclick="editCollection({{ item.id }})" class="text-decoration-none">
                         {{ item.id }}
                     </a>
                 </td>
-                <td class="p-0">{{ item.payment_number|default:"-" }}</td>
-                <td class="p-0">{{ item.date|date:"d/m/Y" }}</td>
-                <td class="p-0">
-                    {% if item.due_date %}
-                        <span class="{% if item.is_overdue %}text-danger fw-bold{% endif %}">
-                            {{ item.due_date|date:"d/m/Y" }}
-                        </span>
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-                <td class="p-0 text-end text-success">$ {{ item.amount|floatformat:2 }}</td>
-                <td class="p-0">{{ item.get_method_display }}</td>
-                <td class="p-0">
-                    <span class="badge 
-                        {% if item.status == 'CONFIRMADO' %}bg-success
-                        {% elif item.status == 'PENDIENTE' %}bg-warning
-                        {% elif item.status == 'RECHAZADO' %}bg-danger
-                        {% elif item.status == 'ANULADO' %}bg-secondary
+                <td class="p-1 text-start">{{ item.payment_number|default:"-" }}</td>
+                <td class="p-1 text-start">{{ item.date|date:"d/m/Y" }}</td>
+                <td class="p-1 text-end"> {{ item.amount|floatformat:2 }}</td>
+                <td class="p-1 text-start">{{ item.get_method_display }}</td>
+                <td class="p-1 text-start">{{ item.bank|default:"-" }}</td>
+                <td class="p-1 text-end">{{ item.nro_operation|default:"-" }}</td>
+                <td class="p-1">
+                    <strong class="
+                        {% if item.status == 'CONFIRMADO' %}text-success
+                        {% elif item.status == 'PENDIENTE' %}text-warning
+                        {% elif item.status == 'RECHAZADO' %}text-danger
+                        {% elif item.status == 'ANULADO' %}text-secondary
                         {% endif %}">
                         {{ item.get_status_display }}
-                    </span>
+                    </strong>
                 </td>
-                <td class="p-0">{{ item.bank|default:"-" }}</td>
-                <td class="p-0">{{ item.nro_operation|default:"-" }}</td>
-                <td class="p-0">
-                    <small>
-                        {% for invoice in item.invoices.all %}
-                            {{ invoice.invoice_number }}{% if not forloop.last %}, {% endif %}
+                <td class="p-1 text-end">
+                    <div class="provider-invoice-info">
+                        {% for payment_detail in item.invoices.all %}
+                            <div class="mb-1">
+                                <span class="text-truncate-custom" title="{{ payment_detail.invoice.partner.business_name }}">
+                                    {{ payment_detail.invoice.partner.business_name|truncatechars:20 }}
+                                </span>
+                                {{ payment_detail.invoice.num_invoice }}
+                            </div>
                         {% empty %}
-                            Sin facturas
+                            <span class="text-muted">Sin facturas</span>
                         {% endfor %}
-                    </small>
+                    </div>
+                </td>
+                <td class="p-1 text-center">
+                        <button class="btn btn-outline-primary btn-sm" onclick="editCollection({{ item.id }})" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                            Ver
+                        </button>
+                        <a href="/trade/collection/{{ item.id }}/pdf/" target="_blank" class="btn btn-outline-danger btn-sm" title="Descargar PDF del comprobante">
+                            <i class="fas fa-file-pdf"></i>
+                            PDF
+                        </a>
                 </td>
             </tr>
             {% empty %}
@@ -149,16 +146,21 @@
     {% endif %}
 </div>
 
-{% block files_footer %}
+
+{% endblock %}
+{% block script %}
+<!-- Librerías para exportación -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-{% endblock %}
 
-{% block script %}
 <script>
 $(document).ready(function() {
-    $('#exportExcel').click(function() {
+    // Funcionalidad de exportación Excel
+    $('#exportExcel').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
         var table = $('#myTable')[0];
         var wb = XLSX.utils.book_new();
         var ws = XLSX.utils.table_to_sheet(table);
@@ -167,7 +169,11 @@ $(document).ready(function() {
         XLSX.writeFile(wb, "cobros_" + fecha + ".xlsx");
     });
     
-    $('#exportPDF').click(function() {
+    // Funcionalidad de exportación PDF
+    $('#exportPDF').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
         const { jsPDF } = window.jspdf;
         var doc = new jsPDF('l', 'pt', 'a4');
         doc.setFontSize(16);
@@ -206,7 +212,85 @@ $(document).ready(function() {
         doc.save("cobros_" + fechaArchivo + ".pdf");
     });
 });
-</script>
-{% endblock %}
 
+// Funciones para gestión de cobros usando la nueva API
+function editCollection(collectionId) {
+    // Redirigir a la vista de detalle del cobro
+    window.location.href = `/trade/collection/${collectionId}/`;
+}
+
+async function deleteCollection(collectionId) {
+    if (!confirm('¿Está seguro de que desea eliminar este cobro? Esta acción no se puede deshacer.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/collections/${collectionId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert('Cobro eliminado correctamente');
+            // Recargar la página para reflejar los cambios
+            location.reload();
+        } else {
+            alert('Error al eliminar el cobro: ' + (result.message || 'Error desconocido'));
+        }
+        
+    } catch (error) {
+        console.error('Error al eliminar cobro:', error);
+        alert('Error de conexión al eliminar el cobro');
+    }
+}
+
+// Función para eliminar múltiples cobros seleccionados
+async function deleteSelectedCollections() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][data-collection-id]:checked');
+    const collectionIds = Array.from(checkboxes).map(cb => parseInt(cb.dataset.collectionId));
+    
+    if (collectionIds.length === 0) {
+        alert('Por favor seleccione al menos un cobro para eliminar');
+        return;
+    }
+    
+    if (!confirm(`¿Está seguro de que desea eliminar ${collectionIds.length} cobro(s)? Esta acción no se puede deshacer.`)) {
+        return;
+    }
+    
+    try {
+        const deletePromises = collectionIds.map(id => 
+            fetch(`/api/collections/${id}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+        );
+        
+        const responses = await Promise.all(deletePromises);
+        const results = await Promise.all(responses.map(r => r.json()));
+        
+        const successful = responses.filter(r => r.ok).length;
+        const failed = responses.length - successful;
+        
+        if (failed === 0) {
+            alert(`${successful} cobro(s) eliminado(s) correctamente`);
+        } else {
+            alert(`${successful} cobro(s) eliminado(s), ${failed} fallaron`);
+        }
+        
+        // Recargar la página para reflejar los cambios
+        location.reload();
+        
+    } catch (error) {
+        console.error('Error al eliminar cobros:', error);
+        alert('Error de conexión al eliminar los cobros');
+    }
+}
+</script>
 {% endblock %}
