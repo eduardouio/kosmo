@@ -1,0 +1,403 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+    .filter-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .stats-card {
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 15px;
+        color: white;
+    }
+    .stats-card.ingreso {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    }
+    .stats-card.egreso {
+        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    }
+    .stats-card.balance {
+        background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    }
+    .stats-card.total {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    }
+    .stats-card h4 {
+        margin: 0;
+        font-size: 2rem;
+    }
+    .stats-card small {
+        opacity: 0.8;
+    }
+    .table-responsive {
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .btn-export {
+        background: linear-gradient(45deg, #17a2b8, #138496);
+        border: none;
+        color: white;
+    }
+    .btn-export:hover {
+        background: linear-gradient(45deg, #138496, #117a8b);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block files_header %}
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-money-bill-wave me-2"></i>
+                Reporte de Pagos
+            </h2>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row">
+        <div class="col-12">
+            <div class="filter-card">
+                <form method="GET" id="filterForm">
+                    <div class="row g-3">
+                        <div class="col-md-2">
+                            <label for="date_from" class="form-label">Fecha Desde</label>
+                            <input type="date" class="form-control" id="date_from" name="date_from" 
+                                   value="{{ filters.date_from }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="date_to" class="form-label">Fecha Hasta</label>
+                            <input type="date" class="form-control" id="date_to" name="date_to" 
+                                   value="{{ filters.date_to }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="transaction_type" class="form-label">Tipo</label>
+                            <select class="form-select" id="transaction_type" name="transaction_type">
+                                <option value="">Todos</option>
+                                {% for type_key, type_label in type_choices %}
+                                <option value="{{ type_key }}" 
+                                        {% if filters.transaction_type == type_key %}selected{% endif %}>
+                                    {{ type_label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="payment_method" class="form-label">Método</label>
+                            <select class="form-select" id="payment_method" name="payment_method">
+                                <option value="">Todos</option>
+                                {% for method_key, method_label in method_choices %}
+                                <option value="{{ method_key }}" 
+                                        {% if filters.payment_method == method_key %}selected{% endif %}>
+                                    {{ method_label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="status" class="form-label">Estado</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="">Todos</option>
+                                {% for status_key, status_label in status_choices %}
+                                <option value="{{ status_key }}" 
+                                        {% if filters.status == status_key %}selected{% endif %}>
+                                    {{ status_label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search me-1"></i>Filtrar
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearFilters()">
+                                    <i class="fas fa-times me-1"></i>Limpiar
+                                </button>
+                                <button type="button" class="btn btn-export" onclick="exportReport()">
+                                    <i class="fas fa-download me-1"></i>Exportar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stats-card ingreso">
+                <h4>${{ total_ingresos|floatformat:2 }}</h4>
+                <small>Total Ingresos</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card egreso">
+                <h4>${{ total_egresos|floatformat:2 }}</h4>
+                <small>Total Egresos</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card balance">
+                <h4>${{ balance|floatformat:2 }}</h4>
+                <small>Balance</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card total">
+                <h4>{{ total_payments }}</h4>
+                <small>Total Transacciones</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Por Estado</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Por Método</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="methodChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Por Tipo de Transacción</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="typeChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Pagos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Pagos y Transacciones</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="paymentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Nº Pago</th>
+                                    <th>Fecha</th>
+                                    <th>Tipo</th>
+                                    <th>Método</th>
+                                    <th>Monto</th>
+                                    <th>Estado</th>
+                                    <th>Banco</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments %}
+                                <tr>
+                                    <td>{{ payment.payment_number|default:"-" }}</td>
+                                    <td>{{ payment.date|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if payment.type_transaction == 'INGRESO' %}bg-success
+                                            {% else %}bg-danger{% endif %}">
+                                            {{ payment.get_type_transaction_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ payment.get_method_display }}</td>
+                                    <td>
+                                        <span class="{% if payment.type_transaction == 'INGRESO' %}text-success{% else %}text-danger{% endif %}">
+                                            {% if payment.type_transaction == 'INGRESO' %}+{% else %}-{% endif %}${{ payment.amount|floatformat:2 }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if payment.status == 'CONFIRMADO' %}bg-success
+                                            {% elif payment.status == 'PENDIENTE' %}bg-warning
+                                            {% elif payment.status == 'RECHAZADO' %}bg-danger
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ payment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ payment.bank|default:"-" }}</td>
+                                    <td>
+                                        <a href="#" class="btn btn-sm btn-outline-primary" 
+                                           title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">
+                                        No se encontraron pagos con los filtros seleccionados
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block files_footer %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block script %}
+<script>
+    // Inicializar DataTable
+    $(document).ready(function() {
+        $('#paymentsTable').DataTable({
+            responsive: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
+            },
+            order: [[1, 'desc']] // Ordenar por fecha desc
+        });
+    });
+
+    // Gráfico de estados
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusData = [
+        {% for item in status_summary %}
+        {
+            label: '{{ item.status }}',
+            data: {{ item.count }},
+            total: {{ item.total|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: statusData.map(item => item.label),
+            datasets: [{
+                data: statusData.map(item => item.data),
+                backgroundColor: [
+                    '#28a745', '#ffc107', '#dc3545', '#6c757d'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Gráfico de métodos
+    const methodCtx = document.getElementById('methodChart').getContext('2d');
+    const methodData = [
+        {% for item in method_summary %}
+        {
+            label: '{{ item.method }}',
+            data: {{ item.count }},
+            total: {{ item.total|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    new Chart(methodCtx, {
+        type: 'bar',
+        data: {
+            labels: methodData.map(item => item.label),
+            datasets: [{
+                data: methodData.map(item => item.data),
+                backgroundColor: [
+                    '#007bff', '#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6c757d'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    // Gráfico de tipos
+    const typeCtx = document.getElementById('typeChart').getContext('2d');
+    const typeData = [
+        {% for item in type_summary %}
+        {
+            label: '{{ item.type_transaction }}',
+            data: {{ item.total|default:0 }},
+            count: {{ item.count }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    new Chart(typeCtx, {
+        type: 'pie',
+        data: {
+            labels: typeData.map(item => item.label),
+            datasets: [{
+                data: typeData.map(item => item.data),
+                backgroundColor: [
+                    '#28a745', '#dc3545'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Funciones auxiliares
+    function clearFilters() {
+        document.getElementById('filterForm').reset();
+        document.getElementById('filterForm').submit();
+    }
+
+    function exportReport() {
+        // Implementar exportación
+        alert('Función de exportación por implementar');
+    }
+</script>
+{% endblock %}
