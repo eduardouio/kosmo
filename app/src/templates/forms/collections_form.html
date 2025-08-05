@@ -26,13 +26,13 @@
                   Listado de Facturas Pendientes de Cobro
               </div>
               <div class="col-8 text-end text-xl">
-                  <span>Total facturas pendientes: {% verbatim %}{{ statistics.total_invoices }}{% endverbatim %}</span>
+                  <span>Total facturas pendientes: {% verbatim %}{{ statistics.pending_invoices.count }}{% endverbatim %}</span>
                   <span class="text-muted ps-1 pe-1">|</span>
-                  <span class="text-cyan-800">Total pendiente: ${% verbatim %}{{ formatCurrency(statistics.total_pending) }}{% endverbatim %}</span>
+                  <span class="text-cyan-800">Total pendiente: {% verbatim %}{{ formatCurrency(statistics.pending_invoices.total_amount) }}{% endverbatim %}</span>
                   <span class="text-muted ps-1 pe-1">|</span>
-                  <span class="text-danger">Saldo Vencido: ${% verbatim %}{{ formatCurrency(statistics.overdue_amount) }}{% endverbatim %}</span>
+                  <span class="text-danger">Saldo Vencido: {% verbatim %}{{ formatCurrency(statistics.overdue_collections.total_amount) }}{% endverbatim %}</span>
                   <span class="text-muted ps-1 pe-1">|</span>
-                  <span class="text-yellow-600">Por Vencer: ${% verbatim %}{{ formatCurrency(statistics.due_soon_amount) }}{% endverbatim %}</span>
+                  <span class="text-yellow-600">Por Vencer: {% verbatim %}{{ formatCurrency(statistics.upcoming_due_invoices.total_amount) }}{% endverbatim %}</span>
               </div>
             </div>
 
@@ -60,7 +60,7 @@
                          @mousedown="selectCustomer(customer)"
                          class="p-2 cursor-pointer hover-bg-light border-bottom">
                       <div class="fw-semibold">{% verbatim %}{{ customer.name }}{% endverbatim %}</div>
-                      <small class="text-muted">RUT: {% verbatim %}{{ customer.document_number }}{% endverbatim %}</small>
+                      <small class="text-muted">RUT: {% verbatim %}{{ customer.business_tax_id }}{% endverbatim %}</small>
                     </div>
                     <div v-if="customerSearchTerm && filteredCustomers.length === 0" 
                          class="p-2 text-muted text-center">
@@ -110,12 +110,16 @@
             <!-- Filas de facturas -->
             <div v-if="filteredInvoices.length === 0" class="row mb-1 border">
               <div class="col-12 text-center py-4 text-muted">
-                <i class="fas fa-inbox fa-2x mb-2"></i>
-                <p>No hay facturas pendientes por cobrar</p>
+                <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+                <p><strong>¡Excelente!</strong></p>
+                <p v-if="selectedCustomer">No hay facturas pendientes para <strong>{% verbatim %}{{ selectedCustomer.name }}{% endverbatim %}</strong></p>
+                <p v-else>No hay facturas pendientes por cobrar</p>
+                <small>Todas las facturas han sido cobradas completamente.</small>
               </div>
             </div>
 
             <div v-for="(invoice, index) in filteredInvoices" :key="invoice.id" 
+                 v-show="parseFloat(invoice.balance) > 0"
                  :class="['row', 'mb-1', 'border', 'my-hover-2', index % 2 === 0 ? 'bg-gray' : '']">
               <div class="col-1 border-end d-flex align-items-center justify-content-center">
                 <input type="checkbox" v-model="invoice.selected" @change="updateCollectionAmount(invoice)" class="form-check-input">
@@ -128,8 +132,8 @@
               </div>
               <div class="col-2 border-end d-flex align-items-center">
                 <div>
-                  <div class="fw-semibold">{% verbatim %}{{ invoice.customer_name }}{% endverbatim %}</div>
-                  <small class="text-muted">ID: {% verbatim %}{{ invoice.customer_id }}{% endverbatim %}</small>
+                  <div class="fw-semibold">{% verbatim %}{{ invoice.partner_name }}{% endverbatim %}</div>
+                  <small class="text-muted">ID: {% verbatim %}{{ invoice.partner_id }}{% endverbatim %}</small>
                 </div>
               </div>
               <div class="col-1 border-end d-flex align-items-center text-center">
@@ -144,13 +148,13 @@
                 <span v-else class="badge bg-success">{% verbatim %}{{ Math.abs(invoice.days_overdue) }}{% endverbatim %}</span>
               </div>
               <div class="col-1 border-end d-flex align-items-center text-end">
-                ${% verbatim %}{{ formatCurrency(invoice.total_amount) }}{% endverbatim %}
+                {% verbatim %}{{ formatCurrency(invoice.total_amount) }}{% endverbatim %}
               </div>
               <div class="col-1 border-end d-flex align-items-center text-end">
-                ${% verbatim %}{{ formatCurrency(invoice.paid_amount) }}{% endverbatim %}
+                {% verbatim %}{{ formatCurrency(invoice.paid_amount) }}{% endverbatim %}
               </div>
               <div class="col-1 border-end d-flex align-items-center text-end">
-                <span class="fw-semibold text-danger">${% verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</span>
+                <span class="fw-semibold text-danger">{% verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</span>
               </div>
               <div class="col-1 d-flex align-items-center">
                 <input type="number" step="0.01" v-model="invoice.collectionAmount" 
@@ -170,15 +174,15 @@
                       <strong>Facturas Seleccionadas:</strong> {% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %}
                     </div>
                     <div class="col-3">
-                      <strong>Total a Cobrar:</strong> ${% verbatim %}{{ formatCurrency(totalCollectionAmount) }}{% endverbatim %}
+                      <strong>Total a Cobrar:</strong> {% verbatim %}{{ formatCurrency(totalCollectionAmount) }}{% endverbatim %}
                     </div>
                     <div class="col-3">
-                      <strong>Saldo Total:</strong> ${% verbatim %}{{ formatCurrency(totalBalanceAmount) }}{% endverbatim %}
+                      <strong>Saldo Total:</strong> {% verbatim %}{{ formatCurrency(totalBalanceAmount) }}{% endverbatim %}
                     </div>
                     <div class="col-3">
                       <strong>Diferencia:</strong> 
                       <span :class="collectionDifference >= 0 ? 'text-success' : 'text-danger'">
-                        ${% verbatim %}{{ formatCurrency(Math.abs(collectionDifference)) }}{% endverbatim %}
+                        {% verbatim %}{{ formatCurrency(Math.abs(collectionDifference)) }}{% endverbatim %}
                       </span>
                     </div>
                   </div>
@@ -215,8 +219,7 @@
         <div class="modal-header bg-success text-white">
           <h5 class="modal-title" id="collectionModalLabel">
             <i class="fas fa-money-bill-wave"></i> 
-            <span v-if="isEditMode">Editar Cobro</span>
-            <span v-else>Registrar Cobro</span>
+            Registrar Cobro
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -268,7 +271,7 @@
                 <strong>Facturas a Cobrar:</strong> {% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %}
               </div>
               <div class="col-6 text-end">
-                <strong>Total:</strong> ${% verbatim %}{{ formatCurrency(totalCollectionAmount) }}{% endverbatim %}
+                <strong>Total:</strong> {% verbatim %}{{ formatCurrency(totalCollectionAmount) }}{% endverbatim %}
               </div>
             </div>
           </div>
@@ -292,8 +295,8 @@
                       <strong>{% verbatim %}{{ invoice.serie }}{% endverbatim %}-{% verbatim %}{{ invoice.consecutive }}{% endverbatim %}</strong>
                       <br><small class="text-muted">{% verbatim %}{{ invoice.num_invoice || 'FAC_VENTA' }}{% endverbatim %}</small>
                     </td>
-                    <td>{% verbatim %}{{ invoice.customer_name }}{% endverbatim %}</td>
-                    <td class="text-end">${% verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</td>
+                    <td>{% verbatim %}{{ invoice.partner_name }}{% endverbatim %}</td>
+                    <td class="text-end">{% verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</td>
                     <td class="text-end">
                       <input type="number" step="0.01" v-model="invoice.collectionAmount" 
                              @input="validateCollectionAmount(invoice); updateCollectionFormAmount()"
@@ -328,7 +331,7 @@
                 </label>
                 <select v-model="collectionForm.method" class="form-select" required>
                   <option value="">Seleccionar...</option>
-                  <option v-for="method in paymentMethods" :key="method.value" :value="method.value">
+                  <option v-for="method in collectionMethods" :key="method.value" :value="method.value">
                     {% verbatim %}{{ method.label }}{% endverbatim %}
                   </option>
                 </select>
@@ -337,10 +340,10 @@
               
               <div class="col-6 mt-3">
                 <label class="form-label fw-semibold">
-                  <i class="fas fa-hashtag"></i> Referencia/Documento
+                  <i class="fas fa-hashtag"></i> Referencia/Número de Operación
                 </label>
                 <input type="text" 
-                       v-model="collectionForm.reference" 
+                       v-model="collectionForm.nro_operation" 
                        class="form-control" 
                        placeholder="Núm. recibo, transferencia..."
                        maxlength="50">
@@ -366,9 +369,9 @@
                        v-model="collectionForm.bank" 
                        class="form-control" 
                        placeholder="Nombre del banco" 
-                       list="popular-banks-collections"
+                       list="popular-banks"
                        maxlength="100">
-                <datalist id="popular-banks-collections">
+                <datalist id="popular-banks">
                   <option v-for="bank in popularBanks" :key="bank.bank" :value="bank.bank">
                 </datalist>
               </div>
@@ -378,7 +381,7 @@
                   <i class="fas fa-credit-card"></i> Número de Cuenta
                 </label>
                 <input type="text" 
-                       v-model="collectionForm.accountNumber" 
+                       v-model="collectionForm.nro_account" 
                        class="form-control" 
                        placeholder="Número de cuenta"
                        maxlength="50">
@@ -440,7 +443,6 @@
 
   <!-- CSRF Token for POST requests -->
   {% csrf_token %}
-{% endverbatim %}
 {% endblock %}
 
 {% block script %}

@@ -126,14 +126,19 @@ class CollectionsContextAPI(View):
             for customer in customers_queryset:
                 pending_count = Invoice.objects.filter(
                     partner=customer,
-                    type_invoice='VENTA',
+                    type_document='FAC_VENTA',
+                    status='PENDIENTE',
                     is_active=True
                 ).count()
 
                 customers.append({
                     'id': customer.id,
                     'name': customer.name,
-                    'document_number': customer.document_number or '',
+                    'business_tax_id': (
+                        customer.business_tax_id
+                        if hasattr(customer, 'business_tax_id')
+                        else ''
+                    ),
                     'pending_invoices': pending_count
                 })
 
@@ -156,8 +161,9 @@ class CollectionsContextAPI(View):
         try:
             # Query para facturas de venta con saldo pendiente
             invoices_queryset = Invoice.objects.filter(
-                type_invoice='VENTA',
-                is_active=True
+                type_document='FAC_VENTA',
+                is_active=True,
+                status='PENDIENTE'
             ).select_related('partner').order_by('-date')
 
             loggin_event(
@@ -173,19 +179,22 @@ class CollectionsContextAPI(View):
                     # Calcular balance pendiente
                     balance = self._calculate_invoice_balance(invoice)
 
-                    if balance > 0:  # Solo incluir facturas con saldo pendiente
+                    # Solo incluir facturas con saldo pendiente
+                    if balance > 0:
                         # Calcular días de vencimiento
                         if invoice.due_date:
                             days_overdue = (
-                                date.today() - invoice.due_date
+                                date.today() - invoice.due_date.date()
                             ).days
                         else:
                             days_overdue = 0
 
                         pending_invoices.append({
                             'id': invoice.id,
-                            'number': invoice.number or 'Sin número',
-                            'type': invoice.type_invoice,
+                            'number': (
+                                invoice.num_invoice or f'Factura {invoice.id}'
+                            ),
+                            'type': invoice.type_document,
                             'customer_id': (
                                 invoice.partner.id if invoice.partner else None
                             ),
@@ -194,9 +203,9 @@ class CollectionsContextAPI(View):
                                 else 'Sin cliente'
                             ),
                             'customer_document': (
-                                invoice.partner.document_number
+                                invoice.partner.business_tax_id
                                 if invoice.partner and
-                                invoice.partner.document_number
+                                hasattr(invoice.partner, 'business_tax_id')
                                 else ''
                             ),
                             'date': (
@@ -208,9 +217,7 @@ class CollectionsContextAPI(View):
                                 if invoice.due_date else ''
                             ),
                             'days_overdue': days_overdue,
-                            'total_amount': float(
-                                invoice.total_amount or Decimal('0.0')
-                            ),
+                            'total_amount': float(invoice.total_invoice),
                             'paid_amount': float(
                                 self._get_paid_amount(invoice)
                             ),
@@ -225,10 +232,24 @@ class CollectionsContextAPI(View):
                     )
                     continue
 
+            # Ordenar facturas: primero las vencidas (days_overdue > 0),
+            # ordenadas por días vencidos descendente,
+            # luego las no vencidas por fecha de vencimiento
+            def sort_key(invoice_data):
+                days_overdue = invoice_data['days_overdue']
+                if days_overdue > 0:
+                    # Facturas vencidas: ordenar por días vencidos desc
+                    return (0, -days_overdue)
+                else:
+                    # Facturas no vencidas: ordenar por días hasta vencer
+                    return (1, days_overdue)
+            
+            pending_invoices.sort(key=sort_key)
+
             loggin_event(
                 'INFO',
                 f'CollectionsContextAPI: {len(pending_invoices)} '
-                f'facturas con saldo pendiente'
+                f'facturas con saldo pendiente (ordenadas por vencimiento)'
             )
 
             return pending_invoices
@@ -243,7 +264,7 @@ class CollectionsContextAPI(View):
     def _calculate_invoice_balance(self, invoice):
         """Calcula el saldo pendiente de una factura"""
         try:
-            total_amount = invoice.total_amount or Decimal('0.0')
+            total_amount = invoice.total_invoice
             paid_amount = self._get_paid_amount(invoice)
             return total_amount - paid_amount
         except Exception:
