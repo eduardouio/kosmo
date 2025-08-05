@@ -22,5 +22,6 @@ setuptools
 django-user-sessions
 gunicorn
 WeasyPrint
+reportlab
 playwright
 Werkzeug
