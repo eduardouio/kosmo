@@ -86,6 +86,23 @@
         border-radius: 4px;
         font-family: monospace;
         font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+    
+    .invoice-number:hover {
+        background-color: #007bff;
+        color: white !important;
+        text-decoration: none !important;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,123,255,0.3);
+    }
+    
+    .invoice-number i {
+        transition: transform 0.3s ease;
+    }
+    
+    .invoice-number:hover i {
+        transform: scale(1.1);
     }
     
     .btn-action {
@@ -319,10 +336,19 @@
                                         {{ detail.invoice.partner.business_name }}
                                     </div>
                                     <div class="mt-1">
-                                        <span class="invoice-number">
+                                        <a href="{% url 'report_invoice' id_invoice=detail.invoice.id %}" 
+                                           target="_blank" 
+                                           class="invoice-number text-decoration-none"
+                                           title="Click para descargar PDF de la factura {{ detail.invoice.num_invoice }}">
+                                            <i class="fas fa-file-pdf me-1"></i>
                                             {{ detail.invoice.num_invoice }}
-                                        </span>
+                                            <i class="fas fa-external-link-alt ms-1" style="font-size: 0.7em;"></i>
+                                        </a>
                                     </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Click en el número para descargar PDF
+                                    </small>
                                 </div>
                                 <div class="col-lg-3 text-lg-center mt-2 mt-lg-0">
                                     <small class="text-muted d-block">Fecha Factura</small>
