@@ -34,15 +34,15 @@
                     PDF
                 </button>
             </div>
+            <a href="{% url 'payment_create' %}" class="btn btn-sm btn-default">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M12 5l0 14" />
+                    <path d="M5 12l14 0" />
+                </svg>
+                Nuevo Pago
+            </a>
         </div>
-        <a href="{% url 'payment_create' %}" class="btn btn-sm btn-default">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                <path d="M12 5l0 14" />
-                <path d="M5 12l14 0" />
-            </svg>
-            Nuevo Pago
-        </a>
         <div class="d-flex justify-content-end gap-4">
             <div class="fw-bold">
                 <span>Vencidos:</span>
@@ -84,59 +84,41 @@
             {% for item in object_list %}
             <tr>
                 <td class="p-1">
-                    <a href="javascript:void(0);" onclick="editPayment({{ item.id }})" class="text-primary d-flex justify-content-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crosshair" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-                            <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-                            <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-                            <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-                            <path d="M9 12l6 0" />
-                            <path d="M12 9l0 6" />
-                        </svg>
+                    <a href="javascript:void(0);" onclick="editPayment({{ item.id }})" class="text-decoration-none">
                         {{ item.id }}
                     </a>
                 </td>
                 <td class="p-1 text-start">{{ item.payment_number|default:"-" }}</td>
                 <td class="p-1 text-start">{{ item.date|date:"d/m/Y" }}</td>
-                <td class="p-1 text-end text-danger">$ {{ item.amount|floatformat:2 }}</td>
+                <td class="p-1 text-end"> {{ item.amount|floatformat:2 }}</td>
                 <td class="p-1 text-start">{{ item.get_method_display }}</td>
-                <td class="p-1 text-start">
-                    <small class="text-muted">
-                        {{ item.bank|default:"-" }}
-                    </small>
-                </td>
-                <td class="p-1 text-start">
-                    <small class="text-muted">
-                        {{ item.nro_operation|default:"-" }}
-                    </small>
-                </td>
+                <td class="p-1 text-start">{{ item.bank|default:"-" }}</td>
+                <td class="p-1 text-end">{{ item.nro_operation|default:"-" }}</td>
                 <td class="p-1">
-                    <span class="badge 
-                        {% if item.status == 'CONFIRMADO' %}bg-success
-                        {% elif item.status == 'PENDIENTE' %}bg-warning
-                        {% elif item.status == 'RECHAZADO' %}bg-danger
-                        {% elif item.status == 'ANULADO' %}bg-secondary
+                    <strong class="
+                        {% if item.status == 'CONFIRMADO' %}text-success
+                        {% elif item.status == 'PENDIENTE' %}text-warning
+                        {% elif item.status == 'RECHAZADO' %}text-danger
+                        {% elif item.status == 'ANULADO' %}text-secondary
                         {% endif %}">
                         {{ item.get_status_display }}
-                    </span>
+                    </strong>
                 </td>
-                <td class="p-1">
+                <td class="p-1 text-end">
                     <div class="provider-invoice-info">
                         {% for payment_detail in item.invoices.all %}
                             <div class="mb-1">
-                                <span class="provider-name text-truncate-custom" title="{{ payment_detail.invoice.partner.business_name }}">
+                                <span class="text-truncate-custom" title="{{ payment_detail.invoice.partner.business_name }}">
                                     {{ payment_detail.invoice.partner.business_name|truncatechars:20 }}
                                 </span>
-                                <span class="invoice-badge badge bg-light text-dark">{{ payment_detail.invoice.num_invoice }}</span>
+                                {{ payment_detail.invoice.num_invoice }}
                             </div>
                         {% empty %}
                             <span class="text-muted">Sin facturas</span>
                         {% endfor %}
                     </div>
                 </td>
-                <td class="p-1">
-                    <div class="d-flex gap-1">
+                <td class="p-1 text-center">
                         <button class="btn btn-outline-primary btn-sm" onclick="editPayment({{ item.id }})" title="Ver detalles">
                             <i class="fas fa-eye"></i>
                             Ver
@@ -145,7 +127,6 @@
                             <i class="fas fa-file-pdf"></i>
                             PDF
                         </a>
-                    </div>
                 </td>
             </tr>
             {% empty %}
@@ -352,30 +333,24 @@ async function deleteSelectedPayments() {
     
     #myTable td:nth-child(2) { /* Número */
         width: 120px;
-        text-align: center;
     }
     
     #myTable td:nth-child(3), 
-    #myTable td:nth-child(4) { /* Fechas */
+    #myTable td:nth-child(4) { /* Fecha y Monto */
         width: 100px;
-        text-align: center;
     }
     
-    #myTable td:nth-child(5) { /* Monto */
+    #myTable td:nth-child(5) { /* Método */
         width: 120px;
-        text-align: right;
-        font-weight: 600;
     }
     
-    #myTable td:nth-child(6) { /* Método */
+    #myTable td:nth-child(6) { /* Banco */
         width: 110px;
-        text-align: center;
     }
     
     #myTable td:nth-child(7), 
-    #myTable td:nth-child(8) { /* Banco y Comprobante */
+    #myTable td:nth-child(8) { /* Comprobante y Estado */
         width: 130px;
-        text-align: center;
     }
     
     #myTable td:nth-child(9) { /* Estado */
@@ -398,25 +373,12 @@ async function deleteSelectedPayments() {
         line-height: 1.3;
     }
     
-    .provider-name {
-        font-weight: 600;
-        color: #0d6efd;
-        display: block;
-        margin-bottom: 2px;
-    }
-    
     .invoice-badge {
         display: inline-block;
         margin: 1px 2px;
         padding: 2px 6px;
         font-size: 0.7rem;
         border-radius: 3px;
-    }
-    
-    .amount-info {
-        color: #198754;
-        font-weight: 500;
-        font-size: 0.75rem;
     }
     
     /* Responsive adjustments */
@@ -427,10 +389,6 @@ async function deleteSelectedPayments() {
         
         #myTable th, #myTable td {
             padding: 0.3rem !important;
-        }
-        
-        .provider-name {
-            font-size: 0.7rem;
         }
         
         .invoice-badge {
