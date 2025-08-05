@@ -25,6 +25,15 @@ from trade.views import (
     CollectFormView,
 )
 
+# Importar APIs
+from api.trade import (
+    CollectionsCreateUpdateAPI,
+    CollectionsDeleteAPI,
+    CollectionsContextAPI,
+    PaymentCreateUpdateAPI,
+    PaymentDeleteAPI,
+)
+
 urlpatterns = [
     path('trade/<int:pk>/', DetailStockDetail.as_view(),name='stock_detail_detail'),
     path('trade/stock/', StockDayListView.as_view(), name='stock_list'),
@@ -50,4 +59,13 @@ urlpatterns = [
     path('pagos/', PaymentsList.as_view(), name="payments_list"),
     path('pagos/nuevo/', PaymentFormView.as_view(), name='payment_create'),
     path('cobros/nuevo/', CollectFormView.as_view(), name='collect_form'),
+    path('api/collections/context-data/', CollectionsContextAPI.as_view(), name='collections_context_api'),
+    path('api/collections/', CollectionsCreateUpdateAPI.as_view(), name='collections_create_api'),
+    path('api/collections/<int:collection_id>/', CollectionsCreateUpdateAPI.as_view(), name='collections_update_api'),
+    path('api/collections/<int:collection_id>/delete/', CollectionsDeleteAPI.as_view(), name='collections_delete_api'),
+    path('api/collections/delete/', CollectionsDeleteAPI.as_view(), name='collections_bulk_delete_api'),
+    path('api/payments/', PaymentCreateUpdateAPI.as_view(), name='payments_create_api'),
+    path('api/payments/<int:payment_id>/', PaymentCreateUpdateAPI.as_view(), name='payments_update_api'),
+    path('api/payments/<int:payment_id>/delete/', PaymentDeleteAPI.as_view(), name='payments_delete_api'),
+    path('api/payments/delete/', PaymentDeleteAPI.as_view(), name='payments_bulk_delete_api'),
 ]
