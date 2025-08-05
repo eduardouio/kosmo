@@ -126,14 +126,14 @@
               </div>
               <div class="col-2 border-end d-flex align-items-center">
                 <div>
-                  <div class="fw-semibold">{% verbatim %}{{ invoice.serie }}{% endverbatim %}-{% verbatim %}{{ invoice.consecutive }}{% endverbatim %}</div>
-                  <small class="text-muted">{% verbatim %}{{ invoice.num_invoice || 'FAC_VENTA' }}{% endverbatim %}</small>
+                  <div class="fw-semibold">{% verbatim %}{{ invoice.number || 'Sin número' }}{% endverbatim %}</div>
+                  <small class="text-muted">{% verbatim %}{{ invoice.type || 'FAC_VENTA' }}{% endverbatim %}</small>
                 </div>
               </div>
               <div class="col-2 border-end d-flex align-items-center">
                 <div>
-                  <div class="fw-semibold">{% verbatim %}{{ invoice.partner_name }}{% endverbatim %}</div>
-                  <small class="text-muted">ID: {% verbatim %}{{ invoice.partner_id }}{% endverbatim %}</small>
+                  <div class="fw-semibold">{% verbatim %}{{ invoice.customer_name || 'Sin cliente' }}{% endverbatim %}</div>
+                  <small class="text-muted">ID: {% verbatim %}{{ invoice.customer_id }}{% endverbatim %}</small>
                 </div>
               </div>
               <div class="col-1 border-end d-flex align-items-center text-center">
@@ -228,50 +228,22 @@
         <div v-if="modalMessage.show" class="alert m-3 mb-0" :class="`alert-${modalMessage.type}`">
           <div class="d-flex align-items-center">
             <i class="fas" :class="modalMessage.icon"></i>
-            <span class="ms-2">{% verbatim %}{{ modalMessage.text }}{% endverbatim %}</span>
+            <span class="ms-2" v-text="modalMessage.text"></span>
             <button type="button" class="btn-close ms-auto" @click="clearModalMessage"></button>
           </div>
         </div>
         
         <div class="modal-body">
           <!-- Información de la cuenta bancaria configurada -->
-          <div v-if="bankConfig.bank_name" class="row mb-3">
-            <div class="col-12">
-              <div class="alert alert-info">
-                <h6 class="alert-heading mb-2">
-                  <i class="fas fa-info-circle"></i> Cuenta Bancaria Configurada
-                </h6>
-                <div class="row">
-                  <div class="col-6">
-                    <small class="text-muted">Banco:</small><br>
-                    <strong>{% verbatim %}{{ bankConfig.bank_name }}{% endverbatim %}</strong>
-                  </div>
-                  <div class="col-6">
-                    <small class="text-muted">Nº Cuenta:</small><br>
-                    <strong>{% verbatim %}{{ bankConfig.account_number }}{% endverbatim %}</strong>
-                  </div>
-                  <div class="col-6 mt-2" v-if="bankConfig.account_type">
-                    <small class="text-muted">Tipo:</small><br>
-                    <strong>{% verbatim %}{{ bankConfig.account_type }}{% endverbatim %}</strong>
-                  </div>
-                  <div class="col-6 mt-2" v-if="bankConfig.account_holder">
-                    <small class="text-muted">Titular:</small><br>
-                    <strong>{% verbatim %}{{ bankConfig.account_holder }}{% endverbatim %}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Formulario de cobro -->
           <!-- Resumen del cobro -->
           <div class="alert alert-info mb-3">
             <div class="row">
               <div class="col-6">
-                <strong>Facturas a Cobrar:</strong> {% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %}
+                <strong>Facturas a Cobrar:</strong> <span v-text="selectedInvoicesCount"></span>
               </div>
               <div class="col-6 text-end">
-                <strong>Total:</strong> {% verbatim %}{{ formatCurrency(totalCollectionAmount) }}{% endverbatim %}
+                <strong>Total:</strong> <span v-text="formatCurrency(totalCollectionAmount)"></span>
               </div>
             </div>
           </div>
@@ -292,11 +264,11 @@
                 <tbody>
                   <tr v-for="invoice in selectedInvoicesForCollection" :key="invoice.id">
                     <td>
-                      <strong>{% verbatim %}{{ invoice.serie }}{% endverbatim %}-{% verbatim %}{{ invoice.consecutive }}{% endverbatim %}</strong>
-                      <br><small class="text-muted">{% verbatim %}{{ invoice.num_invoice || 'FAC_VENTA' }}{% endverbatim %}</small>
+                      <strong><span v-text="invoice.serie"></span>-<span v-text="invoice.consecutive"></span></strong>
+                      <br><small class="text-muted"><span v-text="invoice.num_invoice || 'FAC_VENTA'"></span></small>
                     </td>
-                    <td>{% verbatim %}{{ invoice.partner_name }}{% endverbatim %}</td>
-                    <td class="text-end">{% verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</td>
+                    <td><span v-text="invoice.partner_name"></span></td>
+                    <td class="text-end"><span v-text="formatCurrency(invoice.balance)"></span></td>
                     <td class="text-end">
                       <input type="number" step="0.01" v-model="invoice.collectionAmount" 
                              @input="validateCollectionAmount(invoice); updateCollectionFormAmount()"
@@ -322,7 +294,7 @@
                        class="form-control" 
                        :max="currentDate"
                        required>
-                <div v-if="formErrors.date" class="text-danger small">{% verbatim %}{{ formErrors.date }}{% endverbatim %}</div>
+                <div v-if="formErrors.date" class="text-danger small"><span v-text="formErrors.date"></span></div>
               </div>
               
               <div class="col-6">
@@ -331,11 +303,10 @@
                 </label>
                 <select v-model="collectionForm.method" class="form-select" required>
                   <option value="">Seleccionar...</option>
-                  <option v-for="method in collectionMethods" :key="method.value" :value="method.value">
-                    {% verbatim %}{{ method.label }}{% endverbatim %}
+                  <option v-for="method in collectionMethods" :key="method.value" :value="method.value" v-text="method.label">
                   </option>
                 </select>
-                <div v-if="formErrors.method" class="text-danger small">{% verbatim %}{{ formErrors.method }}{% endverbatim %}</div>
+                <div v-if="formErrors.method" class="text-danger small"><span v-text="formErrors.method"></span></div>
               </div>
               
               <div class="col-6 mt-3">
@@ -400,7 +371,7 @@
                 <small class="text-muted">Formatos: JPG, PNG, PDF, DOC (máx. 5MB)</small>
                 <div v-if="collectionForm.documentPreview" class="mt-2">
                   <small class="text-success">
-                    <i class="fas fa-check"></i> Archivo seleccionado: {% verbatim %}{{ collectionForm.documentName }}{% endverbatim %}
+                    <i class="fas fa-check"></i> Archivo seleccionado: <span v-text="collectionForm.documentName"></span>
                   </small>
                 </div>
               </div>

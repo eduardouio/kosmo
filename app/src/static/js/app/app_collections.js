@@ -144,7 +144,7 @@ createApp({
 
     async loadCollectionContextData() {
       try {
-        const response = await fetch('/api/collections-context/', {
+        const response = await fetch('/api/collections/context-data/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -427,35 +427,33 @@ createApp({
     
     // Crear un nuevo cobro
     async createCollection() {
-      const formData = new FormData();
+      // Preparar datos como JSON
+      const collectionData = {
+        date: this.collectionForm.date,
+        method: this.collectionForm.method,
+        amount: this.totalCollectionAmount.toString(),
+        bank: this.collectionForm.bank || '',
+        nro_account: this.collectionForm.nro_account || '',
+        nro_operation: this.collectionForm.nro_operation || '',
+        observations: this.collectionForm.observations || '',
+        invoices: []
+      };
       
-      // Datos del cobro
-      formData.append('date', this.collectionForm.date);
-      formData.append('method', this.collectionForm.method);
-      formData.append('amount', this.totalCollectionAmount);
-      formData.append('bank', this.collectionForm.bank || '');
-      formData.append('nro_account', this.collectionForm.nro_account || '');
-      formData.append('nro_operation', this.collectionForm.nro_operation || '');
-      formData.append('observations', this.collectionForm.observations || '');
-      
-      // Archivo adjunto
-      if (this.collectionForm.document) {
-        formData.append('document', this.collectionForm.document);
-      }
-      
-      // Facturas y montos
-      const invoiceCollections = {};
+      // Agregar facturas seleccionadas
       this.selectedInvoicesForCollection.forEach(invoice => {
-        invoiceCollections[invoice.id] = parseFloat(invoice.collectionAmount || 0);
+        collectionData.invoices.push({
+          invoice_id: invoice.id,
+          amount: parseFloat(invoice.collectionAmount || 0).toString()
+        });
       });
-      formData.append('invoice_collections', JSON.stringify(invoiceCollections));
       
-      const response = await fetch('/api/collections-create/', {
+      const response = await fetch('/api/collections/', {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
         },
-        body: formData
+        body: JSON.stringify(collectionData)
       });
       
       if (response.ok) {
