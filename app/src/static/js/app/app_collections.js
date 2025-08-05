@@ -157,9 +157,9 @@ createApp({
           
           this.customers = data.customers || [];
           this.filteredCustomers = [...this.customers];
-          this.pendingInvoices = data.pending_invoices || [];
+          this.pendingInvoices = data.invoices || [];
           this.filteredInvoices = [...this.pendingInvoices];
-          this.collectionMethods = data.collection_methods || [];
+          this.collectionMethods = data.payment_methods || [];
           this.popularBanks = data.popular_banks || [];
           this.statistics = data.statistics || {};
           
