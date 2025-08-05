@@ -136,12 +136,17 @@ createApp({
         if (data.success) {
           this.suppliers = data.suppliers;
           this.filteredSuppliers = [...this.suppliers];
-          this.pendingInvoices = data.pending_invoices.map(invoice => ({
-            ...invoice,
-            selected: false,
-            paymentAmount: invoice.balance
-          }));
-          this.filteredInvoices = [...this.pendingInvoices];
+          
+          // Filtrar facturas pendientes (solo con saldo > 0) y mapear propiedades adicionales
+          this.pendingInvoices = data.pending_invoices
+            .filter(invoice => parseFloat(invoice.balance) > 0.01) // Filtrar saldo > 0
+            .map(invoice => ({
+              ...invoice,
+              selected: false,
+              paymentAmount: invoice.balance
+            }));
+            
+          this.refreshFilteredInvoices();
           this.paymentMethods = data.payment_methods;
           this.popularBanks = data.popular_banks;
           this.statistics = data.statistics;
@@ -181,7 +186,7 @@ createApp({
       this.selectedSupplier = null;
       this.supplierSearchTerm = '';
       this.showSupplierDropdown = false;
-      this.filteredInvoices = [...this.pendingInvoices];
+      this.refreshFilteredInvoices();
       this.updatePaymentFormAmount();
     },
     
@@ -193,13 +198,7 @@ createApp({
     },
     
     filterInvoicesBySupplier() {
-      if (!this.selectedSupplier) {
-        this.filteredInvoices = [...this.pendingInvoices];
-      } else {
-        this.filteredInvoices = this.pendingInvoices.filter(
-          invoice => invoice.partner_id == this.selectedSupplier.id
-        );
-      }
+      this.refreshFilteredInvoices();
       this.updatePaymentFormAmount();
     },
     
@@ -461,7 +460,21 @@ createApp({
         console.log('Respuesta del API:', { status: response.status, result });
         
         if (response.ok) {
-          this.showModalSuccess('¡Pago registrado correctamente!');
+          // Contar cuántas facturas se pagaron completamente
+          const selectedInvoices = this.filteredInvoices.filter(inv => inv.selected);
+          const fullyPaidCount = selectedInvoices.filter(invoice => {
+            const paidAmount = parseFloat(invoice.paymentAmount);
+            const balance = parseFloat(invoice.balance);
+            return paidAmount >= balance;
+          }).length;
+          
+          // Mensaje personalizado según el resultado
+          let successMessage = '¡Pago registrado correctamente!';
+          if (fullyPaidCount > 0) {
+            successMessage += ` ${fullyPaidCount} factura${fullyPaidCount > 1 ? 's' : ''} pagada${fullyPaidCount > 1 ? 's' : ''} completamente y ${fullyPaidCount > 1 ? 'removidas' : 'removida'} de la lista.`;
+          }
+          
+          this.showModalSuccess(successMessage);
           
           // Actualizar las facturas localmente con los nuevos datos
           this.updateInvoicesAfterPayment(selectedInvoices, result.payment);
@@ -509,7 +522,53 @@ createApp({
         invoice.selected = false;
       });
       
+      // Eliminar facturas con saldo cero de ambas listas
+      this.removeZeroBalanceInvoices();
+      
       // Recalcular estadísticas
+      this.updateStatistics();
+      
+      // Refiltrar la lista visible
+      this.refreshFilteredInvoices();
+    },
+    
+    // Eliminar facturas con saldo cero o negativo
+    removeZeroBalanceInvoices() {
+      // Eliminar de la lista principal de facturas pendientes
+      this.pendingInvoices = this.pendingInvoices.filter(invoice => {
+        const balance = parseFloat(invoice.balance) || 0;
+        return balance > 0.01; // Usar 0.01 para evitar problemas de precisión decimal
+      });
+    },
+    
+    // Refrescar la lista filtrada después de cambios
+    refreshFilteredInvoices() {
+      if (!this.selectedSupplier) {
+        // Si no hay proveedor seleccionado, mostrar todas las facturas pendientes
+        this.filteredInvoices = [...this.pendingInvoices];
+      } else {
+        // Si hay proveedor seleccionado, filtrar por proveedor
+        this.filteredInvoices = this.pendingInvoices.filter(
+          invoice => invoice.partner_id == this.selectedSupplier.id
+        );
+      }
+    },
+    
+    // Método para actualizar una factura específica (útil para actualizaciones en tiempo real)
+    updateInvoiceById(invoiceId, updates) {
+      // Actualizar en la lista principal
+      const invoiceIndex = this.pendingInvoices.findIndex(inv => inv.id === invoiceId);
+      if (invoiceIndex !== -1) {
+        this.pendingInvoices[invoiceIndex] = { ...this.pendingInvoices[invoiceIndex], ...updates };
+        
+        // Si el balance es cero o negativo, eliminar la factura
+        if (parseFloat(this.pendingInvoices[invoiceIndex].balance) <= 0.01) {
+          this.pendingInvoices.splice(invoiceIndex, 1);
+        }
+      }
+      
+      // Refrescar la lista filtrada
+      this.refreshFilteredInvoices();
       this.updateStatistics();
     },
     
