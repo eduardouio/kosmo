@@ -45,20 +45,20 @@
         </div>
         <div class="d-flex justify-content-end gap-4">
             <div class="fw-bold">
-                <span>Vencidos:</span>
-                <span class="text-danger"> $ {{ vencidos|floatformat:2 }} </span>
+                <span>N. Pagos Realizados:</span>
+                <span class="text-primary"> {{ pagos_mes_count|default:0 }} </span>
             </div>
             <div class="fw-bold">
-                <span>FC Pagadas:</span>
-                <span class="text-success">$ {{ fc_pagadas|floatformat:2 }}</span>
+                <span>Pagos del mes:</span>
+                <span class="text-success">$ {{ pagos_mes|floatformat:2 }}</span>
             </div>
             <div class="fw-bold">
-                <span>FC Por Pagar:</span>
-                <span class="text-orange-600"> {{ fc_por_pagar }} Facturas</span>
+                <span>Total Pendiente:</span>
+                <span class="text-warning"> $ {{ total_pendiente|floatformat:2 }} </span>
             </div>
             <div class="fw-bold">
-                <span>Pagos Mes:</span>
-                <span class="text-success"> $ {{ pagos_mes|floatformat:2 }} </span>
+                <span>Total Confirmado:</span>
+                <span class="text-success"> $ {{ total_confirmado|floatformat:2 }} </span>
             </div>        
         </div>
     </div>
