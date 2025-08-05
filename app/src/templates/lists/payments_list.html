@@ -251,8 +251,8 @@ $(document).ready(function() {
 
 // Funciones para gestión de pagos usando la nueva API
 function editPayment(paymentId) {
-    // Redirigir a la página de creación de pagos con parámetro de edición
-    window.location.href = `/pagos/nuevo/?edit=${paymentId}`;
+    // Redirigir a la vista de detalle del pago
+    window.location.href = `/trade/payment/${paymentId}/`;
 }
 
 async function deletePayment(paymentId) {
