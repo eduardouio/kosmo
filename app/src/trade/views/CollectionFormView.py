@@ -14,7 +14,7 @@ from decimal import Decimal
 
 
 class CollectionFormView(LoginRequiredMixin, View):
-    template_name = 'forms/collect_form.html'
+    template_name = 'forms/collections_form.html'
 
     def get(self, request, collection_id=None):
         context = {
@@ -45,6 +45,7 @@ class CollectionFormView(LoginRequiredMixin, View):
             else:
                 collection = Payment()
                 collection.created_by = request.user
+                collection.type_transaction = 'INGRESO'  # Cobros son ingresos
 
             # Datos básicos del cobro
             collection.date = data.get('date')
