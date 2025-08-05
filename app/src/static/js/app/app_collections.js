@@ -9,9 +9,22 @@ createApp({
       filteredCustomers: [],
       pendingInvoices: [],
       filteredInvoices: [],
-      paymentMethods: [],
+      collectionMethods: [],
       popularBanks: [],
-      statistics: {},
+      statistics: {
+        pending_invoices: {
+          count: 0,
+          total_amount: 0
+        },
+        overdue_collections: {
+          count: 0,
+          total_amount: 0
+        },
+        upcoming_due_invoices: {
+          count: 0,
+          total_amount: 0
+        }
+      },
       bankConfig: {
         bank_name: '',
         account_number: '',
@@ -28,14 +41,14 @@ createApp({
       collectionForm: {
         date: '',
         method: '',
-        reference: '',
+        nro_operation: '',
         amount: 0,
         bank: '',
-        accountNumber: '',
-        observations: '',
+        nro_account: '',
         document: null,
         documentName: '',
-        documentPreview: null
+        documentPreview: null,
+        observations: ''
       },
       
       // Sistema de mensajes del modal
@@ -55,21 +68,9 @@ createApp({
       },
       
       currentDate: '',
-      currentTime: '',
-      
-      // Modo edición
-      isEditMode: false,
-      editingCollectionId: null,
-      
-      // Lista de cobros
-      collections: [],
-      currentPage: 1,
-      pageSize: 10,
-      totalPages: 0,
-      totalCount: 0
+      currentTime: ''
     }
   },
-  
   computed: {
     selectedInvoicesCount() {
       return this.filteredInvoices.filter(inv => inv.selected).length;
@@ -109,53 +110,73 @@ createApp({
     this.initializeDateTime();
     this.loadBankConfig();
     this.loadCollectionContextData();
-    
-    // Verificar si se debe cargar un cobro para edición
-    this.checkForEditMode();
   },
   
   methods: {
     async loadBankConfig() {
       try {
-        const response = await fetch('/api/bank-config/');
-        const data = await response.json();
+        const response = await fetch('/api/bank-config/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        });
         
-        if (data.success) {
-          this.bankConfig = data.data;
-          this.collectionForm.bank = data.data.bank_name;
-          this.collectionForm.accountNumber = data.data.account_number;
-        } else {
-          console.warn('No se pudo cargar la configuración bancaria:', data.error);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.config) {
+            this.bankConfig = data.config;
+            
+            // Pre-llenar campos del formulario si hay configuración
+            if (this.bankConfig.bank_name) {
+              this.collectionForm.bank = this.bankConfig.bank_name;
+            }
+            if (this.bankConfig.account_number) {
+              this.collectionForm.nro_account = this.bankConfig.account_number;
+            }
+          }
         }
       } catch (error) {
-        console.warn('Error al cargar configuración bancaria:', error.message);
+        console.error('Error loading bank config:', error);
       }
     },
 
     async loadCollectionContextData() {
       try {
-        this.loading = true;
-        const response = await fetch('/api/collections/context-data/');
-        const data = await response.json();
+        const response = await fetch('/api/collections-context/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          }
+        });
         
-        if (data.success) {
-          this.customers = data.customers;
+        if (response.ok) {
+          const data = await response.json();
+          
+          this.customers = data.customers || [];
           this.filteredCustomers = [...this.customers];
-          this.pendingInvoices = data.invoices.map(invoice => ({
-            ...invoice,
-            selected: false,
-            collectionAmount: invoice.balance
-          }));
+          this.pendingInvoices = data.pending_invoices || [];
           this.filteredInvoices = [...this.pendingInvoices];
-          this.paymentMethods = data.payment_methods;
+          this.collectionMethods = data.collection_methods || [];
           this.popularBanks = data.popular_banks || [];
-          this.statistics = data.statistics;
-          this.collectionForm.date = data.current_date;
+          this.statistics = data.statistics || {};
+          
+          // Inicializar montos de cobro
+          this.filteredInvoices.forEach(invoice => {
+            if (!invoice.collectionAmount) {
+              invoice.collectionAmount = parseFloat(invoice.balance || 0);
+            }
+            invoice.selected = false;
+          });
+          
         } else {
-          this.showError('Error al cargar los datos: ' + data.error);
+          this.showError('Error al cargar datos de cobros');
         }
       } catch (error) {
-        this.showError('Error de conexión: ' + error.message);
+        console.error('Error loading collection context:', error);
+        this.showError('Error de conexión al cargar datos');
       } finally {
         this.loading = false;
       }
@@ -163,15 +184,17 @@ createApp({
     
     // ===== AUTOCOMPLETE DE CLIENTES =====
     filterCustomers() {
-      if (this.customerSearchTerm.trim() === '') {
+      if (!this.customerSearchTerm.trim()) {
         this.filteredCustomers = [...this.customers];
-      } else {
-        const searchTerm = this.customerSearchTerm.toLowerCase();
-        this.filteredCustomers = this.customers.filter(customer => 
-          customer.name.toLowerCase().includes(searchTerm) ||
-          (customer.document_number && customer.document_number.includes(searchTerm))
-        );
+        this.showCustomerDropdown = true;
+        return;
       }
+      
+      const searchTerm = this.customerSearchTerm.toLowerCase();
+      this.filteredCustomers = this.customers.filter(customer => 
+        customer.name.toLowerCase().includes(searchTerm) ||
+        customer.business_tax_id.toLowerCase().includes(searchTerm)
+      );
       this.showCustomerDropdown = true;
     },
     
@@ -185,51 +208,53 @@ createApp({
     clearCustomerFilter() {
       this.selectedCustomer = null;
       this.customerSearchTerm = '';
-      this.showCustomerDropdown = false;
+      this.filteredCustomers = [...this.customers];
       this.filteredInvoices = [...this.pendingInvoices];
-      this.updateCollectionFormAmount();
+      this.showCustomerDropdown = false;
     },
     
     hideCustomerDropdown() {
       setTimeout(() => {
         this.showCustomerDropdown = false;
-      }, 150);
+      }, 200);
     },
     
     filterInvoicesByCustomer() {
-      if (!this.selectedCustomer) {
-        this.filteredInvoices = [...this.pendingInvoices];
-      } else {
-        this.filteredInvoices = this.pendingInvoices.filter(
-          invoice => invoice.customer_id == this.selectedCustomer.id
+      if (this.selectedCustomer) {
+        this.filteredInvoices = this.pendingInvoices.filter(invoice => 
+          invoice.partner_id === this.selectedCustomer.id
         );
+      } else {
+        this.filteredInvoices = [...this.pendingInvoices];
       }
-      this.updateCollectionFormAmount();
+      
+      // Reset selections
+      this.filteredInvoices.forEach(invoice => {
+        invoice.selected = false;
+        invoice.collectionAmount = parseFloat(invoice.balance || 0);
+      });
     },
     
     // ===== MANEJO DE FACTURAS =====
     updateCollectionAmount(invoice) {
       if (invoice.selected) {
-        invoice.collectionAmount = invoice.balance;
-      } else {
-        invoice.collectionAmount = 0;
+        if (!invoice.collectionAmount || invoice.collectionAmount <= 0) {
+          invoice.collectionAmount = parseFloat(invoice.balance || 0);
+        }
       }
       this.updateCollectionFormAmount();
     },
     
     validateCollectionAmount(invoice) {
-      const amount = parseFloat(invoice.collectionAmount);
-      const balance = parseFloat(invoice.balance);
+      const maxAmount = parseFloat(invoice.balance || 0);
+      const amount = parseFloat(invoice.collectionAmount || 0);
       
-      if (amount > balance) {
-        invoice.collectionAmount = balance;
-        if (!document.getElementById('collectionModal').classList.contains('show')) {
-          this.showWarning(`El monto no puede ser mayor al saldo ($${this.formatCurrency(balance)})`);
-        }
-      }
-      if (amount < 0) {
+      if (amount > maxAmount) {
+        invoice.collectionAmount = maxAmount;
+      } else if (amount < 0) {
         invoice.collectionAmount = 0;
       }
+      
       this.updateCollectionFormAmount();
     },
     
@@ -240,15 +265,17 @@ createApp({
     clearSelection() {
       this.filteredInvoices.forEach(invoice => {
         invoice.selected = false;
-        invoice.collectionAmount = 0;
+        invoice.collectionAmount = parseFloat(invoice.balance || 0);
       });
       this.updateCollectionFormAmount();
     },
     
     selectAllInvoices() {
       this.filteredInvoices.forEach(invoice => {
-        invoice.selected = true;
-        invoice.collectionAmount = invoice.balance;
+        if (parseFloat(invoice.balance) > 0) {
+          invoice.selected = true;
+          invoice.collectionAmount = parseFloat(invoice.balance || 0);
+        }
       });
       this.updateCollectionFormAmount();
     },
@@ -256,23 +283,14 @@ createApp({
     // ===== MODAL =====
     openCollectionModal() {
       if (this.selectedInvoicesCount === 0) {
-        this.showModalWarning('Debe seleccionar al menos una factura para cobrar');
+        this.showWarning('Debe seleccionar al menos una factura para cobrar');
         return;
       }
       
-      this.clearFormErrors();
-      this.clearModalMessage();
       this.updateCollectionFormAmount();
+      this.clearModalMessage();
+      this.clearFormErrors();
       
-      // Limpiar el archivo previo
-      this.collectionForm.document = null;
-      this.collectionForm.documentName = '';
-      this.collectionForm.documentPreview = null;
-      if (this.$refs.documentFile) {
-        this.$refs.documentFile.value = '';
-      }
-      
-      // Abrir modal usando Bootstrap
       const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
       modal.show();
     },
@@ -280,45 +298,39 @@ createApp({
     // ===== MANEJO DE ARCHIVOS =====
     handleFileChange(event) {
       const file = event.target.files[0];
-      if (!file) {
-        this.collectionForm.document = null;
-        this.collectionForm.documentName = '';
-        this.collectionForm.documentPreview = null;
-        return;
+      if (file) {
+        // Validar tamaño (5MB máximo)
+        if (file.size > 5 * 1024 * 1024) {
+          this.showModalError('El archivo no puede ser mayor a 5MB');
+          this.$refs.documentFile.value = '';
+          return;
+        }
+        
+        // Validar tipo de archivo
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 
+                             'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!allowedTypes.includes(file.type)) {
+          this.showModalError('Tipo de archivo no permitido. Use JPG, PNG, PDF o DOC');
+          this.$refs.documentFile.value = '';
+          return;
+        }
+        
+        this.collectionForm.document = file;
+        this.collectionForm.documentName = file.name;
+        
+        // Crear preview para imágenes
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            this.collectionForm.documentPreview = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          this.collectionForm.documentPreview = null;
+        }
+        
+        this.showModalSuccess(`Archivo "${file.name}" seleccionado correctamente`);
       }
-      
-      // Validar tamaño del archivo (máximo 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB en bytes
-      if (file.size > maxSize) {
-        this.showModalError('El archivo es demasiado grande. Máximo 5MB permitido.');
-        event.target.value = '';
-        return;
-      }
-      
-      // Validar tipo de archivo
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 
-                           'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-      if (!allowedTypes.includes(file.type)) {
-        this.showModalError('Tipo de archivo no permitido. Use JPG, PNG, PDF o DOC.');
-        event.target.value = '';
-        return;
-      }
-      
-      this.collectionForm.document = file;
-      this.collectionForm.documentName = file.name;
-      
-      // Crear preview para imágenes
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.collectionForm.documentPreview = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      } else {
-        this.collectionForm.documentPreview = 'document';
-      }
-      
-      this.clearModalMessage();
     },
     
     // ===== SISTEMA DE MENSAJES DEL MODAL =====
@@ -336,6 +348,13 @@ createApp({
         text: text,
         icon: icons[type] || icons.info
       };
+      
+      // Auto-ocultar después de 5 segundos para mensajes de éxito
+      if (type === 'success') {
+        setTimeout(() => {
+          this.clearModalMessage();
+        }, 5000);
+      }
     },
     
     showModalSuccess(text) {
@@ -374,14 +393,6 @@ createApp({
         isValid = false;
       }
       
-      // Validar que la fecha no sea futura
-      const collectionDate = new Date(this.collectionForm.date);
-      const today = new Date();
-      if (collectionDate > today) {
-        this.formErrors.date = 'La fecha no puede ser futura';
-        isValid = false;
-      }
-      
       return isValid;
     },
     
@@ -397,128 +408,167 @@ createApp({
     // ===== GUARDAR COBRO =====
     async saveCollection() {
       if (!this.validateForm()) {
-        this.showModalError('Por favor, corrija los errores en el formulario');
+        this.showModalError('Por favor corrija los errores del formulario');
         return;
       }
       
-      // Decidir si crear o actualizar según el modo
-      if (this.isEditMode) {
-        await this.updateCollection();
-      } else {
+      this.saving = true;
+      this.clearModalMessage();
+      
+      try {
         await this.createCollection();
+      } catch (error) {
+        console.error('Error saving collection:', error);
+        this.showModalError('Error al guardar el cobro: ' + error.message);
+      } finally {
+        this.saving = false;
       }
     },
     
     // Crear un nuevo cobro
     async createCollection() {
-      try {
-        this.saving = true;
-        this.clearModalMessage();
+      const formData = new FormData();
+      
+      // Datos del cobro
+      formData.append('date', this.collectionForm.date);
+      formData.append('method', this.collectionForm.method);
+      formData.append('amount', this.totalCollectionAmount);
+      formData.append('bank', this.collectionForm.bank || '');
+      formData.append('nro_account', this.collectionForm.nro_account || '');
+      formData.append('nro_operation', this.collectionForm.nro_operation || '');
+      formData.append('observations', this.collectionForm.observations || '');
+      
+      // Archivo adjunto
+      if (this.collectionForm.document) {
+        formData.append('document', this.collectionForm.document);
+      }
+      
+      // Facturas y montos
+      const invoiceCollections = {};
+      this.selectedInvoicesForCollection.forEach(invoice => {
+        invoiceCollections[invoice.id] = parseFloat(invoice.collectionAmount || 0);
+      });
+      formData.append('invoice_collections', JSON.stringify(invoiceCollections));
+      
+      const response = await fetch('/api/collections-create/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: formData
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        this.showModalSuccess('Cobro registrado correctamente');
         
-        const selectedInvoices = this.filteredInvoices.filter(inv => inv.selected);
+        // Actualizar facturas después del cobro exitoso
+        this.updateInvoicesAfterCollection(this.selectedInvoicesForCollection, data);
         
-        // Preparar los datos para la API REST
-        const collectionData = {
-          date: this.collectionForm.date,
-          method: this.collectionForm.method,
-          amount: parseFloat(this.collectionForm.amount),
-          bank: this.collectionForm.bank || '',
-          nro_account: this.collectionForm.accountNumber || '',
-          nro_operation: this.collectionForm.reference || '',
-          observations: this.collectionForm.observations || '',
-          invoices: selectedInvoices.map(invoice => ({
-            invoice_id: invoice.id,
-            amount: parseFloat(invoice.collectionAmount)
-          }))
-        };
-        
-        console.log('Enviando datos al API:', collectionData);
-        
-        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value 
-                         || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-                         || '';
-        
-        if (!csrfToken) {
-          console.error('No se encontró el token CSRF');
-          this.showModalError('Error: No se pudo obtener el token de seguridad');
-          return;
-        }
-        
-        // Realizar petición a la API
-        const response = await fetch('/api/collections/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrfToken
-          },
-          body: JSON.stringify(collectionData)
-        });
-        
-        const result = await response.json();
-        
-        console.log('Respuesta del API:', { status: response.status, result });
-        
-        if (response.ok && result.success) {
-          this.showModalSuccess('¡Cobro registrado correctamente!');
+        // Cerrar modal después de un breve delay
+        setTimeout(() => {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
+          modal.hide();
           
-          // Actualizar las facturas localmente
-          this.updateInvoicesAfterCollection(selectedInvoices, result.collection);
-          
-          // Cerrar modal después de un momento
-          setTimeout(() => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
-            modal.hide();
-            
-            // Resetear formulario y selección
-            this.resetCollectionForm();
-            this.clearSelection();
-          }, 1500);
-        } else {
-          console.error('Error del API:', result);
-          if (result.errors) {
-            this.formErrors = result.errors;
-          } else {
-            this.showModalError(result.error || 'Error al procesar el cobro');
-          }
-        }
+          // Resetear formulario
+          this.resetCollectionForm();
+        }, 2000);
         
-      } catch (error) {
-        console.error('Error al guardar cobro:', error);
-        this.showModalError('Error de conexión. Intente nuevamente.');
-      } finally {
-        this.saving = false;
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error desconocido al procesar el cobro');
       }
     },
     
     // Actualizar facturas después del cobro exitoso
     updateInvoicesAfterCollection(selectedInvoices, collectionData) {
       selectedInvoices.forEach(invoice => {
-        const collectedAmount = parseFloat(invoice.collectionAmount);
+        const collectedAmount = parseFloat(invoice.collectionAmount || 0);
         
-        // Actualizar el monto cobrado y calcular nuevo balance
-        invoice.paid_amount = (parseFloat(invoice.paid_amount) || 0) + collectedAmount;
-        invoice.balance = parseFloat(invoice.total_amount) - invoice.paid_amount;
+        // Actualizar los montos de la factura
+        invoice.paid_amount = parseFloat(invoice.paid_amount || 0) + collectedAmount;
+        invoice.balance = parseFloat(invoice.balance || 0) - collectedAmount;
         
-        // Resetear el monto de cobro y deseleccionar
-        invoice.collectionAmount = 0;
+        // Desmarcar y resetear
         invoice.selected = false;
+        invoice.collectionAmount = invoice.balance;
       });
       
-      // Recalcular estadísticas
+      // Filtrar facturas con saldo cero
+      this.removeZeroBalanceInvoices();
+      
+      // Actualizar estadísticas
       this.updateStatistics();
+      
+      // Actualizar la lista filtrada
+      this.refreshFilteredInvoices();
+    },
+    
+    // Eliminar facturas con saldo cero o negativo
+    removeZeroBalanceInvoices() {
+      this.pendingInvoices = this.pendingInvoices.filter(invoice => 
+        parseFloat(invoice.balance || 0) > 0
+      );
+    },
+    
+    // Refrescar la lista filtrada después de cambios
+    refreshFilteredInvoices() {
+      if (this.selectedCustomer) {
+        this.filterInvoicesByCustomer();
+      } else {
+        this.filteredInvoices = [...this.pendingInvoices];
+      }
+    },
+    
+    // Método para actualizar una factura específica (útil para actualizaciones en tiempo real)
+    updateInvoiceById(invoiceId, updates) {
+      // Actualizar en la lista principal
+      const mainIndex = this.pendingInvoices.findIndex(inv => inv.id === invoiceId);
+      if (mainIndex !== -1) {
+        Object.assign(this.pendingInvoices[mainIndex], updates);
+      }
+      
+      // Actualizar en la lista filtrada
+      const filteredIndex = this.filteredInvoices.findIndex(inv => inv.id === invoiceId);
+      if (filteredIndex !== -1) {
+        Object.assign(this.filteredInvoices[filteredIndex], updates);
+      }
     },
     
     // Recalcular estadísticas después de cambios
     updateStatistics() {
-      const pendingInvoices = this.pendingInvoices.filter(inv => inv.balance > 0);
-      const overdueInvoices = pendingInvoices.filter(inv => inv.days_overdue > 0);
-      const upcomingDueInvoices = pendingInvoices.filter(inv => inv.days_overdue <= 0 && inv.days_overdue >= -30);
+      const totalInvoices = this.pendingInvoices.length;
+      const totalPending = this.pendingInvoices.reduce((sum, inv) => 
+        sum + parseFloat(inv.balance || 0), 0
+      );
+      
+      // Calcular facturas vencidas
+      const overdueInvoices = this.pendingInvoices.filter(inv => inv.days_overdue > 0);
+      const overdueAmount = overdueInvoices.reduce((sum, inv) => 
+        sum + parseFloat(inv.balance || 0), 0
+      );
+      
+      // Calcular facturas por vencer
+      const upcomingDueInvoices = this.pendingInvoices.filter(inv => 
+        inv.days_overdue >= -30 && inv.days_overdue <= 0
+      );
+      const upcomingDueAmount = upcomingDueInvoices.reduce((sum, inv) => 
+        sum + parseFloat(inv.balance || 0), 0
+      );
       
       this.statistics = {
-        total_invoices: pendingInvoices.length,
-        total_pending: pendingInvoices.reduce((sum, inv) => sum + parseFloat(inv.balance), 0),
-        overdue_amount: overdueInvoices.reduce((sum, inv) => sum + parseFloat(inv.balance), 0),
-        due_soon_amount: upcomingDueInvoices.reduce((sum, inv) => sum + parseFloat(inv.balance), 0)
+        pending_invoices: {
+          count: totalInvoices,
+          total_amount: totalPending
+        },
+        overdue_collections: {
+          count: overdueInvoices.length,
+          total_amount: overdueAmount
+        },
+        upcoming_due_invoices: {
+          count: upcomingDueInvoices.length,
+          total_amount: upcomingDueAmount
+        }
       };
     },
     
@@ -526,48 +576,46 @@ createApp({
     
     // Eliminar un cobro individual
     async deleteCollection(collectionId) {
-      if (!confirm('¿Está seguro de que desea eliminar este cobro? Esta acción no se puede deshacer.')) {
+      if (!confirm('¿Está seguro de que desea anular este cobro?')) {
         return;
       }
       
       try {
-        const response = await fetch(`/api/collections/${collectionId}/delete/`, {
+        const response = await fetch(`/api/collections-void/${collectionId}/`, {
           method: 'DELETE',
           headers: {
+            'Content-Type': 'application/json',
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
           }
         });
         
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-          this.showSuccess('Cobro eliminado correctamente');
-          // Recargar datos para reflejar los cambios
+        if (response.ok) {
+          this.showSuccess('Cobro anulado correctamente');
+          // Recargar datos
           await this.loadCollectionContextData();
-          await this.loadCollections(this.currentPage);
         } else {
-          this.showError(result.error || 'Error al eliminar el cobro');
+          const errorData = await response.json();
+          this.showError(errorData.error || 'Error al anular el cobro');
         }
-        
       } catch (error) {
-        console.error('Error al eliminar cobro:', error);
-        this.showError('Error de conexión al eliminar el cobro');
+        console.error('Error deleting collection:', error);
+        this.showError('Error de conexión al anular el cobro');
       }
     },
     
     // Eliminar múltiples cobros (bulk delete)
     async deleteMultipleCollections(collectionIds) {
       if (!collectionIds || collectionIds.length === 0) {
-        this.showWarning('No hay cobros seleccionados para eliminar');
+        this.showWarning('No hay cobros seleccionados para anular');
         return;
       }
       
-      if (!confirm(`¿Está seguro de que desea eliminar ${collectionIds.length} cobro(s)? Esta acción no se puede deshacer.`)) {
+      if (!confirm(`¿Está seguro de que desea anular ${collectionIds.length} cobros?`)) {
         return;
       }
       
       try {
-        const response = await fetch('/api/collections/delete/', {
+        const response = await fetch('/api/collections-void/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -578,258 +626,52 @@ createApp({
           })
         });
         
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-          this.showSuccess(`${result.deleted_collections.length} cobro(s) eliminado(s) correctamente`);
-          // Recargar datos para reflejar los cambios
-          await this.loadCollectionContextData();
-          await this.loadCollections(this.currentPage);
-        } else {
-          this.showError(result.error || 'Error al eliminar los cobros');
-        }
-        
-      } catch (error) {
-        console.error('Error al eliminar cobros múltiples:', error);
-        this.showError('Error de conexión al eliminar los cobros');
-      }
-    },
-    
-    // ===== GESTIÓN DE EDICIÓN DE COBROS =====
-    
-    // Cargar un cobro existente para edición
-    async loadCollectionForEdit(collectionId) {
-      try {
-        const response = await fetch(`/api/collections/${collectionId}/`, {
-          method: 'GET',
-          headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          }
-        });
-        
         if (response.ok) {
           const data = await response.json();
-          const collection = data.collection;
-          
-          // Cargar datos del cobro en el formulario
-          this.collectionForm = {
-            id: collection.id,
-            date: collection.date,
-            method: collection.method,
-            amount: collection.amount,
-            reference: collection.nro_operation || '',
-            bank: collection.bank || '',
-            accountNumber: collection.nro_account || '',
-            observations: collection.observations || '',
-            document: null,
-            documentName: '',
-            documentPreview: null
-          };
-          
-          // Marcar que estamos en modo edición
-          this.isEditMode = true;
-          this.editingCollectionId = collectionId;
-          
-          // Seleccionar las facturas relacionadas con este cobro
-          if (collection.invoices) {
-            collection.invoices.forEach(invoiceDetail => {
-              const invoice = this.filteredInvoices.find(inv => inv.id === invoiceDetail.invoice_id);
-              if (invoice) {
-                invoice.selected = true;
-                invoice.collectionAmount = parseFloat(invoiceDetail.amount);
-              }
-            });
-          }
-          
-          this.updateCollectionFormAmount();
-          
-          // Abrir el modal
-          const modal = new bootstrap.Modal(document.getElementById('collectionModal'));
-          modal.show();
-          
-        } else {
-          this.showError('No se pudo cargar el cobro para edición');
-        }
-        
-      } catch (error) {
-        console.error('Error al cargar cobro para edición:', error);
-        this.showError('Error de conexión al cargar el cobro');
-      }
-    },
-    
-    // Actualizar un cobro existente
-    async updateCollection() {
-      if (!this.validateForm()) {
-        this.showModalError('Por favor, corrija los errores en el formulario');
-        return;
-      }
-      
-      try {
-        this.saving = true;
-        this.clearModalMessage();
-        
-        const selectedInvoices = this.filteredInvoices.filter(inv => inv.selected);
-        
-        const collectionData = {
-          date: this.collectionForm.date,
-          method: this.collectionForm.method,
-          amount: parseFloat(this.collectionForm.amount),
-          bank: this.collectionForm.bank || '',
-          nro_account: this.collectionForm.accountNumber || '',
-          nro_operation: this.collectionForm.reference || '',
-          observations: this.collectionForm.observations || '',
-          invoices: selectedInvoices.map(invoice => ({
-            invoice_id: invoice.id,
-            amount: parseFloat(invoice.collectionAmount)
-          }))
-        };
-        
-        const response = await fetch(`/api/collections/${this.editingCollectionId}/`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          },
-          body: JSON.stringify(collectionData)
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-          this.showModalSuccess('¡Cobro actualizado correctamente!');
-          
-          // Recargar datos para reflejar cambios
+          this.showSuccess(data.message || 'Cobros anulados correctamente');
+          // Recargar datos
           await this.loadCollectionContextData();
-          
-          setTimeout(() => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
-            modal.hide();
-            this.exitEditMode();
-          }, 1500);
-          
         } else {
-          if (result.errors) {
-            this.formErrors = result.errors;
-          } else {
-            this.showModalError(result.error || 'Error al actualizar el cobro');
-          }
-        }
-        
-      } catch (error) {
-        console.error('Error al actualizar cobro:', error);
-        this.showModalError('Error de conexión al actualizar el cobro');
-      } finally {
-        this.saving = false;
-      }
-    },
-    
-    // Salir del modo edición
-    exitEditMode() {
-      this.isEditMode = false;
-      this.editingCollectionId = null;
-      this.resetCollectionForm();
-      this.clearSelection();
-    },
-    
-    // Resetear el formulario de cobro
-    resetCollectionForm() {
-      this.collectionForm = {
-        date: this.currentDate,
-        method: '',
-        reference: '',
-        amount: 0,
-        bank: this.bankConfig.bank_name || '',
-        accountNumber: this.bankConfig.account_number || '',
-        observations: '',
-        document: null,
-        documentName: '',
-        documentPreview: null
-      };
-      this.clearFormErrors();
-    },
-    
-    // ===== LISTA DE COBROS =====
-    
-    // Cargar lista de cobros con paginación
-    async loadCollections(page = 1) {
-      try {
-        const response = await fetch(`/api/collections/?page=${page}&page_size=${this.pageSize}`, {
-          method: 'GET',
-          headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            this.collections = data.collections || [];
-            this.currentPage = data.pagination.page;
-            this.totalPages = data.pagination.total_pages;
-            this.totalCount = data.pagination.total_count;
-          }
+          const errorData = await response.json();
+          this.showError(errorData.error || 'Error al anular los cobros');
         }
       } catch (error) {
-        console.error('Error cargando cobros:', error);
-      }
-    },
-
-    // Navegación de páginas
-    goToPage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.loadCollections(page);
-      }
-    },
-
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.goToPage(this.currentPage + 1);
-      }
-    },
-
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.goToPage(this.currentPage - 1);
+        console.error('Error deleting multiple collections:', error);
+        this.showError('Error de conexión al anular los cobros');
       }
     },
     
     // ===== UTILIDADES =====
     goBack() {
-      window.location.href = '/cobros/';
+      window.history.back();
     },
     
     initializeDateTime() {
       const now = new Date();
-      this.currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
-      this.currentTime = now.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      
+      this.currentDate = `${year}-${month}-${day}`;
+      this.currentTime = `${hours}:${minutes}`;
+      
+      // Establecer fecha actual por defecto
+      this.collectionForm.date = this.currentDate;
     },
     
     formatDate(dateString) {
-      if (!dateString) return '-';
-      return new Date(dateString).toLocaleDateString('es-ES');
-    },
-    
-    // Verificar si se debe cargar un cobro para edición desde URL
-    checkForEditMode() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const editCollectionId = urlParams.get('edit');
-      
-      if (editCollectionId) {
-        // Cargar el cobro para edición después de que se carguen los datos de contexto
-        setTimeout(() => {
-          this.loadCollectionForEdit(editCollectionId);
-        }, 1000); // Dar tiempo para que se carguen las facturas
-      }
+      if (!dateString) return '';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('es-ES');
     },
     
     formatCurrency(amount) {
-      return parseFloat(amount || 0).toLocaleString('es-ES', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+      if (isNaN(amount) || amount === null || amount === undefined) return '0.00';
+      return parseFloat(amount).toLocaleString('es-ES', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
       });
     },
     
@@ -846,13 +688,41 @@ createApp({
     },
     
     showNotification(message, type) {
-      const icons = {
-        error: '❌',
-        success: '✅',
-        warning: '⚠️'
+      // Implementar sistema de notificaciones toast o similar
+      console.log(`${type.toUpperCase()}: ${message}`);
+      
+      // Por ahora, usar alert básico
+      if (type === 'error') {
+        alert('Error: ' + message);
+      } else if (type === 'success') {
+        alert('Éxito: ' + message);
+      } else if (type === 'warning') {
+        alert('Advertencia: ' + message);
+      }
+    },
+    
+    // Resetear el formulario de cobro
+    resetCollectionForm() {
+      this.collectionForm = {
+        date: this.currentDate,
+        method: '',
+        nro_operation: '',
+        amount: 0,
+        bank: this.bankConfig.bank_name || '',
+        nro_account: this.bankConfig.account_number || '',
+        document: null,
+        documentName: '',
+        documentPreview: null,
+        observations: ''
       };
       
-      alert(`${icons[type]} ${message}`);
+      // Limpiar el input de archivo
+      if (this.$refs.documentFile) {
+        this.$refs.documentFile.value = '';
+      }
+      
+      this.clearFormErrors();
+      this.clearModalMessage();
     }
   }
 }).mount('#collectionsApp');
