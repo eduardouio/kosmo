@@ -17,12 +17,10 @@ from trade.models import Payment, PaymentDetail
 
 
 class PaymentPDFView(LoginRequiredMixin, View):
-
+    
     def get(self, request, pk):
         """Generar PDF del comprobante de pago en formato compacto"""
-        payment = get_object_or_404(Payment, pk=pk)
-
-        # Obtener detalles del pago
+        payment = get_object_or_404(Payment, pk=pk)        # Obtener detalles del pago
         payment_details = PaymentDetail.objects.filter(
             payment=payment
         ).select_related('invoice', 'invoice__partner').order_by('invoice__num_invoice')
@@ -48,14 +46,14 @@ class PaymentPDFView(LoginRequiredMixin, View):
         # Estilos compactos
         styles = getSampleStyleSheet()
 
-        # Estilo para el logo/header
+        # Estilo para el logo/header (fuente más pequeña)
         header_style = ParagraphStyle(
             'HeaderStyle',
             parent=styles['Normal'],
-            fontSize=14,
+            fontSize=9,
             fontName='Helvetica-Bold',
             alignment=TA_LEFT,
-            spaceAfter=10,
+            spaceAfter=5,
             textColor=orange_color
         )
 
@@ -63,7 +61,7 @@ class PaymentPDFView(LoginRequiredMixin, View):
         number_style = ParagraphStyle(
             'NumberStyle',
             parent=styles['Normal'],
-            fontSize=16,
+            fontSize=12,
             fontName='Helvetica-Bold',
             alignment=TA_RIGHT,
             textColor=red_color
@@ -90,17 +88,21 @@ class PaymentPDFView(LoginRequiredMixin, View):
             spaceAfter=2
         )
 
-        # HEADER - Logo y Título (similar a invoice.html)
+        # HEADER - Logo y Título (con logo de Kosmo)
+        logo_text = "🌹 KOSMO FLOWERS"
+            
         header_data = [
             [
-                Paragraph("KOSMO FLOWERS", header_style),
+                Paragraph(logo_text, header_style),
                 Paragraph("COMPROBANTE DE PAGO", header_style)
             ],
             [
                 Paragraph(
-                    "Roses Grown by: KOSMO FLOWERS<br/>Address: Tupigachi - Tabacundo", normal_compact),
+                    "Roses Grown by: KOSMO FLOWERS<br/>"
+                    "Address: Tupigachi - Tabacundo", normal_compact),
                 Paragraph(
-                    f"<b>No. {payment.payment_number or payment.id}</b><br/>{payment.date.strftime('%d/%m/%Y')}", number_style)
+                    f"<b>No. {payment.payment_number or payment.id}</b><br/>"
+                    f"{payment.date.strftime('%d/%m/%Y')}", number_style)
             ]
         ]
 
@@ -109,8 +111,8 @@ class PaymentPDFView(LoginRequiredMixin, View):
             ('ALIGN', (0, 0), (0, -1), 'LEFT'),
             ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('BOX', (0, 0), (-1, -1), 2, orange_color),
-            ('INNERGRID', (0, 0), (-1, -1), 1, orange_color),
+            ('BOX', (0, 0), (-1, -1), 0.25, orange_color),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, orange_color),
             ('LEFTPADDING', (0, 0), (-1, -1), 8),
             ('RIGHTPADDING', (0, 0), (-1, -1), 8),
             ('TOPPADDING', (0, 0), (-1, -1), 5),
@@ -119,52 +121,46 @@ class PaymentPDFView(LoginRequiredMixin, View):
         story.append(header_table)
         story.append(Spacer(1, 10))
 
-        # INFORMACIÓN DEL PAGO (2 columnas)
-        payment_info_left = [
-            f"<b>Método de Pago:</b> {payment.get_method_display()}",
-            f"<b>Estado:</b> {payment.get_status_display()}",
-            f"<b>Tipo:</b> {payment.get_type_transaction_display()}",
-        ]
-
-        payment_info_right = [
-            f"<b>Monto Total:</b> ${payment.amount:,.2f}",
-            f"<b>Fecha:</b> {payment.date.strftime('%d/%m/%Y')}",
-            ""  # Espacio para balance
+        # INFORMACIÓN DEL PAGO (tabla estructurada)
+        payment_info_data = [
+            ["Método de Pago:", payment.get_method_display(), "Monto Total:", f"${payment.amount:,.2f}"],
+            ["Estado:", payment.get_status_display(), "Fecha:", payment.date.strftime('%d/%m/%Y')],
+            ["Tipo:", payment.get_type_transaction_display(), "", ""],
         ]
 
         # Agregar información bancaria si existe
         if payment.bank:
-            payment_info_left.append(f"<b>Banco:</b> {payment.bank}")
+            payment_info_data.append(["Banco:", payment.bank, "", ""])
         if payment.nro_account:
-            payment_info_left.append(f"<b>Cuenta:</b> {payment.nro_account}")
+            payment_info_data.append(["Cuenta:", payment.nro_account, "", ""])
         if payment.nro_operation:
-            payment_info_right.append(
-                f"<b>Operación:</b> {payment.nro_operation}")
-
-        # Balancear las listas
-        while len(payment_info_left) < len(payment_info_right):
-            payment_info_left.append("")
-        while len(payment_info_right) < len(payment_info_left):
-            payment_info_right.append("")
-
-        payment_info_data = []
-        for left, right in zip(payment_info_left, payment_info_right):
-            payment_info_data.append([
-                Paragraph(left, normal_compact),
-                Paragraph(right, normal_compact)
-            ])
+            payment_info_data.append(["Operación:", payment.nro_operation, "", ""])
 
         payment_info_table = Table(
-            payment_info_data, colWidths=[3.5*inch, 3.5*inch])
+            payment_info_data, colWidths=[1.2*inch, 2.3*inch, 1.2*inch, 2.3*inch])
         payment_info_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
-            ('ALIGN', (1, 0), (1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('BOX', (0, 0), (-1, -1), 2, orange_color),
-            ('LEFTPADDING', (0, 0), (-1, -1), 8),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-            ('TOPPADDING', (0, 0), (-1, -1), 3),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            # Etiquetas en negrita (columnas 0 y 2)
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (2, 0), (2, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('TEXTCOLOR', (0, 0), (0, -1), gray_color),
+            ('TEXTCOLOR', (2, 0), (2, -1), gray_color),
+            
+            # Valores (columnas 1 y 3)
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+            ('FONTNAME', (3, 0), (3, -1), 'Helvetica'),
+            
+            # Alineación
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            
+            # Bordes y espaciado
+            ('BOX', (0, 0), (-1, -1), 0.25, orange_color),
+            ('INNERGRID', (0, 0), (-1, -1), 0.25, orange_color),
+            ('LEFTPADDING', (0, 0), (-1, -1), 6),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
         ]))
         story.append(payment_info_table)
         story.append(Spacer(1, 10))
@@ -202,9 +198,8 @@ class PaymentPDFView(LoginRequiredMixin, View):
             invoice_table = Table(invoice_data, colWidths=[
                                   3*inch, 1.5*inch, 1*inch, 1.5*inch])
             invoice_table.setStyle(TableStyle([
-                # Encabezado
-                ('BACKGROUND', (0, 0), (-1, 0), orange_color),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                # Encabezado - texto con color en lugar de fondo
+                ('TEXTCOLOR', (0, 0), (-1, 0), orange_color),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                 ('FONTSIZE', (0, 0), (-1, 0), 9),
                 ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
@@ -216,15 +211,14 @@ class PaymentPDFView(LoginRequiredMixin, View):
                 ('ALIGN', (2, 1), (2, -1), 'CENTER'),
                 ('ALIGN', (3, 1), (3, -1), 'RIGHT'),
 
-                # Fila total
-                ('BACKGROUND', (0, -1), (-1, -1), green_color),
-                ('TEXTCOLOR', (0, -1), (-1, -1), colors.white),
+                # Fila total - texto con color en lugar de fondo
+                ('TEXTCOLOR', (0, -1), (-1, -1), green_color),
                 ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
                 ('FONTSIZE', (0, -1), (-1, -1), 9),
                 ('ALIGN', (3, -1), (3, -1), 'RIGHT'),
 
-                # Bordes y espaciado
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                # Bordes más finos
+                ('GRID', (0, 0), (-1, -1), 0.25, colors.black),
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                 ('LEFTPADDING', (0, 0), (-1, -1), 5),
                 ('RIGHTPADDING', (0, 0), (-1, -1), 5),
@@ -259,12 +253,11 @@ class PaymentPDFView(LoginRequiredMixin, View):
 
                 document_table = Table(document_data, colWidths=[7*inch])
                 document_table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), gray_color),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), gray_color),
                     ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
                     ('FONTSIZE', (0, 0), (-1, 0), 9),
                     ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                    ('BOX', (0, 0), (-1, -1), 1, colors.black),
+                    ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
                     ('LEFTPADDING', (0, 0), (-1, -1), 5),
                     ('RIGHTPADDING', (0, 0), (-1, -1), 5),
                     ('TOPPADDING', (0, 0), (-1, -1), 5),
@@ -294,7 +287,7 @@ class PaymentPDFView(LoginRequiredMixin, View):
             ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
             ('TEXTCOLOR', (0, 0), (-1, -1), gray_color),
             ('TOPPADDING', (0, 0), (-1, -1), 5),
-            ('LINEABOVE', (0, 0), (-1, -1), 1, green_color),
+            ('LINEABOVE', (0, 0), (-1, -1), 0.25, green_color),
         ]))
         story.append(footer_table)
 
