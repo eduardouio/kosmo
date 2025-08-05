@@ -13,9 +13,12 @@ class PaymentsList(LoginRequiredMixin, ListView):
     context_object_name = 'object_list'
 
     def get_queryset(self):
-        """Filtra solo los pagos (egresos)"""
+        """Filtra solo los pagos (egresos) con relaciones optimizadas"""
         return Payment.objects.filter(
             type_transaction='EGRESO'
+        ).select_related().prefetch_related(
+            'invoices__invoice__partner',
+            'invoices__invoice'
         ).order_by('-date')
 
     def get_context_data(self, **kwargs):

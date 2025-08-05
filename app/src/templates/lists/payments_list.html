@@ -70,19 +70,20 @@
             <tr>
                 <th class="bg-secondary bg-opacity-25">#</th>
                 <th class="bg-secondary bg-opacity-25">Número</th>
-                <th class="bg-secondary bg-opacity-25">Fecha</th>
-                <th class="bg-secondary bg-opacity-25">Vencimiento</th>                
+                <th class="bg-secondary bg-opacity-25">Fecha</th>              
                 <th class="bg-secondary bg-opacity-25">Monto</th>
                 <th class="bg-secondary bg-opacity-25">Método</th>
+                <th class="bg-secondary bg-opacity-25">Banco</th>
+                <th class="bg-secondary bg-opacity-25">Comprobante</th>
                 <th class="bg-secondary bg-opacity-25">Estado</th>
-                <th class="bg-secondary bg-opacity-25">Facturas</th>
+                <th class="bg-secondary bg-opacity-25">Proveedor/Facturas</th>
                 <th class="bg-secondary bg-opacity-25">Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for item in object_list %}
             <tr>
-                <td class="p-0 d-flex justify-content-start gap-3">
+                <td class="p-1">
                     <a href="javascript:void(0);" onclick="editPayment({{ item.id }})" class="text-primary d-flex justify-content-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-crosshair" width="15" height="15" viewBox="0 0 24 24" stroke-width="1.5" stroke="#555555" fill="none" stroke-linecap="round" stroke-linejoin="round">
                             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -96,20 +97,21 @@
                         {{ item.id }}
                     </a>
                 </td>
-                <td class="p-0">{{ item.payment_number|default:"-" }}</td>
-                <td class="p-0">{{ item.date|date:"d/m/Y" }}</td>
-                <td class="p-0">
-                    {% if item.due_date %}
-                        <span class="{% if item.is_overdue %}text-danger fw-bold{% endif %}">
-                            {{ item.due_date|date:"d/m/Y" }}
-                        </span>
-                    {% else %}
-                        -
-                    {% endif %}
+                <td class="p-1 text-start">{{ item.payment_number|default:"-" }}</td>
+                <td class="p-1 text-start">{{ item.date|date:"d/m/Y" }}</td>
+                <td class="p-1 text-end text-danger">$ {{ item.amount|floatformat:2 }}</td>
+                <td class="p-1 text-start">{{ item.get_method_display }}</td>
+                <td class="p-1 text-start">
+                    <small class="text-muted">
+                        {{ item.bank|default:"-" }}
+                    </small>
                 </td>
-                <td class="p-0 text-end text-danger">$ {{ item.amount|floatformat:2 }}</td>
-                <td class="p-0">{{ item.get_method_display }}</td>
-                <td class="p-0">
+                <td class="p-1 text-start">
+                    <small class="text-muted">
+                        {{ item.nro_operation|default:"-" }}
+                    </small>
+                </td>
+                <td class="p-1">
                     <span class="badge 
                         {% if item.status == 'CONFIRMADO' %}bg-success
                         {% elif item.status == 'PENDIENTE' %}bg-warning
@@ -119,28 +121,31 @@
                         {{ item.get_status_display }}
                     </span>
                 </td>
-                <td class="p-0">
-                    <small>
-                        {% for invoice in item.invoices.all %}
-                            {{ invoice.invoice_number }}{% if not forloop.last %}, {% endif %}
+                <td class="p-1">
+                    <div class="provider-invoice-info">
+                        {% for payment_detail in item.invoices.all %}
+                            <div class="mb-1">
+                                <span class="provider-name text-truncate-custom" title="{{ payment_detail.invoice.partner.business_name }}">
+                                    {{ payment_detail.invoice.partner.business_name|truncatechars:20 }}
+                                </span>
+                                <span class="invoice-badge badge bg-light text-dark">{{ payment_detail.invoice.num_invoice }}</span>
+                            </div>
                         {% empty %}
-                            Sin facturas
+                            <span class="text-muted">Sin facturas</span>
                         {% endfor %}
-                    </small>
+                    </div>
                 </td>
                 <td class="p-1">
-                    <div class="btn-group btn-group-sm" role="group">
+                    <div class="d-flex gap-1">
                         <button class="btn btn-outline-primary btn-sm" onclick="editPayment({{ item.id }})" title="Ver detalles">
                             <i class="fas fa-eye"></i>
+                            Ver
                         </button>
                         {% if item.status == 'PENDIENTE' or item.status == 'CONFIRMADO' %}
-                        <button type="button" class="btn btn-outline-warning btn-sm" 
-                                onclick="editPayment({{ item.id }})" title="Editar pago">
-                            <i class="fas fa-edit"></i>
-                        </button>
                         <button type="button" class="btn btn-outline-danger btn-sm" 
                                 onclick="deletePayment({{ item.id }})" title="Eliminar pago">
                             <i class="fas fa-trash"></i>
+                            Eliminar
                         </button>
                         {% endif %}
                     </div>
@@ -148,7 +153,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="8" class="text-center">No hay pagos registrados</td>
+                <td colspan="11" class="text-center">No hay pagos registrados</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -320,4 +325,136 @@ async function deleteSelectedPayments() {
     }
 }
 </script>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Estilos personalizados para la tabla de pagos */
+    #myTable {
+        font-size: 0.85rem;
+    }
+    
+    #myTable th {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    
+    #myTable td {
+        vertical-align: middle;
+        font-size: 0.8rem;
+    }
+    
+    /* Estilos para las columnas específicas */
+    #myTable td:nth-child(1) { /* ID */
+        width: 80px;
+        text-align: center;
+    }
+    
+    #myTable td:nth-child(2) { /* Número */
+        width: 120px;
+        text-align: center;
+    }
+    
+    #myTable td:nth-child(3), 
+    #myTable td:nth-child(4) { /* Fechas */
+        width: 100px;
+        text-align: center;
+    }
+    
+    #myTable td:nth-child(5) { /* Monto */
+        width: 120px;
+        text-align: right;
+        font-weight: 600;
+    }
+    
+    #myTable td:nth-child(6) { /* Método */
+        width: 110px;
+        text-align: center;
+    }
+    
+    #myTable td:nth-child(7), 
+    #myTable td:nth-child(8) { /* Banco y Comprobante */
+        width: 130px;
+        text-align: center;
+    }
+    
+    #myTable td:nth-child(9) { /* Estado */
+        width: 100px;
+        text-align: center;
+    }
+    
+    #myTable td:nth-child(10) { /* Proveedor/Facturas */
+        min-width: 200px;
+        max-width: 250px;
+    }
+    
+    #myTable td:nth-child(11) { /* Acciones */
+        width: 120px;
+        text-align: center;
+    }
+    
+    /* Estilos para el contenido de proveedores y facturas */
+    .provider-invoice-info {
+        line-height: 1.3;
+    }
+    
+    .provider-name {
+        font-weight: 600;
+        color: #0d6efd;
+        display: block;
+        margin-bottom: 2px;
+    }
+    
+    .invoice-badge {
+        display: inline-block;
+        margin: 1px 2px;
+        padding: 2px 6px;
+        font-size: 0.7rem;
+        border-radius: 3px;
+    }
+    
+    .amount-info {
+        color: #198754;
+        font-weight: 500;
+        font-size: 0.75rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+        #myTable {
+            font-size: 0.75rem;
+        }
+        
+        #myTable th, #myTable td {
+            padding: 0.3rem !important;
+        }
+        
+        .provider-name {
+            font-size: 0.7rem;
+        }
+        
+        .invoice-badge {
+            font-size: 0.65rem;
+            padding: 1px 4px;
+        }
+    }
+    
+    /* Mejorar la visualización de badges de estado */
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.3em 0.6em;
+    }
+    
+    /* Estilos para texto truncado */
+    .text-truncate-custom {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: inline-block;
+    }
+</style>
 {% endblock %}
