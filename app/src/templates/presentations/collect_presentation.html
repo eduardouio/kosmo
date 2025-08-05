@@ -508,7 +508,7 @@ Esta acción no se puede deshacer.`;
     try {
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         const response = await fetch(`/api/collections/${collectionId}/void/`, {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
                 'X-CSRFToken': csrfToken,
                 'Content-Type': 'application/json'

@@ -3,147 +3,175 @@ import json
 from django.http import JsonResponse
 from django.views import View
 from django.db import transaction
-from django.core.exceptions import ValidationError
 
-from trade.models import Payment, PaymentDetail
+from trade.models import Payment
 from common.AppLoger import loggin_event
+from common.InvoiceBalance import InvoiceBalance
 
 
 class CollectionsVoidAPI(View):
 
     def delete(self, request, collection_id):
-        """Eliminar (soft delete) un cobro específico"""
-        loggin_event(f'Eliminando cobro ID: {collection_id}')
+        """Anular un cobro específico por ID en la URL"""
+        loggin_event(f'Anulando cobro {collection_id}')
 
         try:
-            # Buscar el cobro (Payment con type_transaction='INGRESO')
             collection = Payment.objects.get(
                 id=collection_id,
-                type_transaction='INGRESO',
-                is_active=True
+                type_transaction='INGRESO'
             )
         except Payment.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'error': 'Cobro no encontrado'
-            }, status=404)
+            return JsonResponse({'error': 'Collection not found'}, status=404)
+
+        # Verificar que el cobro se pueda anular
+        if collection.status == 'ANULADO':
+            return JsonResponse(
+                {'error': 'Collection is already voided'},
+                status=400
+            )
 
         try:
             with transaction.atomic():
-                # Verificar si el cobro está en estado que permita eliminación
-                if collection.status == 'CONFIRMADO':
-                    return JsonResponse({
-                        'success': False,
-                        'error': 'No se puede eliminar un cobro confirmado'
-                    }, status=400)
+                # Revertir los saldos de las facturas antes de anular
+                revert_success = InvoiceBalance.revert_payment_from_invoices(
+                    collection_id
+                )
 
-                # Soft delete del cobro
-                collection.is_active = False
+                if not revert_success:
+                    return JsonResponse(
+                        {
+                            'error': 'Failed to revert invoice balances'
+                        },
+                        status=500
+                    )
+
+                # Cambiar estado del cobro a ANULADO
+                collection.status = 'ANULADO'
                 collection.save()
 
-                # Soft delete de los detalles asociados
-                PaymentDetail.objects.filter(
-                    payment=collection
-                ).update(is_active=False)
-
-                loggin_event(
-                    f'Cobro {collection.payment_number} eliminado exitosamente')
+                loggin_event(f'Cobro anulado: {collection.payment_number}')
 
                 return JsonResponse({
-                    'success': True,
-                    'message': f'Cobro {collection.payment_number} eliminado exitosamente'
-                })
+                    'message': 'Collection voided successfully',
+                    'collection_id': collection.id,
+                    'payment_number': collection.payment_number
+                }, status=200)
 
         except Exception as e:
-            loggin_event(f'Error al eliminar cobro: {e}')
-            return JsonResponse({
-                'success': False,
-                'error': f'Error interno: {str(e)}'
-            }, status=500)
+            loggin_event(
+                f'Error inesperado al anular cobro: {str(e)}', error=True)
+            return JsonResponse({'error': 'Internal server error'}, status=500)
 
     def post(self, request):
-        """Eliminar (soft delete) múltiples cobros"""
-        loggin_event('Eliminando múltiples cobros')
+        """Anular cobros cambiando estado a ANULADO y revirtiendo saldos"""
+        loggin_event('Anulando cobros')
 
         try:
             if not request.body:
                 return JsonResponse({'error': 'No data provided'}, status=400)
+            collection_data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
-            data = json.loads(request.body)
+        if not collection_data:
+            return JsonResponse({'error': 'No data provided'}, status=400)
 
-            if 'collection_ids' not in data or not data['collection_ids']:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Debe proporcionar al menos un ID de cobro'
-                }, status=400)
+        # Validar que se proporcione una lista de IDs de cobros
+        if 'collection_ids' not in collection_data:
+            return JsonResponse(
+                {'error': 'collection_ids field is required'},
+                status=400
+            )
 
-            collection_ids = data['collection_ids']
-            deleted_collections = []
-            errors = []
+        collection_ids = collection_data['collection_ids']
+        if not isinstance(collection_ids, list) or len(collection_ids) == 0:
+            return JsonResponse(
+                {'error': 'collection_ids must be a non-empty list'},
+                status=400
+            )
 
+        voided_collections = []
+        not_found_collections = []
+        cannot_void_collections = []
+
+        try:
             with transaction.atomic():
                 for collection_id in collection_ids:
                     try:
-                        # Buscar el cobro
                         collection = Payment.objects.get(
                             id=collection_id,
-                            type_transaction='INGRESO',
-                            is_active=True
+                            type_transaction='INGRESO'
                         )
 
-                        # Verificar si el cobro está en estado que permita eliminación
-                        if collection.status == 'CONFIRMADO':
-                            errors.append({
-                                'collection_id': collection_id,
-                                'error': f'Cobro {collection.payment_number} está confirmado y no se puede eliminar'
+                        # Verificar que el cobro se pueda anular
+                        # No se pueden anular cobros ya anulados
+                        if collection.status == 'ANULADO':
+                            cannot_void_collections.append({
+                                'id': collection_id,
+                                'payment_number': collection.payment_number,
+                                'reason': 'Collection is already voided'
                             })
                             continue
 
-                        # Soft delete del cobro
-                        collection.is_active = False
+                        # Revertir los saldos de las facturas antes de anular
+                        revert_success = (
+                            InvoiceBalance.revert_payment_from_invoices(
+                                collection_id
+                            )
+                        )
+                        
+                        if not revert_success:
+                            cannot_void_collections.append({
+                                'id': collection_id,
+                                'payment_number': collection.payment_number,
+                                'reason': 'Failed to revert invoice balances'
+                            })
+                            continue
+
+                        # Cambiar estado del cobro a ANULADO
+                        collection.status = 'ANULADO'
                         collection.save()
 
-                        # Soft delete de los detalles asociados
-                        PaymentDetail.objects.filter(
-                            payment=collection
-                        ).update(is_active=False)
-
-                        deleted_collections.append({
-                            'collection_id': collection_id,
+                        voided_collections.append({
+                            'id': collection.id,
                             'payment_number': collection.payment_number
                         })
 
                         loggin_event(
-                            f'Cobro {collection.payment_number} eliminado en lote')
+                            f'Cobro anulado: {collection.payment_number}')
 
                     except Payment.DoesNotExist:
-                        errors.append({
-                            'collection_id': collection_id,
-                            'error': 'Cobro no encontrado'
-                        })
-                    except Exception as e:
-                        errors.append({
-                            'collection_id': collection_id,
-                            'error': str(e)
-                        })
+                        not_found_collections.append(collection_id)
+                        continue
 
-                return JsonResponse({
-                    'success': True,
-                    'message': f'Proceso de eliminación completado',
-                    'deleted_collections': deleted_collections,
-                    'errors': errors,
-                    'summary': {
-                        'total_requested': len(collection_ids),
-                        'successfully_deleted': len(deleted_collections),
-                        'errors_count': len(errors)
-                    }
-                })
+                # Preparar respuesta
+                response_data = {
+                    'message': (f'{len(voided_collections)} collections voided '
+                                'successfully')
+                }
 
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+                if voided_collections:
+                    response_data['voided_collections'] = voided_collections
+
+                if not_found_collections:
+                    response_data['not_found_collections'] = not_found_collections
+
+                if cannot_void_collections:
+                    response_data['cannot_void_collections'] = (
+                        cannot_void_collections
+                    )
+
+                # Determinar código de estado
+                if len(voided_collections) == len(collection_ids):
+                    status_code = 200  # Todo se anuló correctamente
+                elif len(voided_collections) > 0:
+                    status_code = 207  # Anulación parcial
+                else:
+                    status_code = 400  # No se pudo anular ninguno
+
+                return JsonResponse(response_data, status=status_code)
+
         except Exception as e:
-            loggin_event(f'Error en eliminación múltiple de cobros: {e}')
-            return JsonResponse({
-                'success': False,
-                'error': f'Error interno: {str(e)}'
-            }, status=500)
+            loggin_event(
+                f'Error inesperado al anular cobros: {str(e)}', error=True)
+            return JsonResponse({'error': 'Internal server error'}, status=500)
