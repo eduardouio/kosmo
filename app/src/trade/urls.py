@@ -22,7 +22,7 @@ from trade.views import (
     InvoiceSupplierUpdate,
     BatchOrderApprovalView,
     PaymentFormView,
-    CollectFormView,
+    CollectionFormView,
     PaymentDetailView,
     PaymentPDFView,
 )
@@ -60,7 +60,7 @@ urlpatterns = [
     path('cobros/', CollectionsList.as_view(), name='collections_list'),
     path('pagos/', PaymentsList.as_view(), name="payments_list"),
     path('pagos/nuevo/', PaymentFormView.as_view(), name='payment_create'),
-    path('cobros/nuevo/', CollectFormView.as_view(), name='collect_form'),
+    path('cobros/nuevo/', CollectionFormView.as_view(), name='collect_form'),
     path('api/collections/context-data/', CollectionsContextAPI.as_view(), name='collections_context_api'),
     path('api/collections/', CollectionsCreateUpdateAPI.as_view(), name='collections_create_api'),
     path('api/collections/<int:collection_id>/', CollectionsCreateUpdateAPI.as_view(), name='collections_update_api'),
