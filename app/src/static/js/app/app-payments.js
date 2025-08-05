@@ -32,7 +32,6 @@ createApp({
         amount: 0,
         bank: '',
         accountNumber: '',
-        observations: '',
         document: null,
         documentName: '',
         documentPreview: null
@@ -421,7 +420,6 @@ createApp({
           bank: this.paymentForm.bank || '',
           nro_account: this.paymentForm.accountNumber || '',
           nro_operation: this.paymentForm.reference || '',
-          observations: this.paymentForm.observations || '',
           invoices: selectedInvoices.map(invoice => ({
             invoice_id: invoice.id,
             amount: parseFloat(invoice.paymentAmount)
@@ -444,15 +442,40 @@ createApp({
         
         console.log('Token CSRF encontrado:', csrfToken.substring(0, 10) + '...');
         
-        // Realizar petición a la nueva API
-        const response = await fetch('/api/payments/', {
+        // Preparar la petición
+        let requestOptions = {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': csrfToken
-          },
-          body: JSON.stringify(paymentData)
-        });
+          }
+        };
+        
+        // Si hay archivo adjunto, usar FormData
+        if (this.paymentForm.document) {
+          const formData = new FormData();
+          
+          // Agregar todos los campos del pago
+          Object.keys(paymentData).forEach(key => {
+            if (key === 'invoices') {
+              formData.append(key, JSON.stringify(paymentData[key]));
+            } else {
+              formData.append(key, paymentData[key]);
+            }
+          });
+          
+          // Agregar el archivo
+          formData.append('document', this.paymentForm.document);
+          
+          requestOptions.body = formData;
+          // No establecer Content-Type para FormData, el navegador lo hará automáticamente
+        } else {
+          // Sin archivo, usar JSON tradicional
+          requestOptions.headers['Content-Type'] = 'application/json';
+          requestOptions.body = JSON.stringify(paymentData);
+        }
+        
+        // Realizar petición a la nueva API
+        const response = await fetch('/api/payments/', requestOptions);
         
         const result = await response.json();
         
@@ -687,7 +710,6 @@ createApp({
             reference: payment.reference || '',
             bank: payment.bank || '',
             accountNumber: payment.account_number || '',
-            observations: payment.observations || '',
             document: null,
             documentName: '',
             documentPreview: null
@@ -744,21 +766,48 @@ createApp({
           bank: this.paymentForm.bank || '',
           nro_account: this.paymentForm.accountNumber || '',
           nro_operation: this.paymentForm.reference || '',
-          observations: this.paymentForm.observations || '',
           invoices: selectedInvoices.map(invoice => ({
             invoice_id: invoice.id,
             amount: parseFloat(invoice.paymentAmount)
           }))
         };
         
-        const response = await fetch(`/api/payments/${this.editingPaymentId}/`, {
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        
+        // Preparar la petición
+        let requestOptions = {
           method: 'PUT',
           headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-          },
-          body: JSON.stringify(paymentData)
-        });
+            'X-CSRFToken': csrfToken
+          }
+        };
+        
+        // Si hay archivo adjunto, usar FormData
+        if (this.paymentForm.document) {
+          const formData = new FormData();
+          
+          // Agregar todos los campos del pago
+          Object.keys(paymentData).forEach(key => {
+            if (key === 'invoices') {
+              formData.append(key, JSON.stringify(paymentData[key]));
+            } else {
+              formData.append(key, paymentData[key]);
+            }
+          });
+          
+          // Agregar el archivo
+          formData.append('document', this.paymentForm.document);
+          
+          requestOptions.body = formData;
+          // No establecer Content-Type para FormData
+        } else {
+          // Sin archivo, usar JSON tradicional
+          requestOptions.headers['Content-Type'] = 'application/json';
+          requestOptions.body = JSON.stringify(paymentData);
+        }
+        
+        const response = await fetch(`/api/payments/${this.editingPaymentId}/`, requestOptions);
         
         const result = await response.json();
         
@@ -808,7 +857,6 @@ createApp({
         amount: 0,
         bank: this.bankConfig.bank_name || '',
         accountNumber: this.bankConfig.account_number || '',
-        observations: '',
         document: null,
         documentName: '',
         documentPreview: null

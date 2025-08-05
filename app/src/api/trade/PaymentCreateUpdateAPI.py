@@ -16,9 +16,36 @@ class PaymentCreateUpdateAPI(View):
         """Crear un nuevo pago"""
         loggin_event('Creando nuevo pago')
 
-        if not request.body:
-            return JsonResponse({'error': 'No data provided'}, status=400)
-        payment_data = json.loads(request.body)
+        # Determinar si los datos vienen como FormData (con archivos) o JSON
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            # Datos con archivo - usar request.POST y request.FILES
+            payment_data = dict(request.POST)
+
+            # Convertir listas de un elemento a valores únicos
+            for key, value in payment_data.items():
+                if isinstance(value, list) and len(value) == 1:
+                    payment_data[key] = value[0]
+
+            # Procesar las facturas que vienen como JSON string
+            if 'invoices' in payment_data:
+                try:
+                    payment_data['invoices'] = json.loads(
+                        payment_data['invoices'])
+                except json.JSONDecodeError:
+                    return JsonResponse({'error': 'Invalid invoices data format'}, status=400)
+
+            # Obtener el archivo adjunto si existe
+            document_file = request.FILES.get('document')
+        else:
+            # Datos JSON tradicionales
+            if not request.body:
+                return JsonResponse({'error': 'No data provided'}, status=400)
+            try:
+                payment_data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+
+            document_file = None
 
         if not payment_data:
             return JsonResponse({'error': 'No data provided'}, status=400)
@@ -61,6 +88,10 @@ class PaymentCreateUpdateAPI(View):
                 approved_by_id=payment_data.get('approved_by_id'),
                 approval_date=payment_data.get('approval_date')
             )
+
+            # Asignar el documento adjunto si existe
+            if document_file:
+                payment.document = document_file
 
             # Generar número de pago automáticamente
             payment.payment_number = Payment.get_next_payment_number()
@@ -109,11 +140,38 @@ class PaymentCreateUpdateAPI(View):
         """Actualizar un pago existente"""
         loggin_event(f'Actualizando pago {payment_id}')
 
-        if not request.body:
-            return JsonResponse({'error': 'No data provided'}, status=400)
-        payment_data = json.loads(request.body)
+        # Determinar si los datos vienen como FormData o JSON
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            payment_data = dict(request.POST)
 
-        payment = Payment.objects.get(id=payment_id)
+            # Convertir listas de un elemento a valores únicos
+            for key, value in payment_data.items():
+                if isinstance(value, list) and len(value) == 1:
+                    payment_data[key] = value[0]
+
+            # Procesar las facturas que vienen como JSON string
+            if 'invoices' in payment_data:
+                try:
+                    payment_data['invoices'] = json.loads(
+                        payment_data['invoices'])
+                except json.JSONDecodeError:
+                    return JsonResponse({'error': 'Invalid invoices data format'}, status=400)
+
+            document_file = request.FILES.get('document')
+        else:
+            if not request.body:
+                return JsonResponse({'error': 'No data provided'}, status=400)
+            try:
+                payment_data = json.loads(request.body)
+            except json.JSONDecodeError:
+                return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+
+            document_file = None
+
+        try:
+            payment = Payment.objects.get(id=payment_id)
+        except Payment.DoesNotExist:
+            return JsonResponse({'error': 'Payment not found'}, status=404)
 
         # Verificar que el pago no esté confirmado o aprobado
         if payment.status in ['CONFIRMADO', 'RECHAZADO']:
@@ -148,6 +206,10 @@ class PaymentCreateUpdateAPI(View):
                 payment.approved_by_id = payment_data['approved_by_id']
             if 'approval_date' in payment_data:
                 payment.approval_date = payment_data['approval_date']
+
+            # Actualizar documento adjunto si se proporciona uno nuevo
+            if document_file:
+                payment.document = document_file
 
             # Si se están actualizando las facturas, eliminar las existentes y crear nuevas
             if 'invoices' in payment_data:

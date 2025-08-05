@@ -377,15 +377,7 @@
               </div>
 
               <div class="col-12 mt-3">
-                <label class="form-label fw-semibold">
-                  <i class="fas fa-sticky-note"></i> Observaciones
-                </label>
-                <textarea v-model="paymentForm.observations" 
-                         class="form-control" 
-                         rows="2" 
-                         placeholder="Observaciones adicionales..."
-                         maxlength="500"></textarea>
-                <small class="text-muted">{% verbatim %}{{ paymentForm.observations.length }}{% endverbatim %}/500 caracteres</small>
+                <!-- Campo de observaciones removido - no existe en el modelo Payment -->
               </div>
             </div>
           </form>
