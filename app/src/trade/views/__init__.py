@@ -24,7 +24,7 @@ from .SupplierInvoiceDetail import SupplierInvoiceDetail
 from .InvoiceSupplierUpdate import InvoiceSupplierUpdate
 from .BatchOrderApprovalView import BatchOrderApprovalView
 from .PaymentFormView import PaymentFormView
-from .CollectFormView import CollectFormView
+from .CollectionFormView import CollectionFormView
 from .PaymentDetailView import PaymentDetailView
 from .PaymentPDFView import PaymentPDFView
 
