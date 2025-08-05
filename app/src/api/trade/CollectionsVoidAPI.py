@@ -9,7 +9,7 @@ from trade.models import Payment, PaymentDetail
 from common.AppLoger import loggin_event
 
 
-class CollectionsDeleteAPI(View):
+class CollectionsVoidAPI(View):
 
     def delete(self, request, collection_id):
         """Eliminar (soft delete) un cobro específico"""
