@@ -25,6 +25,8 @@ from trade.views import (
     CollectionFormView,
     PaymentDetailView,
     PaymentPDFView,
+    CollectionDetailView,
+    CollectionPDFView,
 )
 
 # Importar APIs
@@ -66,6 +68,10 @@ urlpatterns = [
     path('api/collections/<int:collection_id>/', CollectionsCreateUpdateAPI.as_view(), name='collections_update_api'),
     path('api/collections/<int:collection_id>/delete/', CollectionsVoidAPI.as_view(), name='collections_delete_api'),
     path('api/collections/delete/', CollectionsVoidAPI.as_view(), name='collections_bulk_delete_api'),
+    path('api/collections/<int:collection_id>/void/', CollectionsVoidAPI.as_view(), name='collections_void_api'),
+    path('trade/collection/<int:pk>/', CollectionDetailView.as_view(), name='collection_detail'),
+    path('trade/collection/<int:pk>/pdf/', CollectionPDFView.as_view(), name='collection_pdf'),
+    path('cobros/editar/<int:collection_id>/', CollectionFormView.as_view(), name='collection_form'),
     path('api/payments/', PaymentCreateUpdateAPI.as_view(), name='payments_create_api'),
     path('api/payments/<int:payment_id>/delete/', PaymentVoidAPI.as_view(), name='payments_delete_api'),
     path('api/payments/delete/', PaymentVoidAPI.as_view(), name='payments_bulk_delete_api'),
