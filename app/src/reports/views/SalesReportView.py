@@ -29,7 +29,9 @@ class SalesReportView(View):
         orders_query = Order.objects.filter(
             type_document='ORD_VENTA',
             date__date__range=[date_from, date_to]
-        ).select_related('partner').prefetch_related('orderitems_set__product')
+        ).select_related('partner').prefetch_related(
+            'orderitems_set__orderboxitems_set__product'
+        )
 
         # Aplicar filtros adicionales
         if customer_id:
