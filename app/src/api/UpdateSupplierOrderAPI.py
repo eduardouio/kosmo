@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.views import View
-from common import SyncOrders
+from common.SyncOrders import SyncOrders
 from common.AppLoger import loggin_event
 from trade.models import Order, OrderBoxItems, OrderItems
 from products.models import Product

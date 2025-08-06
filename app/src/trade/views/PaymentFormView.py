@@ -5,7 +5,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from trade.models.Payment import Payment, METHOD_CHOICES
-from common import InvoiceBalance
+from common.InvoiceBalance import InvoiceBalance
 from partners.models import Partner
 
 import json

@@ -1,7 +1,7 @@
 import pytest
 from accounts.models import CustomUserModel
 from products.models import Product  # Un modelo que hereda de BaseModel
-from common import BaseModel
+from common.BaseModel import BaseModel
 from crum import impersonate
 
 

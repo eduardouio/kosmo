@@ -3,7 +3,8 @@ from django.views.generic import View
 from django.http import JsonResponse
 from partners.models import Partner
 from products.models import Product, StockDay, StockDetail, BoxItems
-from common import TextPrepare, GPTDirectProcessor
+from common.TextPrepare import TextPrepare
+from common.GPTDirectProcessor import GPTDirectProcessor
 from common.AppLoger import loggin_event
 
 

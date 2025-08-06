@@ -3,7 +3,7 @@ from django.views import View
 from django.http import JsonResponse
 from trade.models import Order
 from common.AppLoger import loggin_event
-from common import SyncOrders
+from common.SyncOrders import SyncOrders
 
 
 class CancelCustomerOrderAPI(View):

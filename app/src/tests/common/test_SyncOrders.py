@@ -4,7 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from trade.models import Order, OrderItems
-from common import SyncOrders
+from common.SyncOrders import SyncOrders
 from django.urls import reverse
 from django.test import Client
 from accounts.models import CustomUserModel

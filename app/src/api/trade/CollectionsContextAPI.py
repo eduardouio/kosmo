@@ -7,7 +7,7 @@ from datetime import date
 from partners.models import Partner
 from trade.models import Invoice, Payment, PaymentDetail
 from common.AppLoger import loggin_event
-from common import InvoiceBalance
+from common.InvoiceBalance import InvoiceBalance
 
 
 class CollectionsContextAPI(View):

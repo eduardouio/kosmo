@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views import View
 from products.models import StockDay, StockDetail
-from common import SerializerStock
+from common.SerializerStock import SerializerStock
 
 MESSAGE = 'No hay detalles para esta diponibilidad, debe importar primero'
 

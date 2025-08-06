@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 from trade.models import Order
 from common.AppLoger import loggin_event
-from common import CreateInvoiceByOrder
+from common.CreateInvoiceByOrder import CreateInvoiceByOrder
 from datetime import datetime, timedelta
 
 

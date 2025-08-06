@@ -1,7 +1,7 @@
 import json
 from trade.models import Order
 from common.AppLoger import loggin_event
-from common import CreateInvoiceByOrder
+from common.CreateInvoiceByOrder import CreateInvoiceByOrder
 from django.views import View
 from django.http import JsonResponse
 

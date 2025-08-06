@@ -1,5 +1,6 @@
 import pytest
-from common import GPTDirectProcessor, TextPrepare
+from common.GPTDirectProcessor import GPTDirectProcessor
+from common.TextPrepare import TextPrepare
 from common.AppLoger import loggin_event
 import os
 import re

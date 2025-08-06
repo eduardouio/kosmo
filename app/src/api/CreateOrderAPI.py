@@ -4,7 +4,8 @@ from django.views import View
 from trade.models import Order, OrderItems, OrderBoxItems
 from products.models import Product, StockDay
 from partners.models import Partner, Contact
-from common import SerializerCustomerOrder, SyncOrders
+from common.SerializerCustomerOrder import SerializerCustomerOrder
+from common.SyncOrders import SyncOrders
 from common.AppLoger import loggin_event
 
 

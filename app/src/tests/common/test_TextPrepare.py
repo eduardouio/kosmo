@@ -1,5 +1,5 @@
 import pytest
-from common import TextPrepare
+from common.TextPrepare import TextPrepare
 
 
 class Test_TestPrepare():

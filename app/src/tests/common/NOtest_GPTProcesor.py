@@ -1,6 +1,7 @@
 import pytest
 import random
-from common import GPTProcessor, TextPrepare
+from common.GPTProcessor import GPTProcessor
+from common.TextPrepare import TextPrepare
 
 
 @pytest.mark.django_db

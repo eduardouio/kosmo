@@ -1,5 +1,5 @@
 import pytest
-from common import StockAnalyzer
+from common.StockAnalyzer import StockAnalyzer
 from partners.models import Partner
 from products.models import Product
 

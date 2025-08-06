@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from django.views import View
 from trade.models import Order, OrderItems
-from common import SerializerCustomerOrder, SerializerSupplierOrder
+from common.SerializerCustomerOrder import SerializerCustomerOrder
+from common.SerializerSupplierOrder import SerializerSupplierOrder
 from partners.models import Contact
 from common.AppLoger import loggin_event
 

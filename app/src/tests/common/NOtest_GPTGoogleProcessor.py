@@ -1,5 +1,6 @@
 import pytest
-from common import GPTGoogleProcessor, TextPrepare
+from common.GPTGoogleProcessor import GPTGoogleProcessor
+from common.TextPrepare import TextPrepare
 from common.AppLoger import loggin_event
 import os
 import re

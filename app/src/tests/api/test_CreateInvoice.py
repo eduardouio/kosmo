@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from decimal import Decimal
 
-from common import CreateInvoiceByOrder
+from common.CreateInvoiceByOrder import CreateInvoiceByOrder
 from trade.models import Order, Invoice, OrderItems
 from accounts.models import CustomUserModel
 from partners.models import Partner

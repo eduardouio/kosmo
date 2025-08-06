@@ -5,7 +5,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.views import View
 from rest_framework import status
-from common import SyncOrders
+from common.SyncOrders import SyncOrders
 
 from trade.models.Order import Order, OrderItems, OrderBoxItems
 from partners.models import Partner
