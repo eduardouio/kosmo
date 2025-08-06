@@ -208,7 +208,7 @@
                             </thead>
                             <tbody>
                                 {% for invoice in invoices %}
-                                <tr {% if invoice.status == 'PENDIENTE' and invoice.due_date and invoice.due_date < today %}class="overdue"{% endif %}>
+                                <tr {% if invoice.status == 'PENDIENTE' and invoice.is_dued %}class="overdue"{% endif %}>
                                     <td>{{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}</td>
                                     <td>{{ invoice.date|date:"d/m/Y" }}</td>
                                     <td>{{ invoice.partner.name|truncatechars:40 }}</td>
@@ -231,13 +231,14 @@
                                     </td>
                                     <td>
                                         {% if invoice.status == 'PENDIENTE' and invoice.due_date %}
-                                            {% now "Y-m-d" as today %}
-                                            {% if invoice.due_date|date:"Y-m-d" < today %}
+                                            {% if invoice.is_dued %}
                                                 <span class="text-danger">
-                                                    {% widthratio invoice.due_date|timesince:"days" 1 1 %} días
+                                                    {{ invoice.days_overdue }} días
                                                 </span>
                                             {% else %}
-                                                <span class="text-success">-</span>
+                                                <span class="text-success">
+                                                    {{ invoice.days_to_due }} días
+                                                </span>
                                             {% endif %}
                                         {% else %}
                                             -
