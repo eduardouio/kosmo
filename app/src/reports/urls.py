@@ -15,6 +15,8 @@ from .views import (
     SalesByProductReportView,
     PartnerAccountStatmentView,
     PartnerSearchView,
+    PartnerAccountStatmentPDF,
+    PartnerAccountStatmentExcel,
 )
 
 urlpatterns = [
@@ -82,6 +84,16 @@ urlpatterns = [
         'reports/partner-account-statement/',
         PartnerAccountStatmentView.as_view(),
         name='partner_account_statement'
+    ),
+    path(
+        'reports/partner-account-statement/pdf/',
+        PartnerAccountStatmentPDF.as_view(),
+        name='partner_account_statement_pdf'
+    ),
+    path(
+        'reports/partner-account-statement/excel/',
+        PartnerAccountStatmentExcel.as_view(),
+        name='partner_account_statement_excel'
     ),
     path(
         'reports/partner-search/',

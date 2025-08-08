@@ -30,6 +30,14 @@
     <div class="col-auto align-self-end">
       <button class="btn btn-sm btn-primary">Filtrar</button>
     </div>
+    {% if partner %}
+    <div class="col-auto align-self-end">
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'partner_account_statement_pdf' %}?partner_id={{ partner.id }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}">PDF</a>
+    </div>
+    <div class="col-auto align-self-end">
+      <a class="btn btn-sm btn-outline-success" href="{% url 'partner_account_statement_excel' %}?partner_id={{ partner.id }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}">Excel</a>
+    </div>
+    {% endif %}
   </form>
 
   {% if missing_partner %}
