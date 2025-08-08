@@ -11,6 +11,7 @@ from .PurchaseReportView import PurchaseReportView
 from .BalanceReportView import BalanceReportView
 from .SalesByProductReportView import SalesByProductReportView
 from .PartnerAccountStatmentView import PartnerAccountStatmentView
+from .PartnerSearchView import PartnerSearchView
 
 __all__ = [
     'PDFReportSupOrder',
@@ -26,4 +27,5 @@ __all__ = [
     'BalanceReportView',
     'SalesByProductReportView',
     'PartnerAccountStatmentView',
+    'PartnerSearchView',
 ]
