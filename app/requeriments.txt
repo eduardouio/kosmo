@@ -25,3 +25,4 @@ WeasyPrint
 reportlab
 playwright
 Werkzeug
+openpyxl
