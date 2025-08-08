@@ -1,5 +1,6 @@
 from io import BytesIO
 from datetime import date
+import unicodedata
 from django.http import HttpResponse
 from django.views import View
 from openpyxl import Workbook
@@ -50,20 +51,18 @@ class PartnerAccountStatmentExcel(View):
 
         title_row = 1 if placed_logo else 1
         ws.append(['ESTADO DE CUENTA'])
-        ws.merge_cells(
-            start_row=title_row, start_column=1,
-            end_row=title_row, end_column=7
-        )
+        ws.merge_cells(start_row=title_row, start_column=1, end_row=title_row, end_column=7)
         ws['A{}'.format(title_row)].font = Font(size=14, bold=True)
-        ws.row_dimensions[title_row].height = 40
+        # Aumentar altura para que el logo no se sobreponga con el título
+        ws.row_dimensions[title_row].height = 65
 
         ws.append([
             f'Cliente: {partner.name}', '', '', '', 'Fecha',
             date.today().strftime('%d/%m/%Y')
         ])
         ws.append([
-            f'Tax ID: {partner.business_tax_id or "-"}', '', '', '',
-            'Saldo', ctx['net_balance']
+            f'Tax ID: {partner.business_tax_id or "-"}', '', '', '', 'Saldo',
+            ctx['net_balance']
         ])
         ws.append([f'Crédito: {partner.credit_term} días'])
         ws.append([])
@@ -125,15 +124,20 @@ class PartnerAccountStatmentExcel(View):
             'PENDIENTE', ctx['total_pending_balance']
         ])
 
+        # Nombre de archivo dinámico con el nombre del partner
+        def slugify(value: str) -> str:
+            value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+            value = value.lower().replace(' ', '_')
+            return ''.join(c for c in value if c.isalnum() or c in ('_', '-')) or 'partner'
+
+        filename = f"estado_cuenta_{slugify(partner.name)}.xlsx"
         response = HttpResponse(
             content_type=(
                 'application/vnd.openxmlformats-officedocument.'
                 'spreadsheetml.sheet'
             )
         )
-        response['Content-Disposition'] = (
-            'attachment; filename="estado_cuenta.xlsx"'
-        )
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
         bio = BytesIO()
         wb.save(bio)
         bio.seek(0)
