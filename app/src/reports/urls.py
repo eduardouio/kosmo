@@ -13,6 +13,7 @@ from .views import (
     CollectionsReportsView,
     BalanceReportView,
     SalesByProductReportView,
+    PartnerAccountStatmentView,
 )
 
 urlpatterns = [
@@ -28,4 +29,5 @@ urlpatterns = [
     path('reports/collections/', CollectionsReportsView.as_view(), name='collections_report'),
     path('reports/balance/', BalanceReportView.as_view(), name='balance_report'),
     path('reports/sales-by-product/', SalesByProductReportView.as_view(), name='sales_by_product_report'),
+    path('reports/partner-account-statement/', PartnerAccountStatmentView.as_view(), name='partner_account_statement'),
 ]

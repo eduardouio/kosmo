@@ -1,0 +1,120 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block style %}
+<style>
+.table-mini td, .table-mini th { padding: 4px 6px; font-size: 12px; }
+.bg-header { background:#f6dfd4; }
+.border-orange { border:2px solid #d86f23 !important; }
+.rounded-box { border-radius:32px; }
+.text-orange { color:#d86f23; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <h4 class="mt-3">Estado de Cuenta</h4>
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-auto">
+      <label class="form-label mb-0 small">Cliente (ID)</label>
+      <input type="number" name="partner_id" class="form-control form-control-sm" value="{{ request.GET.partner_id }}" required>
+    </div>
+    <div class="col-auto">
+      <label class="form-label mb-0 small">Desde</label>
+      <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date|date:'Y-m-d' }}">
+    </div>
+    <div class="col-auto">
+      <label class="form-label mb-0 small">Hasta</label>
+      <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date|date:'Y-m-d' }}">
+    </div>
+    <div class="col-auto align-self-end">
+      <button class="btn btn-sm btn-primary">Filtrar</button>
+    </div>
+  </form>
+
+  {% if missing_partner %}
+    <div class="alert alert-info">Ingrese un ID de cliente para ver el estado de cuenta.</div>
+  {% elif partner_not_found %}
+    <div class="alert alert-danger">Cliente no encontrado.</div>
+  {% else %}
+
+  <div class="p-3 border-orange rounded-box mb-3">
+    <div class="row">
+      <div class="col-md-8 small">
+        <strong>{{ partner.name|upper }}</strong><br>
+        City/ Country : {{ partner.city|upper }} / {{ partner.country|upper }}<br>
+        E-mail {{ partner.email }}<br>
+        Tax ID: {{ partner.business_tax_id }}<br>
+        Crédito : {{ partner.credit_term }} días
+      </div>
+      <div class="col-md-4">
+        <table class="table table-bordered table-sm mb-0 text-center border-orange">
+          <tr class="bg-header"><th colspan="2" class="fw-bold">ESTADO DE CUENTA</th></tr>
+          <tr>
+            <th class="fw-bold">FECHA</th>
+            <td>{{ today|date:'j/n/y' }}</td>
+          </tr>
+          <tr>
+            <th class="fw-bold">SALDO</th>
+            <td class="fw-bold {% if net_balance < 0 %}text-danger{% endif %}">
+              {% if net_balance < 0 %}-${{ net_balance|floatformat:2|slice:'1:' }}{% else %}${{ net_balance|floatformat:2 }}{% endif %}
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <hr class="mt-2 mb-2">
+    <table class="table table-bordered table-mini align-middle mb-0">
+      <thead class="text-center">
+        <tr class="bg-header">
+          <th>FECHA</th>
+          <th>DOCUMENTO</th>
+          <th>TIEMPO DE CREDITO</th>
+          <th>VALOR</th>
+          <th>PAGO RECIBIDO</th>
+          <th>SALDO ACTUAL</th>
+          <th>REFERENCIA</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for e in entries %}
+          {% if e.type == 'INVOICE' %}
+          <tr class="{% if e.reference == 'FACTURA VENCIDA' %}text-danger fw-bold{% endif %}">
+            <td>{{ e.date|date:'j \d\e F \d\e Y' }}</td>
+            <td>{{ e.document }}</td>
+            <td class="text-center">{{ e.credit_days }}</td>
+            <td class="text-end">${{ e.invoice_amount|floatformat:2 }}</td>
+            <td class="text-end">{% if e.payment_amount %}${{ e.payment_amount|floatformat:2 }}{% endif %}</td>
+            <td class="text-end">${{ e.balance|floatformat:2 }}</td>
+            <td class="text-center">
+              {% if e.reference == 'FACTURA VENCIDA' %}<span class="text-danger fw-bold">FACTURA VENCIDA</span>
+              {% else %}{{ e.reference }}{% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr class="text-danger">
+            <td>{{ e.date|date:'j \d\e F \d\e Y' }}</td>
+            <td>{{ e.document }}</td>
+            <td></td>
+            <td></td>
+            <td class="text-end">${{ e.payment_amount|floatformat:2 }}</td>
+            <td></td>
+            <td class="text-danger fw-bold">PAGO RECIBIDO</td>
+          </tr>
+          {% endif %}
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted">Sin movimientos</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="fw-bold">
+          <td colspan="3" class="text-end">TOTAL PENDIENTE</td>
+          <td class="text-end">${{ total_invoices_amount|floatformat:2 }}</td>
+          <td class="text-end">${{ total_payments_amount|floatformat:2 }}</td>
+          <td class="text-end">${{ total_pending_balance|floatformat:2 }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
