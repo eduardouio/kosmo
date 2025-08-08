@@ -1,6 +1,7 @@
 from io import BytesIO
 from datetime import date
 import os
+import unicodedata
 from django.http import HttpResponse
 from django.views import View
 from reportlab.lib.pagesizes import A4
@@ -122,11 +123,18 @@ class PartnerAccountStatmentPDF(View):
             'VALOR', 'PAGO', 'SALDO', 'REFERENCIA'
         ]
         col_widths = [22, 34, 24, 24, 24, 24, 32]  # mm
-        start_y = top_ref - 50 * mm
+        # top_ref es la base (y inferior) del recuadro del partner.
+        # Antes se restaban 50mm generando un gran espacio en blanco.
+        # Usamos sólo 12mm como margen para acercar la tabla al header.
+        start_y = top_ref - 12 * mm
 
         def draw_table_header(y_pos):
             p.setFillColor(SOFT)
-            p.rect(12 * mm, y_pos - 5 * mm, sum(col_widths) * mm, 6 * mm, fill=1, stroke=0)
+            p.rect(
+                12 * mm, y_pos - 5 * mm,
+                sum(col_widths) * mm, 6 * mm,
+                fill=1, stroke=0
+            )
             p.setFillColor(colors.black)
             p.setFont('Helvetica-Bold', 7)
             xc = 12 * mm + 2
@@ -213,9 +221,14 @@ class PartnerAccountStatmentPDF(View):
         pdf = buffer.getvalue()
         buffer.close()
 
+        # Nombre de archivo dinámico con el nombre del partner
+        def slugify(value: str) -> str:
+            value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+            value = value.lower().replace(' ', '_')
+            return ''.join(c for c in value if c.isalnum() or c in ('_', '-')) or 'partner'
+
+        filename = f"estado_cuenta_{slugify(partner.name)}.pdf"
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = (
-            'attachment; filename="estado_cuenta.pdf"'
-        )
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
         response.write(pdf)
         return response
