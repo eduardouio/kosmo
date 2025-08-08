@@ -2,7 +2,7 @@
 {% load static %}
 {% block style %}
 <style>
-.table-mini td, .table-mini th { padding: 4px 6px; font-size: 12px; }
+.table-mini td, .table-mini th { padding: 4px 6px; font-size: 14px; }
 .bg-header { background:#f6dfd4; }
 .border-orange { border:2px solid #d86f23 !important; }
 .rounded-box { border-radius:32px; }
@@ -10,7 +10,7 @@
 </style>
 {% endblock %}
 {% block content %}
-<div class="container">
+<div class="container-fluid">
   <h4 class="mt-3">Estado de Cuenta</h4>
   <form class="row g-2 mb-3" method="get">
     <div class="col-auto">
@@ -36,7 +36,7 @@
     <div class="alert alert-danger">Cliente no encontrado.</div>
   {% else %}
 
-  <div class="p-3 border-orange rounded-box mb-3">
+  <div class="p-3 border-orange rounded-box mb-3 container">
     <div class="row">
       <div class="col-md-8 small">
         <strong>{{ partner.name|upper }}</strong><br>
