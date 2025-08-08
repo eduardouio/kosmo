@@ -4,6 +4,9 @@ from django.http import HttpResponse
 from django.views import View
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill
+from openpyxl.drawing.image import Image as XLImage
+import os
+from django.conf import settings
 
 from .PartnerAccountStatmentView import PartnerAccountStatmentView
 
@@ -26,9 +29,33 @@ class PartnerAccountStatmentExcel(View):
         ws.title = 'EstadoCuenta'
 
         partner = ctx['partner']
+        # Logo (si existe)
+        logo_paths = [
+            os.path.join(settings.BASE_DIR, 'static', 'img', 'logo-kosmo.png'),
+            os.path.join(settings.BASE_DIR, 'static', 'img', 'logo.png'),
+            os.path.join(settings.BASE_DIR, 'static', 'img', 'logo-bg.png'),
+        ]
+        placed_logo = False
+        for lp in logo_paths:
+            if os.path.exists(lp):
+                try:
+                    img = XLImage(lp)
+                    img.height = 55
+                    img.width = 180
+                    ws.add_image(img, 'A1')
+                    placed_logo = True
+                    break
+                except Exception:
+                    continue
+
+        title_row = 1 if placed_logo else 1
         ws.append(['ESTADO DE CUENTA'])
-        ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=7)
-        ws['A1'].font = Font(size=14, bold=True)
+        ws.merge_cells(
+            start_row=title_row, start_column=1,
+            end_row=title_row, end_column=7
+        )
+        ws['A{}'.format(title_row)].font = Font(size=14, bold=True)
+        ws.row_dimensions[title_row].height = 40
 
         ws.append([
             f'Cliente: {partner.name}', '', '', '', 'Fecha',

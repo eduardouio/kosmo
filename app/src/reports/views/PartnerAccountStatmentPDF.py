@@ -1,12 +1,15 @@
 from io import BytesIO
 from datetime import date
+import os
 from django.http import HttpResponse
 from django.views import View
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.units import mm
+from reportlab.lib.colors import HexColor
 from django.utils.formats import number_format
+from django.conf import settings
 
 from .PartnerAccountStatmentView import PartnerAccountStatmentView
 
@@ -28,70 +31,121 @@ class PartnerAccountStatmentPDF(View):
         buffer = BytesIO()
         p = canvas.Canvas(buffer, pagesize=A4)
         width, height = A4
-        top = height - 30 * mm
-
         partner = ctx['partner']
         entries = ctx['entries']
 
-        # Encabezado
-        p.setFont('Helvetica-Bold', 14)
-        p.drawString(20 * mm, top, 'ESTADO DE CUENTA')
-        p.setFont('Helvetica', 9)
-        p.drawString(20 * mm, top - 8 * mm, f'Cliente: {partner.name}')
-        p.drawString(
-            20 * mm,
-            top - 12 * mm,
-            f'Tax ID: {partner.business_tax_id or "-"}'
-        )
-        p.drawString(
-            20 * mm,
-            top - 16 * mm,
-            f'Crédito: {partner.credit_term} días'
-        )
-        p.drawString(
-            140 * mm,
-            top - 8 * mm,
-            f'Fecha: {date.today().strftime("%d/%m/%Y")}'
-        )
-        p.drawString(
-            140 * mm,
-            top - 12 * mm,
-            f'Saldo: {number_format(ctx["net_balance"], 2)}'
-        )
+        ORANGE = HexColor('#d86f23')
+        SOFT = HexColor('#f6dfd4')
 
-        # Tabla
+        def draw_logo(_p):
+            # Intentar varios paths
+            logo_candidates = [
+                os.path.join(
+                    settings.BASE_DIR, 'static', 'img', 'logo-kosmo.png'
+                ),
+                os.path.join(
+                    settings.BASE_DIR, 'static', 'img', 'logo.png'
+                ),
+                os.path.join(
+                    settings.BASE_DIR, 'static', 'img', 'logo-bg.png'
+                ),
+            ]
+            for lp in logo_candidates:
+                if os.path.exists(lp):
+                    try:
+                        _p.drawImage(
+                            lp, 15 * mm, height - 40 * mm,
+                            width=70 * mm, preserveAspectRatio=True,
+                            mask='auto'
+                        )
+                        break
+                    except Exception:
+                        continue
+
+        def draw_page_header(_p, show_partner_box=False):
+            top_y = height - 6 * mm
+            box_w = 60 * mm
+            box_h = 14 * mm
+            x_box = width - box_w - 10 * mm
+            y_box = top_y - box_h
+            _p.setStrokeColor(ORANGE)
+            _p.setLineWidth(1)
+            _p.setFillColor(colors.white)
+            _p.rect(x_box, y_box, box_w, box_h, stroke=1, fill=0)
+            _p.line(x_box, y_box + box_h - 6 * mm, x_box + box_w, y_box + box_h - 6 * mm)
+            _p.line(x_box + 24 * mm, y_box, x_box + 24 * mm, y_box + 6 * mm)
+            _p.setFillColor(colors.black)
+            _p.setFont('Helvetica-Bold', 9)
+            _p.drawCentredString(x_box + box_w / 2, y_box + box_h - 5 * mm, 'ESTADO DE CUENTA')
+            _p.setFont('Helvetica-Bold', 7)
+            _p.drawCentredString(x_box + 12 * mm, y_box + 1.5 * mm, 'FECHA')
+            _p.setFont('Helvetica', 7)
+            _p.drawCentredString(
+                x_box + (box_w - 24 * mm)/2 + 24 * mm,
+                y_box + 1.5 * mm,
+                date.today().strftime('%d/%m/%y')
+            )
+            draw_logo(_p)
+            if show_partner_box:
+                box_x = 10 * mm
+                box_w2 = width - 20 * mm
+                box_h2 = 42 * mm
+                box_y = y_box - 4 * mm - box_h2
+                _p.setStrokeColor(ORANGE)
+                _p.setLineWidth(1)
+                _p.roundRect(box_x, box_y, box_w2, box_h2, 5 * mm, stroke=1, fill=0)
+                _p.setFont('Helvetica-Bold', 11)
+                _p.drawCentredString(box_x + box_w2 / 2, box_y + box_h2 - 7 * mm, partner.name.upper())
+                _p.setFont('Helvetica', 7)
+                info_y = box_y + box_h2 - 13 * mm
+                lines = [
+                    f'E-mail: {partner.email or ""}',
+                    f'Tax ID: {partner.business_tax_id or ""}',
+                    f'Crédito: {partner.credit_term} días'
+                ]
+                for ln in lines:
+                    _p.drawString(box_x + 4 * mm, info_y, ln)
+                    info_y -= 5 * mm
+                band_y = box_y + 11 * mm
+                _p.line(box_x, band_y, box_x + box_w2, band_y)
+                saldo_txt = number_format(ctx['net_balance'], 2)
+                _p.setFont('Helvetica-Bold', 9)
+                _p.drawString(box_x + 5 * mm, band_y - 5 * mm, 'ESTADO DE CUENTA')
+                _p.drawRightString(box_x + box_w2 - 5 * mm, band_y - 5 * mm, saldo_txt)
+                return box_y
+            return y_box - 2 * mm
+
+        top_ref = draw_page_header(p, show_partner_box=True)
+        # Tabla -----------------------------------------------------------------
         col_headers = [
-            'Fecha', 'Documento', 'Crédito', 'Valor', 'Pago', 'Saldo', 'Ref'
+            'FECHA', 'DOCUMENTO', 'TIEMPO CREDITO',
+            'VALOR', 'PAGO', 'SALDO', 'REFERENCIA'
         ]
-        col_widths = [22, 38, 16, 22, 22, 22, 22]  # en mm
-        start_y = top - 28 * mm
-        x = 12 * mm
+        col_widths = [22, 34, 24, 24, 24, 24, 32]  # mm
+        start_y = top_ref - 50 * mm
 
-        p.setFont('Helvetica-Bold', 8)
-        for i, head in enumerate(col_headers):
-            p.drawString(x, start_y, head)
-            x += col_widths[i] * mm
-        p.setLineWidth(0.4)
-        p.line(12 * mm, start_y - 2, width - 12 * mm, start_y - 2)
+        def draw_table_header(y_pos):
+            p.setFillColor(SOFT)
+            p.rect(12 * mm, y_pos - 5 * mm, sum(col_widths) * mm, 6 * mm, fill=1, stroke=0)
+            p.setFillColor(colors.black)
+            p.setFont('Helvetica-Bold', 7)
+            xc = 12 * mm + 2
+            for i, head in enumerate(col_headers):
+                p.drawString(xc, y_pos - 3.2 * mm, head)
+                xc += col_widths[i] * mm
+            p.setFont('Helvetica', 6.8)
 
-        p.setFont('Helvetica', 7)
-        y = start_y - 6 * mm
+        draw_table_header(start_y)
+        y = start_y - 7 * mm
+
         for e in entries:
-            if y < 20 * mm:  # nueva página
+            if y < 18 * mm:  # salto página
                 p.showPage()
-                p.setFont('Helvetica-Bold', 8)
-                x = 12 * mm
-                for i, head in enumerate(col_headers):
-                    p.drawString(x, height - 20 * mm, head)
-                    x += col_widths[i] * mm
-                p.line(
-                    12 * mm, height - 22 * mm,
-                    width - 12 * mm, height - 22 * mm
-                )
-                p.setFont('Helvetica', 7)
-                y = height - 28 * mm
+                draw_page_header(p, show_partner_box=False)
+                draw_table_header(height - 20 * mm)
+                y = height - 27 * mm
 
-            x = 12 * mm
+            x = 12 * mm + 1
             fecha = e.get('date') or ''
             fecha_txt = fecha.strftime('%d/%m/%Y') if fecha else ''
             documento = e.get('document') or ''
@@ -103,35 +157,46 @@ class PartnerAccountStatmentPDF(View):
                 number_format(e.get('invoice_amount') or 0, 2)
                 if e['type'] == 'INVOICE' else ''
             )
-            pago = ''
-            if e.get('payment_amount'):
-                pago = number_format(e.get('payment_amount') or 0, 2)
+            pago = (
+                number_format(e.get('payment_amount') or 0, 2)
+                if e.get('payment_amount') else ''
+            )
             saldo = (
                 number_format(e.get('balance') or 0, 2)
                 if e['type'] == 'INVOICE' else ''
             )
             ref = e.get('reference') or ''
 
-            # Color para vencida o pago
-            if e['type'] == 'PAYMENT':
-                p.setFillColor(colors.red)
-            elif ref == 'FACTURA VENCIDA':
-                p.setFillColor(colors.red)
-            else:
-                p.setFillColor(colors.black)
-
-            for w, text in zip(col_widths, [
-                fecha_txt, documento[:18], credito,
-                valor, pago, saldo, ref[:10]
-            ]):
-                p.drawString(x, y, text)
+            # Fondo fila
+            p.setFillColor(colors.white if e['type'] == 'INVOICE' else HexColor('#ffecec'))
+            p.rect(12 * mm, y - 1.8 * mm, sum(col_widths) * mm, 5.2 * mm, fill=1, stroke=0)
+            # Texto en columnas
+            for w, text, style in zip(
+                col_widths,
+                [
+                    fecha_txt, documento[:18], credito,
+                    valor, pago, saldo, ref[:18]
+                ],
+                ['n', 'n', 'c', 'r', 'r', 'r', 'n']
+            ):
+                p.setFillColor(
+                    colors.red if (
+                        'VENCIDA' in ref or e['type'] == 'PAYMENT'
+                    ) and style != 'c' else colors.black
+                )
+                if style == 'r':
+                    p.drawRightString(x + w * mm - 2, y, text)
+                elif style == 'c':
+                    p.drawCentredString(x + (w * mm)/2, y, text)
+                else:
+                    p.drawString(x, y, text)
                 x += w * mm
-            y -= 5 * mm
+            y -= 5.4 * mm
 
         # Totales
-        y -= 4 * mm
+        y -= 3 * mm
         p.setFillColor(colors.black)
-        p.setFont('Helvetica-Bold', 8)
+        p.setFont('Helvetica-Bold', 7.5)
         total_line = (
             'TOTAL FACTURAS: ' + number_format(
                 ctx['total_invoices_amount'], 2
