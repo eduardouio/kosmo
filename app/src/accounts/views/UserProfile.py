@@ -1,0 +1,3 @@
+
+class UserProfileView:
+    pass
