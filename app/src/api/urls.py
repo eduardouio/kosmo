@@ -37,6 +37,8 @@ from api.trade import (
     CollectionsContextAPI,
 )
 
+from api.users import UpdateUserAPIView
+
 urlpatterns = [
     path('api/stock_detail/<int:stock_day_id>/', StockDetailAPI.as_view(), name='stock_detail'),
     path('api/partners/all-supliers/', AllSuppliersAPI.as_view(), name='all_supliers'),
@@ -80,4 +82,6 @@ urlpatterns = [
     path('api/collections/delete/', CollectionsVoidAPI.as_view(), name='collection_delete_bulk'),
     path('api/collections/<int:collection_id>/delete/', CollectionsVoidAPI.as_view(), name='collection_delete'),
     path('api/collections-context/', CollectionsContextAPI.as_view(), name='collections_context_data'),
+    # User APIs
+    path('api/users/update/', UpdateUserAPIView.as_view(), name='update_user'),
 ]

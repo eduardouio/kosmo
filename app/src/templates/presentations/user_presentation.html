@@ -13,9 +13,9 @@
         <div class="card-body">
           <div class="d-flex align-items-center mb-3">
             {% if user_profile.picture %}
-              <img src="{{ user_profile.picture.url }}" alt="Avatar" class="rounded-circle me-3" style="width:64px;height:64px;object-fit:cover;">
+              <img src="{{ user_profile.picture.url }}" alt="Avatar" class="rounded-circle me-3" style="width:94px;height:94px;object-fit:cover;">
             {% else %}
-              <div class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center" style="width:64px;height:64px;color:white;">
+              <div class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center" style="width:94px;height:94px;color:white;">
                 {{ user_profile.first_name|default:user_profile.email|slice:":1"|upper }}
               </div>
             {% endif %}
@@ -131,14 +131,6 @@
     </div>
   </div>
 </div>
-{% endblock %}
-
-{% block script %}
-<!-- Vue.js 3 CDN -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<!-- Aplicación Vue.js del perfil de usuario -->
-<script type="module" src="{% load static %}{% static 'js/app/user-profile.js' %}"></script>
-{% endblock %}
 
 <!-- Modal Editar Perfil -->
 <div class="modal fade" id="modalEditProfile" tabindex="-1" aria-hidden="true">
@@ -154,7 +146,7 @@
           <!-- Alert -->
           <div v-show="alerts.profile.show" 
                :class="['alert', alerts.profile.type === 'success' ? 'alert-success' : 'alert-danger']">
-            {{ '{{ alerts.profile.message }}' }}
+            <span v-text="alerts.profile.message"></span>
           </div>
           
           <div class="row g-2">
@@ -165,6 +157,7 @@
                      class="form-control" 
                      v-model="userProfile.first_name"
                      :disabled="loading.profile"
+                     autocomplete="given-name"
                      value="{{ user_profile.first_name }}">
             </div>
             <div class="col-12 col-md-6">
@@ -174,6 +167,7 @@
                      class="form-control" 
                      v-model="userProfile.last_name"
                      :disabled="loading.profile"
+                     autocomplete="family-name"
                      value="{{ user_profile.last_name }}">
             </div>
             <div class="col-12">
@@ -184,6 +178,7 @@
                      v-model="userProfile.email"
                      :disabled="loading.profile"
                      required
+                     autocomplete="email"
                      value="{{ user_profile.email }}">
             </div>
             <div class="col-12 col-md-6">
@@ -193,6 +188,7 @@
                      class="form-control" 
                      v-model="userProfile.phone"
                      :disabled="loading.profile"
+                     autocomplete="tel"
                      value="{{ user_profile.phone }}">
             </div>
             <div class="col-12">
@@ -201,7 +197,9 @@
                         class="form-control" 
                         rows="2"
                         v-model="userProfile.notes"
-                        :disabled="loading.profile">{{ user_profile.notes }}</textarea>
+                        readonly
+                        disabled
+                        >{{ user_profile.notes }}</textarea>
             </div>
             <div class="col-12">
               <label class="form-label">Imagen</label>
@@ -225,7 +223,7 @@
                   class="btn btn-default"
                   :disabled="loading.profile || !isValidProfile">
             <span v-if="loading.profile" class="spinner-border spinner-border-sm me-1" role="status"></span>
-            {{ '{{ loading.profile ? "Guardando..." : "Guardar cambios" }}' }}
+            <span v-text="loading.profile ? 'Guardando...' : 'Guardar cambios'"></span>
           </button>
         </div>
       </form>
@@ -247,7 +245,7 @@
           <!-- Alert -->
           <div v-show="alerts.password.show" 
                :class="['alert', alerts.password.type === 'success' ? 'alert-success' : 'alert-danger']">
-            {{ '{{ alerts.password.message }}' }}
+            <span v-text="alerts.password.message"></span>
           </div>
           
           <div class="mb-2">
@@ -257,6 +255,7 @@
                    class="form-control" 
                    v-model="passwordForm.current_password"
                    :disabled="loading.password"
+                   autocomplete="current-password"
                    required>
           </div>
           <div class="mb-2">
@@ -267,6 +266,7 @@
                    v-model="passwordForm.new_password"
                    :disabled="loading.password"
                    minlength="8"
+                   autocomplete="new-password"
                    required>
             <small class="form-text text-muted">Mínimo 8 caracteres</small>
           </div>
@@ -278,6 +278,7 @@
                    v-model="passwordForm.confirm_password"
                    :disabled="loading.password"
                    :class="{ 'is-invalid': passwordMismatch }"
+                   autocomplete="new-password"
                    required>
             <div v-if="passwordMismatch" class="invalid-feedback">
               Las contraseñas no coinciden
@@ -294,7 +295,7 @@
                   class="btn btn-default"
                   :disabled="loading.password || !isValidPassword">
             <span v-if="loading.password" class="spinner-border spinner-border-sm me-1" role="status"></span>
-            {{ '{{ loading.password ? "Actualizando..." : "Actualizar contraseña" }}' }}
+            <span v-text="loading.password ? 'Actualizando...' : 'Actualizar contraseña'"></span>
           </button>
         </div>
       </form>
@@ -339,4 +340,10 @@
     </div>
   </div>
 </div>
+{% block script %}
+<!-- Vue.js 3 CDN (producción) -->
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<!-- Aplicación Vue.js del perfil de usuario -->
+<script src="{% static 'js/app/user-profile.js' %}"></script>
+{% endblock %}  
 {% endblock %}
