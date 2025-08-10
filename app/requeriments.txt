@@ -18,6 +18,7 @@ django_extensions
 openai
 google-genai
 pillow
+psycopg2-binary
 setuptools
 django-user-sessions
 gunicorn
