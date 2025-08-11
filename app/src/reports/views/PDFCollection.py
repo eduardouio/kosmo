@@ -46,7 +46,7 @@ class PDFCollection(View):
             reverse("collection_template", kwargs={"id_collection": id_collection})
         ))
 
-        if settings.IS_IN_PRODUCTION:   
+        if settings.IS_IN_PRODUCTION:
             target_url = target_url.replace('http', 'https')
 
         loggin_event(f'Generando PDF del pago {id_collection} {target_url}')

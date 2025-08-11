@@ -1,6 +1,9 @@
 const { createApp } = Vue;
 
-createApp({
+// Hacer que la función de descarga de PDF esté disponible globalmente
+let globalDownloadCollectionPDF = null;
+
+const app = createApp({
   delimiters: ['${', '}'], // Configuración para usar los selectores personalizados
   data() {
     return {
@@ -832,4 +835,18 @@ createApp({
       if (id) this.downloadCollectionPDF(id);
     }
   }
-}).mount('#collectionsApp');
+});
+
+// Montar la aplicación
+const vm = app.mount('#collectionsApp');
+
+// Hacer que la función esté disponible globalmente
+window.downloadCollectionPDF = function(collectionId) {
+  if (vm && typeof vm.downloadCollectionPDF === 'function') {
+    return vm.downloadCollectionPDF(collectionId);
+  } else {
+    console.error('La función downloadCollectionPDF no está disponible');
+    // Redirigir a la URL de descarga como respaldo
+    window.open(`/trade/collection/${collectionId}/pdf/`, '_blank');
+  }
+};

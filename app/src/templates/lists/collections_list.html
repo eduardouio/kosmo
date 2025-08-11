@@ -103,7 +103,7 @@
                         <a class="btn btn-outline-primary btn-sm" href="/trade/collection/{{ item.id }}/" title="Ver detalles">
                             <i class="fa-solid fa-eye me-1"></i> Ver
                         </a>
-                        <a href="/trade/collection/{{ item.id }}/pdf/" target="_blank" class="btn btn-outline-danger btn-sm" title="Descargar PDF del comprobante">
+                        <a href="{% url 'collection_pdf' item.id %}" class="btn btn-outline-danger btn-sm" title="Descargar PDF del comprobante">
                             <i class="fa-solid fa-file-pdf me-1"></i> PDF
                         </a>
                 </td>
