@@ -34,7 +34,8 @@ createApp({
         accountNumber: '',
         document: null,
         documentName: '',
-        documentPreview: null
+  documentPreview: null,
+  notes: ''
       },
       
       // Sistema de mensajes del modal
@@ -50,7 +51,9 @@ createApp({
         date: '',
         method: '',
         amount: '',
-        document: ''
+  document: '',
+  bank: '',
+  reference: ''
       },
       
       currentDate: '',
@@ -256,6 +259,7 @@ createApp({
       this.paymentForm.document = null;
       this.paymentForm.documentName = '';
       this.paymentForm.documentPreview = null;
+  this.paymentForm.notes = '';
       if (this.$refs.documentFile) {
         this.$refs.documentFile.value = '';
       }
@@ -357,6 +361,19 @@ createApp({
         isValid = false;
       }
       
+      // Reglas adicionales según el método
+      const methodRequiresOperation = ['TRANSF', 'TC', 'TD'].includes(this.paymentForm.method);
+      if (methodRequiresOperation) {
+        if (!this.paymentForm.bank || !this.paymentForm.bank.trim()) {
+          this.formErrors.bank = 'El banco es requerido para este método de pago';
+          isValid = false;
+        }
+        if (!this.paymentForm.reference || !this.paymentForm.reference.trim()) {
+          this.formErrors.reference = 'El número de operación es requerido para este método de pago';
+          isValid = false;
+        }
+      }
+      
       if (this.totalPaymentAmount <= 0) {
         this.formErrors.amount = 'El monto debe ser mayor a cero';
         isValid = false;
@@ -378,7 +395,9 @@ createApp({
         date: '',
         method: '',
         amount: '',
-        document: ''
+  document: '',
+  bank: '',
+  reference: ''
       };
     },
     
@@ -409,6 +428,7 @@ createApp({
           bank: this.paymentForm.bank || '',
           nro_account: this.paymentForm.accountNumber || '',
           nro_operation: this.paymentForm.reference || '',
+          notes: this.paymentForm.notes || '',
           invoices: selectedInvoices.map(invoice => ({
             invoice_id: invoice.id,
             amount: parseFloat(invoice.paymentAmount)
@@ -534,6 +554,23 @@ createApp({
       } finally {
         this.saving = false;
       }
+    },
+
+    // Reinicia el formulario de pago a sus valores por defecto
+    resetPaymentForm() {
+      this.paymentForm = {
+        date: this.currentDate,
+        method: '',
+        reference: '',
+        amount: 0,
+        bank: this.bankConfig?.bank_name || '',
+        accountNumber: this.bankConfig?.account_number || '',
+        document: null,
+        documentName: '',
+        documentPreview: null,
+        notes: ''
+      };
+      this.clearFormErrors();
     },
     
     // Actualizar facturas después del pago exitoso

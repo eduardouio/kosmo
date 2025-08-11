@@ -325,6 +325,7 @@
                        placeholder="Núm. cheque, transferencia..."
                        maxlength="50">
                 <small class="text-muted">Número de cheque, código de transferencia, etc.</small>
+                <div v-if="formErrors.reference" class="text-danger small">{% verbatim %}{{ formErrors.reference }}{% endverbatim %}</div>
               </div>
               
               <div class="col-6 mt-3">
@@ -351,6 +352,7 @@
                 <datalist id="popular-banks">
                   <option v-for="bank in popularBanks" :key="bank.bank" :value="bank.bank">
                 </datalist>
+                <div v-if="formErrors.bank" class="text-danger small">{% verbatim %}{{ formErrors.bank }}{% endverbatim %}</div>
               </div>
               
               <div class="col-6 mt-3">
@@ -383,7 +385,15 @@
               </div>
 
               <div class="col-12 mt-3">
-                <!-- Campo de observaciones removido - no existe en el modelo Payment -->
+                <label class="form-label fw-semibold" for="payment-notes">
+                  <i class="fas fa-sticky-note"></i> Notas
+                </label>
+                <textarea id="payment-notes"
+                          class="form-control"
+                          v-model="paymentForm.notes"
+                          rows="3"
+                          placeholder="Escribe notas u observaciones del pago (opcional)"></textarea>
+                <small class="text-muted">Estas notas quedarán registradas en el pago.</small>
               </div>
             </div>
           </form>

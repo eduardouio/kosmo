@@ -137,6 +137,16 @@
             font-size: 1.1rem;
         }
     }
+
+    /* Caja de notas */
+    .notes-box {
+        background-color: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        min-height: 100px;
+        padding: 0.5rem 0.75rem;
+        white-space: pre-line;
+    }
 </style>
 {% endblock %}
 
@@ -415,6 +425,60 @@
                 </div>
             </div>
             {% endif %}
+
+            <!-- Notas y Metadatos -->
+            <div class="card info-card">
+                <div class="card-header">
+                    <i class="fas fa-sticky-note me-2"></i>
+                    Notas y Metadatos
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="detail-label mb-1">Notas</div>
+                        <div class="notes-box">{{ collection.notes|default:"Sin notas" }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div class="detail-label">Registrado por</div>
+                                <div class="detail-value">
+                                    {% with creator=collection.get_create_user %}
+                                        {% if creator %}
+                                            <i class="fas fa-user me-1"></i>
+                                            {{ creator.get_full_name|default:creator.username }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Fecha de Registro</div>
+                                <div class="detail-value">{{ collection.created_at|date:"d/m/Y H:i" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-row">
+                                <div class="detail-label">Modificado por</div>
+                                <div class="detail-value">
+                                    {% with updater=collection.get_update_user %}
+                                        {% if updater %}
+                                            <i class="fas fa-user-edit me-1"></i>
+                                            {{ updater.get_full_name|default:updater.username }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Fecha de Modificación</div>
+                                <div class="detail-value">{{ collection.updated_at|date:"d/m/Y H:i" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
