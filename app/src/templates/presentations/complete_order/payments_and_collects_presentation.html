@@ -1,0 +1,173 @@
+<div class="container-fluid">
+  <!-- Encabezado con botón de PDF -->
+  <div class="row mb-3">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold text-warning">
+        Información de Pagos y Cobros
+      </h5>
+    </div>
+  </div>
+
+  <!-- Sección de Pagos (EGRESOS) -->
+  {% if response_data.payments_details %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <h6 class="fw-bold text-success mb-3">
+        <i class="bi bi-arrow-up-circle"></i> Pagos Realizados (Egresos)
+      </h6>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-success">
+            <tr>
+              <th>Número</th>
+              <th>Fecha</th>
+              <th>Banco</th>
+              <th>Método</th>
+              <th>Estado</th>
+              <th>Monto</th>
+              <th>Proveedor</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for payment in response_data.payments_details %}
+            <tr>
+              <td>{{ payment.payment_number }}</td>
+              <td>{{ payment.date|date:'d/m/Y' }}</td>
+              <td>{{ payment.bank }}</td>
+              <td>{{ payment.method }}</td>
+              <td>
+                <span class="badge {% if payment.status == 'CONFIRMADO' %}bg-success{% elif payment.status == 'PENDIENTE' %}bg-warning{% else %}bg-danger{% endif %}">
+                  {{ payment.status }}
+                </span>
+              </td>
+              <td class="text-end fw-bold">${{ payment.amount|floatformat:2 }}</td>
+              <td>{{ payment.partners_names }}</td>
+              <td>
+                <a href="{% url 'payment_detail' payment.id %}" class="btn btn-sm btn-outline-success" title="Ver Detalle">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="5" class="text-end">Total Pagos:</th>
+              <th class="text-end fw-bold">${{ response_data.total_payments|floatformat:2 }}</th>
+              <th colspan="2"></th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Sección de Cobros (INGRESOS) -->
+  {% if response_data.collects_details %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <h6 class="fw-bold text-primary mb-3">
+        <i class="bi bi-arrow-down-circle"></i> Cobros Recibidos (Ingresos)
+      </h6>
+      <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+          <thead class="table-primary">
+            <tr>
+              <th>Número</th>
+              <th>Fecha</th>
+              <th>Banco</th>
+              <th>Método</th>
+              <th>Estado</th>
+              <th>Monto</th>
+              <th>Cliente</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for collect in response_data.collects_details %}
+            <tr>
+              <td>{{ collect.payment_number }}</td>
+              <td>{{ collect.date|date:'d/m/Y' }}</td>
+              <td>{{ collect.bank }}</td>
+              <td>{{ collect.method }}</td>
+              <td>
+                <span class="badge {% if collect.status == 'CONFIRMADO' %}bg-success{% elif collect.status == 'PENDIENTE' %}bg-warning{% else %}bg-danger{% endif %}">
+                  {{ collect.status }}
+                </span>
+              </td>
+              <td class="text-end fw-bold">${{ collect.amount|floatformat:2 }}</td>
+              <td>{{ collect.partners_names }}</td>
+              <td>
+                <a href="{% url 'collection_detail' collect.id %}" class="btn btn-sm btn-outline-primary" title="Ver Detalle">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot class="table-light">
+            <tr>
+              <th colspan="5" class="text-end">Total Cobros:</th>
+              <th class="text-end fw-bold">${{ response_data.total_collects|floatformat:2 }}</th>
+              <th colspan="2"></th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Mensaje cuando no hay datos -->
+  {% if not response_data.payments_details and not response_data.collects_details %}
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i>
+        No hay pagos ni cobros registrados para esta orden.
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Resumen General -->
+  {% if response_data.payments_details or response_data.collects_details %}
+  <div class="row">
+    <div class="col-12">
+      <div class="card border-warning">
+        <div class="card-header bg-warning text-dark">
+          <h6 class="mb-0 fw-bold">
+            <i class="bi bi-calculator"></i> Resumen de Movimientos Financieros
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <div class="d-flex justify-content-between">
+                <span>Total Pagos:</span>
+                <strong class="text-danger">${{ response_data.total_payments|floatformat:2 }}</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex justify-content-between">
+                <span>Total Cobros:</span>
+                <strong class="text-success">${{ response_data.total_collects|floatformat:2 }}</strong>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex justify-content-between">
+                <span>Saldo Neto:</span>
+                <strong class="{% if response_data.net_balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                  ${{ response_data.net_balance|floatformat:2 }}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>

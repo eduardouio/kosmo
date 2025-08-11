@@ -36,6 +36,13 @@
           </button>
         </li>
         {% endif %}
+          {% if response_data.payments_details or response_data.collects_details %}
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="payments-collects-tab" data-bs-toggle="tab" data-bs-target="#payments-collects-tab-pane" type="button" role="tab" aria-controls="payments-collects-tab-pane" aria-selected="false">
+              PAGOS Y COBROS
+            </button>
+          </li>
+          {% endif %}
       </ul>
 
       <!-- Contenido de las Pestañas -->
@@ -56,6 +63,12 @@
         {% if response_data.purchase_invoices_details %}
           {% include 'presentations/complete_order/order_presentation_bill.html' %}
         {% endif %}
+          <!-- Pestaña Pagos y Cobros -->
+          {% if response_data.payments_details or response_data.collects_details %}
+            <div class="tab-pane fade" id="payments-collects-tab-pane" role="tabpanel" aria-labelledby="payments-collects-tab">
+              {% include 'presentations/complete_order/payments_and_collects_presentation.html' %}
+            </div>
+          {% endif %}
       </div>
 
       <!-- Mensajes de acción y Botones -->
