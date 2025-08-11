@@ -2,348 +2,264 @@
 {% load static %}
 
 {% block content %}
-<div id="userProfileApp" class="container-fluid mt-3">
-  <div class="row">
-    <div class="col-12 col-md-8 col-lg-6 mx-auto">
-      <div class="card shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-          <h5 class="mb-0">Perfil de Usuario</h5>
-          <span class="badge text-bg-secondary">{{ user_profile.email }}</span>
-        </div>
-        <div class="card-body">
-          <div class="d-flex align-items-center mb-3">
-            {% if user_profile.picture %}
-              <img src="{{ user_profile.picture.url }}" alt="Avatar" class="rounded-circle me-3" style="width:94px;height:94px;object-fit:cover;">
-            {% else %}
-              <div class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center" style="width:94px;height:94px;color:white;">
-                {{ user_profile.first_name|default:user_profile.email|slice:":1"|upper }}
+<div id="userProfileApp">
+  <div class="container-fluid mt-3">
+    <div class="row">
+      <div class="col-12 col-md-8 col-lg-6 mx-auto">
+        <div class="card shadow-sm">
+          <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Perfil de Usuario</h5>
+            <span class="badge text-bg-secondary">${ userProfile.email }</span>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-3">
+              <img v-if="userProfile.picture_url"
+                   :src="userProfile.picture_url"
+                   alt="Avatar"
+                   class="rounded-circle me-3"
+                   style="width:94px;height:94px;object-fit:cover;">
+              <div v-else
+                   class="rounded-circle bg-secondary me-3 d-flex align-items-center justify-content-center"
+                   style="width:94px;height:94px;color:white;">
+                ${ (userProfile.first_name || userProfile.email || '').slice(0,1).toUpperCase() }
               </div>
-            {% endif %}
-            <div>
-              <div class="h5 mb-0">{{ user_profile.get_full_name|default:user_profile.email }}</div>
-              <small class="text-muted">Rol: {{ user_profile.roles }}</small>
+              <div>
+                <div class="h5 mb-0">
+                  ${ userProfile.first_name } ${ userProfile.last_name }
+                </div>
+                <small class="text-muted">Rol: ${ userProfile.roles }</small>
+              </div>
             </div>
-          </div>
 
-          <div class="table-responsive">
-            <table class="table table-sm align-middle">
-              <tbody>
-                <tr>
-                  <th class="text-muted" style="width:200px;">Correo</th>
-                  <td>{{ user_profile.email }}</td>
-                </tr>
-                <tr>
-                  <th class="text-muted">Teléfono</th>
-                  <td>{{ user_profile.phone|default:"-" }}</td>
-                </tr>
-                <tr>
-                  <th class="text-muted">Usuario activo</th>
-                  <td>
-                    {% if user_profile.is_active %}
-                      <span class="badge text-bg-success">Sí</span>
-                    {% else %}
-                      <span class="badge text-bg-danger">No</span>
-                    {% endif %}
-                  </td>
-                </tr>
-                <tr>
-                  <th class="text-muted">Confirmación de correo</th>
-                  <td>
-                    {% if user_profile.is_confirmed_mail %}
-                      <span class="badge text-bg-success">Confirmado</span>
-                    {% else %}
-                      <span class="badge text-bg-warning">Pendiente</span>
-                    {% endif %}
-                  </td>
-                </tr>
-                <tr>
-                  <th class="text-muted">Notas</th>
-                  <td>{{ user_profile.notes|default:"" }}</td>
-                </tr>
-                <tr>
-                  <th class="text-muted">Último acceso</th>
-                  <td>{{ user_profile.last_login|date:"d/m/Y H:i"|default:"-" }}</td>
-                </tr>
-                <tr>
-                  <th class="text-muted">Fecha de registro</th>
-                  <td>{{ user_profile.date_joined|date:"d/m/Y H:i" }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="d-flex gap-2 mt-3">
-            <a href="#" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditProfile">Modificar información</a>
-            <a href="#" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#modalChangePassword">Cambiar contraseña</a>
-            <a href="#" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#modalLicense">Verificar Licencia</a>
-          </div>
-          <hr>
-          <div class="mt-3">
-            <h6 class="mb-2">Licencia</h6>
-            {% if license %}
-              <div class="row g-2">
-                <div class="col-12 col-md-6">
-                  <div class="border rounded p-2 bg-light">
-                    <div class="small text-muted">Clave</div>
-                    <div class="fw-semibold text-break">{{ license.license_key }}</div>
+            <div class="table-responsive">
+              <table class="table table-sm align-middle">
+                <tbody>
+                  <tr>
+                    <td class="fw-bold" style="width:120px;">Correo</td>
+                    <td>${ userProfile.email }</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold">Teléfono</td>
+                    <td>${ userProfile.phone || 'No especificado' }</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold">Notas</td>
+                    <td>${ userProfile.notes || 'No hay notas' }</td>
+                  </tr>
+                  <tr>
+                    <td class="fw-bold">Miembro desde</td>
+                    <td>${ new Date(userProfile.date_joined).toLocaleDateString() }</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+              <a href="#" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditProfile">Modificar información</a>
+              <a href="#" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#modalChangePassword">Cambiar contraseña</a>
+              <a href="#" class="btn btn-default btn-sm" data-bs-toggle="modal" data-bs-target="#modalLicense">Verificar Licencia</a>
+            </div>
+            <hr>
+            <div class="mt-3">
+              <h6 class="mb-2">Licencia</h6>
+              <div v-if="userProfile.has_license">
+                <div class="row g-2">
+                  <div class="col-12 col-md-6">
+                    <small class="text-muted d-block">Clave</small>
+                    <span class="font-monospace small">${ userProfile.license.license_key }</span>
                   </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="border rounded p-2 bg-light">
-                    <div class="small text-muted">Activada</div>
-                    <div class="fw-semibold">{{ license.activated_on|date:"d/m/Y H:i"|default:"-" }}</div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="border rounded p-2 bg-light">
-                    <div class="small text-muted">Expira</div>
-                    <div class="fw-semibold">{{ license.expires_on|date:"d/m/Y H:i"|default:"-" }}</div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="border rounded p-2 bg-light">
-                    <div class="small text-muted">Empresa</div>
-                    <div class="fw-semibold">{{ license.enterprise|default:"-" }}</div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="border rounded p-2 bg-light">
-                    <div class="small text-muted">Servidor</div>
-                    <div class="fw-semibold text-truncate" title="{{ license.url_server }}">{{ license.url_server|default:"-" }}</div>
-                  </div>
-                </div>
-                <div class="col-6 col-md-3">
-                  <div class="border rounded p-2 bg-light">
-                    <div class="small text-muted">Estado</div>
-                    {% if license.is_active %}
-                      <span class="badge text-bg-success">Activa</span>
-                    {% else %}
-                      <span class="badge text-bg-secondary">Inactiva</span>
-                    {% endif %}
+                  <div class="col-12 col-md-6">
+                    <small class="text-muted d-block">Expira</small>
+                    <span>${ new Date(userProfile.license.expires_on).toLocaleDateString() }</span>
                   </div>
                 </div>
               </div>
-            {% else %}
-              <div class="alert alert-warning mb-0">No hay licencia asociada a tu cuenta.</div>
-            {% endif %}
+              <div v-else class="alert alert-warning mb-0">No hay licencia asociada a tu cuenta.</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- Modal Editar Perfil -->
-<div class="modal fade" id="modalEditProfile" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Editar perfil</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <!-- Modal Editar Perfil -->
+  <div class="modal fade" id="modalEditProfile" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar perfil</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form @submit.prevent="updateProfile" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-body">
+            <!-- Alert -->
+            <div v-show="alerts.profile.show" 
+                 :class="['alert', alerts.profile.type === 'success' ? 'alert-success' : 'alert-danger']">
+              <span v-text="alerts.profile.message"></span>
+            </div>
+            
+            <div class="row g-2">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Nombres</label>
+                <input type="text" name="first_name" class="form-control" v-model="userProfile.first_name">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Apellidos</label>
+                <input type="text" name="last_name" class="form-control" v-model="userProfile.last_name" autocomplete="family-name">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Correo *</label>
+                <input type="email" name="email" class="form-control" v-model="userProfile.email" required autocomplete="email">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Teléfono</label>
+                <input type="text" name="phone" class="form-control" v-model="userProfile.phone" autocomplete="tel">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Notas</label>
+                <textarea name="notes" class="form-control" rows="3" v-model="userProfile.notes"></textarea>
+              </div>
+              <div class="col-12">
+                <label class="form-label">Foto de perfil</label>
+                <input type="file" name="picture" class="form-control" @change="handleFileChange">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" 
+                    class="btn btn-light" 
+                    data-bs-dismiss="modal"
+                    @click="resetProfileForm"
+                  >Cerrar</button>
+            <button type="submit" 
+                    class="btn btn-default"
+                    :disabled="loading.profile || !isValidProfile">
+              <span v-if="loading.profile" class="spinner-border spinner-border-sm me-1" role="status"></span>
+              <span>Actualizar información</span>
+            </button>
+          </div>
+        </form>
       </div>
-      <form @submit.prevent="updateProfile" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="modal-body">
-          <!-- Alert -->
-          <div v-show="alerts.profile.show" 
-               :class="['alert', alerts.profile.type === 'success' ? 'alert-success' : 'alert-danger']">
-            <span v-text="alerts.profile.message"></span>
-          </div>
-          
-          <div class="row g-2">
-            <div class="col-12 col-md-6">
-              <label class="form-label">Nombres</label>
-              <input type="text" 
-                     name="first_name" 
-                     class="form-control" 
-                     v-model="userProfile.first_name"
-                     :disabled="loading.profile"
-                     autocomplete="given-name"
-                     value="{{ user_profile.first_name }}">
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label">Apellidos</label>
-              <input type="text" 
-                     name="last_name" 
-                     class="form-control" 
-                     v-model="userProfile.last_name"
-                     :disabled="loading.profile"
-                     autocomplete="family-name"
-                     value="{{ user_profile.last_name }}">
-            </div>
-            <div class="col-12">
-              <label class="form-label">Correo *</label>
-              <input type="email" 
-                     name="email" 
-                     class="form-control" 
-                     v-model="userProfile.email"
-                     :disabled="loading.profile"
-                     required
-                     autocomplete="email"
-                     value="{{ user_profile.email }}">
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label">Teléfono</label>
-              <input type="text" 
-                     name="phone" 
-                     class="form-control" 
-                     v-model="userProfile.phone"
-                     :disabled="loading.profile"
-                     autocomplete="tel"
-                     value="{{ user_profile.phone }}">
-            </div>
-            <div class="col-12">
-              <label class="form-label">Notas</label>
-              <textarea name="notes" 
-                        class="form-control" 
-                        rows="2"
-                        v-model="userProfile.notes"
-                        readonly
-                        disabled
-                        >{{ user_profile.notes }}</textarea>
-            </div>
-            <div class="col-12">
-              <label class="form-label">Imagen</label>
-              <input type="file" 
-                     name="picture" 
-                     class="form-control" 
-                     accept="image/*"
-                     :disabled="loading.profile"
-                     @change="handleFileChange">
-              <small class="form-text text-muted">Máximo 5MB. Formatos: JPG, PNG, GIF</small>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" 
-                  class="btn btn-light" 
-                  data-bs-dismiss="modal"
-                  @click="resetProfileForm"
-                  :disabled="loading.profile">Cerrar</button>
-          <button type="submit" 
-                  class="btn btn-default"
-                  :disabled="loading.profile || !isValidProfile">
-            <span v-if="loading.profile" class="spinner-border spinner-border-sm me-1" role="status"></span>
-            <span v-text="loading.profile ? 'Guardando...' : 'Guardar cambios'"></span>
-          </button>
-        </div>
-      </form>
     </div>
   </div>
-</div>
 
-<!-- Modal Cambiar Contraseña -->
-<div class="modal fade" id="modalChangePassword" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Cambiar contraseña</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form @submit.prevent="changePassword">
-        {% csrf_token %}
-        <div class="modal-body">
-          <!-- Alert -->
-          <div v-show="alerts.password.show" 
-               :class="['alert', alerts.password.type === 'success' ? 'alert-success' : 'alert-danger']">
-            <span v-text="alerts.password.message"></span>
-          </div>
-          
-          <div class="mb-2">
-            <label class="form-label">Contraseña actual *</label>
-            <input type="password" 
-                   name="current_password" 
-                   class="form-control" 
-                   v-model="passwordForm.current_password"
-                   :disabled="loading.password"
-                   autocomplete="current-password"
-                   required>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Nueva contraseña *</label>
-            <input type="password" 
-                   name="new_password" 
-                   class="form-control" 
-                   v-model="passwordForm.new_password"
-                   :disabled="loading.password"
-                   minlength="8"
-                   autocomplete="new-password"
-                   required>
-            <small class="form-text text-muted">Mínimo 8 caracteres</small>
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Confirmar contraseña *</label>
-            <input type="password" 
-                   name="confirm_password" 
-                   class="form-control" 
-                   v-model="passwordForm.confirm_password"
-                   :disabled="loading.password"
-                   :class="{ 'is-invalid': passwordMismatch }"
-                   autocomplete="new-password"
-                   required>
-            <div v-if="passwordMismatch" class="invalid-feedback">
-              Las contraseñas no coinciden
+  <!-- Modal Cambiar Contraseña -->
+  <div class="modal fade" id="modalChangePassword" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Cambiar contraseña</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form @submit.prevent="changePassword">
+          {% csrf_token %}
+          <!-- Campo username oculto para accesibilidad -->
+          <input type="text" name="username" v-model="userProfile.email" style="display: none;" autocomplete="username">
+          <div class="modal-body">
+            <!-- Alert -->
+            <div v-show="alerts.password.show" 
+                 :class="['alert', alerts.password.type === 'success' ? 'alert-success' : 'alert-danger']">
+              <span v-text="alerts.password.message"></span>
+            </div>
+            
+            <div class="mb-2">
+              <label class="form-label">Contraseña actual *</label>
+              <input type="password" 
+                     class="form-control" 
+                     v-model="passwordForm.current_password" 
+                     required 
+                     autocomplete="current-password">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Nueva contraseña *</label>
+              <input type="password" 
+                     class="form-control" 
+                     v-model="passwordForm.new_password" 
+                     required 
+                     autocomplete="new-password">
+              <small class="form-text text-muted">Mínimo 8 caracteres</small>
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Confirmar contraseña *</label>
+              <input type="password" 
+                     class="form-control" 
+                     v-model="passwordForm.confirm_password" 
+                     :class="{ 'is-invalid': passwordMismatch }"
+                     required 
+                     autocomplete="new-password"> 
+              <div v-if="passwordMismatch" class="invalid-feedback">
+                Las contraseñas no coinciden.
+              </div>
             </div>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" 
-                  class="btn btn-light" 
-                  data-bs-dismiss="modal"
-                  @click="resetPasswordForm"
-                  :disabled="loading.password">Cerrar</button>
-          <button type="submit" 
-                  class="btn btn-default"
-                  :disabled="loading.password || !isValidPassword">
-            <span v-if="loading.password" class="spinner-border spinner-border-sm me-1" role="status"></span>
-            <span v-text="loading.password ? 'Actualizando...' : 'Actualizar contraseña'"></span>
-          </button>
-        </div>
-      </form>
+          <div class="modal-footer">
+            <button type="button" 
+                    class="btn btn-light" 
+                    data-bs-dismiss="modal"
+                    @click="resetPasswordForm"
+                    :disabled="loading.password">Cerrar</button>
+            <button type="submit" 
+                    class="btn btn-default"
+                    :disabled="loading.password || !isValidPassword">
+              <span v-if="loading.password" class="spinner-border spinner-border-sm me-1" role="status"></span>
+              <span v-text="loading.password ? 'Actualizando...' : 'Actualizar contraseña'"></span>
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Modal Licencia (solo UI) -->
-<div class="modal fade" id="modalLicense" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Licencia</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <!-- Modal Licencia (solo UI, render con Vue) -->
+  <div class="modal fade" id="modalLicense" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Licencia</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form @submit.prevent="updateLicense">
+          {% csrf_token %}
+          <div class="modal-body">
+            <!-- Alert -->
+            <div v-show="alerts.license.show" 
+                 :class="['alert', alerts.license.type === 'success' ? 'alert-success' : 'alert-danger']">
+              <span v-text="alerts.license.message"></span>
+            </div>
+            
+            <div class="alert alert-info">
+              Ingresa tu clave de licencia para validar o activar tu producto.
+            </div>
+            <div class="mb-2">
+              <label class="form-label">Clave de licencia</label>
+              <input type="text" name="license_key" class="form-control" placeholder="XXXX-XXXX-XXXX-XXXX" v-model="licenseForm.license_key" :disabled="loading.license">
+            </div>
+            <div class="row g-2">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Empresa</label>
+                <input type="text" name="enterprise" class="form-control" v-model="licenseForm.enterprise" :disabled="loading.license">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Servidor</label>
+                <input type="url" name="url_server" class="form-control" v-model="licenseForm.url_server" placeholder="https://..." :disabled="loading.license">
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal" :disabled="loading.license">Cerrar</button>
+            <button type="submit" class="btn btn-default" :disabled="loading.license">
+              <span v-if="loading.license" class="spinner-border spinner-border-sm me-1" role="status"></span>
+              <span v-text="loading.license ? 'Guardando...' : 'Guardar'"></span>
+            </button>
+          </div>
+        </form>
       </div>
-      <form id="formLicense">
-        {% csrf_token %}
-        <div class="modal-body">
-          <div class="alert alert-info">
-            Ingresa tu clave de licencia para validar o activar tu producto.
-          </div>
-          <div class="mb-2">
-            <label class="form-label">Clave de licencia</label>
-            <input type="text" name="license_key" class="form-control" placeholder="XXXX-XXXX-XXXX-XXXX">
-          </div>
-          <div class="row g-2">
-            <div class="col-12 col-md-6">
-              <label class="form-label">Empresa</label>
-              <input type="text" name="enterprise" class="form-control" value="{{ license.enterprise|default:'' }}">
-            </div>
-            <div class="col-12 col-md-6">
-              <label class="form-label">Servidor</label>
-              <input type="url" name="url_server" class="form-control" value="{{ license.url_server|default:'' }}" placeholder="https://...">
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-default" data-bs-dismiss="modal">Guardar</button>
-        </div>
-      </form>
     </div>
   </div>
 </div>
+{% endblock %}
+
 {% block script %}
-<!-- Vue.js 3 CDN (producción) -->
-<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-<!-- Aplicación Vue.js del perfil de usuario -->
-<script src="{% static 'js/app/user-profile.js' %}"></script>
-{% endblock %}  
+  {{ user_profile_json|json_script:"user-profile-json" }}
+  <script src="{% static 'js/app/user-profile.js' %}"></script>
 {% endblock %}
