@@ -795,8 +795,8 @@ createApp({
           return;
         }
         
-        // Crear URL del PDF
-        const pdfUrl = `/trade/payment/${paymentId}/pdf/`;
+        // Crear URL del PDF usando la ruta de Playwright
+        const pdfUrl = `/reports/payment/${paymentId}/`;
         console.log(`URL del PDF: ${pdfUrl}`);
         
         // Método principal: Descarga directa via enlace
@@ -829,7 +829,7 @@ createApp({
         
         // Método de respaldo solo en caso de error: abrir en nueva ventana
         try {
-          const pdfUrl = `/trade/payment/${paymentId}/pdf/`;
+          const pdfUrl = `/reports/payment/${paymentId}/`;
           console.log('Ejecutando método de respaldo: nueva ventana');
           window.open(pdfUrl, '_blank', 'noopener,noreferrer');
         } catch (fallbackError) {

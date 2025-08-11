@@ -463,55 +463,82 @@ createApp({
     
     // Crear un nuevo cobro
     async createCollection() {
-      // Preparar datos como JSON
+      // Preparar datos base
       const collectionData = {
         date: this.collectionForm.date,
         method: this.collectionForm.method,
-        amount: this.totalCollectionAmount.toString(),
+        amount: parseFloat(this.totalCollectionAmount || 0),
         bank: this.collectionForm.bank || '',
         nro_account: this.collectionForm.nro_account || '',
         nro_operation: this.collectionForm.nro_operation || '',
-  observations: this.collectionForm.observations || '',
-  notes: this.collectionForm.notes || '',
-        invoices: []
+        observations: this.collectionForm.observations || '',
+        notes: this.collectionForm.notes || '',
+        invoices: this.selectedInvoicesForCollection.map(inv => ({
+          invoice_id: inv.id,
+          amount: parseFloat(inv.collectionAmount || 0)
+        }))
       };
-      
-      // Agregar facturas seleccionadas
-      this.selectedInvoicesForCollection.forEach(invoice => {
-        collectionData.invoices.push({
-          invoice_id: invoice.id,
-          amount: parseFloat(invoice.collectionAmount || 0).toString()
-        });
-      });
-      
-      const response = await fetch('/api/collections/', {
+
+      // CSRF token robusto
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value 
+                      || document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+                      || '';
+      if (!csrfToken) {
+        this.showModalError('No se pudo obtener el token CSRF');
+        return;
+      }
+
+      // Construir request: usar FormData si hay documento
+      const hasDocument = !!this.collectionForm.document;
+      const requestOptions = {
         method: 'POST',
-        headers: {
+        headers: hasDocument ? { 'X-CSRFToken': csrfToken } : {
           'Content-Type': 'application/json',
-          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+          'X-CSRFToken': csrfToken
         },
-        body: JSON.stringify(collectionData)
-      });
-      
+        body: undefined
+      };
+
+      if (hasDocument) {
+        const formData = new FormData();
+        // Agregar campos; invoices como string JSON
+        Object.entries(collectionData).forEach(([key, value]) => {
+          if (key === 'invoices') {
+            formData.append('invoices', JSON.stringify(value));
+          } else {
+            formData.append(key, value);
+          }
+        });
+        formData.append('document', this.collectionForm.document);
+        requestOptions.body = formData;
+      } else {
+        requestOptions.body = JSON.stringify(collectionData);
+      }
+
+      const response = await fetch('/api/collections/', requestOptions);
+
+      const result = await response.json().catch(() => ({}));
       if (response.ok) {
-        const data = await response.json();
         this.showModalSuccess('Cobro registrado correctamente');
-        
+
         // Actualizar facturas después del cobro exitoso
-        this.updateInvoicesAfterCollection(this.selectedInvoicesForCollection, data);
-        
-        // Cerrar modal después de un breve delay
+        this.updateInvoicesAfterCollection(this.selectedInvoicesForCollection, result?.collection || result);
+
+        // Intentar descargar automáticamente el PDF del cobro
+        const collectionId = result?.collection?.id || result?.id || result?.payment?.id; // fallback por si la API usa otra clave
+        if (collectionId) {
+          setTimeout(() => this.downloadCollectionPDF(collectionId), 500);
+        }
+
+        // Cerrar modal y resetear
         setTimeout(() => {
           const modal = bootstrap.Modal.getInstance(document.getElementById('collectionModal'));
-          modal.hide();
-          
-          // Resetear formulario
+          modal?.hide();
           this.resetCollectionForm();
-        }, 2000);
-        
+        }, 1500);
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error desconocido al procesar el cobro');
+        const msg = result?.error || result?.message || 'Error desconocido al procesar el cobro';
+        throw new Error(msg);
       }
     },
     
@@ -759,6 +786,50 @@ createApp({
       
       this.clearFormErrors();
       this.clearModalMessage();
+    },
+
+    // ===== DESCARGA DE PDF =====
+    /**
+     * Descarga automáticamente el PDF del comprobante de cobro
+     * @param {number} collectionId - ID del cobro para descargar el PDF
+     */
+    downloadCollectionPDF(collectionId) {
+      try {
+        if (!collectionId) {
+          this.showWarning('No se pudo determinar el ID del cobro para descargar el PDF.');
+          return;
+        }
+
+        const pdfUrl = `/trade/collection/${collectionId}/pdf/`;
+
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = `comprobante_cobro_${collectionId}.pdf`;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          if (document.body.contains(link)) document.body.removeChild(link);
+        }, 1000);
+      } catch (error) {
+        console.error('Error al descargar el PDF del cobro:', error);
+        try {
+          const pdfUrl = `/trade/collection/${collectionId}/pdf/`;
+          window.open(pdfUrl, '_blank', 'noopener,noreferrer');
+        } catch (fallbackError) {
+          console.error('Error en método de respaldo de descarga:', fallbackError);
+        }
+      }
+    },
+
+    /**
+     * Prueba manual de descarga de PDF
+     */
+    testDownloadPDF(collectionId) {
+      const id = collectionId || parseInt(prompt('ID de cobro para descargar PDF:'));
+      if (id) this.downloadCollectionPDF(id);
     }
   }
 }).mount('#collectionsApp');
