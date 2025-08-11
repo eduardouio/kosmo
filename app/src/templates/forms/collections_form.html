@@ -382,7 +382,15 @@
               </div>
 
               <div class="col-12 mt-3">
-                <!-- Campo de observaciones removido - para mantener consistencia con payment_form -->
+                <label class="form-label fw-semibold" for="collection-notes">
+                  <i class="fas fa-sticky-note"></i> Notas
+                </label>
+                <textarea id="collection-notes"
+                          class="form-control"
+                          v-model="collectionForm.notes"
+                          rows="3"
+                          placeholder="Escribe notas u observaciones del cobro (opcional)"></textarea>
+                <small class="text-muted">Estas notas quedarán registradas en el cobro.</small>
               </div>
             </div>
           </form>

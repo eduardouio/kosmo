@@ -57,7 +57,8 @@ createApp({
         document: null,
         documentName: '',
         documentPreview: null,
-        observations: ''
+  observations: '',
+  notes: ''
       },
       
       // Sistema de mensajes del modal
@@ -470,7 +471,8 @@ createApp({
         bank: this.collectionForm.bank || '',
         nro_account: this.collectionForm.nro_account || '',
         nro_operation: this.collectionForm.nro_operation || '',
-        observations: this.collectionForm.observations || '',
+  observations: this.collectionForm.observations || '',
+  notes: this.collectionForm.notes || '',
         invoices: []
       };
       
@@ -746,7 +748,8 @@ createApp({
         document: null,
         documentName: '',
         documentPreview: null,
-        observations: ''
+  observations: '',
+  notes: ''
       };
       
       // Limpiar el input de archivo
