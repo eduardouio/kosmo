@@ -4,9 +4,11 @@ from .views import (
     TemplateReportCusOrderView,
     TemplateReportOrderSupView,
     TemplateInvoice,
+    TemplatePayment,
     PDFReportCusOrder,
     PDFReportSupOrder,
     PDFInvoice,
+    PDFPayment,
     PurchaseReportView,
     SalesReportView,
     PymenReportView,
@@ -49,6 +51,16 @@ urlpatterns = [
         'reports/invoice/<int:id_invoice>/',
         PDFInvoice.as_view(),
         name='report_invoice'
+    ),
+    path(
+        'reports/payment-template/<int:id_payment>/',
+        TemplatePayment.as_view(),
+        name='payment_template'
+    ),
+    path(
+        'reports/payment/<int:id_payment>/',
+        PDFPayment.as_view(),
+        name='payment_pdf'
     ),
     path(
         'reports/purchases/',

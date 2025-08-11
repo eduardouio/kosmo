@@ -14,6 +14,8 @@ from .PartnerAccountStatmentView import PartnerAccountStatmentView
 from .PartnerSearchView import PartnerSearchView
 from .PartnerAccountStatmentPDF import PartnerAccountStatmentPDF
 from .PartnerAccountStatmentExcel import PartnerAccountStatmentExcel
+from .PDFPayment import PDFPayment
+from .TemplatePayment import TemplatePayment
 
 __all__ = [
     'PDFReportSupOrder',
@@ -32,4 +34,6 @@ __all__ = [
     'PartnerSearchView',
     'PartnerAccountStatmentPDF',
     'PartnerAccountStatmentExcel',
+    'PDFPayment',
+    'TemplatePayment',
 ]
