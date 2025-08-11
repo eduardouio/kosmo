@@ -8,6 +8,8 @@
       <link href="/static/css/libs/bootstrap.min.css" rel="stylesheet">
       <link href="/static/css/libs/customicer.css" rel="stylesheet">
       <link rel="stylesheet" href="/static/css/libs/dataTables.dataTables.min.css">
+   <!-- Font Awesome para iconografía unificada -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkfFfLGWn3bS2k9rGm3sV1N7WQBxQ9R0sH0D+Vd3N0iS9S3w7x8Yl+DKw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
       <script src="/static/js/libs/vue@3.js"></script>
       <script src="/static/js/libs/jquery-3.7.1.min.js"></script>
       {% block style%}
@@ -33,6 +35,10 @@
          .footer {
             margin-top: auto;
          }
+         /* Contenedor estándar de listas (90% ancho) */
+         .list-container { width: 90%; }
+         /* Padding consistente en tablas de listas */
+         .list-table th, .list-table td { padding: .25rem !important; }
       </style>
    </head>
    <body>
