@@ -1,0 +1,184 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'css/invoice_style.css' %}" rel="stylesheet" type="text/css" />
+    <title>Comprobante de Cobro {{ collection.collection_number|default:collection.id }}</title>
+    <link href="{% static 'css/collection_receipt.css' %}" rel="stylesheet" type="text/css" />
+    <style>
+      /* Estilos específicos para el comprobante de cobro */
+      .collection-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+      }
+      .collection-logo {
+        max-width: 200px;
+      }
+      .collection-title {
+        text-align: right;
+        color: #10b981; /* Verde en lugar de naranja */
+        font-weight: bold;
+      }
+      .collection-info {
+        margin: 20px 0;
+      }
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+      .info-label {
+        font-weight: bold;
+        color: #6b7280;
+      }
+      .section-title {
+        color: #10b981; /* Verde en lugar de naranja */
+        font-size: 1.1em;
+        margin: 15px 0 10px 0;
+        border-bottom: 1px solid #10b981; /* Verde en lugar de naranja */
+        padding-bottom: 5px;
+      }
+      .invoices-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+      }
+      .invoices-table th {
+        background-color: #10b981; /* Verde en lugar de naranja */
+        color: white;
+        text-align: left;
+        padding: 8px;
+      }
+      .invoices-table td {
+        border: 1px solid #e5e7eb;
+        padding: 8px;
+      }
+      .invoices-table tr:nth-child(even) {
+        background-color: #f9fafb;
+      }
+      .totals {
+        margin-top: 20px;
+        text-align: right;
+      }
+      .total-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 5px;
+      }
+      .total-label {
+        font-weight: bold;
+        width: 150px;
+      }
+      .total-value {
+        width: 150px;
+        text-align: right;
+      }
+      .grand-total {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #10b981; /* Verde en lugar de naranja */
+        border-top: 2px solid #10b981; /* Verde en lugar de naranja */
+        padding-top: 10px;
+        margin-top: 10px;
+      }
+      .footer {
+        margin-top: 50px;
+        text-align: center;
+        font-size: 0.8em;
+        color: #6b7280;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Encabezado con logo y número de comprobante -->
+      <div class="collection-header">
+        <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" 
+             alt="Logo Kosmo Flowers" class="collection-logo"/>
+        <div class="collection-title">
+          <h1>COMPROBANTE DE COBRO</h1>
+          <p>N° {{ collection.collection_number|default:collection.id }}</p>
+          <p>{{ collection.date|date:"d/m/Y" }}</p>
+        </div>
+      </div>
+
+      <!-- Información del cobro -->
+      <div class="collection-info">
+        <div class="info-grid">
+          <div>
+            <div class="info-label">Cliente:</div>
+            <div>{{ collection.customer.name }}</div>
+            <div>{{ collection.customer.identification }}</div>
+            <div>{{ collection.customer.address }}</div>
+            <div>{{ collection.customer.phone }}</div>
+            <div>{{ collection.customer.email }}</div>
+          </div>
+          <div>
+            <div class="info-label">Información Adicional:</div>
+            <div>Vendedor: {{ collection.seller.name|default:"N/A" }}</div>
+            <div>Método de Pago: {{ collection.payment_method|default:"N/A" }}</div>
+            <div>Referencia: {{ collection.reference|default:"N/A" }}</div>
+            <div>Notas: {{ collection.notes|default:"Ninguna" }}</div>
+          </div>
+        </div>
+
+        <!-- Tabla de facturas relacionadas -->
+        <div class="section-title">FACTURAS RELACIONADAS</div>
+        <table class="invoices-table">
+          <thead>
+            <tr>
+              <th>N° Factura</th>
+              <th>Fecha</th>
+              <th>Monto</th>
+              <th>Saldo Anterior</th>
+              <th>Pagado</th>
+              <th>Nuevo Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for invoice in collection.invoices.all %}
+            <tr>
+              <td>{{ invoice.invoice_number }}</td>
+              <td>{{ invoice.date|date:"d/m/Y" }}</td>
+              <td>${{ invoice.total|floatformat:2 }}</td>
+              <td>${{ invoice.previous_balance|floatformat:2 }}</td>
+              <td>${{ invoice.paid_amount|floatformat:2 }}</td>
+              <td>${{ invoice.new_balance|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Totales -->
+        <div class="totals">
+          <div class="total-row">
+            <div class="total-label">Total Facturado:</div>
+            <div class="total-value">${{ collection.invoiced_amount|floatformat:2 }}</div>
+          </div>
+          <div class="total-row">
+            <div class="total-label">Total Cobrado:</div>
+            <div class="total-value">${{ collection.paid_amount|floatformat:2 }}</div>
+          </div>
+          <div class="total-row grand-total">
+            <div class="total-label">Total General:</div>
+            <div class="total-value">${{ collection.total_amount|floatformat:2 }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie de página -->
+      <div class="footer">
+        <p>Este es un documento generado electrónicamente por el sistema de KOSMO FLOWERS</p>
+        <p>© {% now "Y" %} KOSMO FLOWERS - Todos los derechos reservados</p>
+      </div>
+    </div>
+  </body>
+</html>

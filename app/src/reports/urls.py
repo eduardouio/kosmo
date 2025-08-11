@@ -19,6 +19,8 @@ from .views import (
     PartnerSearchView,
     PartnerAccountStatmentPDF,
     PartnerAccountStatmentExcel,
+    PDFCollection,
+    TemplateCollection,
 )
 
 urlpatterns = [
@@ -40,4 +42,6 @@ urlpatterns = [
     path('reports/partner-account-statement/pdf/', PartnerAccountStatmentPDF.as_view(), name='partner_account_statement_pdf'),
     path('reports/partner-account-statement/excel/', PartnerAccountStatmentExcel.as_view(), name='partner_account_statement_excel'),
     path('reports/partner-search/', PartnerSearchView.as_view(), name='partner_search'),
+    path('reports/collection-template/<int:id_collection>/', TemplateCollection.as_view(), name='collection_template'),
+    path('reports/collection/<int:id_collection>/', PDFCollection.as_view(), name='collection_pdf'),
 ]
