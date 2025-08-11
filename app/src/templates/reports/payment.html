@@ -84,7 +84,7 @@
         <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" 
              alt="Logo Kosmo Flowers" class="payment-logo"/>
         <div class="payment-title">
-          <h1>COMPROBANTE DE PAGO</h1>
+          <h2>COMPROBANTE DE PAGO</h2>
           <p>No. {{ payment.payment_number|default:payment.id }}</p>
           <p>Fecha: {{ payment.date|date:'Y-m-d' }}</p>
         </div>
@@ -141,8 +141,8 @@
           
           <!-- Sección de imagen del pago a la derecha -->
           <div class="payment-image-container">
-            {% if payment.image %}
-              <img src="{{ payment.image.url }}" alt="Comprobante de pago" class="payment-image" />
+            {% if payment.document %}
+              <img src="{{ payment.document.url }}" alt="Comprobante de pago" class="payment-image" />
             {% else %}
               <div class="payment-image-placeholder">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
