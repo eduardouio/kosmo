@@ -26,7 +26,6 @@ from .BatchOrderApprovalView import BatchOrderApprovalView
 from .PaymentFormView import PaymentFormView
 from .CollectionFormView import CollectionFormView
 from .PaymentDetailView import PaymentDetailView
-from .PaymentPDFView import PaymentPDFView
 from .CollectionDetailView import CollectionDetailView
 from .CollectionPDFView import CollectionPDFView
 
@@ -55,7 +54,6 @@ __all__ = [
     'PaymentFormView',
     'CollectFormView',
     'PaymentDetailView',
-    'PaymentPDFView',
     'CollectionFormView',
     'CollectionDetailView',
     'CollectionPDFView',
