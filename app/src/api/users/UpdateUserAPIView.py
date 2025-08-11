@@ -1,37 +1,45 @@
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status, parsers
+import json
+from django.http import JsonResponse
+from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from accounts.models.CustomUserModel import CustomUserModel
+from accounts.models.License import License
 from common.AppLoger import loggin_event
 
 
-class UpdateUserAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-    parser_classes = [
-        parsers.JSONParser,
-        parsers.FormParser,
-        parsers.MultiPartParser,
-    ]
-
+class UpdateUserAPIView(LoginRequiredMixin, View):
     def post(self, request):
         user = request.user  # Usuario autenticado
         loggin_event(
             f"UpdateUserAPIView POST por {getattr(user, 'email', user)}"
         )
-        data = request.data
+        data = self._get_request_data(request)
         action = data.get('action') or 'update_profile'
 
         if action == 'change_password':
             return self._change_password(user, data)
 
+        if action == 'update_license':
+            return self._update_license(user, data)
+
         return self._update_profile(user, request)
+
+    def _get_request_data(self, request):
+        content_type = request.META.get('CONTENT_TYPE', '')
+        if 'application/json' in content_type:
+            try:
+                body = request.body.decode('utf-8') or '{}'
+                return json.loads(body)
+            except Exception:
+                return {}
+        # Para multipart/form-data o x-www-form-urlencoded
+        return request.POST
 
     @transaction.atomic
     def _update_profile(self, user: CustomUserModel, request):
-        data = request.data
+        data = self._get_request_data(request)
         picture = request.FILES.get('picture')
 
         # Campos permitidos
@@ -63,9 +71,9 @@ class UpdateUserAPIView(APIView):
                 loggin_event(
                     f"Intento de cambiar email a existente: {email}"
                 )
-                return Response(
+                return JsonResponse(
                     {'detail': 'El correo ya está en uso.'},
-                    status=status.HTTP_400_BAD_REQUEST,
+                    status=400,
                 )
 
         # Aplicar cambios
@@ -79,15 +87,15 @@ class UpdateUserAPIView(APIView):
             user.full_clean()
         except ValidationError as e:
             loggin_event(f"Error de validación al actualizar perfil: {e}")
-            return Response(
+            return JsonResponse(
                 {'detail': e.message_dict},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=400,
             )
 
         user.save()
         loggin_event("Perfil actualizado correctamente")
 
-        return Response(
+        return JsonResponse(
             {
                 'id': user.id,
                 'email': user.email,
@@ -102,7 +110,7 @@ class UpdateUserAPIView(APIView):
                     else None
                 ),
             },
-            status=status.HTTP_200_OK,
+            status=200,
         )
 
     @transaction.atomic
@@ -113,42 +121,106 @@ class UpdateUserAPIView(APIView):
 
         if not all([current_password, new_password, confirm_password]):
             loggin_event("Campos de contraseña incompletos")
-            return Response(
+            return JsonResponse(
                 {'detail': 'Todos los campos de contraseña son obligatorios.'},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=400,
             )
 
         if not user.check_password(current_password):
             loggin_event("Contraseña actual incorrecta")
-            return Response(
+            return JsonResponse(
                 {'detail': 'La contraseña actual es incorrecta.'},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=400,
             )
 
         if new_password != confirm_password:
             loggin_event("No coinciden las nuevas contraseñas")
-            return Response(
+            return JsonResponse(
                 {'detail': 'Las contraseñas no coinciden.'},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=400,
             )
 
         if len(new_password) < 8:
             loggin_event("Nueva contraseña menor a 8 caracteres")
-            return Response(
+            return JsonResponse(
                 {
                     'detail': (
                         'La nueva contraseña debe tener al menos '
                         '8 caracteres.'
                     )
                 },
-                status=status.HTTP_400_BAD_REQUEST,
+                status=400,
             )
 
         user.set_password(new_password)
         user.save()
         loggin_event("Contraseña actualizada correctamente")
 
-        return Response(
+        return JsonResponse(
             {'detail': 'Contraseña actualizada correctamente.'},
-            status=status.HTTP_200_OK,
+            status=200,
         )
+
+    @transaction.atomic
+    def _update_license(self, user: CustomUserModel, data):
+        """
+        Crea o actualiza la licencia asociada al usuario actual.
+        Espera campos: license_key (obligatorio), enterprise, url_server
+        """
+        license_key = (data.get('license_key') or '').strip()
+        enterprise = (data.get('enterprise') or '').strip()
+        url_server = (data.get('url_server') or '').strip()
+
+        if not license_key:
+            return JsonResponse(
+                {'detail': 'La clave de licencia es obligatoria.'},
+                status=400,
+            )
+
+        # Buscar la licencia activa o la más reciente del usuario
+        lic = (
+            License.objects.filter(user=user, is_active=True)
+            .order_by('-activated_on', '-created_at')
+            .first()
+        )
+        if not lic:
+            lic = (
+                License.objects.filter(user=user)
+                .order_by('-activated_on', '-created_at')
+                .first()
+            )
+
+        # Crear si no existe
+        if not lic:
+            lic = License(user=user)
+
+        # Actualizar campos básicos
+        lic.license_key = license_key
+        if enterprise:
+            lic.enterprise = enterprise
+        if url_server:
+            lic.url_server = url_server
+
+        # Activar la licencia si el modelo lo soporta
+        if hasattr(lic, 'is_active'):
+            lic.is_active = True
+
+        lic.save()
+
+        def to_iso(dt):
+            return dt.isoformat() if dt else None
+
+        license_json = {
+            'id': lic.id,
+            'license_key': lic.license_key,
+            'activated_on': to_iso(getattr(lic, 'activated_on', None)),
+            'expires_on': to_iso(getattr(lic, 'expires_on', None)),
+            'enterprise': getattr(lic, 'enterprise', None),
+            'url_server': getattr(lic, 'url_server', None),
+            'is_active': getattr(lic, 'is_active', None),
+            'notes': getattr(lic, 'notes', None),
+            'created_at': to_iso(getattr(lic, 'created_at', None)),
+            'updated_at': to_iso(getattr(lic, 'updated_at', None)),
+        }
+
+        return JsonResponse({'license': license_json}, status=200)
