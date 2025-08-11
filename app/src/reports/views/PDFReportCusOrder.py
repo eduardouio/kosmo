@@ -1,26 +1,26 @@
-from django.http import FileResponse
+from django.http import HttpResponse
 from django.views import View
 from playwright.sync_api import sync_playwright
 from django.urls import reverse
 from trade.models import Order
 from common.AppLoger import loggin_event
 from django.conf import settings
-import os
 
 
 # http://localhost:8000/reports/order-customer/12/
 class PDFReportCusOrder(View):
-    def render_and_capture_pdf(self, url, output_path):
-        """Renderiza la página con Playwright y la guarda como PDF."""
+    def render_pdf_to_bytes(self, url):
+        """Renderiza la página con Playwright y devuelve el PDF como bytes."""
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page(ignore_https_errors=True)
             page.goto(url)
 
             page.wait_for_load_state("networkidle")
-            page.wait_for_timeout(200)
-            page.pdf(
-                path=output_path,
+            page.wait_for_timeout(200)  # Tiempo extra para aplicar estilos
+            
+            # Generar el PDF en memoria
+            pdf_bytes = page.pdf(
                 format="A4",
                 margin={
                     "top": "1cm",
@@ -31,9 +31,10 @@ class PDFReportCusOrder(View):
                 print_background=True
             )
             browser.close()
+            return pdf_bytes
 
     def get(self, request, id_order, *args, **kwargs):
-        """Genera un PDF de la página y lo devuelve como respuesta."""
+        """Genera un PDF de la orden de venta y lo devuelve como respuesta."""
         target_url = str(request.build_absolute_uri(
             reverse("order_customer_template", kwargs={"id_order": id_order})
         ))
@@ -41,23 +42,11 @@ class PDFReportCusOrder(View):
         if settings.IS_IN_PRODUCTION:
             target_url = target_url.replace('http', 'https')
 
-        loggin_event(f'Generando PDF de la orden {id_order} {target_url}')
+        loggin_event(f'Generando PDF de la orden de venta {id_order} {target_url}')
         order = Order.objects.get(id=id_order)
-        output_pdf = f"OrdVenta-{order.partner} {order.serie}-{order.consecutive:06d}.pdf"
-        self.render_and_capture_pdf(target_url, output_pdf)
+        pdf_bytes = self.render_pdf_to_bytes(target_url)
         
-        response = FileResponse(
-            open(output_pdf, "rb"),
-            content_type="application/pdf",
-            as_attachment=True
-        )
-        
-        # Clean up the temporary file after sending response
-        def cleanup():
-            try:
-                os.remove(output_pdf)
-            except OSError:
-                pass
-        
-        response.file_to_stream.close = cleanup
+        # Crear respuesta con el PDF en memoria
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="OrdVenta-{order.partner} {order.serie}-{order.consecutive:06d}.pdf"'
         return response
