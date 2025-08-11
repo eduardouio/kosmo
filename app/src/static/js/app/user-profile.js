@@ -3,7 +3,7 @@ Vue.createApp({
   data() {
     return {
       // Reactive state for user profile
-  userProfile: JSON.parse(document.getElementById('user-profile-json').textContent || '{}'),
+      userProfile: JSON.parse(document.getElementById('user-profile-json').textContent || '{}'),
       // Reactive state for password change
       passwordForm: {
         current_password: '',
@@ -101,20 +101,7 @@ Vue.createApp({
 
 
     getCsrfToken() {
-      let cookieValue = null;
-         const name = 'csrftoken';
-          if (document.cookie && document.cookie !== '') {
-              const cookies = document.cookie.split(';');
-              for (let i = 0; i < cookies.length; i++) {
-                  const cookie = cookies[i].trim();
-                  // Does this cookie string begin with the name we want?
-                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                      break;
-                  }
-              }
-          }
-          return cookieValue;
+      return csrf_token;
     },
 
     // Show alert for profile or password
@@ -176,13 +163,13 @@ Vue.createApp({
           has_picture: !!this.userProfile.picture
         });
 
-        debugger;
-
         const response = await fetch('/api/users/update/', {
           method: 'POST',
           headers: {
-            'csrftoken': this.getCsrfToken(),
+            'X-CSRFToken': this.getCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest'
           },
+          credentials: 'include',
           body: formData
         });
 
@@ -230,11 +217,11 @@ Vue.createApp({
 
         console.log('Changing password...');
 
-        const response = await fetch('/api/users/update/', {
+    const response = await fetch('/api/users/update/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'CSRFToken': this.getCsrfToken(),
+           'X-CSRFToken': this.getCsrfToken(),
             'X-Requested-With': 'XMLHttpRequest'
           },
           credentials: 'include',
@@ -278,11 +265,11 @@ Vue.createApp({
           url_server: lic.url_server || ''
         };
 
-        const response = await fetch('/api/users/license/', {
+  const response = await fetch('/api/users/update/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'CSRFToken': this.getCsrfToken(),
+            'X-CSRFToken': this.getCsrfToken(),
             'X-Requested-With': 'XMLHttpRequest'
           },
           credentials: 'include',
