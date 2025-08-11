@@ -13,9 +13,17 @@ class PDFPayment(View):
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page(ignore_https_errors=True)
+            
+            # Configurar la vista para que se ajuste al 80%
+            page.set_viewport_size({"width": 1240, "height": 1754})  # Tamaño A4 en píxeles (1.4 * 72 DPI)
+            
+            # Aplicar zoom al 80%
+            page.set_viewport_size({"width": int(1240 * 0.8), "height": int(1754 * 0.9)})
+            
             page.goto(url)
-
             page.wait_for_load_state("networkidle")
+            
+            # Generar el PDF con la escala al 80%
             page.pdf(
                 path=output_path,
                 format="A4",
@@ -25,7 +33,8 @@ class PDFPayment(View):
                     "bottom": "0.5cm",
                     "left": "1cm"
                 },
-                print_background=True
+                print_background=True,
+                scale=0.8  # Aplicar escala del 80%
             )
             browser.close()
 
