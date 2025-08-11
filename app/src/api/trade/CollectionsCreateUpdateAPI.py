@@ -18,27 +18,28 @@ class CollectionsCreateUpdateAPI(View):
         try:
             # Detectar si es JSON o FormData
             content_type = request.content_type
-            
+
             if 'application/json' in content_type:
                 # Datos JSON
                 if not request.body:
                     return JsonResponse({'error': 'No data provided'}, status=400)
-                
+
                 data = json.loads(request.body)
                 document_file = None
             else:
                 # FormData (para compatibilidad con archivos)
                 data = request.POST.dict()
                 document_file = request.FILES.get('document')
-                
+
                 # Convertir invoice_collections de JSON string a dict
                 if 'invoice_collections' in data:
-                    invoice_collections = json.loads(data['invoice_collections'])
+                    invoice_collections = json.loads(
+                        data['invoice_collections'])
                     data['invoices'] = [
                         {'invoice_id': int(inv_id), 'amount': str(amount)}
                         for inv_id, amount in invoice_collections.items()
                     ]
-                
+
             loggin_event(f'Datos recibidos para cobro: {data}')
 
             # Validación de campos requeridos
@@ -58,9 +59,10 @@ class CollectionsCreateUpdateAPI(View):
                 }, status=400)
 
             # Validar que el monto total de facturas no exceda el monto del cobro
-            total_invoices = sum(Decimal(str(inv['amount'])) for inv in data['invoices'])
+            total_invoices = sum(
+                Decimal(str(inv['amount'])) for inv in data['invoices'])
             collection_amount = Decimal(str(data['amount']))
-            
+
             if total_invoices > collection_amount:
                 return JsonResponse({
                     'success': False,
@@ -79,6 +81,7 @@ class CollectionsCreateUpdateAPI(View):
                     bank=data.get('bank'),
                     nro_account=data.get('nro_account'),
                     nro_operation=data.get('nro_operation'),
+                    notes=data.get('notes') or None,
                     processed_by_id=data.get('processed_by'),
                     approved_by_id=data.get('approved_by'),
                     approval_date=data.get('approval_date')
@@ -93,14 +96,16 @@ class CollectionsCreateUpdateAPI(View):
 
                 # Generar número de cobro si no se proporciona
                 if not collection.payment_number:
-                    collection.payment_number = Payment.get_next_collection_number()
+                    collection.payment_number = (
+                        Payment.get_next_collection_number()
+                    )
 
                 collection.save()
                 loggin_event(f'Cobro creado con ID: {collection.id}')
 
                 # Procesar las facturas asociadas
                 total_detail_amount = Decimal('0')
-                
+
                 for invoice_data in data['invoices']:
                     try:
                         invoice = Invoice.objects.get(
@@ -110,32 +115,42 @@ class CollectionsCreateUpdateAPI(View):
                     except Invoice.DoesNotExist:
                         return JsonResponse({
                             'success': False,
-                            'error': f'Factura no encontrada: {invoice_data["invoice_id"]}'
+                            'error': (
+                                'Factura no encontrada: '
+                                f'{invoice_data["invoice_id"]}'
+                            )
                         }, status=404)
 
                     detail_amount = Decimal(str(invoice_data['amount']))
-                    
+
                     # Crear el detalle de cobro
                     collection_detail = PaymentDetail(
                         payment=collection,
                         invoice=invoice,
                         amount=detail_amount
                     )
-                    
+
                     collection_detail.full_clean()
                     collection_detail.save()
-                    
+
                     total_detail_amount += detail_amount
 
-                # Verificar que el total de detalles coincida con el monto del cobro
+                # Verificar total de detalles vs. monto del cobro
                 if total_detail_amount != collection_amount:
                     return JsonResponse({
                         'success': False,
-                        'error': f'El monto total de facturas ({total_detail_amount}) no coincide con el monto del cobro ({collection_amount})'
+                        'error': (
+                            'El monto total de facturas '
+                            f'({total_detail_amount}) no coincide con '
+                            'el monto del cobro '
+                            f'({collection_amount})'
+                        )
                     }, status=400)
 
-                loggin_event(f'Cobro {collection.payment_number} creado exitosamente')
-                
+                loggin_event(
+                    f'Cobro {collection.payment_number} creado exitosamente'
+                )
+
                 return JsonResponse({
                     'success': True,
                     'message': 'Cobro creado exitosamente',
@@ -171,7 +186,7 @@ class CollectionsCreateUpdateAPI(View):
         try:
             # Buscar el cobro (Payment con type_transaction='INGRESO')
             collection = Payment.objects.get(
-                id=collection_id, 
+                id=collection_id,
                 type_transaction='INGRESO',
                 is_active=True
             )
@@ -186,17 +201,24 @@ class CollectionsCreateUpdateAPI(View):
                 return JsonResponse({'error': 'No data provided'}, status=400)
 
             data = json.loads(request.body)
-            loggin_event(f'Datos para actualizar cobro {collection_id}: {data}')
+            loggin_event(
+                f'Datos para actualizar cobro {collection_id}: {data}'
+            )
 
             # Validar que el total de facturas no exceda el monto del cobro
             if 'invoices' in data and 'amount' in data:
-                total_invoices = sum(Decimal(str(inv['amount'])) for inv in data['invoices'])
+                total_invoices = sum(
+                    Decimal(str(inv['amount'])) for inv in data['invoices']
+                )
                 collection_amount = Decimal(str(data['amount']))
-                
+
                 if total_invoices > collection_amount:
                     return JsonResponse({
                         'success': False,
-                        'error': 'El monto total de facturas no puede exceder el monto del cobro'
+                        'error': (
+                            'El monto total de facturas no puede exceder '
+                            'el monto del cobro'
+                        )
                     }, status=400)
 
             with transaction.atomic():
@@ -232,10 +254,10 @@ class CollectionsCreateUpdateAPI(View):
                 if 'invoices' in data:
                     # Eliminar detalles existentes
                     PaymentDetail.objects.filter(payment=collection).delete()
-                    
+
                     # Crear nuevos detalles
                     total_detail_amount = Decimal('0')
-                    
+
                     for invoice_data in data['invoices']:
                         try:
                             invoice = Invoice.objects.get(
@@ -245,31 +267,43 @@ class CollectionsCreateUpdateAPI(View):
                         except Invoice.DoesNotExist:
                             return JsonResponse({
                                 'success': False,
-                                'error': f'Factura no encontrada: {invoice_data["invoice_id"]}'
+                                'error': (
+                                    'Factura no encontrada: '
+                                    f'{invoice_data["invoice_id"]}'
+                                )
                             }, status=404)
 
                         detail_amount = Decimal(str(invoice_data['amount']))
-                        
+
                         collection_detail = PaymentDetail(
                             payment=collection,
                             invoice=invoice,
                             amount=detail_amount
                         )
-                        
+
                         collection_detail.full_clean()
                         collection_detail.save()
-                        
+
                         total_detail_amount += detail_amount
 
                     # Verificar que el total de detalles coincida
                     if total_detail_amount != collection.amount:
                         return JsonResponse({
                             'success': False,
-                            'error': f'El monto total de facturas ({total_detail_amount}) no coincide con el monto del cobro ({collection.amount})'
+                            'error': (
+                                'El monto total de facturas '
+                                f'({total_detail_amount}) no coincide con '
+                                'el monto del cobro '
+                                f'({collection.amount})'
+                            )
                         }, status=400)
 
-                loggin_event(f'Cobro {collection.payment_number} actualizado exitosamente')
-                
+                loggin_event(
+                    'Cobro '
+                    f'{collection.payment_number} '
+                    'actualizado exitosamente'
+                )
+
                 return JsonResponse({
                     'success': True,
                     'message': 'Cobro actualizado exitosamente',
@@ -305,11 +339,11 @@ class CollectionsCreateUpdateAPI(View):
                 # Obtener un cobro específico
                 try:
                     collection = Payment.objects.get(
-                        id=collection_id, 
+                        id=collection_id,
                         type_transaction='INGRESO',
                         is_active=True
                     )
-                    
+
                     # Obtener detalles de facturas
                     invoices = []
                     for detail in collection.invoices.all():
@@ -318,14 +352,17 @@ class CollectionsCreateUpdateAPI(View):
                             'invoice_number': detail.invoice.num_invoice,
                             'amount': str(detail.amount)
                         })
-                    
+
                     return JsonResponse({
                         'success': True,
                         'collection': {
                             'id': collection.id,
                             'payment_number': collection.payment_number,
                             'date': collection.date.isoformat(),
-                            'due_date': collection.due_date.isoformat() if collection.due_date else None,
+                            'due_date': (
+                                collection.due_date.isoformat()
+                                if collection.due_date else None
+                            ),
                             'amount': str(collection.amount),
                             'method': collection.method,
                             'status': collection.status,
@@ -335,7 +372,7 @@ class CollectionsCreateUpdateAPI(View):
                             'invoices': invoices
                         }
                     })
-                    
+
                 except Payment.DoesNotExist:
                     return JsonResponse({
                         'success': False,
@@ -347,17 +384,17 @@ class CollectionsCreateUpdateAPI(View):
                 page_size = int(request.GET.get('page_size', 10))
                 start = (page - 1) * page_size
                 end = start + page_size
-                
+
                 collections = Payment.objects.filter(
                     type_transaction='INGRESO',
                     is_active=True
                 ).order_by('-created_at')[start:end]
-                
+
                 total_count = Payment.objects.filter(
                     type_transaction='INGRESO',
                     is_active=True
                 ).count()
-                
+
                 collections_list = []
                 for collection in collections:
                     total_invoices = collection.total_invoices_amount
@@ -371,7 +408,7 @@ class CollectionsCreateUpdateAPI(View):
                         'total_invoices': str(total_invoices),
                         'invoices_count': collection.invoices.count()
                     })
-                
+
                 return JsonResponse({
                     'success': True,
                     'collections': collections_list,
@@ -379,7 +416,9 @@ class CollectionsCreateUpdateAPI(View):
                         'page': page,
                         'page_size': page_size,
                         'total_count': total_count,
-                        'total_pages': (total_count + page_size - 1) // page_size
+                        'total_pages': (
+                            (total_count + page_size - 1) // page_size
+                        )
                     }
                 })
 
