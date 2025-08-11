@@ -44,6 +44,11 @@ class UpdateCustmerOrderAPI(View):
                     profit_margin=new_box_item['margin']
                 )
 
+    # Recalcular totales de la orden (líneas y cabeceras)
+    # Garantiza que cambios de costo/margen se reflejen correctamente
+        Order.rebuild_totals(my_order)
+
+    # Sincronizar órdenes de proveedores con totales correctos
         SyncOrders().sync_suppliers(my_order)
 
         return JsonResponse(
