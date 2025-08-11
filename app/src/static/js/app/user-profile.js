@@ -99,26 +99,22 @@ Vue.createApp({
       }
     },
 
-    // Get CSRF token from DOM
+
     getCsrfToken() {
-      const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
-      if (csrfInput) {
-        return csrfInput.value;
-      }
-      
-      // Fallback to cookie method
       let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          if (cookie.substring(0, 'csrftoken='.length) === 'csrftoken=') {
-            cookieValue = decodeURIComponent(cookie.substring('csrftoken='.length));
-            break;
+         const name = 'csrftoken';
+          if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
           }
-        }
-      }
-      return cookieValue || '';
+          return cookieValue;
     },
 
     // Show alert for profile or password
@@ -180,13 +176,13 @@ Vue.createApp({
           has_picture: !!this.userProfile.picture
         });
 
+        debugger;
+
         const response = await fetch('/api/users/update/', {
           method: 'POST',
           headers: {
-            'X-CSRFToken': this.getCsrfToken(),
-            'X-Requested-With': 'XMLHttpRequest'
+            'csrftoken': this.getCsrfToken(),
           },
-          credentials: 'same-origin',
           body: formData
         });
 
@@ -238,10 +234,10 @@ Vue.createApp({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': this.getCsrfToken(),
+            'CSRFToken': this.getCsrfToken(),
             'X-Requested-With': 'XMLHttpRequest'
           },
-          credentials: 'same-origin',
+          credentials: 'include',
           body: JSON.stringify(payload)
         });
 
@@ -286,10 +282,10 @@ Vue.createApp({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': this.getCsrfToken(),
+            'CSRFToken': this.getCsrfToken(),
             'X-Requested-With': 'XMLHttpRequest'
           },
-          credentials: 'same-origin',
+          credentials: 'include',
           body: JSON.stringify(payload)
         });
 
