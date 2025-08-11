@@ -506,7 +506,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             "num_invoice": invoice.num_invoice,
             "type_document": invoice.type_document,
             "date": invoice.date.strftime("%d/%m/%Y %H:%M") if invoice.date else "",
-            "due_date": invoice.due_date.strftime("%d/%m/%Y") if invoice.due_date else "",
+            "due_date": invoice.due_date.strftime("%d/%m/%Y") if invoice.due_date else "",  
             "status": invoice.status,
             "total_price": float(invoice.total_price),
             "total_margin": float(invoice.total_margin),
