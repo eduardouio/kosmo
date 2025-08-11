@@ -17,7 +17,10 @@ class PaymentCreateUpdateAPI(View):
         loggin_event('Creando nuevo pago')
 
         # Determinar si los datos vienen como FormData (con archivos) o JSON
-        if request.content_type and 'multipart/form-data' in request.content_type:
+        if (
+            request.content_type and
+            'multipart/form-data' in request.content_type
+        ):
             # Datos con archivo - usar request.POST y request.FILES
             payment_data = dict(request.POST)
 
@@ -32,7 +35,10 @@ class PaymentCreateUpdateAPI(View):
                     payment_data['invoices'] = json.loads(
                         payment_data['invoices'])
                 except json.JSONDecodeError:
-                    return JsonResponse({'error': 'Invalid invoices data format'}, status=400)
+                    return JsonResponse(
+                        {'error': 'Invalid invoices data format'},
+                        status=400
+                    )
 
             # Obtener el archivo adjunto si existe
             document_file = request.FILES.get('document')
@@ -67,6 +73,47 @@ class PaymentCreateUpdateAPI(View):
             )
 
         with transaction.atomic():
+            # Helper para formatear errores de validación
+            def map_validation_errors(error: ValidationError):
+                errors = {}
+                msg_dict = getattr(error, 'message_dict', None) or {}
+                # Si vienen errores por campo, usarlos
+                for key, val in msg_dict.items():
+                    if key in ['nro_operation', 'reference']:
+                        errors['reference'] = (
+                            val[0] if isinstance(val, list) else val
+                        )
+                    elif key == 'bank':
+                        errors['bank'] = (
+                            val[0] if isinstance(val, list) else val
+                        )
+                    else:
+                        errors[key] = val
+
+                # Si es un error general (__all__), mapear por contenido
+                all_msgs = msg_dict.get('__all__') if msg_dict else None
+                if not errors and all_msgs:
+                    for msg in all_msgs:
+                        lower = str(msg).lower()
+                        if 'operaci' in lower:
+                            errors['reference'] = msg
+                        elif 'banco' in lower:
+                            errors['bank'] = msg
+                        else:
+                            errors.setdefault('__all__', []).append(msg)
+
+                # Si no había message_dict, usar e.messages
+                if not errors and getattr(error, 'messages', None):
+                    for msg in error.messages:
+                        lower = str(msg).lower()
+                        if 'operaci' in lower:
+                            errors['reference'] = msg
+                        elif 'banco' in lower:
+                            errors['bank'] = msg
+                        else:
+                            errors.setdefault('__all__', []).append(msg)
+
+                return errors or {'__all__': ['Error de validación']}
             # Obtener configuración bancaria por defecto
             bank_config = settings.BANK_ACCOUNT
 
@@ -84,6 +131,7 @@ class PaymentCreateUpdateAPI(View):
                 nro_account=payment_data.get(
                     'nro_account', bank_config.get('account_number', '')),
                 nro_operation=payment_data.get('nro_operation'),
+                notes=payment_data.get('notes') or None,
                 processed_by_id=payment_data.get('processed_by_id'),
                 approved_by_id=payment_data.get('approved_by_id'),
                 approval_date=payment_data.get('approval_date')
@@ -97,15 +145,25 @@ class PaymentCreateUpdateAPI(View):
             payment.payment_number = Payment.get_next_payment_number()
 
             # Validar el pago antes de guardar
-            payment.full_clean()
+            try:
+                payment.full_clean()
+            except ValidationError as e:
+                return JsonResponse(
+                    {'errors': map_validation_errors(e)},
+                    status=400
+                )
             payment.save()
 
             # Crear los detalles de pago para cada factura
             total_invoice_amount = Decimal('0')
             for invoice_data in payment_data['invoices']:
-                if 'invoice_id' not in invoice_data or 'amount' not in invoice_data:
+                if (
+                    'invoice_id' not in invoice_data or
+                    'amount' not in invoice_data
+                ):
                     raise ValidationError(
-                        'Each invoice must have invoice_id and amount')
+                        'Each invoice must have invoice_id and amount'
+                    )
 
                 invoice = Invoice.objects.get(id=invoice_data['invoice_id'])
 
@@ -116,15 +174,32 @@ class PaymentCreateUpdateAPI(View):
                 )
 
                 # Validar el detalle de pago
-                payment_detail.full_clean()
+                try:
+                    payment_detail.full_clean()
+                except ValidationError as e:
+                    return JsonResponse(
+                        {'errors': map_validation_errors(e)},
+                        status=400
+                    )
                 payment_detail.save()
 
                 total_invoice_amount += payment_detail.amount
 
-            # Validar que el monto total del pago coincida con la suma de los detalles
+            # Validar que el monto total del pago coincida
+            # con la suma de los detalles
             if payment.amount != total_invoice_amount:
-                raise ValidationError(
-                    f'Payment amount ({payment.amount}) does not match sum of invoice amounts ({total_invoice_amount})'
+                return JsonResponse(
+                    {
+                        'errors': {
+                            '__all__': [
+                                (
+                                    'El monto del pago no coincide con la '
+                                    'suma de los montos por factura'
+                                )
+                            ]
+                        }
+                    },
+                    status=400
                 )
 
             loggin_event(
