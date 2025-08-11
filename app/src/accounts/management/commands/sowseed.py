@@ -67,40 +67,71 @@ class Command(BaseCommand):
         user.set_password('seguro')
         user.save()
 
-        user2 = CustomUserModel(
-            email='test@kosmoflowers.com',
-            first_name='Test',
-            last_name='Kosmo',
-        )
-        user2.set_password('seguro')
-        user2.save()
+        # Usuario de facturas
+        user_invoices = CustomUserModel.get('invoices@kosmoflowers.com')
+        if not user_invoices:
+            user_invoices = CustomUserModel(
+                email='invoices@kosmoflowers.com',
+                first_name='Invoices',
+                last_name='Kosmo',
+                is_staff=True,
+            )
+            user_invoices.set_password('seguro')
+            user_invoices.save()
 
-        # segundo ususaroi
-        user2 = CustomUserModel(
-            email='test@kosmo.com'
-        )
-        user.set_password('seguro')
-        user.save()
+        # Usuario de ventas
+        user_ventas = CustomUserModel.get('ventas@kosmoflowers.com')
+        if not user_ventas:
+            user_ventas = CustomUserModel(
+                email='ventas@kosmoflowers.com',
+                first_name='Ventas',
+                last_name='Kosmo',
+                is_staff=True,
+            )
+            user_ventas.set_password('seguro')
+            user_ventas.save()
 
     def create_licences(self):
         if License.objects.all().count() > 0:
             print('Ya existen licencias')
             return True
 
-        user = CustomUserModel.get('eduardouio7@gmail.com')
-        if not user:
-            raise Exception('No existe el usuario')
-
         date_now = datetime.now()
+        expire_date = date_now.replace(year=date_now.year + 1)
 
-        License.objects.create(
-            license_key=secrets.token_urlsafe(50),
-            activated_on=date_now,
-            expires_on=date_now.replace(year=date_now.year + 1),
-            is_active=True,
-            url_server='https://dev-7.com/licenses/',
-            user=user,
-        )
+        # Lista de usuarios para crear licencias
+        users_emails = [
+            'eduardouio7@gmail.com',
+            'invoices@kosmoflowers.com',
+            'ventas@kosmoflowers.com'
+        ]
+
+        for email in users_emails:
+            user = CustomUserModel.get(email)
+            if user:
+                print(f'Creando licencia para {email}')
+                License.objects.create(
+                    license_key=secrets.token_urlsafe(50),
+                    activated_on=date_now,
+                    expires_on=expire_date,
+                    is_active=True,
+                    url_server='https://dev-7.com/licenses/',
+                    user=user,
+                )
+            else:
+                print(f'Usuario {email} no encontrado para crear licencia')
+
+        # Licencia adicional con configuración especial para desarrollo
+        admin_user = CustomUserModel.get('eduardouio7@gmail.com')
+        if admin_user:
+            License.objects.create(
+                license_key=secrets.token_urlsafe(50),
+                activated_on=date_now,
+                expires_on=date_now.replace(year=date_now.year + 5),  # 5 años
+                is_active=True,
+                url_server='https://kosmoflowers.com/licenses/',
+                user=admin_user,
+            )
 
     def load_customers(self):
         if Partner.get_customers().count() > 0:
