@@ -173,53 +173,30 @@
           <p>TOTAL INVOICE USD: {{ invoice.total_invoice }}</p>
         </div>
 
-        <!-- Resumen de totales -->
+        <!-- Resumen de totales (dos columnas) -->
         <div class="summary-section">
-          <div class="summary-totals">
-            <div class="summary-row">
-              <strong>TOTAL HB:</strong> <strong>{{ invoice.hb_total }}</strong>
+          <div class="summary-totals" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.70rem;">
+              <div>
+              <div class="summary-row">
+                <strong>TOTAL HB:</strong> <strong>{{ invoice.hb_total }}</strong>
+              </div>
+              <div class="summary-row">
+                <strong>TOTAL QB:</strong> <strong>{{ invoice.qb_total }}</strong>
+              </div>
+              <div class="summary-row">
+                <strong>TOTAL EB:</strong> <strong>{{ invoice.eb_total }}</strong>
+              </div>
             </div>
-            <div class="summary-row">
-              <strong>TOTAL QB:</strong> <strong>{{ invoice.qb_total }}</strong>
-            </div>
-            <div class="summary-row">
-              <strong>TOTAL EB:</strong> <strong>{{ invoice.eb_total }}</strong>
-            </div>
-            <div class="summary-row">
-              <strong>TOTAL PIECES:</strong> <strong>{{ invoice.total_pieces }}</strong>
-            </div>
-            <div class="summary-row">
-              <strong>TOTAL STEMS:</strong> <strong>{{ invoice.tot_stem_flower }}</strong>
-            </div>
-            <div class="summary-row">
-              <strong>TOTAL BUNCHES:</strong> <strong>{{ invoice.total_bunches }}</strong>
-            </div>
-            <div class="summary-row">
-              <strong>TOTAL FB:</strong> <strong>{{ invoice.fb_total }}</strong>
-            </div>
-          </div>
-          <div class="bank-info" style="font-size: 8px;">
-            <div style="margin-bottom: 15px;">
-              <p><strong>ECUADOR BANK ACCOUNT</strong></p>
-              <p><strong>Beneficiary:</strong> Kosmo Flowers SAS</p>
-              <p><strong>Beneficiary Address:</strong> Pasaje Cusua y Pasaje Timasa</p>
-              <p><strong>RUC:</strong> 1793205904001</p>
-              <p><strong>Bank:</strong> Banco del Pacífico</p>
-              <p><strong>Bank Address:</strong> P. Icaza y Pedro Carbo</p>
-              <p><strong>Account Number:</strong> 1067343082</p>
-              <p><strong>Account Type:</strong> Savings</p>
-              <p><strong>Swift Code:</strong> PACIECEG</p>
-            </div>
-            
             <div>
-              <p><strong>UNITED STATES BANK ACCOUNT</strong></p>
-              <p><strong>Beneficiary:</strong> KOSMOFLOWERS LLC</p>
-              <p><strong>Address:</strong> 7050 W PALMETTO PARK RD STE 15 300, BOCA RATON, FL 33433</p>
-              <p><strong>Account Number:</strong> 532732693</p>
-              <p><strong>Bank:</strong> JPMORGAN CHASE</p>
-              <p><strong>Bank Address:</strong> 270 PARK AVENUE NEW YORK NY 10017</p>
-              <p><strong>ABA for ACH:</strong> 267084131</p>
-              <p><strong>ABA for WIRES:</strong> 021000021</p>
+              <div class="summary-row">
+                <strong>TOTAL STEMS:</strong> <strong>{{ invoice.tot_stem_flower }}</strong>
+              </div>
+              <div class="summary-row">
+                <strong>TOTAL PIECES:</strong> <strong>{{ invoice.total_pieces }}</strong>
+              </div>
+              <div class="summary-row">
+                <strong>TOTAL FB:</strong> <strong>{{ invoice.fb_total }}</strong>
+              </div>
             </div>
           </div>
         </div>

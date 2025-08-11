@@ -159,28 +159,7 @@ body {
   padding-right: 10px;
 }
 
-.info-row-flex {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.05rem;
-  width: 100%;
-}
-
-.flex-half {
-  width: 48%;
-  display: flex;
-  border-bottom: 1px dotted #e5e7eb;
-  padding: 2px 0;
-}
-
-.flex-half .label-col {
-  width: 35%;
-  padding-right: 5px;
-}
-
-.flex-half .value-col {
-  width: 65%;
-}
+/* flex helpers removidos por no uso en Invoice.html */
 
 /* Tabla de productos */
 .table-container {
@@ -228,11 +207,9 @@ table td {
   font-weight: bold;
 }
 
-/* Resumen y datos bancarios */
+/* Resumen */
 .summary-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  /* Se elimina grid; el contenido actual solo muestra summary-totals */
   margin-bottom: 1.5rem;
 }
 
@@ -252,17 +229,7 @@ table td {
   border-bottom: none;
 }
 
-.bank-info {
-  font-size: 0.70rem;
-  color: #6b7280;
-  border: 1px solid #6b7280;
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-}
-
-.bank-info p {
-  margin: 0.25rem 0;
-}
+/* Se eliminan estilos de .bank-info: sección de pagos removida del template */
 
 /* Nota final */
 .footer-note {
@@ -273,17 +240,10 @@ table td {
   border-bottom: 1px dotted  #cdcdcd;
 }
 
-.w-1/4 {
-  width: 25%;
-}
-
 .w-1/6 {
   width: 16.666667%;
 }
-
-.w-3/4 {
-  width: 75%;
-}
+/* Clases de ancho no usadas (.w-1/4, .w-3/4) removidas */
 
 .email-credit-row {
   display: flex;
