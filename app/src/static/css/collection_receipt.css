@@ -1,6 +1,60 @@
-/* Estilos para el comprobante de cobro */
+/* Estilos movidos desde collection.html */
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+.payment-logo {
+  max-width: 200px;
+}
+.payment-title {
+  text-align: right;
+  color: #10b981;
+  font-weight: bold;
+}
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.info-label {
+  font-weight: bold;
+  color: #6b7280;
+}
+.section-title {
+  color: #10b981;
+  font-size: 1.1em;
+  margin: 15px 0 10px 0;
+  border-bottom: 1px solid #10b981;
+  padding-bottom: 5px;
+}
+.total-amount {
+  text-align: right;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-top: 15px;
+  color: #10b981;
+}
+.footer {
+  margin-top: 30px;
+  font-size: 0.8em;
+  text-align: center;
+  color: #6b7280;
+}
+.company-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f3f4f6;
+}
+.company-info-left, .company-info-right {
+  flex: 1;
+}
 
-/* Contenedor principal de la sección de información de cobro */
+/* Estilos de la plantilla original */
 .collection-info {
     margin: 20px 0;
 }
@@ -12,13 +66,11 @@
     width: 100%;
 }
 
-/* Contenedor de la información del cobro */
 .collection-details {
     flex: 1;
-    min-width: 0; /* Evita que el flex item se desborde */
+    min-width: 0;
 }
 
-/* Contenedor de la imagen del comprobante */
 .collection-image-container {
     width: 40%;
     min-width: 250px;
@@ -46,30 +98,6 @@
     width: 100%;
 }
 
-/* Estilos para los botones de acción */
-.collection-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
-}
-
-.btn-print {
-    background-color: #10b981;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.btn-print:hover {
-    background-color: #0d9f6e;
-}
-
-/* Estilos para la tabla de facturas */
 .invoices-table {
     width: 100%;
     border-collapse: collapse;
@@ -88,95 +116,23 @@
     border-bottom: 1px solid #e5e7eb;
 }
 
-.invoices-table tr:nth-child(even) {
-    background-color: #f9fafb;
-}
-
-.invoices-table tr:hover {
-    background-color: #f3f4f6;
-}
-
-/* Estilos para los totales */
-.totals {
-    margin-top: 1.5rem;
-    text-align: right;
-}
-
-.total-row {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 0.5rem;
-}
-
-.total-label {
-    font-weight: 600;
-    width: 200px;
-    color: #4b5563;
-}
-
-.total-value {
-    width: 150px;
-    text-align: right;
-    font-weight: 500;
-}
-
-.grand-total {
-    font-size: 1.1em;
-    font-weight: 700;
-    color: #10b981;
-    padding-top: 0.5rem;
-    margin-top: 0.5rem;
-    border-top: 2px solid #10b981;
-}
-
-/* Estilos para impresión */
+/* Estilos de impresión simples y efectivos */
 @media print {
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .collection-info-container {
+        width: 100%;
+        page-break-inside: avoid;
+    }
+
+    .collection-image-container {
+        page-break-inside: avoid;
+    }
+
     .no-print {
         display: none !important;
-    }
-    
-    body {
-        font-size: 12px;
-    }
-    
-    .container {
-        width: 100%;
-        max-width: 100%;
-        padding: 0;
-    }
-    
-    .collection-actions {
-        display: none;
-    }
-    
-    .invoices-table {
-        font-size: 10px;
-    }
-    
-    .invoices-table th,
-    .invoices-table td {
-        padding: 0.25rem 0.5rem;
-    }
-}
-
-/* Estilos responsivos */
-@media (max-width: 768px) {
-    .collection-info-container {
-        flex-direction: column;
-    }
-    
-    .collection-image-container {
-        width: 100%;
-        margin-top: 1rem;
-    }
-    
-    .info-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .invoices-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
     }
 }

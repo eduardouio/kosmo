@@ -8,169 +8,130 @@
     <link href="{% static 'css/invoice_style.css' %}" rel="stylesheet" type="text/css" />
     <title>Comprobante de Cobro {{ collection.collection_number|default:collection.id }}</title>
     <link href="{% static 'css/collection_receipt.css' %}" rel="stylesheet" type="text/css" />
-    <style>
-      /* Estilos específicos para el comprobante de cobro */
-      .collection-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 20px;
-      }
-      .collection-logo {
-        max-width: 200px;
-      }
-      .collection-title {
-        text-align: right;
-        color: #10b981; /* Verde en lugar de naranja */
-        font-weight: bold;
-      }
-      .collection-info {
-        margin: 20px 0;
-      }
-      .info-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 15px;
-      }
-      .info-label {
-        font-weight: bold;
-        color: #6b7280;
-      }
-      .section-title {
-        color: #10b981; /* Verde en lugar de naranja */
-        font-size: 1.1em;
-        margin: 15px 0 10px 0;
-        border-bottom: 1px solid #10b981; /* Verde en lugar de naranja */
-        padding-bottom: 5px;
-      }
-      .invoices-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 15px 0;
-      }
-      .invoices-table th {
-        background-color: #10b981; /* Verde en lugar de naranja */
-        color: white;
-        text-align: left;
-        padding: 8px;
-      }
-      .invoices-table td {
-        border: 1px solid #e5e7eb;
-        padding: 8px;
-      }
-      .invoices-table tr:nth-child(even) {
-        background-color: #f9fafb;
-      }
-      .totals {
-        margin-top: 20px;
-        text-align: right;
-      }
-      .total-row {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 5px;
-      }
-      .total-label {
-        font-weight: bold;
-        width: 150px;
-      }
-      .total-value {
-        width: 150px;
-        text-align: right;
-      }
-      .grand-total {
-        font-size: 1.2em;
-        font-weight: bold;
-        color: #10b981; /* Verde en lugar de naranja */
-        border-top: 2px solid #10b981; /* Verde en lugar de naranja */
-        padding-top: 10px;
-        margin-top: 10px;
-      }
-      .footer {
-        margin-top: 50px;
-        text-align: center;
-        font-size: 0.8em;
-        color: #6b7280;
-        border-top: 1px solid #e5e7eb;
-        padding-top: 15px;
-      }
-    </style>
+
   </head>
   <body>
     <div class="container">
       <!-- Encabezado con logo y número de comprobante -->
-      <div class="collection-header">
+      <div class="payment-header">
         <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" 
-             alt="Logo Kosmo Flowers" class="collection-logo"/>
-        <div class="collection-title">
-          <h1>COMPROBANTE DE COBRO</h1>
-          <p>N° {{ collection.collection_number|default:collection.id }}</p>
-          <p>{{ collection.date|date:"d/m/Y" }}</p>
+             alt="Logo Kosmo Flowers" class="payment-logo"/>
+        <div class="payment-title">
+          <h2>COMPROBANTE DE COBRO</h2>
+          <p>No. {{ collection.payment_number|default:collection.id }}</p>
+          <p>Fecha: {{ collection.date|date:'Y-m-d' }}</p>
+        </div>
+      </div>
+
+      <!-- Información de la empresa -->
+      <div class="company-info">
+        <div class="company-info-left">
+          <div><strong>Roses Grown by:</strong> KOSMO FLOWERS</div>
+          <div><strong>Address:</strong> Tupigachi - Tabacundo</div>
+          <div><strong>Country:</strong> ECUADOR</div>
+        </div>
+        <div class="company-info-right">
+          <p><strong>Email:</strong> invoices@kosmoflowers.com</p>
+          <p><strong>Phone:</strong> (+593) 0999475741</p>
         </div>
       </div>
 
       <!-- Información del cobro -->
       <div class="collection-info">
-        <div class="info-grid">
-          <div>
-            <div class="info-label">Cliente:</div>
-            <div>{{ collection.customer.name }}</div>
-            <div>{{ collection.customer.identification }}</div>
-            <div>{{ collection.customer.address }}</div>
-            <div>{{ collection.customer.phone }}</div>
-            <div>{{ collection.customer.email }}</div>
+        <h2 class="section-title">Información del Cobro</h2>
+        <div class="collection-info-container">
+          <!-- Detalles del cobro a la izquierda -->
+          <div class="collection-details">
+            <div class="info-grid">
+              <div class="info-label">Método de Pago:</div>
+              <div>{{ collection.get_method_display|default:"No especificado" }}</div>
+              
+              <div class="info-label">Estado:</div>
+              <div>{{ collection.get_status_display|default:"No especificado" }}</div>
+              
+              <div class="info-label">Tipo de Transacción:</div>
+              <div>{{ collection.get_type_transaction_display|default:"No especificado" }}</div>
+              
+              {% if collection.bank %}
+              <div class="info-label">Banco:</div>
+              <div>{{ collection.bank }}</div>
+              {% endif %}
+              
+              {% if collection.nro_operation %}
+              <div class="info-label">Número de Operación:</div>
+              <div>{{ collection.nro_operation }}</div>
+              {% endif %}
+              
+              {% if collection.nro_account %}
+              <div class="info-label">Número de Cuenta:</div>
+              <div>{{ collection.nro_account }}</div>
+              {% endif %}
+              
+              <div class="info-label">Monto Total:</div>
+              <div style="font-weight: bold; color: #10b981;">${{ collection.amount|floatformat:2|default:"0.00" }}</div>
+            </div>
           </div>
-          <div>
-            <div class="info-label">Información Adicional:</div>
-            <div>Vendedor: {{ collection.seller.name|default:"N/A" }}</div>
-            <div>Método de Pago: {{ collection.payment_method|default:"N/A" }}</div>
-            <div>Referencia: {{ collection.reference|default:"N/A" }}</div>
-            <div>Notas: {{ collection.notes|default:"Ninguna" }}</div>
+          
+          <!-- Sección de imagen del cobro a la derecha -->
+          <div class="collection-image-container">
+            {% if collection.document %}
+              <img src="{{ collection.document.url }}" alt="Comprobante de cobro" class="collection-image" />
+            {% else %}
+              <div class="collection-image-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <p class="mt-2">No hay imagen de comprobante</p>
+              </div>
+            {% endif %}
           </div>
         </div>
+      </div>
 
-        <!-- Tabla de facturas relacionadas -->
-        <div class="section-title">FACTURAS RELACIONADAS</div>
+      <!-- Facturas relacionadas -->
+      {% if collection_details %}
+      <div class="invoices-section">
+        <h2 class="section-title">Facturas Cobradas ({{ collection_details|length }})</h2>
         <table class="invoices-table">
           <thead>
             <tr>
-              <th>N° Factura</th>
+              <th>Proveedor</th>
+              <th>Factura</th>
               <th>Fecha</th>
               <th>Monto</th>
-              <th>Saldo Anterior</th>
-              <th>Pagado</th>
-              <th>Nuevo Saldo</th>
             </tr>
           </thead>
           <tbody>
-            {% for invoice in collection.invoices.all %}
+            {% for detail in collection_details %}
             <tr>
-              <td>{{ invoice.invoice_number }}</td>
-              <td>{{ invoice.date|date:"d/m/Y" }}</td>
-              <td>${{ invoice.total|floatformat:2 }}</td>
-              <td>${{ invoice.previous_balance|floatformat:2 }}</td>
-              <td>${{ invoice.paid_amount|floatformat:2 }}</td>
-              <td>${{ invoice.new_balance|floatformat:2 }}</td>
+              <td>{{ detail.invoice.partner.name|truncatechars:30 }}</td>
+              <td>{{ detail.invoice.num_invoice }}</td>
+              <td>{{ detail.invoice.date|date:'Y-m-d' }}</td>
+              <td>${{ detail.amount|floatformat:2 }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
+        <div class="total-amount">
+          Total Cobrado: ${{ collection.amount|floatformat:2 }}
+        </div>
+      </div>
+      {% endif %}
 
-        <!-- Totales -->
-        <div class="totals">
-          <div class="total-row">
-            <div class="total-label">Total Facturado:</div>
-            <div class="total-value">${{ collection.invoiced_amount|floatformat:2 }}</div>
-          </div>
-          <div class="total-row">
-            <div class="total-label">Total Cobrado:</div>
-            <div class="total-value">${{ collection.paid_amount|floatformat:2 }}</div>
-          </div>
-          <div class="total-row grand-total">
-            <div class="total-label">Total General:</div>
-            <div class="total-value">${{ collection.total_amount|floatformat:2 }}</div>
-          </div>
+      <!-- Información adicional -->
+      <div class="additional-info">
+        <h2 class="section-title">Información Adicional</h2>
+        <div class="info-grid">
+          <div class="info-label">Creado por:</div>
+          <div>{{ user_created.get_full_name|default:user_created.username }} ({{ user_created.email }})</div>
+          
+          <div class="info-label">Fecha de generación:</div>
+          <div>{{ now|date:'Y-m-d H:i:s' }}</div>
+          
+          {% if collection.notes %}
+          <div class="info-label">Notas:</div>
+          <div>{{ collection.notes }}</div>
+          {% endif %}
         </div>
       </div>
 
