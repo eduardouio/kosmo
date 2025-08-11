@@ -1,4 +1,4 @@
-from django.http import FileResponse
+from django.http import HttpResponse
 from django.views import View
 from playwright.sync_api import sync_playwright
 from django.urls import reverse
@@ -8,8 +8,8 @@ from django.conf import settings
 
 
 class PDFPayment(View):
-    def render_and_capture_pdf(self, url, output_path):
-        """Renderiza la página con Playwright y la guarda como PDF."""
+    def render_pdf_to_bytes(self, url):
+        """Renderiza la página con Playwright y devuelve el PDF como bytes."""
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page(ignore_https_errors=True)
@@ -23,9 +23,8 @@ class PDFPayment(View):
             page.goto(url)
             page.wait_for_load_state("networkidle")
             
-            # Generar el PDF con la escala al 80%
-            page.pdf(
-                path=output_path,
+            # Generar el PDF en memoria con la escala al 80%
+            pdf_bytes = page.pdf(
                 format="A4",
                 margin={
                     "top": "1cm",
@@ -34,9 +33,10 @@ class PDFPayment(View):
                     "left": "1cm"
                 },
                 print_background=True,
-                scale=0.8  # Aplicar escala del 80%
+                scale=0.8
             )
             browser.close()
+            return pdf_bytes
 
     def get(self, request, id_payment, *args, **kwargs):
         """Genera un PDF del comprobante de pago y lo devuelve como respuesta."""
@@ -49,12 +49,26 @@ class PDFPayment(View):
 
         loggin_event(f'Generando PDF del pago {id_payment} {target_url}')
         payment = Payment.objects.get(id=id_payment)
-        output_pdf = f"Payment-{id_payment}-{payment.payment_number or 'no-number'}.pdf"
-        self.render_and_capture_pdf(target_url, output_pdf)
-
-        return FileResponse(
-            open(output_pdf, "rb"),
-            content_type="application/pdf",
-            as_attachment=True,
-            filename=output_pdf
-        )
+        
+        # Obtener el primer detalle de pago para el nombre del proveedor
+        payment_detail = payment.invoices.first()
+        supplier_name = 'Proveedor-Desconocido'
+        invoice_number = 'Sin-Factura'
+        
+        if payment_detail and hasattr(payment_detail, 'invoice') and payment_detail.invoice:
+            if hasattr(payment_detail.invoice, 'partner') and payment_detail.invoice.partner:
+                supplier_name = payment_detail.invoice.partner.name.replace(' ', '-')
+            if hasattr(payment_detail.invoice, 'num_invoice') and payment_detail.invoice.num_invoice:
+                invoice_number = payment_detail.invoice.num_invoice.replace(' ', '')
+        
+        pdf_bytes = self.render_pdf_to_bytes(target_url)
+        
+        # Crear respuesta con el PDF en memoria
+        safe_supplier_name = "".join([c for c in supplier_name if c.isalpha() or c.isdigit() or c in ('-', '_')]).rstrip()
+        safe_invoice = "".join([c for c in invoice_number if c.isalpha() or c.isdigit() or c in ('-', '_')]).rstrip()
+        
+        filename = f"Pago-{payment.payment_number or payment.id}-{safe_supplier_name}-{safe_invoice}.pdf"
+        
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
