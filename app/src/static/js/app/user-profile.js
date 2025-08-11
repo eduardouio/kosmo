@@ -1,24 +1,16 @@
 Vue.createApp({
   delimiters: ['${', '}'],
   data() {
-    // Tomar el JSON inicial para hidratar ambos estados
-    const jsonEl = document.getElementById('user-profile-json');
-    const initialProfile = jsonEl && jsonEl.textContent ? JSON.parse(jsonEl.textContent) : {};
     return {
       // Reactive state for user profile
-      userProfile: initialProfile,
+  userProfile: JSON.parse(document.getElementById('user-profile-json').textContent || '{}'),
       // Reactive state for password change
       passwordForm: {
         current_password: '',
         new_password: '',
         confirm_password: ''
       },
-      // Formulario de licencia (binding de modal Licencia)
-      licenseForm: {
-        license_key: (initialProfile.license && initialProfile.license.license_key) || '',
-        enterprise: (initialProfile.license && initialProfile.license.enterprise) || '',
-        url_server: (initialProfile.license && initialProfile.license.url_server) || ''
-      },
+  // La licencia se maneja directamente desde userProfile.license
       // Loading states
       loading: {
         profile: false,
@@ -73,63 +65,38 @@ Vue.createApp({
     }
   },
   watch: {
-    // Mantener sincronizado el formulario de licencia si cambia la licencia en el perfil
-    'userProfile.license': {
-      handler(newVal) {
-        this.syncLicenseForm(newVal);
-      },
-      deep: true
-    }
+    // No se requiere sincronización adicional; se trabaja directo con userProfile
   },
   mounted() {
     this.initializeProfile();
-    // Sincronizar formulario de licencia al iniciar
-    this.syncLicenseForm(this.userProfile && this.userProfile.license);
   },
   methods: {
     // Initialize profile data from DOM inputs
     initializeProfile() {
-      // Prefer JSON embedded by Django via json_script
-      try {
-        const jsonEl = document.getElementById('user-profile-json');
-        if (jsonEl && jsonEl.textContent) {
-          const data = JSON.parse(jsonEl.textContent);
-          const sanitize = (val) => {
-            if (val === undefined || val === null) return '';
-            const s = String(val).trim();
-            return (s === 'None' || s === 'null' || s === 'undefined') ? '' : s;
-          };
-          this.userProfile.first_name = sanitize(data.first_name);
-          this.userProfile.last_name = sanitize(data.last_name);
-          this.userProfile.email = sanitize(data.email);
-          this.userProfile.phone = sanitize(data.phone);
-          this.userProfile.notes = sanitize(data.notes);
-          // Do not set picture from URL; keep it null for uploads only
-          this.userProfile.picture = null;
-          return; // Done
-        }
-      } catch (e) {
-        console.warn('No se pudo parsear user_profile_json, se usará fallback del DOM.', e);
-      }
-
+      // Usar directamente el JSON embebido (ya asignado en data)
       const sanitize = (val) => {
         if (val === undefined || val === null) return '';
         const s = String(val).trim();
         return (s === 'None' || s === 'null' || s === 'undefined') ? '' : s;
       };
 
-      // Get values from form inputs
-      const firstNameInput = document.querySelector('input[name="first_name"]');
-      const lastNameInput = document.querySelector('input[name="last_name"]');
-      const emailInput = document.querySelector('input[name="email"]');
-      const phoneInput = document.querySelector('input[name="phone"]');
-      const notesInput = document.querySelector('textarea[name="notes"]');
-
-      if (firstNameInput) this.userProfile.first_name = sanitize(firstNameInput.value);
-      if (lastNameInput) this.userProfile.last_name = sanitize(lastNameInput.value);
-      if (emailInput) this.userProfile.email = sanitize(emailInput.value);
-      if (phoneInput) this.userProfile.phone = sanitize(phoneInput.value);
-      if (notesInput) this.userProfile.notes = sanitize(notesInput.value);
+      if (this.userProfile) {
+        this.userProfile.first_name = sanitize(this.userProfile.first_name);
+        this.userProfile.last_name = sanitize(this.userProfile.last_name);
+        this.userProfile.email = sanitize(this.userProfile.email);
+        this.userProfile.phone = sanitize(this.userProfile.phone);
+        this.userProfile.notes = sanitize(this.userProfile.notes);
+        // La imagen para subir se gestiona como archivo, no desde URL
+        this.userProfile.picture = null;
+        // Asegurar objeto de licencia para bindings del formulario
+        if (!this.userProfile.license) {
+          this.userProfile.license = {
+            license_key: '',
+            enterprise: '',
+            url_server: ''
+          };
+        }
+      }
     },
 
     // Get CSRF token from DOM
@@ -302,29 +269,17 @@ Vue.createApp({
       }
     },
 
-    // Sincroniza el formulario del modal de licencia con el perfil
-    syncLicenseForm(license) {
-      if (!license) {
-        this.licenseForm.license_key = '';
-        this.licenseForm.enterprise = '';
-        this.licenseForm.url_server = '';
-        return;
-      }
-      this.licenseForm.license_key = license.license_key || '';
-      this.licenseForm.enterprise = license.enterprise || '';
-      this.licenseForm.url_server = license.url_server || '';
-    },
-    
     // Actualiza la licencia
     async updateLicense() {
       this.loading.license = true;
       
       try {
+        const lic = (this.userProfile && this.userProfile.license) || {};
         const payload = {
           action: 'update_license',
-          license_key: this.licenseForm.license_key,
-          enterprise: this.licenseForm.enterprise,
-          url_server: this.licenseForm.url_server
+          license_key: lic.license_key || '',
+          enterprise: lic.enterprise || '',
+          url_server: lic.url_server || ''
         };
 
         const response = await fetch('/api/users/license/', {
@@ -346,7 +301,7 @@ Vue.createApp({
 
         this.showSuccess('license', 'Licencia actualizada correctamente');
         
-        // Actualizar el perfil con la nueva licencia
+        // Actualizar el perfil con la nueva licencia directamente
         if (data.license) {
           this.userProfile.has_license = true;
           this.userProfile.license = data.license;

@@ -232,16 +232,16 @@
             </div>
             <div class="mb-2">
               <label class="form-label">Clave de licencia</label>
-              <input type="text" name="license_key" class="form-control" placeholder="XXXX-XXXX-XXXX-XXXX" v-model="licenseForm.license_key" :disabled="loading.license">
+              <input type="text" name="license_key" class="form-control" placeholder="XXXX-XXXX-XXXX-XXXX" v-model="userProfile.license.license_key" :disabled="loading.license">
             </div>
             <div class="row g-2">
               <div class="col-12 col-md-6">
                 <label class="form-label">Empresa</label>
-                <input type="text" name="enterprise" class="form-control" v-model="licenseForm.enterprise" :disabled="loading.license">
+                <input type="text" name="enterprise" class="form-control" v-model="userProfile.license.enterprise" :disabled="loading.license">
               </div>
               <div class="col-12 col-md-6">
                 <label class="form-label">Servidor</label>
-                <input type="url" name="url_server" class="form-control" v-model="licenseForm.url_server" placeholder="https://..." :disabled="loading.license">
+                <input type="url" name="url_server" class="form-control" v-model="userProfile.license.url_server" placeholder="https://..." :disabled="loading.license">
               </div>
             </div>
           </div>
