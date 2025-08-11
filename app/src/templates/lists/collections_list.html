@@ -111,8 +111,8 @@
                     <div class="provider-invoice-info">
                         {% for payment_detail in item.invoices.all %}
                             <div class="mb-1">
-                                <span class="text-truncate-custom" title="{{ payment_detail.invoice.partner.business_name }}">
-                                    {{ payment_detail.invoice.partner.business_name|truncatechars:20 }}
+                                <span class="text-truncate-custom" title="{{ payment_detail.invoice.partner.name }}">
+                                    {{ payment_detail.invoice.partner.name|truncatechars:20 }}
                                 </span>
                                 {{ payment_detail.invoice.num_invoice }}
                             </div>

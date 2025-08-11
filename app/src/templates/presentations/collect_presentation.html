@@ -149,10 +149,13 @@
                 <div class="card-header collection-header">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h3 class="mb-1">
+                            <h4 class="text-primary">
+                                {{ collection.partners_names }}
+                            </h4>
+                            <h5 class="mb-1">
                                 <i class="fas fa-receipt me-2"></i>
                                 Cobro {{ collection.payment_number|default:collection.id }}
-                            </h3>
+                            </h5>
                             <p class="mb-0 text-muted small">
                                 <i class="fas fa-calendar me-1"></i>
                                 Registrado el {{ collection.date|date:"d/m/Y" }}
@@ -167,10 +170,8 @@
                                 {% endif %}">
                                 {{ collection.get_status_display }}
                             </span>
-                            <div class="mt-2">
-                                <span class="amount-highlight">
+                            <div class="mt-2 h3 text-success">
                                     ${{ collection.amount|floatformat:2 }}
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -332,9 +333,11 @@
                         <div class="invoice-item">
                             <div class="row align-items-center">
                                 <div class="col-lg-6">
-                                    <div class="customer-name">
-                                        {{ detail.invoice.partner.business_name }}
-                                    </div>
+                                    <!-- Nombre del partner en el mismo tamaño que la nota -->
+                                    <small class="text-muted d-block">
+                                        <i class="fas fa-building me-1"></i>
+                                        {{ detail.invoice.partner.name|default:"-" }}
+                                    </small>
                                     <div class="mt-1">
                                         <a href="{% url 'invoice_detail_presentation' detail.invoice.id %}" 
                                            target="_blank" 
@@ -432,7 +435,7 @@
                     </a>
                     
                     {% if collection.status == 'PENDIENTE' or collection.status == 'CONFIRMADO' %}
-                    <button class="btn btn-default btn-action btn-void text-danger" onclick="voidCollection({{ collection.id }})">
+                    <button class="btn btn-default btn-action btn-void text-danger js-void-collection" data-collection-id="{{ collection.id }}">
                         <i class="fas fa-ban me-1"></i>
                         Anular Cobro
                     </button>
@@ -483,7 +486,7 @@ function openImageModal(imageUrl) {
 }
 
 // Función para anular cobro
-async function voidCollection(collectionId) {
+async function voidCollection(evt, collectionId) {
     // Mostrar un diálogo de confirmación más detallado
     const confirmMessage = `¿Está seguro de que desea anular este cobro?
 
@@ -500,7 +503,7 @@ Esta acción no se puede deshacer.`;
     }
     
     // Mostrar indicador de carga
-    const button = event.target.closest('button');
+    const button = evt.target.closest('button');
     const originalText = button.innerHTML;
     button.disabled = true;
     button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Anulando...';
@@ -586,6 +589,18 @@ const printStyles = `
 const styleSheet = document.createElement('style');
 styleSheet.textContent = printStyles;
 document.head.appendChild(styleSheet);
+
+// Listener para el botón de anular (evita inline onclick)
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.js-void-collection').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            const id = this.dataset.collectionId;
+            if (id) {
+                voidCollection(e, id);
+            }
+        });
+    });
+});
 </script>
 
 <!-- CSRF Token -->
