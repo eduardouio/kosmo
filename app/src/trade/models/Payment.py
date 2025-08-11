@@ -131,6 +131,28 @@ class Payment(BaseModel):
         a través de PaymentInvoice"""
         return sum(pi.amount for pi in self.invoices.all())
 
+    @property
+    def partners_names(self) -> str:
+        """Devuelve una cadena con los nombres únicos de los partners
+        asociados a las facturas pagadas por este pago.
+
+        Usa los datos ya prefetechados (invoices -> invoice -> partner)
+        cuando el queryset de Payments los haya cargado.
+        """
+        try:
+            partners = set()
+            for det in self.invoices.all():
+                inv = getattr(det, 'invoice', None)
+                if not inv:
+                    continue
+                partner = getattr(inv, 'partner', None)
+                if partner and getattr(partner, 'name', None):
+                    partners.add(partner.name)
+            # Mostrar ordenados para consistencia visual
+            return ', '.join(sorted(partners)) if partners else ''
+        except Exception:
+            return ''
+
     def clean(self):
         """Validaciones personalizadas"""
         super().clean()
@@ -146,12 +168,20 @@ class Payment(BaseModel):
                     'El banco es requerido para este método de pago')
             if not self.nro_operation:
                 raise ValidationError(
-                    'El número de operación es requerido para este método de pago')
+                    (
+                        'El número de operación es requerido para este '
+                        'método de pago'
+                    )
+                )
 
         # Validar que la fecha de vencimiento sea posterior a la fecha de pago
         if self.due_date and self.date and self.due_date < self.date:
             raise ValidationError(
-                'La fecha de vencimiento no puede ser anterior a la fecha de pago')
+                (
+                    'La fecha de vencimiento no puede ser anterior a la '
+                    'fecha de pago'
+                )
+            )
 
     @classmethod
     def get_next_payment_number(cls):
@@ -234,9 +264,16 @@ class PaymentDetail(BaseModel):
             raise ValidationError('El monto debe ser mayor a cero')
 
         # Validar que el monto no exceda el total de la factura
-        if self.invoice and self.amount and self.amount > self.invoice.total_invoice:
+        if (
+            self.invoice and self.amount and
+            self.amount > self.invoice.total_invoice
+        ):
             raise ValidationError(
-                f'El monto no puede exceder el total de la factura ({self.invoice.total_invoice})')
+                (
+                    'El monto no puede exceder el total de la factura '
+                    f'({self.invoice.total_invoice})'
+                )
+            )
 
     def __str__(self):
         return f"{self.payment} - {self.invoice} - {self.amount}"
