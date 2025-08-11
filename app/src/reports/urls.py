@@ -22,94 +22,22 @@ from .views import (
 )
 
 urlpatterns = [
-    path(
-        'reports/order-supplier-template/<int:id_order>/',
-        TemplateReportOrderSupView.as_view(),
-        name='order_supplier_template'
-    ),
-    path(
-        'reports/order-supplier/<int:id_order>/',
-        PDFReportSupOrder.as_view(),
-        name='report_supplier_order'
-    ),
-    path(
-        'reports/order-customer-template/<int:id_order>/',
-        TemplateReportCusOrderView.as_view(),
-        name='order_customer_template'
-    ),
-    path(
-        'reports/order-customer/<int:id_order>/',
-        PDFReportCusOrder.as_view(),
-        name='report_customer_order'
-    ),
-    path(
-        'reports/invoice-template/<int:id_invoice>/',
-        TemplateInvoice.as_view(),
-        name='invoice_template'
-    ),
-    path(
-        'reports/invoice/<int:id_invoice>/',
-        PDFInvoice.as_view(),
-        name='report_invoice'
-    ),
-    path(
-        'reports/payment-template/<int:id_payment>/',
-        TemplatePayment.as_view(),
-        name='payment_template'
-    ),
-    path(
-        'reports/payment/<int:id_payment>/',
-        PDFPayment.as_view(),
-        name='payment_pdf'
-    ),
-    path(
-        'reports/purchases/',
-        PurchaseReportView.as_view(),
-        name='purchase_report'
-    ),
-    path(
-        'reports/sales/',
-        SalesReportView.as_view(),
-        name='sales_report'
-    ),
-    path(
-        'reports/payments/',
-        PymenReportView.as_view(),
-        name='payment_report'
-    ),
-    path(
-        'reports/collections/',
-        CollectionsReportsView.as_view(),
-        name='collections_report'
-    ),
-    path(
-        'reports/balance/',
-        BalanceReportView.as_view(),
-        name='balance_report'
-    ),
-    path(
-        'reports/sales-by-product/',
-        SalesByProductReportView.as_view(),
-        name='sales_by_product_report'
-    ),
-    path(
-        'reports/partner-account-statement/',
-        PartnerAccountStatmentView.as_view(),
-        name='partner_account_statement'
-    ),
-    path(
-        'reports/partner-account-statement/pdf/',
-        PartnerAccountStatmentPDF.as_view(),
-        name='partner_account_statement_pdf'
-    ),
-    path(
-        'reports/partner-account-statement/excel/',
-        PartnerAccountStatmentExcel.as_view(),
-        name='partner_account_statement_excel'
-    ),
-    path(
-        'reports/partner-search/',
-        PartnerSearchView.as_view(),
-        name='partner_search'
-    ),
+    path('reports/order-supplier-template/<int:id_order>/',  TemplateReportOrderSupView.as_view(), name='order_supplier_template'),
+    path('reports/order-supplier/<int:id_order>/',  PDFReportSupOrder.as_view(), name='report_supplier_order'),
+    path('reports/order-customer-template/<int:id_order>/', TemplateReportCusOrderView.as_view(), name='order_customer_template'),
+    path('reports/order-customer/<int:id_order>/', PDFReportCusOrder.as_view(), name='report_customer_order'),
+    path('reports/invoice-template/<int:id_invoice>/', TemplateInvoice.as_view(), name='invoice_template'),
+    path('reports/invoice/<int:id_invoice>/', PDFInvoice.as_view(), name='report_invoice'),
+    path('reports/payment-template/<int:id_payment>/', TemplatePayment.as_view(), name='payment_template'),
+    path('reports/payment/<int:id_payment>/', PDFPayment.as_view(), name='payment_pdf'),
+    path('reports/purchases/', PurchaseReportView.as_view(), name='purchase_report'),
+    path('reports/sales/', SalesReportView.as_view(), name='sales_report'),
+    path('reports/payments/', PymenReportView.as_view(), name='payment_report'),
+    path('reports/collections/', CollectionsReportsView.as_view(), name='collections_report'),
+    path('reports/balance/', BalanceReportView.as_view(), name='balance_report'),
+    path('reports/sales-by-product/', SalesByProductReportView.as_view(), name='sales_by_product_report'),
+    path('reports/partner-account-statement/', PartnerAccountStatmentView.as_view(), name='partner_account_statement'),
+    path('reports/partner-account-statement/pdf/', PartnerAccountStatmentPDF.as_view(), name='partner_account_statement_pdf'),
+    path('reports/partner-account-statement/excel/', PartnerAccountStatmentExcel.as_view(), name='partner_account_statement_excel'),
+    path('reports/partner-search/', PartnerSearchView.as_view(), name='partner_search'),
 ]
