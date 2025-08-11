@@ -1,6 +1,9 @@
 from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from trade.models import Order, OrderItems, OrderBoxItems, Invoice, InvoiceItems, InvoiceBoxItems
+from trade.models import (
+    Order, OrderItems, OrderBoxItems, Invoice, InvoiceItems,
+    InvoiceBoxItems, Payment, PaymentDetail
+)
 from partners.models import Partner
 
 
@@ -309,6 +312,106 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
         response_data["sale_invoices_details"] = sale_invoices_details
         response_data["purchase_invoices_details"] = purchase_invoices_details
+
+        # Agregar información de pagos y cobros relacionados
+        payments_details = []
+        collects_details = []
+
+        # Obtener todas las facturas relacionadas (tanto de venta como compra)
+        all_related_invoices = []
+        
+        # Facturas de la orden principal
+        if order.is_invoiced and order.id_invoice:
+            try:
+                main_invoice = Invoice.objects.get(
+                    id=order.id_invoice, is_active=True)
+                all_related_invoices.append(main_invoice)
+            except Invoice.DoesNotExist:
+                pass
+        
+        # Facturas de órdenes de compra relacionadas
+        if order.type_document == 'ORD_VENTA' and supplier_orders_qs:
+            for sup_order in supplier_orders_qs:
+                if sup_order.is_invoiced and sup_order.id_invoice:
+                    try:
+                        sup_invoice = Invoice.objects.get(
+                            id=sup_order.id_invoice, is_active=True)
+                        all_related_invoices.append(sup_invoice)
+                    except Invoice.DoesNotExist:
+                        pass
+        
+        # Facturas que referencian esta orden directamente
+        additional_invoices = Invoice.objects.filter(
+            order=order, is_active=True)
+        for invoice in additional_invoices:
+            if invoice not in all_related_invoices:
+                all_related_invoices.append(invoice)
+
+        # Sets para evitar duplicados
+        processed_payments = set()
+        processed_collects = set()
+
+        # Obtener pagos y cobros de todas las facturas relacionadas
+        for invoice in all_related_invoices:
+            payment_details = PaymentDetail.objects.filter(
+                invoice=invoice,
+                payment__is_active=True
+            ).select_related('payment')
+
+            for detail in payment_details:
+                payment = detail.payment
+                payment_id = payment.id
+                
+                # Evitar duplicados
+                if payment.type_transaction == 'EGRESO' and payment_id not in processed_payments:
+                    processed_payments.add(payment_id)
+                    payment_data = {
+                        "id": payment.id,
+                        "payment_number": payment.payment_number or f"PAY-{payment.id:06d}",
+                        "date": payment.date,
+                        "amount": float(payment.amount),
+                        "method": payment.get_method_display() if payment.method else "N/A",
+                        "status": payment.status,
+                        "bank": payment.bank or "N/A",
+                        "partners_names": payment.partners_names or "N/A",
+                    }
+                    payments_details.append(payment_data)
+                
+                elif payment.type_transaction == 'INGRESO' and payment_id not in processed_collects:
+                    processed_collects.add(payment_id)
+                    collect_data = {
+                        "id": payment.id,
+                        "payment_number": payment.payment_number or f"COL-{payment.id:06d}",
+                        "date": payment.date,
+                        "amount": float(payment.amount),
+                        "method": payment.get_method_display() if payment.method else "N/A",
+                        "status": payment.status,
+                        "bank": payment.bank or "N/A",
+                        "partners_names": payment.partners_names or "N/A",
+                    }
+                    collects_details.append(collect_data)
+
+        # Calcular totales
+        total_payments = sum(p['amount'] for p in payments_details)
+        total_collects = sum(c['amount'] for c in collects_details)
+        net_balance = total_collects - total_payments
+
+        response_data["payments_details"] = payments_details
+        response_data["collects_details"] = collects_details
+        response_data["total_payments"] = total_payments
+        response_data["total_collects"] = total_collects
+        response_data["net_balance"] = net_balance
+
+        # Debug temporal - remover después
+        print(f"DEBUG: Orden {order.id} - Pagos: {len(payments_details)}, Cobros: {len(collects_details)}")
+        if payments_details:
+            print(f"DEBUG: Primer pago: {payments_details[0]}")
+        if collects_details:
+            print(f"DEBUG: Primer cobro: {collects_details[0]}")
+
+        # URL para reporte de pagos y cobros
+        if payments_details or collects_details:
+            response_data["payments_collects_report_url"] = f"/reports/payments-collects/{order.id}/"
 
         context['response_data'] = response_data
 
