@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from accounts.models import CustomUserModel
+from accounts.models import CustomUserModel, License
 from accounts.forms import CustomCreationForm, CustomChangeForm
 
 
@@ -73,3 +73,11 @@ class CustomUserModelAdmin(UserAdmin):
 
 
 admin.site.register(CustomUserModel, CustomUserModelAdmin)
+
+@admin.register(License)
+class LicenseAdmin(admin.ModelAdmin):
+    list_display = ('license_key', 'user', 'is_active', 'enterprise', 'activated_on', 'expires_on')
+    list_filter = ('is_active', 'enterprise')
+    search_fields = ('license_key', 'user__email', 'enterprise')
+    readonly_fields = ('created_at', 'updated_at')
+    date_hierarchy = 'created_at'
