@@ -136,6 +136,10 @@
                     <label for="consolidate" class="text-muted">Notas:</label>
                     {{ form.notes }}
                 </div>
+                <div class="col-md-12" id="prompt_field" style="{% if form.instance.type_partner != 'PROVEEDOR' and form.instance.id %}display: none;{% endif %}">
+                    <label for="prompt_disponibility" class="text-muted">Prompt de Disponibilidad:</label>
+                    {{ form.prompt_disponibility }}
+                </div>
             </div>
             <div class="row bg-gray-200 rounded-1">
                 <span class="fw-bold text-primary">
@@ -216,6 +220,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const typePartnerSelect = document.getElementById('id_type_partner');
         const sellerField = document.getElementById('seller_field');
+        const promptField = document.getElementById('prompt_field');
         
         if (typePartnerSelect && sellerField) {
             typePartnerSelect.addEventListener('change', function() {
@@ -223,6 +228,16 @@
                     sellerField.style.display = 'block';
                 } else {
                     sellerField.style.display = 'none';
+                }
+            });
+        }
+        
+        if (typePartnerSelect && promptField) {
+            typePartnerSelect.addEventListener('change', function() {
+                if (this.value === 'PROVEEDOR') {
+                    promptField.style.display = 'block';
+                } else {
+                    promptField.style.display = 'none';
                 }
             });
         }

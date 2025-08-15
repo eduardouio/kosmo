@@ -24,7 +24,8 @@ class PartnerForm(forms.ModelForm):
             'email_payment','reference_1', 'contact_reference_1',
             'default_profit_margin', 'is_profit_margin_included',
             'reference_2','area_code','phone_reference_1', 'phone_reference_2',
-            'contact_reference_2', 'short_name', 'is_verified', 'seller'
+            'contact_reference_2', 'short_name', 'is_verified', 'seller',
+            'prompt_disponibility'
         ]
         widgets = {
             'business_tax_id': forms.TextInput(attrs={'maxlength': '15', 'class': 'form-control form-control-sm'}),
@@ -60,6 +61,7 @@ class PartnerForm(forms.ModelForm):
             'seller': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
             'status': forms.Select(attrs={'class': 'form-control form-control-sm'}),
             'date_aproved': forms.DateInput(attrs={'class': 'form-control form-control-sm', 'type': 'date'}),
+            'prompt_disponibility': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 4}),
             
         }
 
