@@ -45,10 +45,54 @@ class UpdateProductAPI(View):
 
             loggin_event(f'Actualizando {len(product_ids)} productos con nombre: {new_name}, colores: {new_colors}')
 
-            # Verificar que los productos existan
-            existing_products = Product.objects.filter(
-                id__in=product_ids, is_active=True)
+            # Agregar logging para diagnosticar el problema
+            loggin_event(f'Buscando productos con IDs: {product_ids}')
+            
+            # Verificar primero si los productos existen (sin filtro is_active)
+            all_products = Product.objects.filter(id__in=product_ids)
+            all_products_info = list(all_products.values(
+                'id', 'name', 'variety', 'is_active'))
+            loggin_event(f'Productos encontrados (todos): {all_products_info}')
+            
+            if all_products.count() != len(product_ids):
+                all_existing_ids = list(
+                    all_products.values_list('id', flat=True))
+                missing_ids = [
+                    pid for pid in product_ids if pid not in all_existing_ids]
+                loggin_event(f'Productos que NO existen en BD: {missing_ids}')
+                return JsonResponse(
+                    {'message': f'Los siguientes productos no existen en la '
+                                f'base de datos: {missing_ids}',
+                        'status': 'error'},
+                    safe=False,
+                    status=404
+                )
+
+            # Ahora filtrar por is_active=True
+            existing_products = all_products.filter(is_active=True)
             existing_ids = list(existing_products.values_list('id', flat=True))
+            
+            # Verificar si hay productos inactivos
+            inactive_products = all_products.filter(is_active=False)
+            if inactive_products.exists():
+                inactive_ids = list(
+                    inactive_products.values_list('id', flat=True))
+                inactive_info = list(
+                    inactive_products.values('id', 'name', 'variety'))
+                loggin_event(
+                    f'Productos INACTIVOS encontrados: {inactive_info}')
+                return JsonResponse(
+                    {'message': f'Los siguientes productos están inactivos y '
+                                f'no pueden ser actualizados: {inactive_ids}. '
+                                f'Para activarlos, contacte al administrador.',
+                        'status': 'error',
+                        'inactive_products': inactive_info},
+                    safe=False,
+                    status=400
+                )
+            
+            loggin_event(f'Productos ACTIVOS encontrados: '
+                         f'{list(existing_products.values("id", "name"))}')
 
             if len(existing_ids) != len(product_ids):
                 non_existing_ids = [pid for pid in product_ids if pid not in existing_ids]

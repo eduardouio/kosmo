@@ -31,8 +31,8 @@ class GPTDirectProcessor:
         start_time = time.time()
 
         response = self.client.chat.completions.create(
-            model="gpt-5",
-            temperature=1,
+            model="gpt-3.5-turbo",
+            temperature=0.1,
             messages=[
                 {"role": "system", "content": self._prompt},
                 {"role": "user", "content": dispo}
