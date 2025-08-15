@@ -289,3 +289,36 @@ update products_product set is_active = true where true;
 update partners_bank set is_active = true where true;
 update partners_dae set is_active = true where true;
 update partners_contact set is_active = true where true;
+
+-- Script SQL para corregir la secuencia de ID de productos en PostgreSQL
+-- Ejecutar en el servidor de producción donde está ocurriendo el error
+
+-- 1. Verificar el ID máximo actual en la tabla de productos
+SELECT MAX(id) as max_id FROM products_product;
+
+-- 2. Verificar el valor actual de la secuencia
+SELECT last_value FROM products_product_id_seq;
+
+-- Ejemplo si el MAX(id) es 25:
+SELECT setval('products_product_id_seq', 406, false);
+
+-- proveedores 
+-- 1. Verificar el ID máximo actual en la tabla de productos
+SELECT MAX(id) as max_id FROM partners_partner;
+
+-- 2. Verificar el valor actual de la secuencia
+SELECT last_value FROM partners_partner_id_seq;
+
+-- Ejemplo si el MAX(id) es 25:
+SELECT setval('partners_partner_id_seq', 116, false);
+
+-- proveedores 
+SELECT MAX(id) as max_id FROM partners_contact;
+
+-- 2. Verificar el valor actual de la secuencia
+SELECT last_value FROM partners_contact_id_seq;
+
+-- Ejemplo si el MAX(id) es 25:
+SELECT setval('partners_contact_id_seq', 10, false);
+
+
