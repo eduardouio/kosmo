@@ -50,8 +50,9 @@ class Product(BaseModel):
         unique_together = ('name', 'variety')
 
     @classmethod
-    def get_by_variety(cls, name):
-        flower = cls.objects.filter(variety__icontains=name).first()
+    def get_by_variety(cls, variety):
+        flower = cls.objects.filter(
+            variety__icontains=variety, is_active=True).first()
         if not flower:
             return None
 
