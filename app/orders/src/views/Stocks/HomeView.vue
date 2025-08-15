@@ -775,7 +775,7 @@ const handleMerge = () => {
                 </div>
             </div>
         </div>
-    </div>   cursor: pointer;
+    </div>
 </template>
 <style scoped>
 .table-header {

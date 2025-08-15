@@ -107,8 +107,9 @@ class AnalizeStockTextAPI(View):
                               ) if price > 0.00 else 0.00
 
                 # Calcular cantidad de tallos para esta variedad
-                qty_stems = stem_quantities[idx] if idx < len(stem_quantities) else 0
-                
+                qty_stems = stem_quantities[idx] if idx < len(
+                    stem_quantities) else 0
+
                 # Calcular total de ramos para esta variedad
                 total_bunches = qty_stems // stems_per_bunch if qty_stems > 0 else 0
 
@@ -125,11 +126,33 @@ class AnalizeStockTextAPI(View):
         return True
 
     def get_or_create_product(self, variety):
+        loggin_event(f"Buscando producto por variedad: {variety}")
+
+        # Primero buscar si existe
         product = Product.get_by_variety(variety)
-        if not product:
-            product = Product(
+        if product:
+            loggin_event(f"Producto encontrado: {product.name} - "
+                         f"{product.variety}")
+            return product
+
+        # Si no existe, usar get_or_create para evitar duplicados
+        loggin_event(f"Producto no encontrado, creando nuevo: {variety}")
+        try:
+            product, created = Product.objects.get_or_create(
                 variety=variety.upper(),
                 name='ROSA',
+                defaults={
+                    'colors': 'NO DEFINIDO',
+                    'default_profit_margin': 0.06
+                }
             )
-            product.save()
-        return product
+            if created:
+                loggin_event(f"Producto creado exitosamente: {product.id} - "
+                             f"{product.name} - {product.variety}")
+            else:
+                loggin_event(f"Producto ya existía: {product.id} - "
+                             f"{product.name} - {product.variety}")
+            return product
+        except Exception as e:
+            loggin_event(f"Error al crear producto: {str(e)}")
+            raise

@@ -283,3 +283,9 @@ Observaciones de Reunion
 
 -- promt primaio
 Hola amigo!, vamos a hacer cosas buenas, antes de comenzar quiero que no me halages a menos de que me lo merezca si una ide no es buena dimelo eso me ayuda a crecer y mejorar, si tu tienes algo mejor quiero que me lo digas.
+
+``` sql
+update products_product set is_active = true where true;
+update partners_bank set is_active = true where true;
+update partners_dae set is_active = true where true;
+update partners_contact set is_active = true where true;
