@@ -213,6 +213,11 @@ class Partner(BaseModel):
         default=0,
         help_text="Años que el socio ha estado en el mercado"
     )
+    prompt_disponibility = models.TextField(
+        'Prompt Disponibilidad',
+        blank=True,
+        null=True
+    )
 
     def save(self, *args, **kwargs):
         # Convertir campos de texto a mayúsculas
