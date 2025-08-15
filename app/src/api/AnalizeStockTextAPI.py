@@ -26,7 +26,7 @@ class AnalizeStockTextAPI(View):
                 {'message': 'Texto no válido'}, safe=False, status=400
             )
 
-        result_dispo = GPTDirectProcessor().process_text(text_stock)
+        result_dispo = GPTDirectProcessor().process_text(text_stock, partner)
         loggin_event(f'Resultado del procesamiento de texto: {result_dispo}')
 
         if not result_dispo or not isinstance(result_dispo, list):

@@ -6,6 +6,9 @@ import time
 import json
 import os
 
+# Evitar importación circular - importar solo cuando sea necesario
+# from partners.models import Partner
+
 
 class GPTDirectProcessor:
     _api_key = GPT_API_KEY
@@ -21,11 +24,11 @@ class GPTDirectProcessor:
             self._client = OpenAI()  # No pasar api_key aquí
         return self._client
 
-    def process_text(self, dispo):
+    def process_text(self, dispo, partner=None):
         dispo = TextPrepare().process(dispo)
 
         if not self._prompt:
-            self._load_prompt()
+            self._load_prompt(partner)
 
         loggin_event('Iniciando procesamiento de texto')
         start_time = time.time()
@@ -105,7 +108,14 @@ class GPTDirectProcessor:
         loggin_event(f'Procesados {len(result_arrays)} items')
         return result_arrays
 
-    def _load_prompt(self):
+    def _load_prompt(self, partner=None):
+        # Primero intentar cargar desde el campo prompt_disponibility del partner
+        if partner and hasattr(partner, 'prompt_disponibility') and partner.prompt_disponibility:
+            self._prompt = partner.prompt_disponibility.strip()
+            loggin_event('Prompt cargado desde el campo prompt_disponibility del partner')
+            return
+        
+        # Si no hay prompt personalizado, cargar desde archivo
         promt_file = os.path.join(self._current_dir, 'PromtText.txt')
         if not os.path.exists(promt_file):
             raise Exception('No se encontró el archivo de configuración')
