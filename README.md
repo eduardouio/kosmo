@@ -42,7 +42,6 @@ Este proyecto está desarrollado en **Django**, un framework de Python. Sigue es
 - Django 3.x/4.x (según la versión que estés utilizando)
 - pip (gestor de paquetes de Python)
 - (Opcional) Virtualenv o venv para crear un entorno virtual
-
 ### instalacion de dependencias
 ```bash
 pip install -r requeriments.txt
