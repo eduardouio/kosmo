@@ -49,35 +49,35 @@
             <h2 class="section-title">Customer Information</h2>
             <div class="info-row">
               <div class="label-col">To:</div>
-              <div class="value-col">{{ invoice.partner.name }}</div>
+              <div class="value-col">{{ invoice.partner.name|default_if_none:'' }}</div>
             </div>
             <div class="info-row">
               <div class="label-col">Mark:</div>
-              <div class="value-col">{{ invoice.marking|default:'N/A' }}</div>
+              <div class="value-col">{{ invoice.marking|default:'N/A'|default_if_none:'N/A' }}</div>
             </div>
             <div class="info-row">
               <div class="label-col">Farm:</div>
-              <div class="value-col"><strong>{{ farm_name }}</strong></div>
+              <div class="value-col"><strong>{{ farm_name|default_if_none:'' }}</strong></div>
             </div>
             <div class="info-row">
               <div class="label-col">Address:</div>
-              <div class="value-col">{{ invoice.partner.address }}</div>
+              <div class="value-col">{{ invoice.partner.address|default_if_none:'' }}</div>
             </div>
             <div class="info-row">
               <div class="label-col">City - Country:</div>
-              <div class="value-col">{{ invoice.partner.city }} - {{ invoice.partner.country }}</div>
+              <div class="value-col">{{ invoice.partner.city|default_if_none:'' }} - {{ invoice.partner.country|default_if_none:'' }}</div>
             </div>
             <div class="info-row email-credit-row">
               <div class="label-col w-1/6">E-mail:</div>
-              <div class="value-col email-value">{{ invoice.partner.email }}</div>
+              <div class="value-col email-value">{{ invoice.partner.email|default_if_none:'' }}</div>
               <div class="credit-container">
                 <div class="label-col">Credit:</div>
-                <div class="value-col">{{ invoice.partner.credit_term }} Days</div>
+                <div class="value-col">{{ invoice.partner.credit_term|default_if_none:'' }}{% if invoice.partner.credit_term %} Days{% endif %}</div>
               </div>
             </div>
             <div class="info-row">
               <div class="label-col">PO Number:</div>
-              <div class="value-col">{{ invoice.po_number|default:'N/A' }}</div>
+              <div class="value-col">{{ invoice.po_number|default:'N/A'|default_if_none:'N/A' }}</div>
             </div>
           </div>
           <!-- Información adicional -->
@@ -89,23 +89,23 @@
             </div>
             <div class="info-row">
               <div class="label-col">Cargo Agency:</div>
-              <div class="value-col">{{ invoice.cargo_agency }}</div>
+              <div class="value-col">{{ invoice.cargo_agency|default_if_none:'' }}</div>
             </div>
             <div class="info-row">
               <div class="label-col">M.A.W.B.:</div>
-              <div class="value-col">{{ invoice.awb }}</div>
+              <div class="value-col">{{ invoice.awb|default_if_none:'' }}</div>
             </div>
             <div class="info-row">
               <div class="label-col">H.A.W.B.:</div>
-              <div class="value-col">{{ invoice.hawb }}</div>
+              <div class="value-col">{{ invoice.hawb|default_if_none:'' }}</div>
             </div>
             <div class="info-row">
               <div class="label-col">DAE:</div>
-              <div class="value-col">{{ invoice.dae_export }}</div>
+              <div class="value-col">{{ invoice.dae_export|default_if_none:'' }}</div>
             </div>
             <div class="info-row">
               <div class="label-col">Country:</div>
-              <div class="value-col">{{ invoice.destination_country }}</div>
+              <div class="value-col">{{ invoice.destination_country|default_if_none:'' }}</div>
             </div>
           </div>
         </div>
@@ -129,41 +129,41 @@
             <tbody>
               {% for item in invoice_items %}
               <tr>
-                <td class="td-width-small">{{ item.item.quantity }}</td>
-                <td>{{ item.item.box_model }}</td>
+                <td class="td-width-small">{{ item.item.quantity|default_if_none:'' }}</td>
+                <td>{{ item.item.box_model|default_if_none:'' }}</td>
                 <td class="td-nowrap">
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{{ bxs.product.variety }}</p>
+                  <p class="border-bottom">{{ bxs.product.variety|default_if_none:'' }}</p>
                   {% endfor %}
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{{ bxs.length }}</p>
+                  <p class="border-bottom">{{ bxs.length|default_if_none:'' }}</p>
                   {% endfor %}
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{{ bxs.total_stems }}</p>
+                  <p class="border-bottom">{{ bxs.total_stems|default_if_none:'' }}</p>
                   {% endfor %}
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{{ bxs.stems_bunch|default:"25" }}</p>
+                  <p class="border-bottom">{{ bxs.stems_bunch|default:"25"|default_if_none:"25" }}</p>
                   {% endfor %}
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{{ bxs.total_bunches|default:"1" }}</p>
+                  <p class="border-bottom">{{ bxs.total_bunches|default:"1"|default_if_none:"1" }}</p>
                   {% endfor %}
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">${{ bxs.unit_price|floatformat:2 }}</p>
+                  <p class="border-bottom">{% if bxs.unit_price is not None %}${{ bxs.unit_price|floatformat:2 }}{% endif %}</p>
                   {% endfor %}
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">${{ bxs.total_price_with_margin_and_quantity|floatformat:2 }}</p>
+                  <p class="border-bottom">{% if bxs.total_price_with_margin_and_quantity is not None %}${{ bxs.total_price_with_margin_and_quantity|floatformat:2 }}{% endif %}</p>
                   {% endfor %}
                 </td>
               </tr>
@@ -174,7 +174,7 @@
 
         <!-- Total Factura -->
         <div class="total-invoice">
-          <p>TOTAL INVOICE USD: {{ invoice.total_invoice }}</p>
+          <p>TOTAL INVOICE USD: {{ invoice.total_invoice|default_if_none:'' }}</p>
         </div>
 
         <!-- Resumen de totales (dos columnas) -->
@@ -182,24 +182,24 @@
           <div class="summary-totals" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.70rem;">
               <div>
               <div class="summary-row">
-                <strong>TOTAL HB:</strong> <strong>{{ invoice.hb_total }}</strong>
+                <strong>TOTAL HB:</strong> <strong>{{ invoice.hb_total|default_if_none:'' }}</strong>
               </div>
               <div class="summary-row">
-                <strong>TOTAL QB:</strong> <strong>{{ invoice.qb_total }}</strong>
+                <strong>TOTAL QB:</strong> <strong>{{ invoice.qb_total|default_if_none:'' }}</strong>
               </div>
               <div class="summary-row">
-                <strong>TOTAL EB:</strong> <strong>{{ invoice.eb_total }}</strong>
+                <strong>TOTAL EB:</strong> <strong>{{ invoice.eb_total|default_if_none:'' }}</strong>
               </div>
             </div>
             <div>
               <div class="summary-row">
-                <strong>TOTAL STEMS:</strong> <strong>{{ invoice.tot_stem_flower }}</strong>
+                <strong>TOTAL STEMS:</strong> <strong>{{ invoice.tot_stem_flower|default_if_none:'' }}</strong>
               </div>
               <div class="summary-row">
-                <strong>TOTAL PIECES:</strong> <strong>{{ invoice.total_pieces }}</strong>
+                <strong>TOTAL PIECES:</strong> <strong>{{ invoice.total_pieces|default_if_none:'' }}</strong>
               </div>
               <div class="summary-row">
-                <strong>TOTAL FB:</strong> <strong>{{ invoice.fb_total }}</strong>
+                <strong>TOTAL FB:</strong> <strong>{{ invoice.fb_total|default_if_none:'' }}</strong>
               </div>
             </div>
           </div>
