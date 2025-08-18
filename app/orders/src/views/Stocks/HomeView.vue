@@ -793,6 +793,20 @@ const handleMerge = () => {
     background-color: #f8fafc !important;
 }
 
+/* Zebra striping */
+.table-body .order-row:nth-child(odd) {
+    background-color: #ffffff;
+}
+.table-body .order-row:nth-child(even) {
+    background-color: #d5eefb; /* light gray */
+}
+
+/* Intensificar el contraste al pasar el mouse sin perder el color base */
+.table-body .order-row:nth-child(even):hover,
+.table-body .order-row:nth-child(odd):hover {
+    background-color: #e2e8f0 !important; /* slate-200 */
+}
+
 .product-row {
     padding: 0.125rem 0;
 }
