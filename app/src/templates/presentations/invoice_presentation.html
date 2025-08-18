@@ -72,6 +72,7 @@
                             <p class="small mb-1"><strong>Agencia de Carga:</strong> {{ cargo_agency|default:'No disponible' }}</p>
                             <p class="small mb-1"><strong>Fecha de Entrega:</strong> {{ delivery_date|date:"d/m/Y"|default:'No disponible' }}</p>
                             <p class="small mb-1"><strong>Peso (KG):</strong> {{ weight|default:'No disponible' }}</p>
+                            <p class="small mb-1"><strong>País Destino:</strong> {{ destination_country|default:'No disponible' }}</p>
                             <p class="small mb-1"><strong># Orden:</strong> {{ invoice.order.serie }}-{{ invoice.order.consecutive }}</p>
                         </div>
                     </div>
