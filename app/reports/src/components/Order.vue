@@ -53,7 +53,7 @@
                 <p><strong>Cargo Agency:</strong> LOGIZTIK ALLIANCE</p>
                 <p><strong>M.A.W.B.:</strong> 145-0998 9143</p>
                 <p><strong>H.A.W.B.:</strong> LA4034672429</p>
-                <p><strong>DAE USA:</strong> 055-2024-40-00409229</p>
+                <p><strong>DAE:</strong> 055-2024-40-00409229</p>
             </div>
         </div>
 
