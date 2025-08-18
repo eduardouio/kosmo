@@ -321,3 +321,140 @@ SELECT last_value FROM partners_contact_id_seq;
 SELECT setval('partners_contact_id_seq', 10, false);
 
 
+-- Script SQL para corregir la secuencia de ID de productos en PostgreSQL
+-- Ejecutar en el servidor de producción donde está ocurriendo el error
+
+-- 1. Verificar el ID máximo actual en la tabla de productos
+SELECT MAX(id) as max_id FROM products_product;
+
+-- 2. Verificar el valor actual de la secuencia
+SELECT last_value FROM products_product_id_seq;
+
+-- Ejemplo si el MAX(id) es 25:
+SELECT setval('products_product_id_seq', 406, false);
+
+-- proveedores 
+-- 1. Verificar el ID máximo actual en la tabla de productos
+SELECT MAX(id) as max_id FROM partners_partner;
+
+-- 2. Verificar el valor actual de la secuencia
+SELECT last_value FROM partners_partner_id_seq;
+
+-- Ejemplo si el MAX(id) es 25:
+SELECT setval('partners_partner_id_seq', 116, false);
+
+-- proveedores 
+SELECT MAX(id) as max_id FROM partners_contact;
+
+-- 2. Verificar el valor actual de la secuencia
+SELECT last_value FROM partners_contact_id_seq;
+
+-- Ejemplo si el MAX(id) es 25:
+SELECT setval('partners_contact_id_seq', 10, false);
+
+
+
+-- procedimiento de vaciado de datos 
+select * from trade_invoiceboxitems ti ;
+delete from trade_invoiceboxitems where true
+SELECT last_value FROM trade_invoiceboxitems_id_seq;
+SELECT setval('trade_invoiceboxitems_id_seq', 1, false);
+
+-- tradeinvoiceitem
+select * from trade_invoiceitems ti ;
+delete from trade_invoiceitems where true
+SELECT last_value FROM trade_invoiceitems_id_seq;
+SELECT setval('trade_invoiceitems_id_seq', 1, false);
+
+
+select * from trade_invoice ti ;
+delete from trade_invoice where true
+SELECT last_value FROM trade_invoice_id_seq;
+SELECT setval('trade_invoice_id_seq', 1, false);
+
+-- ordenses
+
+select * from trade_orderboxitems ti ;
+delete from trade_orderboxitems where true
+SELECT last_value FROM trade_orderboxitems_id_seq;
+SELECT setval('trade_orderboxitems_id_seq', 1, false);
+
+-- tradeinvoiceitem
+select * from trade_orderitems ti ;
+delete from trade_orderitems where true
+SELECT last_value FROM trade_orderitems_id_seq;
+SELECT setval('trade_orderitems_id_seq', 1, false);
+
+
+select * from trade_order ti ;
+delete from trade_order where true
+SELECT last_value FROM trade_order_id_seq;
+SELECT setval('trade_order_id_seq', 1, false);
+
+
+
+-- historicos
+
+select * from trade_historicalinvoiceitems ti ; 
+delete from trade_historicalinvoiceitems where true;
+SELECT last_value FROM trade_historicalinvoiceitems_history_id_seq; 
+SELECT setval('trade_historicalinvoiceitems_history_id_seq', 1, false);
+
+select * from trade_historicalinvoice ti ; 
+delete from trade_historicalinvoice where true;
+SELECT last_value FROM trade_historicalinvoice_history_id_seq; 
+SELECT setval('trade_historicalinvoice_history_id_seq', 1, false);
+
+-- ordenses
+
+select * from trade_historicalorderboxitems ti ; 
+delete from trade_historicalorderboxitems where true;
+SELECT last_value FROM trade_historicalorderboxitems_history_id_seq;
+SELECT setval('trade_historicalorderboxitems_history_id_seq', 1, false);
+
+select * from trade_historicalorderitems ti ;
+delete from trade_historicalorderitems where true;
+SELECT last_value FROM trade_historicalorderitems_history_id_seq;
+SELECT setval('trade_historicalorderitems_history_id_seq', 1, false);
+
+select * from trade_historicalorder ti ;
+delete from trade_historicalorder where true;
+SELECT last_value FROM trade_historicalorder_history_id_seq; 
+SELECT setval('trade_historicalorder_history_id_seq', 1, false);
+
+
+-- stock
+select * from products_boxitems ti ;
+delete from products_boxitems where true
+SELECT last_value FROM products_boxitems_id_seq;
+SELECT setval('products_boxitems_id_seq', 1, false);
+
+
+select * from products_stockdetail ti ;
+delete from products_stockdetail where true;
+SELECT last_value FROM products_stockdetail_id_seq;
+SELECT setval('products_stockdetail_id_seq', 1, false);
+
+
+select * from products_stockday ;
+delete from products_stockday where true
+SELECT last_value FROM products_stockday_id_seq;
+SELECT setval('products_stockday_id_seq', 1, false);
+
+
+-- historico
+select * from products_historicalboxitems ti ; 
+delete from products_historicalboxitems where true;
+SELECT last_value FROM products_historicalboxitems_history_id_seq; 
+SELECT setval('products_historicalboxitems_history_id_seq', 1, false);
+
+select * from products_historicalstockdetail ti ; 
+delete from products_historicalstockdetail where true; 
+SELECT last_value FROM products_historicalstockdetail_history_id_seq; 
+SELECT setval('products_historicalstockdetail_history_id_seq', 1, false);
+
+
+select * from products_historicalstockday ; 
+delete from products_historicalstockday where true;
+SELECT last_value FROM products_historicalstockday_history_id_seq; 
+SELECT setval('products_historicalstockday_history_id_seq', 1, false);
