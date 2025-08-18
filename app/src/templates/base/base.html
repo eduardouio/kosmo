@@ -42,6 +42,9 @@
          .list-container { width: 90%; }
          /* Padding consistente en tablas de listas */
          .list-table th, .list-table td { padding: .25rem !important; }
+         /* Iconos de la barra de navegación más grandes y con énfasis */
+         .navbar .menu-icon { font-size: 1.25rem; font-weight: 700; line-height: 1; }
+         .navbar .menu-label { font-weight: 600; }
       </style>
    </head>
    <body>
@@ -101,13 +104,8 @@
                      <!-- Tecnicos -->
                      <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="equiposDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                              <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1" />
-                              <path d="M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                              <path d="M17 10h2a2 2 0 0 1 2 2v1" />
-                              <path d="M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-                              <path d="M3 13v-1a2 2 0 0 1 2 -2h2" />
-                           </svg>
-                           Socios De Negocio
+                           <i class="la la-handshake me-1 menu-icon"></i>
+                           <span class="menu-label">Socios De Negocio</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="equiposDropdown">
                           <li>
@@ -350,7 +348,8 @@
                      <!-- Perfil / Salir -->
                      <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                           {{ request.user.get_full_name|default:request.user.email }}
+                           <i class="la la-user-circle me-1 menu-icon"></i>
+                           <span class="menu-label">{{ request.user.get_full_name|default:request.user.email }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                            <li><a class="dropdown-item" href="{% url 'user_profile' %}">Ver perfil</a></li>
