@@ -31,13 +31,13 @@
               <div class="row border-top border-success pt-2 mb-2">
                 <div class="col-5 text-end"><span class="small fw-bold">EMISIÓN:</span></div>
                 <div class="col-7">
-                  <input type="date" name="date" class="form-control form-control-sm" value="{{ invoice.date|date:'Y-m-d' }}" required>
+                  <input type="date" name="date" class="form-control form-control-sm" value="{{ invoice.date|date:'Y-m-d' }}" required autocomplete="on">
                 </div>
               </div>
               <div class="row border-top border-success pt-2">
                 <div class="col-5 text-end"><span class="small fw-bold">VENCIMIENTO:</span></div>
                 <div class="col-7">
-                  <input type="date" name="due_date" class="form-control form-control-sm" value="{{ invoice.due_date|date:'Y-m-d' }}">
+                  <input type="date" name="due_date" class="form-control form-control-sm" value="{{ invoice.due_date|date:'Y-m-d' }}" autocomplete="on">
                 </div>
               </div>
             </div>
@@ -72,7 +72,7 @@
                 <div class="row mb-2 align-items-center">
                   <div class="col-4"><strong>PO Number:</strong></div>
                   <div class="col-8">
-                    <input type="text" name="po_number" class="form-control form-control-sm" value="{{ invoice.po_number|default:'' }}">
+                    <input type="text" name="po_number" class="form-control form-control-sm" value="{{ invoice.po_number|default:'' }}" autocomplete="on" placeholder="PO Number">
                   </div>
                 </div>
               </div>
@@ -88,49 +88,49 @@
                 <div class="row mb-2 align-items-center">
                   <div class="col-4"><strong>Marcación:</strong></div>
                   <div class="col-8">
-                    <input type="text" name="marking" class="form-control form-control-sm" value="{{ invoice.marking|default:'' }}">
+                    <input type="text" name="marking" class="form-control form-control-sm" value="{{ invoice.marking|default:'' }}" autocomplete="on" placeholder="Marcación">
                   </div>
                 </div>
                 <div class="row mb-2 align-items-center">
                   <div class="col-4"><strong>MAWB:</strong></div>
                   <div class="col-8">
-                    <input type="text" name="awb" class="form-control form-control-sm" value="{{ invoice.awb|default:'' }}">
+                    <input type="text" name="awb" class="form-control form-control-sm" value="{{ invoice.awb|default:'' }}" autocomplete="on" placeholder="MAWB">
                   </div>
                 </div>
                 <div class="row mb-2 align-items-center">
                   <div class="col-4"><strong>HAWB:</strong></div>
                   <div class="col-8">
-                    <input type="text" name="hawb" class="form-control form-control-sm" value="{{ invoice.hawb|default:'' }}">
+                    <input type="text" name="hawb" class="form-control form-control-sm" value="{{ invoice.hawb|default:'' }}" autocomplete="on" placeholder="HAWB">
                   </div>
                 </div>
                 <div class="row mb-2 align-items-center">
                   <div class="col-4"><strong>DAE:</strong></div>
                   <div class="col-8">
-                    <input type="text" name="dae_export" class="form-control form-control-sm" value="{{ invoice.dae_export|default:'' }}">
+                    <input type="text" name="dae_export" class="form-control form-control-sm" value="{{ invoice.dae_export|default:'' }}" autocomplete="on" placeholder="DAE">
                   </div>
                 </div>
                 <div class="row mb-2 align-items-center">
                   <div class="col-4"><strong>País Destino:</strong></div>
                   <div class="col-8">
-                    <input type="text" name="destination_country" class="form-control form-control-sm" value="{{ invoice.destination_country|default:'' }}">
+                    <input type="text" name="destination_country" class="form-control form-control-sm" value="{{ invoice.destination_country|default:'' }}" autocomplete="country" placeholder="País Destino">
                   </div>
                 </div>
                 <div class="row mb-2 align-items-center">
                   <div class="col-4"><strong>Agencia de Carga:</strong></div>
                   <div class="col-8">
-                    <input type="text" name="cargo_agency" class="form-control form-control-sm" value="{{ invoice.cargo_agency|default:'' }}">
+                    <input type="text" name="cargo_agency" class="form-control form-control-sm" value="{{ invoice.cargo_agency|default:'' }}" autocomplete="on" placeholder="Agencia de Carga">
                   </div>
                 </div>
                 <div class="row mb-2 align-items-center">
                   <div class="col-4"><strong>Fecha de Entrega:</strong></div>
                   <div class="col-8">
-                    <input type="date" name="delivery_date" class="form-control form-control-sm" value="{{ invoice.delivery_date|date:'Y-m-d'|default:'' }}">
+                    <input type="date" name="delivery_date" class="form-control form-control-sm" value="{{ invoice.delivery_date|date:'Y-m-d'|default:'' }}" autocomplete="on">
                   </div>
                 </div>
                 <div class="row mb-2 align-items-center">
                   <div class="col-4"><strong>Peso (KG):</strong></div>
                   <div class="col-8">
-                    <input type="number" name="weight" step="0.01" class="form-control form-control-sm" value="{{ invoice.weight|default:'' }}">
+                    <input type="number" name="weight" step="0.01" class="form-control form-control-sm" value="{{ invoice.weight|default:'' }}" autocomplete="on" placeholder="Peso (KG)">
                   </div>
                 </div>
                 <div class="row mb-2">

@@ -56,7 +56,7 @@
                   @blur="hideSupplierDropdown"
                   class="form-control" 
                   placeholder="Buscar proveedor..."
-                  autocomplete="off">
+                  autocomplete="on" name="supplier-search">
                 
                 <!-- Dropdown de proveedores filtrados -->
                 <div v-if="showSupplierDropdown && filteredSuppliers.length > 0" 
@@ -294,11 +294,11 @@
                 <label class="form-label fw-semibold">
                   <i class="fas fa-calendar"></i> Fecha del Pago *
                 </label>
-                <input type="date" 
-                       v-model="paymentForm.date" 
-                       class="form-control" 
-                       :max="currentDate"
-                       required>
+      <input type="date" 
+        v-model="paymentForm.date" 
+        class="form-control" 
+        :max="currentDate"
+        required autocomplete="on" name="payment-date">
                 <div v-if="formErrors.date" class="text-danger small">{% verbatim %}{{ formErrors.date }}{% endverbatim %}</div>
               </div>
               
@@ -306,7 +306,7 @@
                 <label class="form-label fw-semibold">
                   <i class="fas fa-credit-card"></i> Método de Pago *
                 </label>
-                <select v-model="paymentForm.method" class="form-select" required>
+                <select v-model="paymentForm.method" class="form-select" required autocomplete="on" name="payment-method">
                   <option value="">Seleccionar...</option>
                   <option v-for="method in paymentMethods" :key="method.value" :value="method.value">
                     {% verbatim %}{{ method.label }}{% endverbatim %}
@@ -319,11 +319,11 @@
                 <label class="form-label fw-semibold">
                   <i class="fas fa-hashtag"></i> Referencia/Documento
                 </label>
-                <input type="text" 
-                       v-model="paymentForm.reference" 
-                       class="form-control" 
-                       placeholder="Núm. cheque, transferencia..."
-                       maxlength="50">
+      <input type="text" 
+        v-model="paymentForm.reference" 
+        class="form-control" 
+        placeholder="Núm. cheque, transferencia..."
+        maxlength="50" autocomplete="on" name="payment-reference">
                 <small class="text-muted">Número de cheque, código de transferencia, etc.</small>
                 <div v-if="formErrors.reference" class="text-danger small">{% verbatim %}{{ formErrors.reference }}{% endverbatim %}</div>
               </div>
@@ -332,23 +332,23 @@
                 <label class="form-label fw-semibold">
                   <i class="fas fa-dollar-sign"></i> Monto Total
                 </label>
-                <input type="number" 
-                       step="0.01" 
-                       v-model="paymentForm.amount" 
-                       class="form-control text-end fw-semibold bg-light" 
-                       readonly>
+      <input type="number" 
+        step="0.01" 
+        v-model="paymentForm.amount" 
+        class="form-control text-end fw-semibold bg-light" 
+        readonly autocomplete="off" name="payment-total">
               </div>
               
               <div class="col-6 mt-3">
                 <label class="form-label fw-semibold">
                   <i class="fas fa-university"></i> Banco
                 </label>
-                <input type="text" 
-                       v-model="paymentForm.bank" 
-                       class="form-control" 
-                       placeholder="Nombre del banco" 
-                       list="popular-banks"
-                       maxlength="100">
+      <input type="text" 
+        v-model="paymentForm.bank" 
+        class="form-control" 
+        placeholder="Nombre del banco" 
+        list="popular-banks"
+        maxlength="100" autocomplete="on" name="payment-bank">
                 <datalist id="popular-banks">
                   <option v-for="bank in popularBanks" :key="bank.bank" :value="bank.bank">
                 </datalist>
@@ -359,11 +359,11 @@
                 <label class="form-label fw-semibold">
                   <i class="fas fa-credit-card"></i> Número de Cuenta
                 </label>
-                <input type="text" 
-                       v-model="paymentForm.accountNumber" 
-                       class="form-control" 
-                       placeholder="Número de cuenta"
-                       maxlength="50">
+      <input type="text" 
+        v-model="paymentForm.accountNumber" 
+        class="form-control" 
+        placeholder="Número de cuenta"
+        maxlength="50" autocomplete="on" name="payment-account">
               </div>
 
               <div class="col-6 mt-3">
@@ -392,7 +392,7 @@
                           class="form-control"
                           v-model="paymentForm.notes"
                           rows="3"
-                          placeholder="Escribe notas u observaciones del pago (opcional)"></textarea>
+                          placeholder="Escribe notas u observaciones del pago (opcional)" autocomplete="on" name="payment-notes"></textarea>
                 <small class="text-muted">Estas notas quedarán registradas en el pago.</small>
               </div>
             </div>
