@@ -46,23 +46,23 @@ class InvoiceFormView(View):
 
     def post(self, request, pk):
         invoice = Invoice.get_by_id(pk)
+        if not invoice:
+            raise Http404("La factura no existe")
+
         # Actualizar campos de la cabecera
         invoice.date = request.POST.get('date')
-        due_date = request.POST.get('due_date')
-        invoice.due_date = due_date if due_date else None
+        invoice.due_date = request.POST.get('due_date') or None
         invoice.marking = request.POST.get('marking')
         invoice.awb = request.POST.get('awb')
         invoice.hawb = request.POST.get('hawb')
         invoice.dae_export = request.POST.get('dae_export')
+        invoice.destination_country = request.POST.get('destination_country')
         invoice.cargo_agency = request.POST.get('cargo_agency')
-        delivery_date = request.POST.get('delivery_date')
-        invoice.delivery_date = delivery_date if delivery_date else None
+        invoice.delivery_date = request.POST.get('delivery_date') or None
         weight = request.POST.get('weight')
         invoice.weight = weight if weight else None
         invoice.save()
 
-        loggin_event(
-            f"Factura {invoice.id} actualizada por {request.user.username}")
+        loggin_event(f"Factura {invoice.id} actualizada por {request.user.username}")
         messages.success(request, "Factura actualizada con éxito")
-
         return redirect('invoice_detail_presentation', pk=invoice.id)
