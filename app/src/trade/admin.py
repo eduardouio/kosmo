@@ -266,6 +266,7 @@ class InvoiceAdmin(SimpleHistoryAdmin):
         'type_document',
         'date',
         'due_date',
+        'destination_country',
         'status',
         'total_price',
         'total_margin',

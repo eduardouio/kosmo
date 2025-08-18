@@ -162,6 +162,12 @@ class Invoice(BaseModel):
         blank=True,
         null=True
     )
+    destination_country = models.CharField(
+        'Pais Destino',
+        max_length=50,
+        blank=True,
+        null=True
+    )
     hawb = models.CharField(
         'HAWB',
         max_length=50,
