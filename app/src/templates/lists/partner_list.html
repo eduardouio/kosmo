@@ -5,23 +5,23 @@
         <div class="d-flex align-items-center gap-3">
             {% if action %}
             <span class="bg-kosmo-green bg-gradient p-2 rounded">
-                <i class="fa-solid fa-circle-check me-1"></i>
+                <i class="la la-check-circle me-1"></i>
                 {{ message }}
             </span>
             {% endif %}
             <div class="d-flex gap-2">
                 <button id="exportExcel" class="btn btn-success btn-sm" title="Exportar a Excel">
-                    <i class="fa-solid fa-file-excel me-1"></i>
+                    <i class="la la-file-excel me-1"></i>
                     Excel
                 </button>
                 <button id="exportPDF" class="btn btn-danger btn-sm" title="Exportar a PDF">
-                    <i class="fa-solid fa-file-pdf me-1"></i>
+                    <i class="la la-file-pdf me-1"></i>
                     PDF
                 </button>
             </div>
         </div>
         <a href="{% url 'partner_create' %}" class="btn btn-sm btn-default">
-            <i class="fa-solid fa-plus me-1"></i>
+            <i class="la la-plus me-1"></i>
             {% if source_page == 'clientes' %}
                 Nuevo Cliente
             {% else %}
@@ -47,7 +47,7 @@
     {% if object_list %}
     <div class="mb-3">
         <small class="text-muted">
-            <i class="fa-solid fa-chart-line me-1"></i>
+            <i class="la la-chart-line me-1"></i>
             {% if source_page == 'clientes' %}
                 Estadísticas de ventas por cliente
             {% else %}
@@ -87,7 +87,9 @@
                     </th>
                 {% endif %}
                 <th class="bg-secondary bg-opacity-25 text-center p-1" style="width: 80px;">Estado</th>
-                <th class="bg-secondary bg-opacity-25 text-center p-1" style="width: 80px;">Acciones</th>
+                <th class="bg-secondary bg-opacity-25 text-center p-1" style="width: 80px;">
+                    <i class="la la-tools me-1" title="Acciones"></i>Acciones
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -100,19 +102,15 @@
                 </td>
                 <td class="align-middle" style="padding: 6px;">
                     <a href="{% url 'partner_detail' item.id %}" class="text-dark text-decoration-none fw-semibold">
-                        {% if item.is_active %}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check text-success me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                <path d="M9 12l5 5l8 -8" />
-                            </svg>
+                        {% if source_page == 'clientes' %}
+                            <i class="la la-user-tie text-primary me-1" title="Cliente"></i>
                         {% else %}
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-circle text-warning me-1" width="16" height="16" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                <path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-                                <path d="M12 8v4" />
-                                <path d="M12 16h.01" />
-                            </svg>
+                            <i class="la la-industry text-secondary me-1" title="Proveedor"></i>
+                        {% endif %}
+                        {% if item.is_active %}
+                            <i class="la la-check-circle text-success me-1" title="Activo"></i>
+                        {% else %}
+                            <i class="la la-exclamation-circle text-warning me-1" title="Inactivo"></i>
                         {% endif %}
                         <span>{{ item.name }}</span>
                     </a>
@@ -167,24 +165,24 @@
                 <td class="text-center align-middle" style="padding: 6px;">
                     <div class="d-flex justify-content-center gap-1">
                         {% if item.is_verified %}
-                            <i class="fa-solid fa-circle-check text-success" title="Verificado"></i>
+                            <i class="la la-check-circle text-success" title="Verificado"></i>
                         {% else %}
-                            <i class="fa-solid fa-circle-xmark text-danger" title="No verificado"></i>
+                            <i class="la la-times-circle text-danger" title="No verificado"></i>
                         {% endif %}
                         {% if item.is_active %}
-                            <i class="fa-solid fa-user-check text-success" title="Activo"></i>
+                            <i class="la la-user-check text-success" title="Activo"></i>
                         {% else %}
-                            <i class="fa-solid fa-user-xmark text-danger" title="Inactivo"></i>
+                            <i class="la la-user-times text-danger" title="Inactivo"></i>
                         {% endif %}
                     </div>
                 </td>
                 <td class="text-center align-middle" style="padding: 6px;">
                     <div class="btn-group btn-group-sm" role="group">
                         <a href="{% url 'partner_update' item.id %}" class="btn btn-outline-primary btn-sm" title="Editar">
-                            <i class="fa-regular fa-pen-to-square"></i>
+                            <i class="la la-edit"></i>
                         </a>
                         <a href="{% url 'partner_detail' item.id %}" class="btn btn-outline-info btn-sm" title="Ver detalles">
-                            <i class="fa-regular fa-eye"></i>
+                            <i class="la la-eye"></i>
                         </a>
                     </div>
                 </td>
@@ -196,7 +194,7 @@
     {% else %}
     <!-- Mensaje cuando no hay datos -->
     <div class="alert alert-info text-center">
-    <i class="fa-solid fa-circle-info me-2"></i>
+    <i class="la la-info-circle me-2"></i>
         {% if source_page == 'clientes' %}
             No hay clientes registrados en el sistema.
         {% else %}
