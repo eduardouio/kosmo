@@ -73,29 +73,20 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="equiposDropdown">
                            <li>
-                              <a class="dropdown-item" href="{% url 'stock_list' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'stock_list' %}">
+                                 <i class="la la-list-ul"></i>
                                  Lista Disponibilidad
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'stock_create' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'stock_create' %}">
+                                 <i class="la la-plus-circle"></i>
                                  Crear Disponibilidad
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'product_list' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'product_list' %}">
+                                 <i class="la la-seedling"></i>
                                  Catalogo de Flores
                               </a>
                            </li>
@@ -109,28 +100,20 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="equiposDropdown">
                           <li>
-                             <a class="dropdown-item" href="{% url 'customers_list' %}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                   <path d="M11 4l3 8l-3 8" />
-                                </svg>
+                             <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'customers_list' %}">
+                                <i class="la la-user-friends"></i>
                                 Clientes
                              </a>
                           </li>
                           <li>
-                             <a class="dropdown-item" href="{% url 'supliers_list' %}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                   <path d="M11 4l3 8l-3 8" />
-                                </svg>
+                             <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'supliers_list' %}">
+                                <i class="la la-truck"></i>
                                 Proveedores
                              </a>
-                          </li><li>
-                             <a class="dropdown-item" href="{% url 'partner_auto_register_list' %}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                   <path d="M11 4l3 8l-3 8" />
-                                </svg>
+                          </li>
+                          <li>
+                             <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'partner_auto_register_list' %}">
+                                <i class="la la-user-clock"></i>
                                 Sin Confirmar
                              </a>
                           </li>
@@ -151,29 +134,20 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="proyectosDropdown">
                            <li>
-                              <a class="dropdown-item" href="{% url 'customer_orders_list' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'customer_orders_list' %}">
+                                 <i class="la la-shopping-bag"></i>
                                  Ordenes de Venta
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="/trade/1/#/order/new/">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="/trade/1/#/order/new/">
+                                 <i class="la la-box-open"></i>
                                  Packing
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'customer_invoice_list' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'customer_invoice_list' %}">
+                                 <i class="la la-file-invoice"></i>
                                  Facturas de Venta
                               </a>
                            </li>
@@ -195,20 +169,14 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="vehiculosDropdown">
                            <li>
-                              <a class="dropdown-item" href="{% url 'supplier_orders_list' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'supplier_orders_list' %}">
+                                 <i class="la la-shopping-cart"></i>
                                  Ordenes Compra
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'supplier_invoice_list' %}" >
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'supplier_invoice_list' %}" >
+                                 <i class="la la-file-invoice-dollar"></i>
                                  Facturas Compra
                               </a>
                            </li>
@@ -226,38 +194,26 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="carteraDropdown">
                            <li>
-                              <a class="dropdown-item" href="{% url 'payment_create' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'payment_create' %}">
+                                 <i class="la la-credit-card"></i>
                                  Nuevo Pago
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'collect_form' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'collect_form' %}">
+                                 <i class="la la-donate"></i>
                                  Nuevo Cobro
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'payments_list' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'payments_list' %}">
+                                 <i class="la la-money-check"></i>
                                  Pagos Efectuados
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'collections_list' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'collections_list' %}">
+                                 <i class="la la-hand-holding-usd"></i>
                                  Pagos Recibidos
                               </a>
                            </li>
@@ -281,65 +237,44 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-lg-end" aria-labelledby="reportesDropdown">
                            <li>
-                              <a class="dropdown-item" href="{% url 'purchase_report' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'purchase_report' %}">
+                                 <i class="la la-chart-line"></i>
                                  Reporte de Compras
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'sales_report' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'sales_report' %}">
+                                 <i class="la la-chart-bar"></i>
                                  Reporte de Ventas
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'payment_report' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'payment_report' %}">
+                                 <i class="la la-file-invoice-dollar"></i>
                                  Reporte de Pagos
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'collections_report' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'collections_report' %}">
+                                 <i class="la la-hand-holding-usd"></i>
                                  Reporte de Cobros
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'balance_report' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'balance_report' %}">
+                                 <i class="la la-balance-scale"></i>
                                  Balance Financiero
                               </a>
                            </li>
                            <li>
-                              <a class="dropdown-item" href="{% url 'sales_by_product_report' %}">
-                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M11 4l3 8l-3 8" />
-                                 </svg>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'sales_by_product_report' %}">
+                                 <i class="la la-seedling"></i>
                                  Reporte de Productos
                               </a>
                            </li>
                               <li>
-                                 <a class="dropdown-item" href="{% url 'partner_account_statement' %}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-compact-right" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ffffff" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                       <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                       <path d="M11 4l3 8l-3 8" />
-                                    </svg>
+                                 <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'partner_account_statement' %}">
+                                    <i class="la la-file-alt"></i>
                                     Estado de Cuenta
                                  </a>
                               </li>
@@ -352,9 +287,19 @@
                            <span class="menu-label">{{ request.user.get_full_name|default:request.user.email }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                           <li><a class="dropdown-item" href="{% url 'user_profile' %}">Ver perfil</a></li>
+                           <li>
+                              <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'user_profile' %}">
+                                 <i class="la la-id-badge"></i>
+                                 Ver perfil
+                              </a>
+                           </li>
                            <li><hr class="dropdown-divider"></li>
-                           <li><a class="dropdown-item text-danger" href="{% url 'logout' %}">Salir</a></li>
+                           <li>
+                              <a class="dropdown-item d-flex align-items-center gap-2 text-danger" href="{% url 'logout' %}">
+                                 <i class="la la-sign-out-alt"></i>
+                                 Salir
+                              </a>
+                           </li>
                         </ul>
                      </li>
                   </ul>
