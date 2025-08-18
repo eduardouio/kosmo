@@ -27,8 +27,7 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
             invoice_item__invoice=self.object, is_active=True
         )
         for box_item in box_items:
-            box_item.calculated_total = box_item.total_price + \
-                (box_item.profit_margin * box_item.qty_stem_flower)
+            box_item.calculated_total = box_item.total_price + (box_item.profit_margin * box_item.qty_stem_flower)
 
         context['box_items'] = box_items
 
@@ -39,6 +38,7 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
         context['cargo_agency'] = self.object.cargo_agency
         context['delivery_date'] = self.object.delivery_date
         context['weight'] = self.object.weight
+        context['destination_country'] = self.object.destination_country
         context['action'] = self.request.GET.get('action')
 
         # Calcular días hasta vencimiento
