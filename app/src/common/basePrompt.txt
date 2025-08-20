@@ -1,0 +1,185 @@
+Objetivo
+
+Tu tarea es leer e interpretar líneas de texto en bruto que describen stocks y transformarlas en un arreglo json con el siguiente formato debe ser Respetado al 100%:
+
+[CANTIDAD, MODELO_DE_CAJA, [VARIEDADES], [MEDIDAS], [TALLOS], [PRECIOS]]
+
+CANTIDAD: Dato entero positivo
+MODELO DE CAJA: Dato Cadena de texto
+VARIEDADES: Dato lista de Cadenas
+MEDIDAS: Dato lista de enteros
+TALLOS: Dato lista de enteros
+PRECIOS: dato lista de decimales
+
+Consideraciones:
+
+Si al inicio de todo el texto de enrada hay una fecha o la palbra dispo en la linea se ignora hasta llegar al patron de stocks
+Si solo se recibe la variedad, se ignora la entrada
+
+CANTIDAD
+    - siempre viene acompañado del modelo de caja
+    - Si no se especifica cantidad, se usará 1 como valor predeterminado
+MODELO DE CAJA
+    - Se representa con las siglas HB, QB, EB, FB
+    - Si no se especifica, se usará "HB" como valor predeterminado
+VARIEDADES: 
+    - Siempre se indica, esta formada por una o mas palabras usa el listado de variedades para diferenciar
+    - Suelen venir separadas por "/" " " ",". aunque en ocasiones pueden venir juntas en este caso debes usar el listado de variedades para identificar
+    - Si no se recibe este dato se ignora la entrada
+MEDIDAS: 
+    - Siempre se indica, es la longitud de los tallos
+    - Cuando hay mas de una medida aplica a la misma variedad las medidas se separan por "/" " " ","
+    - En Ciertas entradas las medidas traen un exponente, en este caso toma el numero de la base, ese es el valor de la medida
+    - Si no se especifica, se usará 0 como valor predeterminado
+TALLOS: 
+    - No siempre se indica, si no se indica se asigna 0
+    - Cuando hay varias medidas viene separados por "/" " " "," 
+    - Cuando tenemos numeros entre parentesis separados por coma cuando es mas de uno, estos son los ramos cada ramo tiene 25 tallos por lo que se debe multilplicar por 25
+    - Tambien suelen venir en forma de exponente, es el exponente de la medida, tomamos este valor y se multilplica por 25 cuando es HQ, QB, FB pero si es EB se multiplica por 12, al final de la linea puede venir un X y un numero eso indica el total de tallos en la caja si ya tenemos exponentes este valor se ignora
+    - Si no se especifica, se usará 0 como valor predeterminado
+PRECIOS: 
+    - No Siempre se indica, si no se indica se asigna 0
+    - En los datos de entrada los precios vienen separados por "/" " " ",".
+    - Los precions pueden venir con signo de dolares o CXC
+    - Cuando los precios vienen con CXC, se toma como precio base los el valor luego de CXC y se le suma 0.01 por cada centimetro de medida,
+    - Si no se especifica, se usará 0 como valor predeterminado
+
+
+VARIEDADES:
+es posible que la varierdad de entrada tenga un error en su escritura por ejemplo 
+Explorer puede estar como  Xplorer 
+Freedom puede estar como Freddom o  Fredom
+Para estos casos debes interpretar el error y corregir la variedad
+
+ESCIMO y ESKIMO -> son la misma variedad, simpre interpretar como ESKIMO 
+CANDLE LIGHT
+FREEDOM
+CANDY CANE
+CANDY XPRESION
+CANDY XPRESSION
+CHERRY BRANDY
+CHERRY FOLIES
+CHERRY IGUAZU
+CLASSIC SENSATION
+COLD PLAY
+COTTON X-PRESSION
+COTTON XPRESSION
+COUNTRY HOME
+COUNTRY LOUISE
+COUNTRY SECRET
+CREAM CARPEDIEM
+CREAM DE LA CREAM
+CREAM IVORY
+CREAM LIDYA
+CREME DE LA CREME
+DARK CROWN
+DRAGON FLY
+ECO-RAINBOW MD
+FRE SPIRIT
+FRE SPIRTI
+GARDEN SPIRIT
+HAPPY BRIDE
+HARD ROCK
+HIGH & BOOMING
+HIGH & MAGIC
+HIGH & ORANGE
+HIGH BOOMING
+HIGH ORANGE MAGIC
+HIGH YELLOW MAGIC
+HOT EXPLORER
+HOT LADY
+HOT MAJOLIK
+HOT SPOT
+ANEMONE LEVANTE
+HOT PINK
+JET SET
+LAVANDER IRISKA
+LEVEL UP
+LORENA SUMMERHOUSE
+MAGIC TIMES
+MELON X PRESSION
+MISS PIGGY
+MIX COLOR
+MIX GARDEN
+MIX PINK
+MIX TINTED
+MIX WHITE
+MOTHER OF PEARL
+NEW FACE
+ORANGE BOWL
+ORANGE PARTY
+ORANGE STAR
+PASION TURCA
+PINK AMARETTO
+PINK LOVE
+PINK MAJOLICA
+PINK OHARA
+PINK PUMA
+PINK X PRESSION
+PINK XPRESION
+PINK XPRESSION VERIFICAR
+PREMIUM MIX
+PRIME TIME
+PRINCES CROWN
+PRINCESS CROWN
+PURPLE CEZANNE
+QUICK SAND
+RED BRILLANT STAR
+RED MIKADO
+RED PANTHER
+RED PANTHET
+RED PARIS
+ROSITA VENDELA
+ROSTA VENDELA
+ROUGE BASSIER
+ROYAL EXPLORER
+SAHARA SENSATION
+SECRETOS GARDEN
+SEXY RED
+SHOCKING BLUE
+SILVER SAND
+SILVERY LIGHT
+SPRAY SNOWFLAKE
+SUOER SUN
+SUPER SUN
+SWEET BREAT
+SWEET CITY
+SWEET ESKIMO
+SWEET SPOT
+SWEET XPRESSION
+SWET UNIQUE
+TINTED MONDIAL BLUE
+TINTED MONDIAL RAINBOW
+TIP TOP
+VDAY PACK
+VI PINK
+WEDDING SENSATION
+WHITE CHOCOLATE
+WHITE MIKADO
+WHITE OHARA
+WHITE SHIMMER
+YELLOW BABE
+ANEMONE HOT PINK
+
+
+Ejemplos:
+
+ENTRADA: 
+1HB DEEP PURPLE 50/60 X 400 0,35/0,40
+A=1;B=HB;C=DEEP PURPLE;D=50/60;E=400;F=0,35/0,40;
+
+A: Cantidad, siempre es un numero entero positivo
+B: Modelo de caja, siempre es una cadena de texto, puede ser HB, QB, EB, FB
+C: Variedad, siempre es una cadena de texto, puede ser una o mas palabras, cuando sea mas de una variedad se separa por tab, generalmente hasta dos palabras
+D: Medidas, pueden estar separadas por "/", por "-"  o por ',' siempre entero positivo
+E: Tallos de la caja, si es mas de una variedad solo se le aplica a la primera
+F: Precio, si no se especifica se usa 0 como valor predeterminado
+
+SALIDA: [1, "HB", ["DEEP PURPLE", "DEEP PURPLE"], [50, 60], [400, 0], [0.35, 0.40]]
+
+Mas ejemplos:
+ENTRADA: 1QB FREDOM 40 X 125 0,30 -> SALIDA: [1, "QB", ["FREEDOM"], [40], [125], [0.30]]
+ENTRADA: 2QB AKITO 50 X 100 0,45 -> SALIDA: [2, "QB", ["AKITO"], [50], [100], [0.45]]
+ENTRADA: 1HB BRIGHTON 50/60/70 X 350 0,40/0,45/0,50 -> SALIDA: [1, "HB", ["BRIGHTON","BRIGHTON","BRIGHTON"], [50, 60, 70], [350, 0, 0], [0.40, 0.45, 0.50]]
+ENTRADA: 1QB CANDLELIGHT 40/50 X 125 0,50/0,60 -> SALIDA: [1, "QB", ["CANDLELIGHT","CANDLELIGHT"], [40, 50], [125, 0], [0.50, 0.60]]
+ENTRADA: 1QB COUNTRY BLUES 40 X 125 0,40 -> SALIDA: [1, "QB", ["COUNTRY BLUES"], [40], [125], [0.40]]
