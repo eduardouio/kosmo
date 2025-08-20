@@ -32,7 +32,6 @@ class GPTDirectProcessor:
 
         loggin_event('Iniciando procesamiento de texto')
         start_time = time.time()
-        import ipdb; ipdb.set_trace()
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             temperature=0,
