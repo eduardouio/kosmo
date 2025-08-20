@@ -261,3 +261,4 @@ app/src/trade/migrations/0002_remove_payment_invoices_historicalpaymentdetail_an
 app/src/trade/migrations/0004_historicalorder_eb_total_order_eb_total.py
 app/src/trade/migrations/0005_historicalinvoice_eb_total_invoice_eb_total.py
 app/src/trade/migrations/0006_historicalinvoice_po_number_invoice_po_number.py
+app/src/media/*
