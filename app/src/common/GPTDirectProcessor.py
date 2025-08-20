@@ -32,10 +32,10 @@ class GPTDirectProcessor:
 
         loggin_event('Iniciando procesamiento de texto')
         start_time = time.time()
-
+        import ipdb; ipdb.set_trace()
         response = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            temperature=0.1,
+            model="gpt-4o-mini",
+            temperature=0,
             messages=[
                 {"role": "system", "content": self._prompt},
                 {"role": "user", "content": dispo}
@@ -112,9 +112,10 @@ class GPTDirectProcessor:
         # Primero intentar cargar desde el campo prompt_disponibility del partner
         if partner and hasattr(partner, 'prompt_disponibility') and partner.prompt_disponibility:
             self._prompt = partner.prompt_disponibility.strip()
-            loggin_event('Prompt cargado desde el campo prompt_disponibility del partner')
+            loggin_event(
+                'Prompt cargado desde el campo prompt_disponibility del partner')
             return
-        
+
         # Si no hay prompt personalizado, cargar desde archivo
         promt_file = os.path.join(self._current_dir, 'PromtText.txt')
         if not os.path.exists(promt_file):
