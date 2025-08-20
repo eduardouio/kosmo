@@ -33,8 +33,8 @@ class GPTDirectProcessor:
         loggin_event('Iniciando procesamiento de texto')
         start_time = time.time()
         response = self.client.chat.completions.create(
-            model="gpt-5-nano-2025-08-07",
-            temperature=0,
+            model="o3",
+            temperature=1,
             messages=[
                 {"role": "system", "content": self._prompt},
                 {"role": "user", "content": dispo}
