@@ -86,7 +86,11 @@
                         <small>Pedidos<br>Pendientes</small>
                     </th>
                 {% endif %}
+                {% if source_page == 'proveedores' %}
+                <th class="bg-secondary bg-opacity-25 text-center p-1" style="width: 80px;">Prompt</th>
+                {% else %}
                 <th class="bg-secondary bg-opacity-25 text-center p-1" style="width: 80px;">Estado</th>
+                {% endif %}
                 <th class="bg-secondary bg-opacity-25 text-center p-1" style="width: 80px;">
                     <i class="la la-tools me-1" title="Acciones"></i>Acciones
                 </th>
@@ -162,6 +166,15 @@
                     {% endif %}
                 </td>
                 {% endif %}
+                {% if source_page == 'proveedores' %}
+                <td class="text-center align-middle" style="padding: 6px;">
+                    {% if item.prompt_disponibility %}
+                        <span class="badge bg-primary" title="Prompt personalizado definido">PERSONALIZADO</span>
+                    {% else %}
+                        <span class="badge bg-secondary" title="Usa prompt por defecto del sistema">DEFECTO</span>
+                    {% endif %}
+                </td>
+                {% else %}
                 <td class="text-center align-middle" style="padding: 6px;">
                     <div class="d-flex justify-content-center gap-1">
                         {% if item.is_verified %}
@@ -176,6 +189,7 @@
                         {% endif %}
                     </div>
                 </td>
+                {% endif %}
                 <td class="text-center align-middle" style="padding: 6px;">
                     <div class="btn-group btn-group-sm" role="group">
                         <a href="{% url 'partner_update' item.id %}" class="btn btn-outline-primary btn-sm" title="Editar">
