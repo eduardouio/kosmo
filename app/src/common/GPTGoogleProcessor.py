@@ -1,9 +1,5 @@
 from common.secrets import GOOGLE_API_KEY
-from google import genai
-"""Procesador Gemini con interfaz equivalente a GPTDirectProcessor."""
-
-from common.secrets import GOOGLE_API_KEY
-from google import genai
+import google.generativeai as genai
 from common.AppLoger import loggin_event
 from common.TextPrepare import TextPrepare
 import time
@@ -16,7 +12,7 @@ class GPTGoogleProcessor:
     _current_dir = os.path.dirname(os.path.abspath(__file__))
     _prompt = None
     _client = None
-    _model_name = "gemini-1.5-flash"
+    _model_name = "gemini-2.0-flash"
 
     @property
     def client(self):
@@ -49,70 +45,25 @@ class GPTGoogleProcessor:
         loggin_event('Iniciando procesamiento de texto')
         start_time = time.time()
 
-        function_declaration = genai.protos.FunctionDeclaration(
-            name="parse_stock_lines",
-            description="Parse stock lines into structured format",
-            parameters=genai.protos.Schema(
-                type=genai.protos.Type.OBJECT,
-                properties={
-                    "items": genai.protos.Schema(
-                        type=genai.protos.Type.ARRAY,
-                        items=genai.protos.Schema(
-                            type=genai.protos.Type.OBJECT,
-                            properties={
-                                "cantidad": genai.protos.Schema(
-                                    type=genai.protos.Type.INTEGER),
-                                "modelo": genai.protos.Schema(
-                                    type=genai.protos.Type.STRING),
-                                "variedades": genai.protos.Schema(
-                                    type=genai.protos.Type.ARRAY,
-                                    items=genai.protos.Schema(
-                                        type=genai.protos.Type.STRING)
-                                ),
-                                "medidas": genai.protos.Schema(
-                                    type=genai.protos.Type.ARRAY,
-                                    items=genai.protos.Schema(
-                                        type=genai.protos.Type.NUMBER)
-                                ),
-                                "tallos": genai.protos.Schema(
-                                    type=genai.protos.Type.ARRAY,
-                                    items=genai.protos.Schema(
-                                        type=genai.protos.Type.NUMBER)
-                                ),
-                                "precios": genai.protos.Schema(
-                                    type=genai.protos.Type.ARRAY,
-                                    items=genai.protos.Schema(
-                                        type=genai.protos.Type.NUMBER)
-                                )
-                            },
-                            required=[
-                                "cantidad", "modelo", "variedades",
-                                "medidas", "tallos", "precios"
-                            ]
-                        )
-                    )
-                },
-                required=["items"]
-            )
+    # Salida JSON directa (sin function calling) para paridad.
+
+        json_instruction = (
+            "Responde SOLO con JSON válido UTF-8 sin texto extra ni "
+            "explicaciones. Estructura: {\\n  'items': [ { 'cantidad': int, "
+            "'modelo': string, 'variedades': [string], 'medidas': [number], "
+            "'tallos': [number], 'precios': [number] } ... ]\\n}. Usa arrays "
+            "alineados por índice. No incluyas comentarios ni markdown."
         )
-        tool = genai.protos.Tool(
-            function_declarations=[function_declaration])
+        full_prompt = (
+            f"{self._prompt}\n\n{json_instruction}\n\nTexto:\n{dispo}"
+        )
 
         try:
             response = self.client.generate_content(
-                [self._prompt, dispo],
-                tools=[tool],
-                tool_config=genai.protos.ToolConfig(
-                    function_calling_config=genai.protos.ToolConfig.
-                    FunctionCallingConfig(
-                        mode=genai.protos.ToolConfig.FunctionCallingConfig.
-                        Mode.ALWAYS,
-                        allowed_function_names=["parse_stock_lines"]
-                    )
-                ),
+                full_prompt,
                 generation_config=genai.types.GenerationConfig(
                     temperature=0,
-                    max_output_tokens=4096
+                    max_output_tokens=2048
                 )
             )
 
@@ -120,39 +71,35 @@ class GPTGoogleProcessor:
             loggin_event(
                 f'Respuesta recibida de Google Gemini API {laps_time}s')
 
-            if (not response.candidates or
-                    not response.candidates[0].content.parts):
-                raise Exception(
-                    "No se recibió una respuesta válida desde Gemini")
+            if not response or not getattr(response, 'text', None):
+                raise Exception("Respuesta vacía de Gemini")
 
+            raw_text = response.text.strip()
+
+            # Limpiar bloques markdown si existen
+            if raw_text.startswith('```'):
+                # posible formato ```json ... ```
+                raw_text = raw_text.strip('`')
+                # quitar posible json inicial
+                raw_text = raw_text.replace('json\n', '', 1)
+                raw_text = raw_text.replace('json\r\n', '', 1)
+
+            # Extraer el primer objeto JSON completo
             parsed = None
-            for part in response.candidates[0].content.parts:
-                fc = getattr(part, 'function_call', None)
-                if fc and fc.name == "parse_stock_lines":
-                    raw_args = fc.args
-                    if isinstance(raw_args, dict):
-                        parsed = raw_args
-                    else:
-                        # Fallbacks
-                        for extractor in (
-                            getattr(raw_args, 'to_dict', None), None
-                        ):
-                            if callable(extractor):
-                                try:
-                                    parsed = extractor()
-                                    break
-                                except Exception:
-                                    pass
-                        if parsed is None:
-                            try:
-                                parsed = json.loads(str(raw_args))
-                            except Exception:
-                                parsed = None
-                    break
+            try:
+                parsed = json.loads(raw_text)
+            except Exception:
+                # Heurística: buscar desde primer '{' hasta última '}'
+                try:
+                    start = raw_text.index('{')
+                    end = raw_text.rindex('}') + 1
+                    snippet = raw_text[start:end]
+                    parsed = json.loads(snippet)
+                except Exception:
+                    parsed = None
 
             if parsed is None:
-                raise Exception(
-                    "No se recibió un JSON válido desde la función")
+                raise Exception("No se pudo parsear JSON de Gemini")
 
             if (not isinstance(parsed, dict) or
                     "items" not in parsed or
@@ -225,5 +172,4 @@ class GPTGoogleProcessor:
 
         with open(promt_file, 'r', encoding='utf-8') as file:
             self._prompt = file.read()
-        loggin_event('Archivo de configuración leído correctamente')
-        loggin_event('Archivo de configuración leído correctamente')
+    loggin_event('Archivo de configuración leído correctamente')

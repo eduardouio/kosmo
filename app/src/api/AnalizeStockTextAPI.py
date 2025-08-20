@@ -5,6 +5,7 @@ from partners.models import Partner
 from products.models import Product, StockDay, StockDetail, BoxItems
 from common.TextPrepare import TextPrepare
 from common.GPTDirectProcessor import GPTDirectProcessor
+from common.GPTGoogleProcessor import GPTGoogleProcessor
 from common.AppLoger import loggin_event
 
 
@@ -26,7 +27,7 @@ class AnalizeStockTextAPI(View):
                 {'message': 'Texto no válido'}, safe=False, status=400
             )
 
-        result_dispo = GPTDirectProcessor().process_text(text_stock, partner)
+        result_dispo = GPTGoogleProcessor().process_text(text_stock, partner)
         loggin_event(f'Resultado del procesamiento de texto: {result_dispo}')
 
         if not result_dispo or not isinstance(result_dispo, list):

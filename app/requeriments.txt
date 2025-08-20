@@ -16,7 +16,7 @@ django-cors-headers
 requests
 django_extensions
 openai
-google-genai
+google-generativeai
 pillow
 psycopg2-binary
 setuptools
