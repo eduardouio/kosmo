@@ -1,100 +1,54 @@
 from common.secrets import GOOGLE_API_KEY
 from google import genai
-from typing import List, Dict, Optional
-import json
-import time
-import os
-import re
+"""Procesador Gemini con interfaz equivalente a GPTDirectProcessor."""
+
+from common.secrets import GOOGLE_API_KEY
+from google import genai
 from common.AppLoger import loggin_event
 from common.TextPrepare import TextPrepare
+import time
+import json
+import os
 
 
 class GPTGoogleProcessor:
-    def __init__(self, model_name: str = None):
-        genai.configure(api_key=GOOGLE_API_KEY)
+    _api_key = GOOGLE_API_KEY
+    _current_dir = os.path.dirname(os.path.abspath(__file__))
+    _prompt = None
+    _client = None
+    _model_name = "gemini-1.5-flash"
 
-        if model_name:
-            available_models = [model_name]
-        else:
-            available_models = [
-                "gemini-1.5-flash-latest",
-                "gemini-1.5-flash",
-                "gemini-1.5-pro-latest",
-                "gemini-1.5-pro",
-                "gemini-1.0-pro-latest",
-                "gemini-1.0-pro",
-                "gemini-pro"
-            ]
-
-        self.model = None
-        self.model_name = None
-
-        for model in available_models:
+    @property
+    def client(self):
+        if self._client is None:
+            genai.configure(api_key=self._api_key)
             try:
-                test_model = genai.GenerativeModel(model)
-                test_response = test_model.generate_content(
-                    "Test",
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=0.1,
-                        max_output_tokens=10,
-                    )
-                )
-
-                if test_response and test_response.text:
-                    self.model = test_model
-                    self.model_name = model
-                    loggin_event(
-                        f'Inicializado exitosamente con modelo: {model}'
-                    )
-                    break
-
+                model = genai.GenerativeModel(self._model_name)
+                # Llamada mínima para validar
+                model.generate_content("ping")
+                self._client = model
+                loggin_event(
+                    f'Modelo Gemini inicializado: {self._model_name}')
             except Exception as e:
-                loggin_event(f'Modelo {model} no disponible: {str(e)}')
-                continue
+                raise Exception(
+                    f"Fallo inicializando Gemini '{self._model_name}': {e}")
+        return self._client
 
-        if not self.model:
-            try:
-                models = genai.list_models()
-                for model_info in models:
-                    methods = model_info.supported_generation_methods
-                    if 'generateContent' in methods:
-                        try:
-                            self.model = genai.GenerativeModel(model_info.name)
-                            self.model_name = model_info.name
-                            loggin_event(
-                                f'Usando modelo disponible: {model_info.name}'
-                            )
-                            break
-                        except Exception:
-                            continue
-            except Exception as e:
-                loggin_event(f'Error al listar modelos: {str(e)}')
+    def process_text(self, dispo, partner=None):
+        """Procesa texto de disponibilidad devolviendo lista de items.
 
-        if not self.model:
-            raise Exception(
-                "No se pudo inicializar ningún modelo de Gemini disponible"
-            )
-
-        self.chat_session = None
-        self._current_dir = os.path.dirname(os.path.abspath(__file__))
-        self._prompt = None
-
-    def process_text(self, dispo):
+    Retorna: [[cantidad, modelo, variedades[], medidas[], tallos[],
+    precios[]], ...]
+        Levanta Exception en formato inválido (igual que GPTDirectProcessor).
+        """
         dispo = TextPrepare().process(dispo)
-        promt_file = os.path.join(self._current_dir, 'PromtText.txt')
-        if os.path.exists(promt_file):
-            with open(promt_file, 'r', encoding='utf-8') as file:
-                self._prompt = file.read()
-                loggin_event('Archivo de configuración leído correctamente')
 
         if not self._prompt:
-            raise Exception('No se encontró el archivo de configuración')
+            self._load_prompt(partner)
 
         loggin_event('Iniciando procesamiento de texto')
-        loggin_event(f'Texto a procesar: {dispo}')
         start_time = time.time()
 
-        # Función que simula la herramienta parse_stock_lines
         function_declaration = genai.protos.FunctionDeclaration(
             name="parse_stock_lines",
             description="Parse stock lines into structured format",
@@ -106,8 +60,10 @@ class GPTGoogleProcessor:
                         items=genai.protos.Schema(
                             type=genai.protos.Type.OBJECT,
                             properties={
-                                "cantidad": genai.protos.Schema(type=genai.protos.Type.INTEGER),
-                                "modelo": genai.protos.Schema(type=genai.protos.Type.STRING),
+                                "cantidad": genai.protos.Schema(
+                                    type=genai.protos.Type.INTEGER),
+                                "modelo": genai.protos.Schema(
+                                    type=genai.protos.Type.STRING),
                                 "variedades": genai.protos.Schema(
                                     type=genai.protos.Type.ARRAY,
                                     items=genai.protos.Schema(
@@ -116,12 +72,12 @@ class GPTGoogleProcessor:
                                 "medidas": genai.protos.Schema(
                                     type=genai.protos.Type.ARRAY,
                                     items=genai.protos.Schema(
-                                        type=genai.protos.Type.INTEGER)
+                                        type=genai.protos.Type.NUMBER)
                                 ),
                                 "tallos": genai.protos.Schema(
                                     type=genai.protos.Type.ARRAY,
                                     items=genai.protos.Schema(
-                                        type=genai.protos.Type.INTEGER)
+                                        type=genai.protos.Type.NUMBER)
                                 ),
                                 "precios": genai.protos.Schema(
                                     type=genai.protos.Type.ARRAY,
@@ -129,171 +85,145 @@ class GPTGoogleProcessor:
                                         type=genai.protos.Type.NUMBER)
                                 )
                             },
-                            required=["cantidad", "modelo", "variedades",
-                                "medidas", "tallos", "precios"]
+                            required=[
+                                "cantidad", "modelo", "variedades",
+                                "medidas", "tallos", "precios"
+                            ]
                         )
                     )
                 },
                 required=["items"]
             )
         )
-
-        tool = genai.protos.Tool(function_declarations=[function_declaration])
+        tool = genai.protos.Tool(
+            function_declarations=[function_declaration])
 
         try:
-            response = self.model.generate_content(
+            response = self.client.generate_content(
                 [self._prompt, dispo],
                 tools=[tool],
                 tool_config=genai.protos.ToolConfig(
-                    function_calling_config=genai.protos.ToolConfig.FunctionCallingConfig(
-                        mode=genai.protos.ToolConfig.FunctionCallingConfig.Mode.ANY,
+                    function_calling_config=genai.protos.ToolConfig.
+                    FunctionCallingConfig(
+                        mode=genai.protos.ToolConfig.FunctionCallingConfig.
+                        Mode.ALWAYS,
                         allowed_function_names=["parse_stock_lines"]
                     )
                 ),
                 generation_config=genai.types.GenerationConfig(
                     temperature=0,
-                    max_output_tokens=8192
+                    max_output_tokens=4096
                 )
             )
 
-            end_time = time.time()
-            laps_time = end_time - start_time
+            laps_time = time.time() - start_time
             loggin_event(
-                f'Respuesta recibida de Google Gemini API {laps_time}')
+                f'Respuesta recibida de Google Gemini API {laps_time}s')
 
-            # Verificar si hay function calls en la respuesta
-            if response.candidates and response.candidates[0].content.parts:
-                for part in response.candidates[0].content.parts:
-                    if hasattr(part, 'function_call') and part.function_call:
-                        function_call = part.function_call
-                        if function_call.name == "parse_stock_lines":
-                            # Extraer argumentos de la función
-                            payload = json.dumps(dict(function_call.args))
-                            loggin_event(f'Payload recibido: {payload}')
+            if (not response.candidates or
+                    not response.candidates[0].content.parts):
+                raise Exception(
+                    "No se recibió una respuesta válida desde Gemini")
 
-                            parsed = json.loads(payload)
-                            loggin_event(f'JSON parseado: {parsed}')
-                            loggin_event(
-                                f'Tipo de JSON parseado: {type(parsed)}')
+            parsed = None
+            for part in response.candidates[0].content.parts:
+                fc = getattr(part, 'function_call', None)
+                if fc and fc.name == "parse_stock_lines":
+                    raw_args = fc.args
+                    if isinstance(raw_args, dict):
+                        parsed = raw_args
+                    else:
+                        # Fallbacks
+                        for extractor in (
+                            getattr(raw_args, 'to_dict', None), None
+                        ):
+                            if callable(extractor):
+                                try:
+                                    parsed = extractor()
+                                    break
+                                except Exception:
+                                    pass
+                        if parsed is None:
+                            try:
+                                parsed = json.loads(str(raw_args))
+                            except Exception:
+                                parsed = None
+                    break
 
-                            # Verificar que es un diccionario y contiene items
-                            if not isinstance(parsed, dict) or "items" not in parsed:
-                                raise Exception(
-                                    f"Se esperaba un diccionario con 'items', pero se recibió: {parsed}")
+            if parsed is None:
+                raise Exception(
+                    "No se recibió un JSON válido desde la función")
 
-                            items = parsed["items"]
-                            if not isinstance(items, list):
-                                raise Exception(
-                                    f"Se esperaba una lista de items, pero se recibió: {type(items)}")
+            if (not isinstance(parsed, dict) or
+                    "items" not in parsed or
+                    not isinstance(parsed["items"], list)):
+                raise Exception(
+                    "Formato inválido: se esperaba diccionario con lista"
+                    " 'items'")
 
-                            result_arrays = []
-                            for item in items:
-                                # Validar campos requeridos para cada item
-                                required_fields = [
-                                    "cantidad", "modelo", "variedades", "medidas", "tallos", "precios"]
-                                for field in required_fields:
-                                    if field not in item:
-                                        raise Exception(
-                                            f"Campo requerido '{field}' no encontrado en item: {item}")
-
-                                result_array = [
-                                    item["cantidad"],
-                                    item["modelo"],
-                                    item["variedades"],
-                                    item["medidas"],
-                                    item["tallos"],
-                                    item["precios"]
-                                ]
-                                result_arrays.append(result_array)
-
-                            loggin_event(f'Arrays resultado: {result_arrays}')
-                            loggin_event(
-                                f'Número de items procesados: {len(result_arrays)}')
-                            return result_arrays
-
-            raise Exception("No se recibió un JSON válido desde la función")
-
-        except Exception as e:
-            loggin_event(f'Error en procesamiento con Google Gemini: {str(e)}')
-            raise Exception(f"Error al procesar con Google Gemini: {str(e)}")
-
-    def start_chat(self, history: Optional[List[Dict[str, str]]] = None):
-        if history:
-            gemini_history = self._convert_history_format(history)
-            self.chat_session = self.model.start_chat(history=gemini_history)
-        else:
-            self.chat_session = self.model.start_chat()
-
-    def process_message(
-        self,
-        message: str,
-        system_prompt: Optional[str] = None
-    ) -> str:
-        try:
-            if system_prompt and not self.chat_session:
-                full_prompt = f"{system_prompt}\n\nUsuario: {message}"
-                response = self.model.generate_content(full_prompt)
-            elif self.chat_session:
-                response = self.chat_session.send_message(message)
-            else:
-                response = self.model.generate_content(message)
-
-            return response.text
-        except Exception as e:
-            return f"Error al procesar el mensaje: {str(e)}"
-
-    def process_batch(
-        self,
-        messages: List[str],
-        system_prompt: Optional[str] = None
-    ) -> List[str]:
-        responses = []
-        for message in messages:
-            response = self.process_message(message, system_prompt)
-            responses.append(response)
-        return responses
-
-    def _convert_history_format(
-        self,
-        history: List[Dict[str, str]]
-    ) -> List[Dict[str, str]]:
-        gemini_history = []
-        for entry in history:
-            if entry.get("role") == "user":
-                gemini_history.append({
-                    "role": "user",
-                    "parts": [entry.get("content", "")]
-                })
-            elif entry.get("role") == "assistant":
-                gemini_history.append({
-                    "role": "model",
-                    "parts": [entry.get("content", "")]
-                })
-        return gemini_history
-
-    def reset_chat(self):
-        self.chat_session = None
-
-    def get_available_models(self) -> List[str]:
-        try:
-            models = genai.list_models()
-            return [
-                model.name for model in models
-                if 'generateContent' in model.supported_generation_methods
+            required = [
+                "cantidad", "modelo", "variedades",
+                "medidas", "tallos", "precios"
             ]
-        except Exception as e:
-            return [f"Error obteniendo modelos: {str(e)}"]
-        return gemini_history
+            result = []
+            for idx, item in enumerate(parsed["items"]):
+                if not isinstance(item, dict):
+                    raise Exception(f"Item {idx} no es un objeto válido")
+                if not all(f in item for f in required):
+                    miss = [f for f in required if f not in item]
+                    raise Exception(
+                        f"Campos faltantes en item {idx}: {miss}")
 
-    def reset_chat(self):
-        self.chat_session = None
+                def _to_int(v):
+                    try:
+                        return int(v)
+                    except Exception:
+                        return v
 
-    def get_available_models(self) -> List[str]:
-        try:
-            models = genai.list_models()
-            return [
-                model.name for model in models
-                if 'generateContent' in model.supported_generation_methods
-            ]
+                def _to_float(v):
+                    try:
+                        return float(v)
+                    except Exception:
+                        return v
+
+                cantidad = _to_int(item["cantidad"])
+                modelo = (item["modelo"].strip()
+                          if isinstance(item["modelo"], str)
+                          else item["modelo"])
+                variedades = [
+                    v.strip() for v in item.get("variedades", [])
+                    if isinstance(v, str)
+                ]
+                medidas = [_to_float(m) for m in item.get("medidas", [])]
+                tallos = [_to_int(t) for t in item.get("tallos", [])]
+                precios = [_to_float(p) for p in item.get("precios", [])]
+
+                result.append([
+                    cantidad, modelo, variedades, medidas, tallos, precios
+                ])
+
+            loggin_event(f'Procesados {len(result)} items')
+            return result
+
         except Exception as e:
-            return [f"Error obteniendo modelos: {str(e)}"]
+            loggin_event(
+                f'Error en procesamiento con Google Gemini: {str(e)}')
+            raise Exception(
+                f"Error al procesar con Google Gemini: {str(e)}")
+
+    def _load_prompt(self, partner=None):
+        if (partner and hasattr(partner, 'prompt_disponibility') and
+                partner.prompt_disponibility):
+            self._prompt = partner.prompt_disponibility.strip()
+            loggin_event(
+                'Prompt cargado desde prompt_disponibility del partner')
+            return
+
+        promt_file = os.path.join(self._current_dir, 'PromtText.txt')
+        if not os.path.exists(promt_file):
+            raise Exception('No se encontró el archivo de configuración')
+
+        with open(promt_file, 'r', encoding='utf-8') as file:
+            self._prompt = file.read()
+        loggin_event('Archivo de configuración leído correctamente')
+        loggin_event('Archivo de configuración leído correctamente')
