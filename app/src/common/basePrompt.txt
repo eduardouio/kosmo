@@ -55,15 +55,13 @@ ESCIMO y ESKIMO -> son la misma variedad, simpre interpretar como ESKIMO
 CANDLE LIGHT
 FREEDOM
 CANDY CANE
-CANDY XPRESION
-CANDY XPRESSION
+CANDY XPRESSION -> pude llegar como CANDY X-PRESSION
 CHERRY BRANDY
 CHERRY FOLIES
 CHERRY IGUAZU
 CLASSIC SENSATION
 COLD PLAY
-COTTON X-PRESSION
-COTTON XPRESSION
+COTTON XPRESSION -> puede llegar como COTTON X-PRESSION
 COUNTRY HOME
 COUNTRY LOUISE
 COUNTRY SECRET
@@ -165,21 +163,23 @@ ANEMONE HOT PINK
 Ejemplos:
 
 ENTRADA: 
-1HB DEEP PURPLE 50/60 X 400 0,35/0,40
-A=1;B=HB;C=DEEP PURPLE;D=50/60;E=400;F=0,35/0,40;
+3 QB  OCEAN SONG 50-60
+A=3;B=QB;C=OCEAN SONG;D=50-60
 
 A: Cantidad, siempre es un numero entero positivo
 B: Modelo de caja, siempre es una cadena de texto, puede ser HB, QB, EB, FB
 C: Variedad, siempre es una cadena de texto, puede ser una o mas palabras, cuando sea mas de una variedad se separa por tab, generalmente hasta dos palabras
-D: Medidas, pueden estar separadas por "/", por "-"  o por ',' siempre entero positivo
-E: Tallos de la caja, si es mas de una variedad solo se le aplica a la primera
-F: Precio, si no se especifica se usa 0 como valor predeterminado
+D: Medidas, pueden estar separadas por "/", por "-"  o por ',' siempre entero positivo, si hay mas de una medida significa que la variedad se repite, si son mas de una variedad se asigna por posicion
 
-SALIDA: [1, "HB", ["DEEP PURPLE", "DEEP PURPLE"], [50, 60], [400, 0], [0.35, 0.40]]
+En este caso no se indican los tallos asumimos cero para cada variedad
+En este caso tampoco se indican precios asumimos cero para cada variedad
+
+SALIDA: [3, "QB", ["OCEAN SONG","OCEAN SONG"], [50, 60], [0, 0],[0, 0]]
+
 
 Mas ejemplos:
-ENTRADA: 1QB FREDOM 40 X 125 0,30 -> SALIDA: [1, "QB", ["FREEDOM"], [40], [125], [0.30]]
-ENTRADA: 2QB AKITO 50 X 100 0,45 -> SALIDA: [2, "QB", ["AKITO"], [50], [100], [0.45]]
-ENTRADA: 1HB BRIGHTON 50/60/70 X 350 0,40/0,45/0,50 -> SALIDA: [1, "HB", ["BRIGHTON","BRIGHTON","BRIGHTON"], [50, 60, 70], [350, 0, 0], [0.40, 0.45, 0.50]]
-ENTRADA: 1QB CANDLELIGHT 40/50 X 125 0,50/0,60 -> SALIDA: [1, "QB", ["CANDLELIGHT","CANDLELIGHT"], [40, 50], [125, 0], [0.50, 0.60]]
-ENTRADA: 1QB COUNTRY BLUES 40 X 125 0,40 -> SALIDA: [1, "QB", ["COUNTRY BLUES"], [40], [125], [0.40]]
+ENTRADA:1 QB  BOULEVAR 50  -> SALIDA:[1, "QB", ["BOULEVAR"], [50], [0], [0]]
+ENTRADA:1 QB  ENCHANTMENT 50-60  -> SALIDA:[1, "QB", ["ENCHANTMENT"], [50, 60], [0, 0], [0, 0]]
+ENTRADA:1 QB  GOTCHA 50-60 -> SALIDA:[1, "QB", ["GOTCHA"], [50, 60], [0, 0], [0, 0]]
+ENTRADA:1 QB  HIGH & MAGIC 60  -> SALIDA:[1, "QB", ["HIGH & MAGIC"], [60], [0], [0]]
+ENTRADA:1 HB  MIX 70-> SALIDA:[1, "HB", ["MIX"], [70], [0], [0]]
