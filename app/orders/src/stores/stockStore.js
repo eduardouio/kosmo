@@ -20,12 +20,14 @@ export const useStockStore = defineStore('stockStore', {
                 const response = await axios.get(appConfig.urlOrdersByStock + '?type=purchase');
                 this.orders = response.data;
                 baseStore.stagesLoaded++;
+                console.log('[STAGES][stockStore] LoadOrders -> stagesLoaded=', baseStore.stagesLoaded, 'orders length=', this.orders.length);
             } catch (error) {
                 console.error('Error al cargar las órdenes:', error);
                 alert(`Hubo un error al cargar las órdenes: ${error.message}`);
             }
         },
         async getStock(baseStore) {
+            console.log('[getStock] START stagesLoaded=', baseStore.stagesLoaded, 'current stock length=', this.stock.length, 'url=', appConfig.urlDispo);
             try {
                 const response = await axios.get(appConfig.urlDispo);
                 const data = response.data;
@@ -33,14 +35,17 @@ export const useStockStore = defineStore('stockStore', {
                     alert(data.error);
                     return;
                 }
+                console.log('[getStock] response keys=', Object.keys(data));
                 this.stock = data.stock;
                 this.orders = data.orders;
                 this.stockDay = data.stockDay;
+                console.log('[getStock] loaded stock length=', this.stock.length, 'orders length=', this.orders.length, 'stockDay=', this.stockDay?.id || this.stockDay);
                 this.extractSuppliers();
                 this.extractColors();
                 this.extractLengths();
                 this.extractBoxModels();
                 baseStore.stagesLoaded++;
+                console.log('[STAGES][stockStore] getStock -> stagesLoaded=', baseStore.stagesLoaded);
                 return true;
             } catch (error) {
                 console.error('Error al obtener el stock:', error);

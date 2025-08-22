@@ -233,15 +233,23 @@ watch(() => querySearch.value, (newValue) => {
 );
 
 onMounted(() => {
+    console.log('[HomeView][onMounted] INIT resetting stagesLoaded (was=', baseStore.stagesLoaded, ')');
     baseStore.stagesLoaded = 0;
-    stockStore.getStock(baseStore);
+    console.log('[HomeView][onMounted] After reset stagesLoaded=', baseStore.stagesLoaded);
+    stockStore.getStock(baseStore).then(()=>{
+        console.log('[HomeView][onMounted] getStock resolved stock length=', stockStore.stock.length);
+    });
     baseStore.loadProducts(baseStore);
     ordersStore.loadCustomers(baseStore);
     baseStore.loadSuppliers();
     calcIndicators();
     setTimeout(() => {
+        console.log('[HomeView][redirect-check] stock length=', stockStore.stock.length, 'stagesLoaded=', baseStore.stagesLoaded);
         if (!stockStore.stock.length) {
+            console.log('[HomeView][redirect] No stock -> redirect import');
             router.push({ name: 'import' });
+        } else {
+            console.log('[HomeView][redirect] Stock present -> stay');
         }
     }, 3000);
 });

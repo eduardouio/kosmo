@@ -55,6 +55,10 @@ export const useBaseStore = defineStore("baseStore", {
         this.alertMessage = message;
         this.alertType = type;
       },
+      // Helper para loguear cada incremento del stage
+      _logStage(label){
+        console.log(`[STAGES][BaseStore] ${label} -> stagesLoaded=${this.stagesLoaded}`);
+      },
       
       updateGlobalAlertStatus(ordersStore) {
         // Priority 1: Pending delete confirmation
@@ -93,8 +97,10 @@ export const useBaseStore = defineStore("baseStore", {
       },
       
       async loadSuppliers(all=false){
+        console.log('[loadSuppliers] start all=', all, 'current length=', this.suppliers.length, 'stagesLoaded=', this.stagesLoaded);
         if (this.suppliers.length > 0) {
           this.stagesLoaded++;
+          this._logStage('loadSuppliers (cache hit)');
           return;
         }
         try {
@@ -108,6 +114,7 @@ export const useBaseStore = defineStore("baseStore", {
           this.suppliers = response.data;
           this.suppliers.sort((a, b) => a.name.localeCompare(b.name));
           this.stagesLoaded++;
+          this._logStage('loadSuppliers (fetched)');
         }
         catch (error) {
           console.error('Error al cargar los proveedores:', error);
@@ -115,8 +122,10 @@ export const useBaseStore = defineStore("baseStore", {
         }
       },
       async loadProducts(){
+        console.log('[loadProducts] start length=', this.products.length, 'stagesLoaded=', this.stagesLoaded);
         if (this.products.length > 0) { 
           this.stagesLoaded++;
+          this._logStage('loadProducts (cache hit)');
           return;
         }
         try{
@@ -125,6 +134,7 @@ export const useBaseStore = defineStore("baseStore", {
           );
           this.products = response.data.products;
           this.stagesLoaded++;
+          this._logStage('loadProducts (fetched)');
         }
         catch (error) {
           console.error('Error al cargar los productos:', error);
@@ -133,8 +143,10 @@ export const useBaseStore = defineStore("baseStore", {
       },
       async loadCustomers(){
         console.log("Cargando clientes...");
+        console.log('[loadCustomers] start length=', this.customers.length, 'stagesLoaded=', this.stagesLoaded);
         if (this.customers.length > 0) {
           this.stagesLoaded++;
+          this._logStage('loadCustomers (cache hit)');
           return;
         }
         try{
@@ -144,6 +156,7 @@ export const useBaseStore = defineStore("baseStore", {
           this.customers = response.data;
           this.customers.sort((a, b) => a.name.localeCompare(b.name));
           this.stagesLoaded++;
+          this._logStage('loadCustomers (fetched)');
         }
         catch (error) {
           console.error('Error al cargar los clientes:', error);
