@@ -1,14 +1,15 @@
 from django import forms
-from .models import Invoice, InvoiceItems
+from trade.models.Invoice import Invoice, InvoiceItems
 
 
 class InvoiceForm(forms.ModelForm):
     class Meta:
         model = Invoice
         fields = [
-            'order', 'partner', 'num_invoice', 'type_document', 'type_invoice',
-            'date', 'due_date', 'total_price', 'qb_total', 'hb_total', 'awb',
-            'dae_export', 'hawb', 'cargo_agency', 'delivery_date', 'weight', 'status'
+            'order', 'partner', 'num_invoice', 'type_document',
+            'type_invoice', 'date', 'due_date', 'total_price', 'qb_total',
+            'hb_total', 'awb', 'dae_export', 'hawb', 'cargo_agency',
+            'delivery_date', 'weight', 'status', 'notes'
         ]
         widgets = {
             'order': forms.Select(),
@@ -28,6 +29,7 @@ class InvoiceForm(forms.ModelForm):
             'delivery_date': forms.DateInput(attrs={'type': 'date'}),
             'weight': forms.NumberInput(attrs={'step': '0.01'}),
             'status': forms.Select(),
+            'notes': forms.Textarea(attrs={'rows': 3}),
         }
 
 
@@ -35,8 +37,8 @@ class InvoiceItemsForm(forms.ModelForm):
     class Meta:
         model = InvoiceItems
         fields = [
-            'invoice', 'order_item', 'qty_stem_flower', 'line_price', 'line_discount',
-            'box'
+            'invoice', 'order_item', 'qty_stem_flower', 'line_price',
+            'line_discount', 'box'
         ]
         widgets = {
             'invoice': forms.Select(),

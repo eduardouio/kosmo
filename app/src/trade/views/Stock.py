@@ -9,9 +9,17 @@ from products.models import StockDay
 class StockDayForm(forms.ModelForm):
     class Meta:
         model = StockDay
-        fields = ['date']
+        fields = ['date', 'notes']
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'text', 'class': 'form-control form-control-sm', 'readonly': 'readonly'}),
+            'date': forms.DateInput(
+                attrs={
+                    'type': 'text', 'class': 'form-control form-control-sm',
+                    'readonly': 'readonly'
+                }
+            ),
+            'notes': forms.Textarea(
+                attrs={'class': 'form-control form-control-sm', 'rows': 3}
+            ),
         }
 
 
@@ -34,7 +42,9 @@ class StockDayCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         all_stock_days = StockDay.objects.all().exclude(pk=self.object.id)
         [StockDay.disable(i) for i in all_stock_days]
-        url = reverse_lazy('stock_detail_detail', kwargs={'pk': self.object.id})
+        url = reverse_lazy(
+            'stock_detail_detail', kwargs={'pk': self.object.id}
+        )
         return url + '#/import/'
 
 
@@ -77,7 +87,9 @@ class StockDayDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title_section'] = 'Detalle de Stock Diario {}'.format(self.object.date)
+        context['title_section'] = 'Detalle de Stock Diario {}'.format(
+            self.object.date
+        )
         context['action'] = self.request.GET.get('action')
 
         if 'action' in self.request.GET:
@@ -85,8 +97,12 @@ class StockDayDetailView(LoginRequiredMixin, DetailView):
             if context['action'] == 'created':
                 context['message'] = 'Stock Diario Creado Exitosamente'
             if context['action'] == 'no_delete':
-                context['message'] = 'No se puede eliminar el registro. Existen dependencias'
+                context['message'] = (
+                    'No se puede eliminar el registro. Existen dependencias'
+                )
             elif context['action'] == 'delete':
-                context['message'] = 'Esta acción es irreversible. ¿Desea continuar?.'
+                context['message'] = (
+                    'Esta acción es irreversible. ¿Desea continuar?.'
+                )
 
         return context

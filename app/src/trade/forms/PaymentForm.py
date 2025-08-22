@@ -1,12 +1,13 @@
 from django import forms
-from .models import Payment
+from trade.models.Payment import Payment, METHOD_CHOICES
 
 
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
         fields = [
-            'invoices', 'date', 'amount', 'method', 'bank', 'nro_account', 'nro_operation'
+            'invoices', 'date', 'amount', 'method', 'bank',
+            'nro_account', 'nro_operation', 'notes'
         ]
         widgets = {
             'invoices': forms.SelectMultiple(),
@@ -16,4 +17,5 @@ class PaymentForm(forms.ModelForm):
             'bank': forms.TextInput(attrs={'maxlength': '50'}),
             'nro_account': forms.TextInput(attrs={'maxlength': '50'}),
             'nro_operation': forms.TextInput(attrs={'maxlength': '50'}),
+            'notes': forms.Textarea(attrs={'rows': 3}),
         }

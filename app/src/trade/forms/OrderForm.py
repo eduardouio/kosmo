@@ -1,12 +1,17 @@
 from django import forms
-from .models import Order, OrderItems
+from trade.models.Order import (
+    Order, OrderItems, TYPE_DOCUMENT_CHOICES,
+    STATUS_CHOICES, BOX_CHOICES
+)
+
 
 class OrderForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = [
-            'partner', 'type_document', 'parent_order', 'num_order', 'delivery_date',
-            'status', 'discount', 'total_price', 'qb_total', 'hb_total'
+            'partner', 'type_document', 'parent_order', 'num_order',
+            'delivery_date', 'status', 'discount', 'total_price',
+            'qb_total', 'hb_total', 'notes'
         ]
         widgets = {
             'partner': forms.Select(),
@@ -19,13 +24,16 @@ class OrderForm(forms.ModelForm):
             'total_price': forms.NumberInput(attrs={'step': '0.01'}),
             'qb_total': forms.NumberInput(),
             'hb_total': forms.NumberInput(),
+            'notes': forms.Textarea(attrs={'rows': 3}),
         }
+
+ 
 
 class OrderItemsForm(forms.ModelForm):
     class Meta:
         model = OrderItems
         fields = [
-            'order', 'stock_detail', 'box_quantity', 'line_price', 
+            'order', 'stock_detail', 'box_quantity', 'line_price',
             'qty_stem_flower', 'box_model'
         ]
         widgets = {
