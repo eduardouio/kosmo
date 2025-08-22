@@ -26,8 +26,8 @@ export const useStockStore = defineStore('stockStore', {
                 alert(`Hubo un error al cargar las órdenes: ${error.message}`);
             }
         },
-        async getStock(baseStore) {
-            console.log('[getStock] START stagesLoaded=', baseStore.stagesLoaded, 'current stock length=', this.stock.length, 'url=', appConfig.urlDispo);
+        async getStock(baseStore, cycleId = baseStore.currentCycleId) {
+            console.log('[getStock] START stagesLoaded=', baseStore.stagesLoaded, 'current stock length=', this.stock.length, 'url=', appConfig.urlDispo, 'cycle=', cycleId, 'currentCycle=', baseStore.currentCycleId);
             try {
                 const response = await axios.get(appConfig.urlDispo);
                 const data = response.data;
@@ -44,8 +44,8 @@ export const useStockStore = defineStore('stockStore', {
                 this.extractColors();
                 this.extractLengths();
                 this.extractBoxModels();
-                baseStore.stagesLoaded++;
-                console.log('[STAGES][stockStore] getStock -> stagesLoaded=', baseStore.stagesLoaded);
+                baseStore.incrementStage(cycleId,'stock');
+                console.log('[STAGES][stockStore] getStock done for cycle', cycleId);
                 return true;
             } catch (error) {
                 console.error('Error al obtener el stock:', error);

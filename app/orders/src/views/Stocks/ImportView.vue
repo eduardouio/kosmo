@@ -20,14 +20,13 @@ const profitMargin = ref(0.06);
 const appendStock = ref(true);
 const route = useRouter();
 
-// Seteamos el valor del contador a cero (log para depurar)
-console.log('[ImportView] INIT reset stagesLoaded (was=', baseStore.stagesLoaded, ')');
-baseStore.stagesLoaded = 0;
-console.log('[ImportView] After reset stagesLoaded=', baseStore.stagesLoaded);
+// Iniciar ciclo propio para Import (2 etapas: suppliers, products)
+baseStore.startCycle(2);
+const importCycleId = baseStore.currentCycleId;
 
 const analyzeStock = async () => {
-    baseStore.stagesLoaded = 0;
-    console.log('[ImportView][analyzeStock] reset stagesLoaded to 0');
+    baseStore.startCycle(2);
+    console.log('[ImportView][analyzeStock] restart cycle id=', baseStore.currentCycleId);
     try {
         const payload = {
             idStock: baseStore.idStock,
@@ -45,8 +44,10 @@ const analyzeStock = async () => {
         console.dir(data);
 
     } catch (error) {
-    baseStore.stagesLoaded = 2;
-    console.log('[ImportView][analyzeStock][catch] forcing stagesLoaded=2 due error');
+    // Forzamos completar el ciclo en error
+    baseStore.incrementStage(baseStore.currentCycleId,'suppliers');
+    baseStore.incrementStage(baseStore.currentCycleId,'products');
+    console.log('[ImportView][analyzeStock][catch] forcing completion due error');
         console.error("Error en analyzeStock:", error);
         alert(`Ocurrió un error: ${error.message}`);
     } finally {
@@ -60,18 +61,9 @@ const isAllLoaded = computed(() => {
     return baseStore.stagesLoaded === 2;
 })
 onMounted(() => {
-    baseStore.stagesLoaded = 0;
-    console.log('[ImportView][onMounted] reset stagesLoaded to 0');
-    baseStore.loadSuppliers();
-    baseStore.loadProducts();
-    // Observador para detectar sobrepaso
-    const interval = setInterval(()=>{
-        if (baseStore.stagesLoaded > 2){
-            console.warn('[ImportView][WATCHDOG] stagesLoaded sobre el límite:', baseStore.stagesLoaded);
-        }
-    }, 1000);
-    // Limpiar después de 15s
-    setTimeout(()=>clearInterval(interval), 15000);
+    // Ya se inició el ciclo arriba
+    baseStore.loadSuppliers(importCycleId);
+    baseStore.loadProducts(importCycleId);
 });
 
 </script>

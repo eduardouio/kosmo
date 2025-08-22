@@ -48,6 +48,10 @@ export const useBaseStore = defineStore("baseStore", {
         selectedProduct: null,
         selectedCustomer: null,
         selectedSupplier: null,
+        // Control de ciclos de carga
+        currentCycleId: 0,
+        expectedStages: 0,
+        stageCounted: {}, // { label: true }
     }),
     actions: {
       // Nueva funcionalidad de alertas
@@ -58,6 +62,26 @@ export const useBaseStore = defineStore("baseStore", {
       // Helper para loguear cada incremento del stage
       _logStage(label){
         console.log(`[STAGES][BaseStore] ${label} -> stagesLoaded=${this.stagesLoaded}`);
+      },
+      startCycle(expectedStages){
+        this.currentCycleId += 1;
+        this.expectedStages = expectedStages;
+        this.stagesLoaded = 0;
+        this.stageCounted = {};
+        console.log(`[CYCLE] startCycle id=${this.currentCycleId} expectedStages=${expectedStages}`);
+      },
+      incrementStage(cycleId, label){
+        if (cycleId !== this.currentCycleId){
+          console.log(`[CYCLE] ignore outdated stage '${label}' for cycle ${cycleId} (current ${this.currentCycleId})`);
+          return;
+        }
+        if (this.stageCounted[label]){
+          console.log(`[CYCLE] duplicate stage '${label}' ignored (cycle ${cycleId})`);
+          return;
+        }
+        this.stageCounted[label] = true;
+        this.stagesLoaded = Object.keys(this.stageCounted).length;
+        console.log(`[CYCLE] increment '${label}' => ${this.stagesLoaded}/${this.expectedStages} (cycle ${cycleId})`);
       },
       
       updateGlobalAlertStatus(ordersStore) {
@@ -96,10 +120,10 @@ export const useBaseStore = defineStore("baseStore", {
         this.setAlert(this.defaultInfoMessage, 'info');
       },
       
-      async loadSuppliers(all=false){
-        console.log('[loadSuppliers] start all=', all, 'current length=', this.suppliers.length, 'stagesLoaded=', this.stagesLoaded);
+      async loadSuppliers(cycleId=this.currentCycleId, all=false){
+        console.log('[loadSuppliers] start all=', all, 'current length=', this.suppliers.length, 'stagesLoaded=', this.stagesLoaded, 'cycle=', cycleId);
         if (this.suppliers.length > 0) {
-          this.stagesLoaded++;
+          this.incrementStage(cycleId,'suppliers');
           this._logStage('loadSuppliers (cache hit)');
           return;
         }
@@ -113,7 +137,7 @@ export const useBaseStore = defineStore("baseStore", {
           const response = await axios.get(url, { headers: appConfig.headers });
           this.suppliers = response.data;
           this.suppliers.sort((a, b) => a.name.localeCompare(b.name));
-          this.stagesLoaded++;
+          this.incrementStage(cycleId,'suppliers');
           this._logStage('loadSuppliers (fetched)');
         }
         catch (error) {
@@ -121,10 +145,10 @@ export const useBaseStore = defineStore("baseStore", {
           alert(`Hubo un error al cargar los proveedores: ${error.message}`);
         }
       },
-      async loadProducts(){
-        console.log('[loadProducts] start length=', this.products.length, 'stagesLoaded=', this.stagesLoaded);
+      async loadProducts(cycleId=this.currentCycleId){
+        console.log('[loadProducts] start length=', this.products.length, 'stagesLoaded=', this.stagesLoaded, 'cycle=', cycleId);
         if (this.products.length > 0) { 
-          this.stagesLoaded++;
+          this.incrementStage(cycleId,'products');
           this._logStage('loadProducts (cache hit)');
           return;
         }
@@ -133,7 +157,7 @@ export const useBaseStore = defineStore("baseStore", {
             appConfig.urlAllProducts, { headers: appConfig.headers }
           );
           this.products = response.data.products;
-          this.stagesLoaded++;
+          this.incrementStage(cycleId,'products');
           this._logStage('loadProducts (fetched)');
         }
         catch (error) {
@@ -141,11 +165,11 @@ export const useBaseStore = defineStore("baseStore", {
           alert(`Hubo un error al cargar los productos: ${error.message}`);
         }
       },
-      async loadCustomers(){
+      async loadCustomers(cycleId=this.currentCycleId){
         console.log("Cargando clientes...");
-        console.log('[loadCustomers] start length=', this.customers.length, 'stagesLoaded=', this.stagesLoaded);
+        console.log('[loadCustomers] start length=', this.customers.length, 'stagesLoaded=', this.stagesLoaded, 'cycle=', cycleId);
         if (this.customers.length > 0) {
-          this.stagesLoaded++;
+          this.incrementStage(cycleId,'customers');
           this._logStage('loadCustomers (cache hit)');
           return;
         }
@@ -155,7 +179,7 @@ export const useBaseStore = defineStore("baseStore", {
           );
           this.customers = response.data;
           this.customers.sort((a, b) => a.name.localeCompare(b.name));
-          this.stagesLoaded++;
+          this.incrementStage(cycleId,'customers');
           this._logStage('loadCustomers (fetched)');
         }
         catch (error) {

@@ -232,26 +232,25 @@ watch(() => querySearch.value, (newValue) => {
     { immediate: true }
 );
 
-onMounted(() => {
-    console.log('[HomeView][onMounted] INIT resetting stagesLoaded (was=', baseStore.stagesLoaded, ')');
-    baseStore.stagesLoaded = 0;
-    console.log('[HomeView][onMounted] After reset stagesLoaded=', baseStore.stagesLoaded);
-    stockStore.getStock(baseStore).then(()=>{
-        console.log('[HomeView][onMounted] getStock resolved stock length=', stockStore.stock.length);
-    });
-    baseStore.loadProducts(baseStore);
-    ordersStore.loadCustomers(baseStore);
-    baseStore.loadSuppliers();
+onMounted(async () => {
+    // Ciclo Home: esperamos 4 etapas: stock, products, suppliers, customers
+    baseStore.startCycle(4);
+    const cycleId = baseStore.currentCycleId;
+    console.log('[HomeView][onMounted] cycleId=', cycleId);
+    const stockOk = await stockStore.getStock(baseStore, cycleId);
+    console.log('[HomeView][onMounted] getStock awaited result=', stockOk, 'stock length=', stockStore.stock.length);
+    // Disparamos cargas en paralelo restantes
+    baseStore.loadProducts(cycleId);
+    baseStore.loadSuppliers(cycleId);
+    // Preferimos usar baseStore.loadCustomers en vez de ordersStore para unificar ciclo
+    baseStore.loadCustomers(cycleId);
     calcIndicators();
-    setTimeout(() => {
-        console.log('[HomeView][redirect-check] stock length=', stockStore.stock.length, 'stagesLoaded=', baseStore.stagesLoaded);
-        if (!stockStore.stock.length) {
-            console.log('[HomeView][redirect] No stock -> redirect import');
-            router.push({ name: 'import' });
-        } else {
-            console.log('[HomeView][redirect] Stock present -> stay');
-        }
-    }, 3000);
+    if (!stockStore.stock.length){
+        console.log('[HomeView][redirect-immediate] No stock tras await -> import');
+        router.push({ name: 'import' });
+        return;
+    }
+    console.log('[HomeView] Stock presente, permanecemos.');
 });
 
 /**
