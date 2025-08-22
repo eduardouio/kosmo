@@ -286,6 +286,24 @@
    </div>
 </div>
 
+{# Sección de Notas del Producto (al final) #}
+{% if product.notes %}
+<div class="container-fluid mt-4">
+   <div class="row justify-content-center">
+      <div class="col-12 col-xl-11">
+         <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light py-2">
+               <strong>Notas</strong>
+            </div>
+            <div class="card-body small">
+               <div class="mb-0" style="white-space: pre-wrap;">{{ product.notes }}</div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block script %}

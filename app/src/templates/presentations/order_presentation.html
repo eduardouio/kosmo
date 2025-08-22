@@ -84,6 +84,19 @@
     </div>
   </div>
 </div>
+    {# Sección de Notas de la Orden (al final) #}
+    {% if response_data.order.notes %}
+    <div class="container mt-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light py-2">
+          <strong>Notas</strong>
+        </div>
+        <div class="card-body small">
+          <div class="mb-0" style="white-space: pre-wrap;">{{ response_data.order.notes }}</div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
 {% endblock %}
 
 {% block script %}

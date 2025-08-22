@@ -197,4 +197,13 @@
           </div>
           {% if not forloop.last %}<hr class="my-5">{% endif %}
           {% endfor %}
+          {# Si la orden principal tiene notas y no se han mostrado aún (opcional) #}
+          {% if response_data.order.notes %}
+          <div class="mt-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-light py-2"><strong>Notas de la Orden</strong></div>
+              <div class="card-body small" style="white-space: pre-wrap;">{{ response_data.order.notes }}</div>
+            </div>
+          </div>
+          {% endif %}
         </div>

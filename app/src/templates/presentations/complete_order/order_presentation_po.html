@@ -157,4 +157,12 @@
           {% else %}
             <p>No hay órdenes de compra relacionadas para esta orden de venta.</p>
           {% endif %}
+          {% if response_data.order.notes %}
+          <div class="mt-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-light py-2"><strong>Notas de la Orden</strong></div>
+              <div class="card-body small" style="white-space: pre-wrap;">{{ response_data.order.notes }}</div>
+            </div>
+          </div>
+          {% endif %}
         </div>

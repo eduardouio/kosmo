@@ -510,6 +510,20 @@
     </div>
 </div>
 
+{# Sección de Notas del Cobro (al final) #}
+{% if collection.notes %}
+<div class="container mt-4 px-3">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light py-2">
+            <strong>Notas</strong>
+        </div>
+        <div class="card-body small">
+            <div class="mb-0" style="white-space: pre-wrap;">{{ collection.notes }}</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Modal para ver imagen del comprobante -->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
