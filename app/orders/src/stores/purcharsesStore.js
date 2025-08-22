@@ -10,9 +10,9 @@ export const usePurchaseStore = defineStore("purchaseStore", {
     sales: [],
   }),
   actions: {
-    async loadSales(baseStore) {
+    async loadSales(baseStore, cycleId = baseStore.currentCycleId) {
       if (this.sales.length > 0) {
-        baseStore.stagesLoaded++;
+        baseStore.incrementStage(cycleId,'sales');
         return;
       }
       try {
@@ -21,13 +21,13 @@ export const usePurchaseStore = defineStore("purchaseStore", {
           { headers: appConfig.headers }
         );
         this.sales = response.data;
-        baseStore.stagesLoaded++;
+        baseStore.incrementStage(cycleId,'sales');
       } catch (error) {
         console.error("Error al cargar las ventas:", error);
         alert(`Hubo un error al cargar las ventas: ${error.message}`);
       }
     },
-    async getOrdersByCustomerOrder(idCusomtrerOrder, baseStore) {
+    async getOrdersByCustomerOrder(idCusomtrerOrder, baseStore, cycleId = baseStore.currentCycleId) {
       console.log("Cargando detalle de orden de compra...");
       this.purcharses_by_order = [];
       try {
@@ -40,7 +40,7 @@ export const usePurchaseStore = defineStore("purchaseStore", {
         );
         this.purcharses_by_order = response.data;
         console.log("Detalle de orde de compra" + response.data);
-        baseStore.stagesLoaded++;
+        baseStore.incrementStage(cycleId,'purchOrders');
       } catch(error) {
         console.error("Error al cargar las ventas:", error);
         alert(

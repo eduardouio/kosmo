@@ -9,9 +9,9 @@ export const useInvoiceStore = defineStore('invoiceStore', {
         isEditing: false
     }),
     actions: {
-        async loadInvoices(baseStore) {
+        async loadInvoices(baseStore, cycleId = baseStore.currentCycleId) {
             if (this.invoices.length > 0) {
-                baseStore.stagesLoaded++;
+                baseStore.incrementStage(cycleId,'invoices');
                 return;
             }
             try {
@@ -19,7 +19,7 @@ export const useInvoiceStore = defineStore('invoiceStore', {
                     headers: appConfig.headers
                 });
                 this.invoices = response.data;
-                baseStore.stagesLoaded++;
+                baseStore.incrementStage(cycleId,'invoices');
             } catch (error) {
                 console.error('Error al cargar las facturas:', error);
                 alert(`Hubo un error al cargar las facturas: ${error.message}`);

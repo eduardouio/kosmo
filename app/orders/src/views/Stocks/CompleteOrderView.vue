@@ -23,10 +23,9 @@ const route = useRoute();
 orderStore.selectOrder(route.params.id);
 const selectedTab = ref('customer');
 
-// Computed
-const isAllLoaded = computed(() => {
-    return baseStore.stagesLoaded === 2;
-})
+// Ciclo: 2 etapas (orders + purchase orders)
+const expectedStages = 2;
+const isAllLoaded = computed(() => baseStore.stagesLoaded === expectedStages);
 
 
 const isPurchOrderSelected = computed(() => {
@@ -44,9 +43,10 @@ const precentConfirmed = computed(() => {
 
 // Mounted
 onMounted(()=>{
-  baseStore.stagesLoaded = 0;
-  orderStore.loadOrders(baseStore);
-  purchaseStore.getOrdersByCustomerOrder(route.params.id, baseStore);
+  baseStore.startCycle(expectedStages);
+  const cycleId = baseStore.currentCycleId;
+  orderStore.loadOrders(baseStore, cycleId);
+  purchaseStore.getOrdersByCustomerOrder(route.params.id, baseStore, cycleId);
 });
 
 onUnmounted(()=>{
@@ -55,7 +55,7 @@ onUnmounted(()=>{
 
 // Watch
 watch(()=> baseStore.stagesLoaded, (newValue) => {
-  if (newValue === 2) {
+  if (newValue === expectedStages) {
     console.log('Seleccionado Pedido Activo')
     orderStore.selectOrder(route.params.id);
   }
@@ -73,7 +73,7 @@ watch(()=> baseStore.stagesLoaded, (newValue) => {
     <div class="col text-center">
       <Loader />
       <h6 class="text-blue-600">
-        {{ baseStore.stagesLoaded }} / 2
+        {{ baseStore.stagesLoaded }} / {{ baseStore.expectedStages }}
       </h6>
     </div>
   </div>

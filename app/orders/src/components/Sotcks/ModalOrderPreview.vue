@@ -42,9 +42,7 @@ const selectText = (event) => {
 }
 
 const createOrder = () => {
-  baseStore.stagesLoaded = 0;
   router.push('/customer-orders/');
-
 } 
 
 const totalOrder = computed(() => {

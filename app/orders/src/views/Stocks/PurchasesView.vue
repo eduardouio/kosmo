@@ -15,7 +15,9 @@ const stockStore = useStockStore();
 const tableRef = ref(null);
 let dataTableInstance = null;
 
-const isAllLoaded = computed(() => baseStore.stagesLoaded === 3);
+// Para Purchases definimos 3 etapas: sales (purchase orders list), products, stock (opcional)
+const expectedStages = 3;
+const isAllLoaded = computed(() => baseStore.stagesLoaded === expectedStages);
 
 const initDataTable = async () => {
     await nextTick();
@@ -56,14 +58,15 @@ const formatSerieConsecutivo = (serie, consecutivo) => {
 };
 
 // Cargar datos en `onMounted`
-onMounted(() => {
-    baseStore.stagesLoaded = 0;
-    baseStore.loadProducts(baseStore);
-    purchaseStore.loadSales(baseStore);
+onMounted(async () => {
+    baseStore.startCycle(expectedStages);
+    const cycleId = baseStore.currentCycleId;
+    purchaseStore.loadSales(baseStore, cycleId);
+    baseStore.loadProducts(cycleId);
     if (stockStore.stockDay === null) {
-        stockStore.getStock(baseStore);
-    }else{
-        baseStore.stagesLoaded++;
+        await stockStore.getStock(baseStore, cycleId); // contará 'stock'
+    } else {
+        baseStore.incrementStage(cycleId,'stock');
     }
 });
 
@@ -92,7 +95,7 @@ onUnmounted(() => {
             <div class="col text-center">
                 <Loader />
                 <h6 class="text-blue-600">
-                    {{ baseStore.stagesLoaded }} / 2
+                    {{ baseStore.stagesLoaded }} / {{ baseStore.expectedStages }}
                 </h6>
             </div>
         </div>

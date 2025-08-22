@@ -15,12 +15,12 @@ export const useStockStore = defineStore('stockStore', {
         boxModels: [],
     }),
     actions: {
-        async LoadOrders(baseStore) {
+        async LoadOrders(baseStore, cycleId = baseStore.currentCycleId) {
             try {
                 const response = await axios.get(appConfig.urlOrdersByStock + '?type=purchase');
                 this.orders = response.data;
-                baseStore.stagesLoaded++;
-                console.log('[STAGES][stockStore] LoadOrders -> stagesLoaded=', baseStore.stagesLoaded, 'orders length=', this.orders.length);
+                baseStore.incrementStage(cycleId,'purchaseOrders');
+                console.log('[STAGES][stockStore] LoadOrders -> cycle', cycleId, 'orders length=', this.orders.length);
             } catch (error) {
                 console.error('Error al cargar las órdenes:', error);
                 alert(`Hubo un error al cargar las órdenes: ${error.message}`);
