@@ -307,18 +307,30 @@ export const useStockStore = defineStore('stockStore', {
             }
         },
         updateValues(newValue, column) {
-            let box_items = [];
+            const updatedBoxItems = [];
             this.stock.forEach(stockItem => {
-                if (stockItem.is_selected) {
-                    stockItem.box_items.forEach(currentItem => {
-                        if(this.checkFilter(currentItem)) {
+                if (!stockItem.is_selected) return;
+                const multiVariety = stockItem.box_items.length > 1;
+                let firstApplied = false;
+                for (const currentItem of stockItem.box_items) {
+                    // Si hay múltiples variedades, solo aplicamos a la primera que cumpla el filtro
+                    if (multiVariety) {
+                        if (!firstApplied && this.checkFilter(currentItem)) {
                             currentItem[column] = newValue;
-                            box_items.push(currentItem);
+                            updatedBoxItems.push(currentItem);
+                            firstApplied = true; // no actualizar el resto
                         }
-                    });
-                };
+                    } else { // single variety -> actualizar normal si pasa filtro
+                        if (this.checkFilter(currentItem)) {
+                            currentItem[column] = newValue;
+                            updatedBoxItems.push(currentItem);
+                        }
+                    }
+                }
             });
-            this.updateStockDetail(box_items);
+            if (updatedBoxItems.length) {
+                this.updateStockDetail(updatedBoxItems);
+            }
         },
         checkFilter(currentItem) {
             let isVerified = false;
