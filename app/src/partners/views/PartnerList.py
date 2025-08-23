@@ -16,13 +16,9 @@ class PartnerListView(LoginRequiredMixin, ListView):
         queryset = super().get_queryset()
         source_page = self.kwargs.get('source_page', 'clientes')
 
-        print(f"DEBUG: source_page = {source_page}")
-        print(f"DEBUG: Total partners en DB = {Partner.objects.count()}")
-
         # Filtrar por tipo de partner
         if source_page == 'clientes':
             queryset = queryset.filter(type_partner='CLIENTE')
-            print(f"DEBUG: Clientes encontrados = {queryset.count()}")
 
             # Estadísticas para clientes (facturas de venta)
             queryset = queryset.annotate(
@@ -67,7 +63,6 @@ class PartnerListView(LoginRequiredMixin, ListView):
 
         elif source_page == 'proveedores':
             queryset = queryset.filter(type_partner='PROVEEDOR')
-            print(f"DEBUG: Proveedores encontrados = {queryset.count()}")
 
             # Estadísticas para proveedores (facturas de compra)
             queryset = queryset.annotate(
@@ -110,20 +105,12 @@ class PartnerListView(LoginRequiredMixin, ListView):
                 )
             )
 
-        # Debug: Mostrar algunos ejemplos
-        for partner in queryset[:3]:
-            print(
-                f"DEBUG: Partner {partner.id}: {partner.name} - Tipo: {partner.type_partner}")
-
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         source_page = self.kwargs.get('source_page', 'clientes')
         context['source_page'] = source_page
-
-        print(f"DEBUG: Context source_page = {source_page}")
-        print(f"DEBUG: Object list count = {len(context['object_list'])}")
 
         if source_page == 'clientes':
             context['title_section'] = 'Clientes'

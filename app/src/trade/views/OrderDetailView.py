@@ -402,13 +402,6 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
         response_data["total_collects"] = total_collects
         response_data["net_balance"] = net_balance
 
-        # Debug temporal - remover después
-        print(f"DEBUG: Orden {order.id} - Pagos: {len(payments_details)}, Cobros: {len(collects_details)}")
-        if payments_details:
-            print(f"DEBUG: Primer pago: {payments_details[0]}")
-        if collects_details:
-            print(f"DEBUG: Primer cobro: {collects_details[0]}")
-
         # URL para reporte de pagos y cobros
         if payments_details or collects_details:
             response_data["payments_collects_report_url"] = f"/reports/payments-collects/{order.id}/"
