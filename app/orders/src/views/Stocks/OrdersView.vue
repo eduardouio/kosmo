@@ -30,8 +30,9 @@ const selectOrder = (id) => {
 }
 
 // COMPUTED
-const expectedStages = 4; // stock, products, customers, orders
-const isAllLoaded = computed(() => baseStore.stagesLoaded === expectedStages);
+const isAllLoaded = computed(() => {
+    return baseStore.stagesLoaded === 4;
+})
 
 
 const getUrlReportCusOrder = (id) => {
@@ -46,17 +47,18 @@ const formatSerieConsecutivo = (serie, consecutivo) => {
 };
 
 // ON MOUNTED
-onMounted(async () => {
-    baseStore.startCycle(expectedStages);
-    const cycleId = baseStore.currentCycleId;
-    baseStore.loadProducts(cycleId);
-    baseStore.loadCustomers(cycleId);
-    ordersStore.loadOrders(baseStore, cycleId);
+onMounted(() => {
+    baseStore.stagesLoaded = 0;
+    baseStore.loadProducts(baseStore);
+    ordersStore.loadCustomers(baseStore);
+    ordersStore.loadOrders(baseStore);
     if (stockStore.stockDay === null) {
-        await stockStore.getStock(baseStore, cycleId);
-    } else {
-        baseStore.incrementStage(cycleId,'stock');
+        stockStore.getStock(baseStore);
+    }else{
+        baseStore.stagesLoaded++;
     }
+    
+    // Para inicializar el mensaje por defecto
     if (ordersStore.newOrder && ordersStore.newOrder.length > 0) {
         baseStore.updateGlobalAlertStatus(ordersStore);
     }
@@ -104,7 +106,7 @@ watch(() => ordersStore.selectedCustomer, () => {
             <div class="col text-center">
                 <Loader />
                 <h6 class="text-blue-600">
-                    {{ baseStore.stagesLoaded }} / {{ baseStore.expectedStages }}
+                    {{ baseStore.stagesLoaded }} / 3
                 </h6>
             </div>
         </div>

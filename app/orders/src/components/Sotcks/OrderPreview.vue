@@ -37,6 +37,7 @@ const calcTotalByProduct = (product, quantity = 1) => {
 const cancelOrder = () => {
   ordersStore.newOrder = [];
   ordersStore.selectedCustomer = null;
+  baseStore.stastagesLoaded = 0 ;
   router.push('/');
 };  
 
@@ -90,6 +91,7 @@ const createOrder = async() => {
     stockStore.stockDay
   );
   if (newOrderId) {
+    baseStore.stagesLoaded = 0;
     router.push(`/order-detail/${newOrderId}/`);
   }
 }

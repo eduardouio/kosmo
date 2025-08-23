@@ -232,25 +232,18 @@ watch(() => querySearch.value, (newValue) => {
     { immediate: true }
 );
 
-onMounted(async () => {
-    // Ciclo Home: esperamos 4 etapas: stock, products, suppliers, customers
-    baseStore.startCycle(4);
-    const cycleId = baseStore.currentCycleId;
-    console.log('[HomeView][onMounted] cycleId=', cycleId);
-    const stockOk = await stockStore.getStock(baseStore, cycleId);
-    console.log('[HomeView][onMounted] getStock awaited result=', stockOk, 'stock length=', stockStore.stock.length);
-    // Disparamos cargas en paralelo restantes
-    baseStore.loadProducts(cycleId);
-    baseStore.loadSuppliers(cycleId);
-    // Preferimos usar baseStore.loadCustomers en vez de ordersStore para unificar ciclo
-    baseStore.loadCustomers(cycleId);
+onMounted(() => {
+    baseStore.stagesLoaded = 0;
+    stockStore.getStock(baseStore);
+    baseStore.loadProducts(baseStore);
+    ordersStore.loadCustomers(baseStore);
+    baseStore.loadSuppliers();
     calcIndicators();
-    if (!stockStore.stock.length){
-        console.log('[HomeView][redirect-immediate] No stock tras await -> import');
-        router.push({ name: 'import' });
-        return;
-    }
-    console.log('[HomeView] Stock presente, permanecemos.');
+    setTimeout(() => {
+        if (!stockStore.stock.length) {
+            router.push({ name: 'import' });
+        }
+    }, 3000);
 });
 
 /**

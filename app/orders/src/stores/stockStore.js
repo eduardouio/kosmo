@@ -15,19 +15,17 @@ export const useStockStore = defineStore('stockStore', {
         boxModels: [],
     }),
     actions: {
-        async LoadOrders(baseStore, cycleId = baseStore.currentCycleId) {
+        async LoadOrders(baseStore) {
             try {
                 const response = await axios.get(appConfig.urlOrdersByStock + '?type=purchase');
                 this.orders = response.data;
-                baseStore.incrementStage(cycleId,'purchaseOrders');
-                console.log('[STAGES][stockStore] LoadOrders -> cycle', cycleId, 'orders length=', this.orders.length);
+                baseStore.stagesLoaded++;
             } catch (error) {
                 console.error('Error al cargar las órdenes:', error);
                 alert(`Hubo un error al cargar las órdenes: ${error.message}`);
             }
         },
-        async getStock(baseStore, cycleId = baseStore.currentCycleId) {
-            console.log('[getStock] START stagesLoaded=', baseStore.stagesLoaded, 'current stock length=', this.stock.length, 'url=', appConfig.urlDispo, 'cycle=', cycleId, 'currentCycle=', baseStore.currentCycleId);
+        async getStock(baseStore) {
             try {
                 const response = await axios.get(appConfig.urlDispo);
                 const data = response.data;
@@ -35,17 +33,14 @@ export const useStockStore = defineStore('stockStore', {
                     alert(data.error);
                     return;
                 }
-                console.log('[getStock] response keys=', Object.keys(data));
                 this.stock = data.stock;
                 this.orders = data.orders;
                 this.stockDay = data.stockDay;
-                console.log('[getStock] loaded stock length=', this.stock.length, 'orders length=', this.orders.length, 'stockDay=', this.stockDay?.id || this.stockDay);
                 this.extractSuppliers();
                 this.extractColors();
                 this.extractLengths();
                 this.extractBoxModels();
-                baseStore.incrementStage(cycleId,'stock');
-                console.log('[STAGES][stockStore] getStock done for cycle', cycleId);
+                baseStore.stagesLoaded++;
                 return true;
             } catch (error) {
                 console.error('Error al obtener el stock:', error);
@@ -307,30 +302,18 @@ export const useStockStore = defineStore('stockStore', {
             }
         },
         updateValues(newValue, column) {
-            const updatedBoxItems = [];
+            let box_items = [];
             this.stock.forEach(stockItem => {
-                if (!stockItem.is_selected) return;
-                const multiVariety = stockItem.box_items.length > 1;
-                let firstApplied = false;
-                for (const currentItem of stockItem.box_items) {
-                    // Si hay múltiples variedades, solo aplicamos a la primera que cumpla el filtro
-                    if (multiVariety) {
-                        if (!firstApplied && this.checkFilter(currentItem)) {
+                if (stockItem.is_selected) {
+                    stockItem.box_items.forEach(currentItem => {
+                        if(this.checkFilter(currentItem)) {
                             currentItem[column] = newValue;
-                            updatedBoxItems.push(currentItem);
-                            firstApplied = true; // no actualizar el resto
+                            box_items.push(currentItem);
                         }
-                    } else { // single variety -> actualizar normal si pasa filtro
-                        if (this.checkFilter(currentItem)) {
-                            currentItem[column] = newValue;
-                            updatedBoxItems.push(currentItem);
-                        }
-                    }
-                }
+                    });
+                };
             });
-            if (updatedBoxItems.length) {
-                this.updateStockDetail(updatedBoxItems);
-            }
+            this.updateStockDetail(box_items);
         },
         checkFilter(currentItem) {
             let isVerified = false;

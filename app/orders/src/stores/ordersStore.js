@@ -26,9 +26,9 @@ export const useOrdersStore = defineStore("ordersStore", {
         },
     }),
     actions: {
-        async loadCustomers(baseStore, cycleId = baseStore.currentCycleId) {
+        async loadCustomers(baseStore) {
             if (this.customers.length > 0) {
-                baseStore.incrementStage(cycleId,'customers');
+                baseStore.stagesLoaded++;
                 return
             }
             try {
@@ -36,7 +36,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                     appConfig.urlAllCustomers, {headers: appConfig.headers}
                 )
                 this.customers = response.data
-                baseStore.incrementStage(cycleId,'customers');
+                baseStore.stagesLoaded++;
               } catch (error) {
                 console.error('Error al cargar los clientes:', error)
                 alert(`Hubo un error al cargar los clientes: ${error.message}`)
@@ -69,10 +69,10 @@ export const useOrdersStore = defineStore("ordersStore", {
                 alert(`Hubo un error al enviar el pedido: ${error.message}`)
             }
         },
-    async loadOrders(baseStore, cycleId = baseStore.currentCycleId) {
+        async loadOrders(baseStore) {
             console.log('Cargando pedidos de clientes...');
             if (this.orders.length > 0) {
-        baseStore.incrementStage(cycleId,'orders');
+                baseStore.stagesLoaded++;
                 return
             }
             
@@ -80,7 +80,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 console.log('Cargando pedidos de clientes...' +  appConfig.urlOrdersByStock + '?type=sale');
                 const response = await axios.get(appConfig.urlOrdersByStock + '?type=sale')
                 this.orders = response.data
-        baseStore.incrementStage(cycleId,'orders');
+                baseStore.stagesLoaded++;
             } catch (error) {
                 console.error('Error al cargar los pedidos:', error)
                 alert(`Hubo un error al cargar los pedidos: ${error.message}`)
