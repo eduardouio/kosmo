@@ -163,23 +163,38 @@ ANEMONE HOT PINK
 Ejemplos:
 
 ENTRADA: 
-3 QB  OCEAN SONG 50-60
-A=3;B=QB;C=OCEAN SONG;D=50-60
+1 HB FREEDOM 70 X400
+A=1;B=HB;C=FREEDOM;D=70;E=400
+
 
 A: Cantidad, siempre es un numero entero positivo
 B: Modelo de caja, siempre es una cadena de texto, puede ser HB, QB, EB, FB
 C: Variedad, siempre es una cadena de texto, puede ser una o mas palabras, cuando sea mas de una variedad se separa por tab, generalmente hasta dos palabras
 D: Medidas, pueden estar separadas por "/", por "-"  o por ',' siempre entero positivo, si hay mas de una medida significa que la variedad se repite, si son mas de una variedad se asigna por posicion
+E: Tallos, pueden estar separados por "/", por "-"  o por ',' siempre entero positivo, si hay mas de una medida significa que la variedad se repite, si son mas de una variedad se asigna por posicion
 
-En este caso no se indican los tallos asumimos cero para cada variedad
 En este caso tampoco se indican precios asumimos cero para cada variedad
 
-SALIDA: [3, "QB", ["OCEAN SONG","OCEAN SONG"], [50, 60], [0, 0],[0, 0]]
+SALIDA: [1, "HB", ["FREEDOM"], [70], [400], [0]]
 
+
+
+ENTRADA:
+1 HB ALOHA 50¹⁴/60²X400
+A=1;B=HB;C=ALOHA;D=50¹⁴/60²;E=400
+
+A: Cantidad, siempre es un numero entero positivo
+B: Modelo de caja, siempre es una cadena de texto, puede ser HB, QB, EB, FB
+C: Variedad, siempre es una cadena de texto, puede ser una o mas palabras, cuando sea mas de una variedad se separa por tab, generalmente hasta dos palabras
+D: Medidas, pueden estar separadas por "/", por "-"  o por ',' siempre entero positivo, si hay mas de una medida significa que la variedad se repite, si son mas de una variedad se asigna por posicion, en este caso tenemos un exponente en la dispo este se usa para calcular el numero de tallos,  por ejemplo 50¹⁴ significa que hay 14 bunches de 25 tallos de 50cm y 60² significa que hay 2 bunches de 25 tallos de 60cm, SIEMPRE EL EXPONENTE SE MULTILPLICA POR 25
+E: Tallos, este es el total de tallos, pero al existir los exponentes en las medidas este valor se ignora
+
+En este caso tampoco se indican precios asumimos cero para cada variedad
+
+SALIDA: [1, "HB", ["ALOHA"], [50, 60], [350, 50], [0]]
 
 Mas ejemplos:
-ENTRADA:1 QB  BOULEVAR 50  -> SALIDA:[1, "QB", ["BOULEVAR"], [50], [0], [0]]
-ENTRADA:1 QB  ENCHANTMENT 50-60  -> SALIDA:[1, "QB", ["ENCHANTMENT"], [50, 60], [0, 0], [0, 0]]
-ENTRADA:1 QB  GOTCHA 50-60 -> SALIDA:[1, "QB", ["GOTCHA"], [50, 60], [0, 0], [0, 0]]
-ENTRADA:1 QB  HIGH & MAGIC 60  -> SALIDA:[1, "QB", ["HIGH & MAGIC"], [60], [0], [0]]
-ENTRADA:1 HB  MIX 70-> SALIDA:[1, "HB", ["MIX"], [70], [0], [0]]
+ENTRADA:1 QB PINK MONDIAL 50³/60¹X100 -> SALIDA: [1, "QB", ["PINK MONDIAL"], [50, 60], [75, 25], [0]]
+ENTRADA:1 QB PINK MONDIAL 80 X100 -> SALIDA: [1, "QB", ["PINK MONDIAL"], [80], [100], [0]]
+ENTRADA:1 QB TIBET 50²/60²X100 -> SALIDA: [1, "QB", ["TIBET"], [50, 60], [50, 50], [0]]
+ENTRADA:1 QB TIBET 70 X100 -> SALIDA: [1, "QB", ["TIBET"], [70], [100], [0]]
