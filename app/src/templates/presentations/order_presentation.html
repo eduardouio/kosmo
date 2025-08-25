@@ -7,38 +7,51 @@
       <!-- Pestañas de Navegación -->
       <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="main-order-tab" data-bs-toggle="tab" data-bs-target="#main-order-tab-pane" type="button" role="tab" aria-controls="main-order-tab-pane" aria-selected="true">
-            {% if response_data.order.type_document == "ORD_VENTA" %}
-              ORDEN DE VENTA
-            {% else %}
-              ORDEN DE COMPRA
-            {% endif %}
+          <button class="nav-link active d-flex align-items-center gap-1" id="main-order-tab" data-bs-toggle="tab" data-bs-target="#main-order-tab-pane" type="button" role="tab" aria-controls="main-order-tab-pane" aria-selected="true">
+            <span class="badge bg-dark">#{{ response_data.order.id }}</span>
+            {% if response_data.order.type_document == "ORD_VENTA" %}ORDEN DE VENTA{% else %}ORDEN DE COMPRA{% endif %}
           </button>
         </li>
         {% if response_data.order.type_document == "ORD_VENTA" and response_data.purchase_orders_details %}
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="purchase-orders-tab" data-bs-toggle="tab" data-bs-target="#purchase-orders-tab-pane" type="button" role="tab" aria-controls="purchase-orders-tab-pane" aria-selected="false">
+          <button class="nav-link d-flex align-items-center gap-1" id="purchase-orders-tab" data-bs-toggle="tab" data-bs-target="#purchase-orders-tab-pane" type="button" role="tab" aria-controls="purchase-orders-tab-pane" aria-selected="false">
+            <span class="badge bg-dark">
+              {% with pos=response_data.purchase_orders_details %}
+                #{{ pos.0.id }}{% if pos|length > 1 %}+{{ pos|length|add:'-1' }}{% endif %}
+              {% endwith %}
+            </span>
             ORDENES DE COMPRA
           </button>
         </li>
         {% endif %}
         {% if response_data.sale_invoices_details %}
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="sale-invoices-tab" data-bs-toggle="tab" data-bs-target="#sale-invoices-tab-pane" type="button" role="tab" aria-controls="sale-invoices-tab-pane" aria-selected="false">
+          <button class="nav-link d-flex align-items-center gap-1" id="sale-invoices-tab" data-bs-toggle="tab" data-bs-target="#sale-invoices-tab-pane" type="button" role="tab" aria-controls="sale-invoices-tab-pane" aria-selected="false">
+            <span class="badge bg-success">
+              {% with invs=response_data.sale_invoices_details %}
+                #{{ invs.0.id }}{% if invs|length > 1 %}+{{ invs|length|add:'-1' }}{% endif %}
+              {% endwith %}
+            </span>
             FACTURAS DE VENTA
           </button>
         </li>
         {% endif %}
         {% if response_data.purchase_invoices_details %}
         <li class="nav-item" role="presentation">
-          <button class="nav-link" id="purchase-invoices-tab" data-bs-toggle="tab" data-bs-target="#purchase-invoices-tab-pane" type="button" role="tab" aria-controls="purchase-invoices-tab-pane" aria-selected="false">
+          <button class="nav-link d-flex align-items-center gap-1" id="purchase-invoices-tab" data-bs-toggle="tab" data-bs-target="#purchase-invoices-tab-pane" type="button" role="tab" aria-controls="purchase-invoices-tab-pane" aria-selected="false">
+            <span class="badge bg-info text-dark">
+              {% with pinvs=response_data.purchase_invoices_details %}
+                #{{ pinvs.0.id }}{% if pinvs|length > 1 %}+{{ pinvs|length|add:'-1' }}{% endif %}
+              {% endwith %}
+            </span>
             FACTURAS DE COMPRA
           </button>
         </li>
         {% endif %}
           {% if response_data.payments_details or response_data.collects_details %}
           <li class="nav-item" role="presentation">
-            <button class="nav-link" id="payments-collects-tab" data-bs-toggle="tab" data-bs-target="#payments-collects-tab-pane" type="button" role="tab" aria-controls="payments-collects-tab-pane" aria-selected="false">
+            <button class="nav-link d-flex align-items-center gap-1" id="payments-collects-tab" data-bs-toggle="tab" data-bs-target="#payments-collects-tab-pane" type="button" role="tab" aria-controls="payments-collects-tab-pane" aria-selected="false">
+              <span class="badge bg-secondary">#{{ response_data.order.id }}</span>
               PAGOS Y COBROS
             </button>
           </li>
