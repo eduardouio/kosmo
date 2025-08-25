@@ -88,7 +88,9 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                         "id": product.id,
                         "name": product.name,
                         "variety": product.variety,
-                        "image": product.image.url if product.image else "",
+                        "image": (
+                            product.image.url if product.image else ""
+                        ),
                         "colors": product.colors,
                         "default_profit_margin": str(product.default_profit_margin)
                     },
@@ -103,8 +105,12 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                     "stem_cost_total": str(box.stem_cost_total),
                     "stem_cost_total_sale": str(box.stem_cost_total_sale),
                     "stem_cost_total_price": str(box.stem_cost_total_price),
-                    "stem_cost_total_sale_with_quantity": str(box.stem_cost_total_sale_with_quantity),
-                    "stem_cost_total_price_with_quantity": str(box.stem_cost_total_price_with_quantity)
+                    "stem_cost_total_sale_with_quantity": str(
+                        box.stem_cost_total_sale_with_quantity
+                    ),
+                    "stem_cost_total_price_with_quantity": str(
+                        box.stem_cost_total_price_with_quantity
+                    )
                 }
 
                 order_box_items_data.append(box_item_data)
@@ -148,27 +154,32 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
         supplier_data = {}
         if current_supplier_for_main_order_view:
+            csv = current_supplier_for_main_order_view  # alias corto
             supplier_data = {
-                "id": current_supplier_for_main_order_view.id,
-                "name": current_supplier_for_main_order_view.name,
-                "short_name": getattr(current_supplier_for_main_order_view, 'short_name', current_supplier_for_main_order_view.name),
-                "business_tax_id": current_supplier_for_main_order_view.business_tax_id,
-                "address": current_supplier_for_main_order_view.address,
-                "country": getattr(current_supplier_for_main_order_view, 'country', ""),
-                "city": getattr(current_supplier_for_main_order_view, 'city', ""),
-                "website": current_supplier_for_main_order_view.website,
-                "credit_term": current_supplier_for_main_order_view.credit_term,
-                "is_profit_margin_included": getattr(current_supplier_for_main_order_view, 'is_profit_margin_included', False),
-                "default_profit_margin": getattr(current_supplier_for_main_order_view, 'default_profit_margin', "0.06"),
-                "consolidate": current_supplier_for_main_order_view.consolidate,
-                "skype": current_supplier_for_main_order_view.skype,
-                "email": current_supplier_for_main_order_view.email,
-                "phone": current_supplier_for_main_order_view.phone,
-                "is_active": current_supplier_for_main_order_view.is_active,
-                "contact": getattr(current_supplier_for_main_order_view, 'contact', {}),
+                "id": csv.id,
+                "name": csv.name,
+                "short_name": getattr(csv, 'short_name', csv.name),
+                "business_tax_id": csv.business_tax_id,
+                "address": csv.address,
+                "country": getattr(csv, 'country', ""),
+                "city": getattr(csv, 'city', ""),
+                "website": csv.website,
+                "credit_term": csv.credit_term,
+                "is_profit_margin_included": getattr(
+                    csv, 'is_profit_margin_included', False
+                ),
+                "default_profit_margin": getattr(
+                    csv, 'default_profit_margin', "0.06"
+                ),
+                "consolidate": csv.consolidate,
+                "skype": csv.skype,
+                "email": csv.email,
+                "phone": csv.phone,
+                "is_active": csv.is_active,
+                "contact": getattr(csv, 'contact', {}),
                 "is_selected": False,
-                "have_stock": getattr(current_supplier_for_main_order_view, 'have_stock', False),
-                "related_partners": getattr(current_supplier_for_main_order_view, 'related_partners', [])
+                "have_stock": getattr(csv, 'have_stock', False),
+                "related_partners": getattr(csv, 'related_partners', [])
             }
 
         response_data = {
@@ -185,7 +196,9 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                 sup_order_partner_data = {
                     "id": sup_order_partner.id,
                     "name": sup_order_partner.name,
-                    "short_name": getattr(sup_order_partner, 'short_name', sup_order_partner.name),
+                    "short_name": getattr(
+                        sup_order_partner, 'short_name', sup_order_partner.name
+                    ),
                     "business_tax_id": sup_order_partner.business_tax_id,
                     "address": sup_order_partner.address,
                     "country": getattr(sup_order_partner, 'country', ""),
@@ -204,21 +217,33 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                     "serie": sup_order_instance.serie,
                     "serie_name": "ORD-COMPRA",
                     "consecutive": sup_order_instance.consecutive or "000000",
-                    "date": sup_order_instance.date.strftime("%d/%m/%Y %H:%M") if sup_order_instance.date else "",
+                    "date": (
+                        sup_order_instance.date.strftime("%d/%m/%Y %H:%M")
+                        if sup_order_instance.date else ""
+                    ),
                     "num_order": sup_order_instance.num_order,
-                    "delivery_date": sup_order_instance.delivery_date.strftime("%Y-%m-%d") if sup_order_instance.delivery_date else "",
+                    "delivery_date": (
+                        sup_order_instance.delivery_date.strftime("%Y-%m-%d")
+                        if sup_order_instance.delivery_date else ""
+                    ),
                     "status": sup_order_instance.status,
                     "total_price": float(sup_order_instance.total_price),
-                    "total_order": float(sup_order_instance.total_purchase_price),
+                    "total_order": float(
+                        sup_order_instance.total_purchase_price
+                    ),
                     "eb_total": sup_order_instance.eb_total,
                     "qb_total": sup_order_instance.qb_total,
                     "hb_total": sup_order_instance.hb_total,
-                    "fb_total": float(sup_order_instance.fb_total) if sup_order_instance.fb_total else 0,
+                    "fb_total": (
+                        float(sup_order_instance.fb_total)
+                        if sup_order_instance.fb_total else 0
+                    ),
                     "total_stem_flower": sup_order_instance.total_stem_flower,
                     "total_bunches": sup_order_instance.total_bunches,
                     "is_invoiced": sup_order_instance.is_invoiced,
                     "id_invoice": sup_order_instance.id_invoice,
                     "partner": sup_order_partner_data,
+                    "notes": sup_order_instance.notes,
                 }
 
                 sup_order_lines_qs = OrderItems.get_by_order(
@@ -234,7 +259,9 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                                 "id": product.id,
                                 "name": product.name,
                                 "variety": product.variety,
-                                "image": product.image.url if product.image else "",
+                                "image": (
+                                    product.image.url if product.image else ""
+                                ),
                                 "colors": product.colors,
                             },
                             "length": box.length,
@@ -244,7 +271,9 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                             "stem_cost_price": str(box.stem_cost_price),
                             "profit_margin": str(box.profit_margin),
                             "stem_cost_total": str(box.stem_cost_total),
-                            "stem_cost_total_price_with_quantity": str(box.stem_cost_total_price_with_quantity),
+                            "stem_cost_total_price_with_quantity": str(
+                                box.stem_cost_total_price_with_quantity
+                            ),
                         }
                         sup_order_box_items_data_list.append(sup_box_item_data)
 
@@ -304,11 +333,16 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             invoice_data = self._build_invoice_data(invoice)
             if invoice.type_document == 'FAC_VENTA':
                 # Evitar duplicados
-                if not any(inv['id'] == invoice.id for inv in sale_invoices_details):
+                if not any(
+                    inv['id'] == invoice.id for inv in sale_invoices_details
+                ):
                     sale_invoices_details.append(invoice_data)
             elif invoice.type_document == 'FAC_COMPRA':
                 # Evitar duplicados
-                if not any(inv['id'] == invoice.id for inv in purchase_invoices_details):
+                if not any(
+                    inv['id'] == invoice.id
+                    for inv in purchase_invoices_details
+                ):
                     purchase_invoices_details.append(invoice_data)
 
         response_data["sale_invoices_details"] = sale_invoices_details
@@ -364,28 +398,44 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                 payment_id = payment.id
                 
                 # Evitar duplicados
-                if payment.type_transaction == 'EGRESO' and payment_id not in processed_payments:
+                if (
+                    payment.type_transaction == 'EGRESO'
+                    and payment_id not in processed_payments
+                ):
                     processed_payments.add(payment_id)
                     payment_data = {
                         "id": payment.id,
-                        "payment_number": payment.payment_number or f"PAY-{payment.id:06d}",
+                        "payment_number": (
+                            payment.payment_number or f"PAY-{payment.id:06d}"
+                        ),
                         "date": payment.date,
                         "amount": float(payment.amount),
-                        "method": payment.get_method_display() if payment.method else "N/A",
+                        "method": (
+                            payment.get_method_display()
+                            if payment.method else "N/A"
+                        ),
                         "status": payment.status,
                         "bank": payment.bank or "N/A",
                         "partners_names": payment.partners_names or "N/A",
                     }
                     payments_details.append(payment_data)
                 
-                elif payment.type_transaction == 'INGRESO' and payment_id not in processed_collects:
+                elif (
+                    payment.type_transaction == 'INGRESO'
+                    and payment_id not in processed_collects
+                ):
                     processed_collects.add(payment_id)
                     collect_data = {
                         "id": payment.id,
-                        "payment_number": payment.payment_number or f"COL-{payment.id:06d}",
+                        "payment_number": (
+                            payment.payment_number or f"COL-{payment.id:06d}"
+                        ),
                         "date": payment.date,
                         "amount": float(payment.amount),
-                        "method": payment.get_method_display() if payment.method else "N/A",
+                        "method": (
+                            payment.get_method_display()
+                            if payment.method else "N/A"
+                        ),
                         "status": payment.status,
                         "bank": payment.bank or "N/A",
                         "partners_names": payment.partners_names or "N/A",
@@ -405,7 +455,9 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
         # URL para reporte de pagos y cobros
         if payments_details or collects_details:
-            response_data["payments_collects_report_url"] = f"/reports/payments-collects/{order.id}/"
+            response_data["payments_collects_report_url"] = (
+                f"/reports/payments-collects/{order.id}/"
+            )
 
         context['response_data'] = response_data
 
@@ -476,7 +528,9 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                     "profit_margin": str(box.profit_margin),
                     "total_price": str(box.total_price),
                     "unit_price": str(box.unit_price),
-                    "total_price_with_margin": str(box.total_price_with_margin),
+                    "total_price_with_margin": str(
+                        box.total_price_with_margin
+                    ),
                 }
                 invoice_box_items_data.append(box_item_data)
 
@@ -499,8 +553,13 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             "consecutive": invoice.consecutive,
             "num_invoice": invoice.num_invoice,
             "type_document": invoice.type_document,
-            "date": invoice.date.strftime("%d/%m/%Y %H:%M") if invoice.date else "",
-            "due_date": invoice.due_date.strftime("%d/%m/%Y") if invoice.due_date else "",  
+            "date": (
+                invoice.date.strftime("%d/%m/%Y %H:%M") if invoice.date else ""
+            ),
+            "due_date": (
+                invoice.due_date.strftime("%d/%m/%Y")
+                if invoice.due_date else ""
+            ),
             "status": invoice.status,
             "total_price": float(invoice.total_price),
             "total_margin": float(invoice.total_margin),
@@ -516,7 +575,10 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             "hawb": invoice.hawb,
             "dae_export": invoice.dae_export,
             "cargo_agency": invoice.cargo_agency,
-            "delivery_date": invoice.delivery_date.strftime("%Y-%m-%d") if invoice.delivery_date else "",
+            "delivery_date": (
+                invoice.delivery_date.strftime("%Y-%m-%d")
+                if invoice.delivery_date else ""
+            ),
             "weight": str(invoice.weight) if invoice.weight else "",
             "days_to_due": invoice.days_to_due,
             "is_dued": invoice.is_dued,

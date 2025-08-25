@@ -91,7 +91,17 @@
                     </div>
                   </div>
                 </div>
-                
+                        {% if po.notes %}
+                <!-- Notas de la orden de compra -->
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <div class="card border-0 shadow-sm">
+                      <div class="card-header bg-light py-2"><strong>Notas Orden Compra</strong></div>
+          <div class="card-body small" style="white-space: pre-wrap;">{{ po.notes }}</div>
+                    </div>  
+                  </div>
+                </div>
+                {% endif %}
                 <!-- Totales para Orden de Compra -->
                 <div class="row mb-4">
                   <div class="col-md-6 mb-3 mb-md-0">
@@ -105,18 +115,6 @@
                     </div>
                   </div>
                 </div>
-
-                {% if po.notes %}
-                <!-- Notas de la orden de compra -->
-                <div class="row mb-4">
-                  <div class="col-12">
-                    <div class="card border-0 shadow-sm">
-                      <div class="card-header bg-light py-2"><strong>Notas Orden Compra</strong></div>
-                      <div class="card-body small" style="white-space: pre-wrap;">{{ po.notes }}</div>
-                    </div>
-                  </div>
-                </div>
-                {% endif %}
                 
                 <!-- Botones de acción para cada Orden de Compra -->
                 <div class="row mt-4">
