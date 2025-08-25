@@ -402,6 +402,19 @@ const handleKeydown = (event) => {
           </div>
         </div>
 
+        <!-- Notas -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <label class="form-label fw-bold">Notas / Observaciones</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              placeholder="Ingrese notas u observaciones del pedido"
+              v-model="orderStore.order.notes"
+            ></textarea>
+          </div>
+        </div>
+
         <!-- Totales -->
         <div class="row mb-4">
           <div class="col-6">
@@ -472,13 +485,9 @@ const handleKeydown = (event) => {
               <IconDeviceFloppy size="20" stroke="1.5" class="me-1"/>
               Actualizar
             </button>
-            <a href="/trade/order/{{ orderStore.order.id }}" class="btn btn-default btn-sm">
-              <IconBan size="20" stroke="1.5" class="text-danger"/>
-              Cancelar
-            </a>
             <a href="/trade/customer-orders/" class="btn btn-default btn-sm">
               <IconArrowLeft size="20" stroke="1.5" class="me-1"/>
-              Lista de Pedidos
+              Volver
             </a>
           </div>
         </div>

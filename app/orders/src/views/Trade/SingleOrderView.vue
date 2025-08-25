@@ -356,6 +356,19 @@ const handleKeydown = (event) => {
           </div>
         </div>
 
+        <!-- Notas -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <label class="form-label fw-bold">Notas / Observaciones</label>
+            <textarea
+              class="form-control"
+              rows="3"
+              placeholder="Ingrese notas u observaciones del pedido"
+              v-model="orderStore.order.notes"
+            ></textarea>
+          </div>
+        </div>
+
         <!-- Totales -->
         <div class="row mb-4">
           <div class="col-6">

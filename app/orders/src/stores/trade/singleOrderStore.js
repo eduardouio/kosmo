@@ -24,6 +24,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
       fb_total: 0,
       total_stem_flower: 0,
       total_bunches: 0, // Añadir el campo total_bunches
+      notes: '', // Campo de notas
       is_invoiced: false,
       id_invoice: 0,
       num_invoice: null
@@ -215,6 +216,7 @@ export const useSingleOrderStore = defineStore("singleOrderStore", {
           fb_total: data.order.fb_total || 0,
           total_stem_flower: data.order.total_stem_flower || 0,
           total_bunches: data.order.total_bunches || 0,
+          notes: data.order.notes || '',
           is_invoiced: data.order.is_invoiced || false,
           id_invoice: data.order.id_invoice || 0,
           num_invoice: data.order.num_invoice || null
