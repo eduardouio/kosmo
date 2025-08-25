@@ -62,7 +62,8 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             "is_invoiced": order.is_invoiced,
             "id_invoice": order.id_invoice,
             "num_invoice": order.num_invoice,
-            "total_order": float(order.total_order)
+            "total_order": float(order.total_order),
+            "notes": order.notes
         }
 
         if order.type_document == 'ORD_COMPRA':
@@ -532,7 +533,8 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                 "credit_term": invoice.partner.credit_term,
             },
             "order_id": invoice.order.id,
-            "invoiceLines": invoice_lines_data
+            "invoiceLines": invoice_lines_data,
+            "notes": invoice.notes
         }
 
         return invoice_data
