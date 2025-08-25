@@ -134,7 +134,17 @@
                 </div>
               </div>
             </div>
-
+            {% if invoice.notes %}
+            <!-- Notas de la factura de venta -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-header bg-light py-2"><strong>Notas Factura</strong></div>
+                  <div class="card-body small" style="white-space: pre-wrap;">{{ invoice.notes }}</div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
             <!-- Totales de factura de venta -->
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
@@ -155,19 +165,6 @@
                 </div>
               </div>
             </div>
-
-            {% if invoice.notes %}
-            <!-- Notas de la factura de venta -->
-            <div class="row mb-4">
-              <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                  <div class="card-header bg-light py-2"><strong>Notas Factura</strong></div>
-                  <div class="card-body small" style="white-space: pre-wrap;">{{ invoice.notes }}</div>
-                </div>
-              </div>
-            </div>
-            {% endif %}
-
             <!-- Botones de acción para facturas de venta -->
             <div class="row mt-4">
               <div class="col d-flex justify-content-end gap-3">
