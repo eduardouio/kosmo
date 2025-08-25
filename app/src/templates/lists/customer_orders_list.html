@@ -84,9 +84,7 @@
                 </td>
                 <td class="p-0 text-center">
                     {% for po in order.related_purchase_orders %}
-                        <a href="{% url 'order_detail_presentation' po.id %}" class="text-primary d-block">
                             {{ po.serie }}-{{ po.consecutive | stringformat:'06d' }}
-                        </a>
                     {% empty %}
                         <span class="text-muted">-</span>
                     {% endfor %}
