@@ -144,6 +144,18 @@
           </div>
 
           <!-- Totales para Orden Principal -->
+          {% if response_data.order.notes %}
+          <!-- Notas de la Orden Principal (antes de totales) -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light py-2"><strong>Notas Orden Principal</strong></div>
+                <div class="card-body small" style="white-space: pre-wrap;">{{ response_data.order.notes }}</div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
           <div class="row mb-4">
             <div class="col-md-6 mb-3 mb-md-0">
               <div class="bg-light bg-gradient rounded shadow-sm p-3 border-gray-500">
@@ -233,14 +245,4 @@
         </div>
       </div>
         </div>
-{# Notas de la Orden Principal (al final del fragmento) #}
-{% if response_data.order.notes %}
-<div class="row mt-4">
-  <div class="col-12">
-    <div class="card border-0 shadow-sm">
-      <div class="card-header bg-light py-2"><strong>Notas</strong></div>
-      <div class="card-body small" style="white-space: pre-wrap;">{{ response_data.order.notes }}</div>
-    </div>
-  </div>
-</div>
-{% endif %}
+{# Notas solo visibles en esta pestaña principal #}

@@ -156,6 +156,18 @@
               </div>
             </div>
 
+            {% if invoice.notes %}
+            <!-- Notas de la factura de venta -->
+            <div class="row mb-4">
+              <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-header bg-light py-2"><strong>Notas Factura</strong></div>
+                  <div class="card-body small" style="white-space: pre-wrap;">{{ invoice.notes }}</div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
             <!-- Botones de acción para facturas de venta -->
             <div class="row mt-4">
               <div class="col d-flex justify-content-end gap-3">
@@ -197,13 +209,4 @@
           </div>
           {% if not forloop.last %}<hr class="my-5">{% endif %}
           {% endfor %}
-          {# Si la orden principal tiene notas y no se han mostrado aún (opcional) #}
-          {% if response_data.order.notes %}
-          <div class="mt-4">
-            <div class="card border-0 shadow-sm">
-              <div class="card-header bg-light py-2"><strong>Notas de la Orden</strong></div>
-              <div class="card-body small" style="white-space: pre-wrap;">{{ response_data.order.notes }}</div>
-            </div>
-          </div>
-          {% endif %}
         </div>
