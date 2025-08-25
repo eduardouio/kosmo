@@ -42,7 +42,6 @@ class UpdateFutureOrderAPI(View):
         loggin_event('Recibiendo Datos por Post')
         # Obtener datos del request
         data = json.loads(request.body)
-
         order_id = data.get('order_id')
         order_data = data.get('order')
         customer_data = data.get('customer')
@@ -113,6 +112,7 @@ class UpdateFutureOrderAPI(View):
         order.fb_total = Decimal(str(order_data.get('fb_total', 0)))
         order.total_stem_flower = order_data.get('total_stem_flower', 0)
         order.total_bunches = order_data.get('total_bunches', 0)
+        order.notes = order_data.get('notes', order.notes)
 
         # Actualizar el estado según el payload
         if order_data.get('status'):

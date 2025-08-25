@@ -46,6 +46,7 @@ class CreateFutureOrderAPI(View):
         order.fb_total = order_data.get('fb_total', 0)
         order.total_stem_flower = order_data.get('total_stem_flower', 0)
         order.total_bunches = order_data.get('total_bunches', 0)
+        order.notes = order_data.get('notes', '')
         order.save()
         loggin_event(f'Orden futura creada con éxito {order.id}')
 
