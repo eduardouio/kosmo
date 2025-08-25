@@ -12,12 +12,6 @@
                     <span class="small fw-bold me-2">FACTURA VENTA:</span>
                     <span class="text-danger fs-4">{{ invoice.serie }}-{{ invoice.consecutive | stringformat:'06d' }}</span>
                   </div>
-                  {% if invoice.num_invoice %}
-                  <div class="d-flex justify-content-end align-items-center border-top border-warning pt-1 mb-1">
-                    <span class="small fw-bold me-2">No. FACTURA:</span>
-                    <span class="fs-4">{{ invoice.num_invoice }}</span>
-                  </div>
-                  {% endif %}
                   <div class="d-flex justify-content-end align-items-center border-top border-success pt-1 mb-1">
                     <span class="small fw-bold me-2">FECHA:</span>
                     <span class="fs-4">{{ invoice.date }}</span>
