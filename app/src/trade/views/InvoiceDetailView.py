@@ -44,6 +44,23 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
         # Calcular días hasta vencimiento
         context['days_to_due'] = self.object.days_to_due
 
+        # Facturas de compra relacionadas (cuando esta es una factura de venta)
+        related_purchase_invoices = []
+        primary_purchase_invoice = None
+        if self.object.type_document == 'FAC_VENTA':
+            related_purchase_invoices = list(
+                Invoice.objects.filter(
+                    order__parent_order=self.object.order,
+                    type_document='FAC_COMPRA',
+                    is_active=True
+                ).order_by('id')
+            )
+            if related_purchase_invoices:
+                primary_purchase_invoice = related_purchase_invoices[0]
+
+        context['related_purchase_invoices'] = related_purchase_invoices
+        context['primary_purchase_invoice'] = primary_purchase_invoice
+
         if 'action' not in self.request.GET:
             return context
 
