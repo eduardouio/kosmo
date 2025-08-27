@@ -48,8 +48,8 @@
     <div class="row">
         <div class="col-12">
             <h2 class="mb-4">
-                <i class="fas fa-shopping-cart me-2"></i>
-                Reporte de Compras
+                <i class="fas fa-file-invoice me-2"></i>
+                Reporte de Facturas de Compra
             </h2>
         </div>
     </div>
@@ -115,14 +115,14 @@
     <div class="row">
         <div class="col-md-4">
             <div class="stats-card">
-                <h4>{{ total_orders }}</h4>
-                <small>Total Órdenes</small>
+                <h4>{{ total_invoices }}</h4>
+                <small>Total Facturas</small>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stats-card">
                 <h4>${{ total_amount|floatformat:2 }}</h4>
-                <small>Monto Total</small>
+                <small>Monto Total (Sin Margen)</small>
             </div>
         </div>
         <div class="col-md-4">
@@ -164,42 +164,44 @@
         </div>
     </div>
 
-    <!-- Tabla de Órdenes -->
+    <!-- Tabla de Facturas -->
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5>Órdenes de Compra</h5>
+                    <h5>Facturas de Compra</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-striped" id="purchaseTable">
                             <thead>
                                 <tr>
-                                    <th>Nº Orden</th>
+                                    <th>Nº Factura</th>
+                                    <th>Serie</th>
                                     <th>Fecha</th>
                                     <th>Proveedor</th>
                                     <th>Estado</th>
-                                    <th>Total</th>
+                                    <th>Total (Sin Margen)</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for order in purchase_orders %}
+                                {% for invoice in purchase_invoices %}
                                 <tr>
-                                    <td>{{ order.serie }}-{{ order.consecutive|stringformat:"04d" }}</td>
-                                    <td>{{ order.date|date:"d/m/Y" }}</td>
-                                    <td>{{ order.partner.name|truncatechars:40 }}</td>
+                                    <td>{{ invoice.num_invoice|default:"-" }}</td>
+                                    <td>{{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}</td>
+                                    <td>{{ invoice.date|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ invoice.partner.name|truncatechars:40 }}</td>
                                     <td>
                                         <span class="badge 
-                                            {% if order.status == 'CONFIRMADO' %}bg-success
-                                            {% elif order.status == 'PENDIENTE' %}bg-warning
-                                            {% elif order.status == 'CANCELADO' %}bg-danger
+                                            {% if invoice.status == 'PAGADO' %}bg-success
+                                            {% elif invoice.status == 'PENDIENTE' %}bg-warning
+                                            {% elif invoice.status == 'ANULADO' %}bg-danger
                                             {% else %}bg-secondary{% endif %}">
-                                            {{ order.get_status_display }}
+                                            {{ invoice.get_status_display }}
                                         </span>
                                     </td>
-                                    <td>${{ order.total_price|floatformat:2 }}</td>
+                                    <td>${{ invoice.total_price|floatformat:2 }}</td>
                                     <td>
                                         <a href="#" class="btn btn-sm btn-outline-primary" 
                                            title="Ver detalles">
@@ -209,8 +211,8 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted">
-                                        No se encontraron órdenes de compra con los filtros seleccionados
+                                    <td colspan="7" class="text-center text-muted">
+                                        No se encontraron facturas de compra con los filtros seleccionados
                                     </td>
                                 </tr>
                                 {% endfor %}
