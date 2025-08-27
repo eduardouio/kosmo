@@ -367,7 +367,18 @@
                             <tbody>
                                 {% for invoice in sales_invoices %}
                                 <tr{% if invoice.is_invoice_overdue %} class="invoice-overdue"{% endif %}>
-                                    <td>{{ invoice.num_invoice|default:"-" }}</td>
+                                    <td>
+                                        {% if invoice.num_invoice %}
+                                            <a href="{% url 'report_invoice' invoice.pk %}" 
+                                               target="_blank" 
+                                               class="text-primary" 
+                                               title="Ver PDF de la factura">
+                                                {{ invoice.num_invoice }}
+                                            </a>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
                                     <td>{{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}</td>
                                     <td>{{ invoice.date|date:"d/m/Y H:i" }}</td>
                                     <td>
