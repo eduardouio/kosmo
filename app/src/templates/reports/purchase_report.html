@@ -44,13 +44,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container">
     <div class="row">
         <div class="col-12">
-            <h2 class="mb-4">
+            <h5 class="mb-4">
                 <i class="fas fa-file-invoice me-2"></i>
                 Reporte de Facturas de Compra
-            </h2>
+            </h5>
         </div>
     </div>
 
@@ -101,9 +101,6 @@
                             <button type="button" class="btn btn-default me-2" onclick="clearFilters()">
                                 <i class="fas fa-times me-1"></i>Limpiar
                             </button>
-                            <button type="button" class="btn btn-default" onclick="exportReport()">
-                                <i class="fas fa-download me-1"></i>Exportar
-                            </button>
                         </div>
                     </div>
                 </form>
@@ -115,20 +112,34 @@
     <div class="row">
         <div class="col-md-4">
             <div class="stats-card">
-                <h4>{{ total_invoices }}</h4>
+                <h4>{{ total_invoices|default:0 }}</h4>
                 <small>Total Facturas</small>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stats-card">
-                <h4>${{ total_amount|floatformat:2 }}</h4>
+                <h4>${{ total_amount|floatformat:2|default:"0.00" }}</h4>
                 <small>Monto Total (Sin Margen)</small>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stats-card">
-                <h4>{{ supplier_summary|length }}</h4>
+                <h4>{{ supplier_summary|length|default:0 }}</h4>
                 <small>Proveedores Activos</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Debug: Información del contexto -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <strong>Debug Info:</strong>
+                Total invoices: {{ total_invoices|default:"No data" }} | 
+                Total amount: ${{ total_amount|floatformat:2|default:"0.00" }} | 
+                Status summary items: {{ status_summary|length|default:0 }} | 
+                Supplier summary items: {{ supplier_summary|length|default:0 }} | 
+                Purchase invoices count: {{ purchase_invoices|length|default:0 }}
             </div>
         </div>
     </div>
@@ -138,9 +149,20 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Resumen por Estado</h5>
+                    <h6>Resumen por Estado</h6>
                 </div>
                 <div class="card-body">
+                    <!-- Debug: Mostrar datos crudos -->
+                    {% if status_summary %}
+                        <div class="mb-3">
+                            <h6>Estados encontrados:</h6>
+                            {% for item in status_summary %}
+                                <p><strong>{{ item.status_label|default:item.status }}:</strong> {{ item.count }} facturas - ${{ item.total|floatformat:2 }}</p>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos de estados disponibles</p>
+                    {% endif %}
                     <canvas id="statusChart" width="400" height="200"></canvas>
                 </div>
             </div>
@@ -148,7 +170,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h5>Top Proveedores</h5>
+                    <h6>Top Proveedores</h6>
                 </div>
                 <div class="card-body">
                     {% for supplier in supplier_summary %}
@@ -179,6 +201,8 @@
                                     <th>Nº Factura</th>
                                     <th>Serie</th>
                                     <th>Fecha</th>
+                                    <th>Vencimiento</th>
+                                    <th>Plazo (días)</th>
                                     <th>Proveedor</th>
                                     <th>Estado</th>
                                     <th>Total (Sin Margen)</th>
@@ -191,14 +215,37 @@
                                     <td>{{ invoice.num_invoice|default:"-" }}</td>
                                     <td>{{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}</td>
                                     <td>{{ invoice.date|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        {% if invoice.due_date %}
+                                            {{ invoice.due_date|date:"d/m/Y" }}
+                                        {% else %}
+                                            <span class="text-muted">Sin fecha</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if invoice.due_date %}
+                                            {% if invoice.is_dued %}
+                                                <span class="badge bg-danger">{{ invoice.days_overdue }} días vencido</span>
+                                            {% else %}
+                                                <span class="badge bg-info">{{ invoice.days_to_due }} días</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
                                     <td>{{ invoice.partner.name|truncatechars:40 }}</td>
                                     <td>
                                         <span class="badge 
                                             {% if invoice.status == 'PAGADO' %}bg-success
                                             {% elif invoice.status == 'PENDIENTE' %}bg-warning
                                             {% elif invoice.status == 'ANULADO' %}bg-danger
+                                            {% elif invoice.is_dued and invoice.status == 'PENDIENTE' %}bg-danger
                                             {% else %}bg-secondary{% endif %}">
-                                            {{ invoice.get_status_display }}
+                                            {% if invoice.is_dued and invoice.status == 'PENDIENTE' %}
+                                                VENCIDO
+                                            {% else %}
+                                                {{ invoice.get_status_display }}
+                                            {% endif %}
                                         </span>
                                     </td>
                                     <td>${{ invoice.total_price|floatformat:2 }}</td>
@@ -211,7 +258,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted">
+                                    <td colspan="9" class="text-center text-muted">
                                         No se encontraron facturas de compra con los filtros seleccionados
                                     </td>
                                 </tr>
@@ -246,10 +293,23 @@
 
     // Gráfico de estados
     const ctx = document.getElementById('statusChart').getContext('2d');
+    
+    // Debug: mostrar datos en consola
+    console.log('Status summary data:', [
+        {% for item in status_summary %}
+        {
+            status: '{{ item.status }}',
+            status_label: '{{ item.status_label }}',
+            count: {{ item.count }},
+            total: {{ item.total|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]);
+    
     const statusData = [
         {% for item in status_summary %}
         {
-            label: '{{ item.status }}',
+            label: '{{ item.status_label|default:item.status }}',
             data: {{ item.count }},
             total: {{ item.total|default:0 }}
         }{% if not forloop.last %},{% endif %}
