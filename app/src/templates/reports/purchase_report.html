@@ -406,10 +406,18 @@
                                     <td{% if invoice.is_invoice_overdue %} class="overdue-text"{% endif %}>${{ invoice.total_price|floatformat:2 }}</td>
                                     <td>
                                         <a href="{% url 'invoice_detail_presentation' invoice.pk %}"
-                                            class="text-blue-600
+                                            class="text-blue-600 me-2"
                                            title="Ver detalles de la factura">
                                             Factura
                                         </a>
+                                        {% if invoice.order %}
+                                            <a href="{% url 'report_supplier_order' invoice.order.pk %}"
+                                                class="text-success"
+                                                target="_blank"
+                                               title="Ver PDF del pedido de compra">
+                                                Pedido
+                                            </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% empty %}
