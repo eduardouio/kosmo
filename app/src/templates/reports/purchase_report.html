@@ -223,10 +223,12 @@
                         </div>
                         <div class="col-md-6">
                             <label for="supplier_id" class="form-label">Proveedor</label>
-                            <input type="text" class="form-control" id="supplier_search" 
-                                   placeholder="Buscar proveedor..." autocomplete="off">
-                            <input type="hidden" id="supplier_id" name="supplier_id" value="{{ filters.supplier_id }}">
-                            <div id="supplier_suggestions" class="autocomplete-suggestions dropdown-menu w-100"></div>
+                            <div class="autocomplete-container">
+                                <input type="text" class="form-control autocomplete-input" id="supplier_search" 
+                                       placeholder="Buscar proveedor..." autocomplete="off">
+                                <input type="hidden" id="supplier_id" name="supplier_id" value="{{ filters.supplier_id }}">
+                                <div id="supplier_suggestions" class="autocomplete-suggestions dropdown-menu w-100"></div>
+                            </div>
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-default me-2">
@@ -426,6 +428,9 @@
             order: [[1, 'desc']] // Ordenar por fecha desc
         });
 
+        // Debug: Verificar que los proveedores se cargan
+        console.log('Proveedores cargados:', suppliers.length);
+        
         // Inicializar autocomplete de proveedores
         initSupplierAutocomplete();
     });
@@ -435,17 +440,31 @@
         const hiddenInput = document.getElementById('supplier_id');
         const suggestionsDiv = document.getElementById('supplier_suggestions');
 
+        // Debug: Verificar que los elementos existen
+        console.log('Input encontrado:', searchInput !== null);
+        console.log('Hidden input encontrado:', hiddenInput !== null);
+        console.log('Suggestions div encontrado:', suggestionsDiv !== null);
+        
+        if (!searchInput || !hiddenInput || !suggestionsDiv) {
+            console.error('No se encontraron todos los elementos necesarios para el autocomplete');
+            return;
+        }
+
         // Mostrar proveedor seleccionado al cargar
         if (hiddenInput.value) {
             const selectedSupplier = suppliers.find(s => s.id == hiddenInput.value);
             if (selectedSupplier) {
                 searchInput.value = selectedSupplier.name;
             }
+        } else {
+            // Si no hay proveedor seleccionado, mostrar placeholder por defecto
+            searchInput.value = '';
         }
 
         // Evento de búsqueda
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase();
+            console.log('Búsqueda:', query);
             
             if (query.length === 0) {
                 showAllSuggestions();
@@ -456,6 +475,7 @@
                 supplier.name.toLowerCase().includes(query)
             );
 
+            console.log('Proveedores filtrados:', filtered.length);
             showSuggestions(filtered);
         });
 
@@ -532,7 +552,7 @@
     // Funciones auxiliares
     function clearFilters() {
         document.getElementById('filterForm').reset();
-        document.getElementById('supplier_search').value = 'Todos los proveedores';
+        document.getElementById('supplier_search').value = '';
         document.getElementById('supplier_id').value = '';
         document.getElementById('filterForm').submit();
     }
