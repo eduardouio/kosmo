@@ -23,7 +23,6 @@ class PurchaseReportView(View):
         date_to = request.GET.get('date_to', end_date.strftime('%Y-%m-%d'))
         supplier_id = request.GET.get('supplier_id', '')
         product_id = request.GET.get('product_id', '')
-        status = request.GET.get('status', '')
 
         # Construir query base para facturas de compra
         invoices_query = Invoice.objects.filter(
@@ -36,16 +35,31 @@ class PurchaseReportView(View):
         # Aplicar filtros adicionales
         if supplier_id:
             invoices_query = invoices_query.filter(partner_id=supplier_id)
-        if status:
-            invoices_query = invoices_query.filter(status=status)
 
         # Obtener facturas de compra
         purchase_invoices = invoices_query.order_by('-date')
 
-        # Calcular estadísticas (solo precio, sin margen para compras)
-        total_invoices = purchase_invoices.count()
-        total_amount = purchase_invoices.aggregate(Sum('total_price'))[
-            'total_price__sum'] or 0
+        # Agregar información de vencimiento a cada factura
+        current_date = timezone.now().date()
+        for invoice in purchase_invoices:
+            if invoice.due_date:
+                due_date = invoice.due_date.date()
+                if due_date < current_date and invoice.status == 'PENDIENTE':
+                    invoice.is_invoice_overdue = True
+                    invoice.days_invoice_overdue = (
+                        current_date - due_date
+                    ).days
+                    invoice.days_invoice_to_due = 0
+                else:
+                    invoice.is_invoice_overdue = False
+                    invoice.days_invoice_overdue = 0
+                    invoice.days_invoice_to_due = (
+                        due_date - current_date
+                    ).days
+            else:
+                invoice.is_invoice_overdue = False
+                invoice.days_invoice_overdue = 0
+                invoice.days_invoice_to_due = 0
 
         # Agrupar por estado de TODAS las facturas de compra (no solo rango)
         all_purchase_invoices = Invoice.objects.filter(
@@ -110,10 +124,13 @@ class PurchaseReportView(View):
             total=Sum('total_price')
         ).order_by('-total')[:10]  # Top 10 proveedores
 
-        # Obtener listas para filtros
+        # Obtener listas para filtros - solo proveedores con facturas
         suppliers = Partner.objects.filter(
             type_partner='PROVEEDOR',
-            is_active=True
+            is_active=True,
+            id__in=Invoice.objects.filter(
+                type_document='FAC_COMPRA'
+            ).values_list('partner_id', flat=True).distinct()
         ).order_by('name')
 
         products = Product.objects.filter(
@@ -123,8 +140,6 @@ class PurchaseReportView(View):
         context = {
             'title_page': 'Reporte de Facturas de Compra',
             'purchase_invoices': purchase_invoices,
-            'total_invoices': total_invoices,
-            'total_amount': total_amount,
             'status_summary': status_summary,
             'supplier_summary': supplier_summary,
             'suppliers': suppliers,
@@ -134,9 +149,7 @@ class PurchaseReportView(View):
                 'date_to': date_to,
                 'supplier_id': supplier_id,
                 'product_id': product_id,
-                'status': status,
             },
-            'status_choices': Invoice._meta.get_field('status').choices,
         }
 
         return render(request, self.template_name, context)
