@@ -602,8 +602,39 @@
         e.stopPropagation();
         
         var table = $('#purchaseTable')[0];
+        
+        // Crear datos manualmente para manejar correctamente los números
+        var data = [];
+        var headers = [];
+        
+        // Obtener encabezados
+        $(table).find('thead tr th').each(function() {
+            headers.push($(this).text().trim());
+        });
+        data.push(headers);
+        
+        // Obtener filas de datos
+        $(table).find('tbody tr').each(function() {
+            var row = [];
+            $(this).find('td').each(function(index) {
+                var cellText = $(this).text().trim();
+                
+                // Si la columna es "Total (Sin Margen)" (índice 7), procesar el valor numérico
+                if (index === 7 && cellText.startsWith('$')) {
+                    // Remover el símbolo $ y reemplazar coma por punto
+                    var numericValue = cellText.replace('$', '').replace(',', '.');
+                    // Convertir a número para asegurar formato correcto
+                    var parsedValue = parseFloat(numericValue);
+                    row.push(isNaN(parsedValue) ? cellText : parsedValue);
+                } else {
+                    row.push(cellText);
+                }
+            });
+            data.push(row);
+        });
+        
         var wb = XLSX.utils.book_new();
-        var ws = XLSX.utils.table_to_sheet(table);
+        var ws = XLSX.utils.aoa_to_sheet(data);
         XLSX.utils.book_append_sheet(wb, ws, "Facturas Compra");
         var fecha = new Date().toISOString().slice(0,10);
         XLSX.writeFile(wb, "facturas_compra_" + fecha + ".xlsx");
