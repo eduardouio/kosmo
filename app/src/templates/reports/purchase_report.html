@@ -211,6 +211,15 @@
             <div class="filter-card">
                 <form method="GET" id="filterForm">
                     <div class="row g-3">
+                             <div class="col-md-6">
+                            <label for="supplier_id" class="form-label">Proveedor</label>
+                            <div class="autocomplete-container">
+                                <input type="text" class="form-control autocomplete-input" id="supplier_search" 
+                                       placeholder="Buscar proveedor..." autocomplete="off">
+                                <input type="hidden" id="supplier_id" name="supplier_id" value="{{ filters.supplier_id }}">
+                                <div id="supplier_suggestions" class="autocomplete-suggestions dropdown-menu w-100"></div>
+                            </div>
+                        </div>
                         <div class="col-md-3">
                             <label for="date_from" class="form-label">Fecha Desde</label>
                             <input type="date" class="form-control" id="date_from" name="date_from" 
@@ -220,15 +229,6 @@
                             <label for="date_to" class="form-label">Fecha Hasta</label>
                             <input type="date" class="form-control" id="date_to" name="date_to" 
                                    value="{{ filters.date_to }}">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="supplier_id" class="form-label">Proveedor</label>
-                            <div class="autocomplete-container">
-                                <input type="text" class="form-control autocomplete-input" id="supplier_search" 
-                                       placeholder="Buscar proveedor..." autocomplete="off">
-                                <input type="hidden" id="supplier_id" name="supplier_id" value="{{ filters.supplier_id }}">
-                                <div id="supplier_suggestions" class="autocomplete-suggestions dropdown-menu w-100"></div>
-                            </div>
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-default me-2">
@@ -301,14 +301,30 @@
                     <h6>Top Proveedores</h6>
                 </div>
                 <div class="card-body">
-                    {% for supplier in supplier_summary %}
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>{{ supplier.partner__name|truncatechars:30 }}</span>
-                        <span class="badge bg-primary">${{ supplier.total|floatformat:2 }}</span>
-                    </div>
-                    {% empty %}
-                    <p class="text-muted">No hay datos disponibles</p>
-                    {% endfor %}
+                    {% if supplier_summary %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Proveedor</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-end">Monto Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for supplier in supplier_summary %}
+                                    <tr>
+                                        <td>{{ supplier.partner__name|truncatechars:30 }}</td>
+                                        <td class="text-center">{{ supplier.count }}</td>
+                                        <td class="text-end">${{ supplier.total|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

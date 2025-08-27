@@ -304,14 +304,30 @@
                     <h6>Top Clientes</h6>
                 </div>
                 <div class="card-body">
-                    {% for customer in customer_summary %}
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>{{ customer.partner__name|truncatechars:30 }}</span>
-                        <span class="badge bg-primary">${{ customer.total|floatformat:2 }}</span>
-                    </div>
-                    {% empty %}
-                    <p class="text-muted">No hay datos disponibles</p>
-                    {% endfor %}
+                    {% if customer_summary %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-end">Monto Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for customer in customer_summary %}
+                                    <tr>
+                                        <td>{{ customer.partner__name|truncatechars:30 }}</td>
+                                        <td class="text-center">{{ customer.count }}</td>
+                                        <td class="text-end">${{ customer.total|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
