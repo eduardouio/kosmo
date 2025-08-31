@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+   <title>{{ title_page }}</title>
+   <link rel="icon" href="/static/img/logo.png" />
+   <!-- Tailwind + DaisyUI -->
+   <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+   <!-- Line Awesome (reemplaza Font Awesome) -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css" />
+   {% block style %}{% endblock %}
+   {% block script_header %}{% endblock %}
+   {% block files_header %}{% endblock %}
+   <style>
+      .app-shell{min-height:100vh;display:flex;flex-direction:column;}
+      .app-main{flex:1;width:100%;max-width:1200px;margin:0 auto;padding:1rem .95rem 1.5rem;}
+      .safe-bottom{padding-bottom:calc(env(safe-area-inset-bottom) + 1rem);} 
+      .gradient-border{position:relative;}
+      .gradient-border:before{content:"";position:absolute;inset:0;padding:1px;border-radius:0.75rem;background:linear-gradient(90deg,var(--p) 0%,var(--s) 50%,var(--a) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;}
+   </style>
+</head>
+<body class="bg-base-200 text-base-content antialiased bg-gradient-to-br from-base-200 via-base-300/40 to-base-200">
+   <div class="app-shell" id="app">
+   <header class="w-full navbar shadow-sm sticky top-0 z-30 px-2 min-h-[3.25rem] bg-gradient-to-r from-primary/90 via-secondary/80 to-accent/80 text-primary-content">
+         <div class="flex items-center gap-2 flex-1">
+            <!-- Botón menú móvil -->
+            <button id="menuToggle" class="md:hidden btn btn-xs btn-ghost text-primary-content" aria-label="Abrir menú">
+               <i class="la la-bars text-xl"></i>
+            </button>
+            <a href="/" class="flex items-center gap-2 font-semibold tracking-tight text-sm">
+               <div class="p-[3px] rounded-full bg-gradient-to-br from-secondary to-accent">
+                  <img src="/static/img/logo-kosmo.png" alt="Logo" class="h-10 w-10 object-contain rounded-full bg-base-100/90" />
+               </div>
+               <span class="hidden sm:inline drop-shadow-sm">Kosmo Seller</span>
+            </a>
+         </div>
+         <div class="flex items-center gap-3">
+            <span class="badge badge-primary badge-sm font-medium tracking-wide">{{ request.user }}</span>
+            <label class="swap swap-rotate bg-base-100/20 p-1 rounded-full backdrop-blur shadow-inner">
+               <input type="checkbox" id="themeToggle" />
+               <svg class="swap-on fill-current w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.64 17a9 9 0 0012.72 0A9 9 0 015.64 7 7 7 0 005.64 17z"/></svg>
+               <svg class="swap-off fill-current w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.64 13a1 1 0 00-1.05-.14 8 8 0 01-10.45-10.45 1 1 0 00-.14-1.05A1 1 0 008 1a10 10 0 1010 10 1 1 0 00-.36-.77z"/></svg>
+            </label>
+         </div>
+      </header>
+      <!-- Barra progreso meta tallos (global) -->
+      <div class="w-full bg-base-200/60 backdrop-blur-sm px-3 pt-2 pb-1">
+         <div class="h-2 w-full bg-base-300 rounded-full overflow-hidden ring-1 ring-base-200/70" style="--w: {{ stems_progress_width|default:0 }}%;">
+            <div class="h-full bg-gradient-to-r from-primary via-secondary to-accent transition-all duration-500" style="width: var(--w);"></div>
+         </div>
+         <div class="flex justify-between text-[10px] mt-1 font-medium tracking-wide">
+            <span class="opacity-70">Meta Tallos</span>
+            <span class="opacity-70">{{ stems_sold|default:0 }} / {{ goal_stems|default:0 }} ({{ stems_progress_pct|default:0 }}%)</span>
+         </div>
+      </div>
+      <main class="app-main">
+         {% if show_alert %}
+         <div role="alert" class="alert alert-warning shadow-sm mb-4 text-sm">
+            <span class="font-medium">Esta es una alerta del sistema.</span>
+         </div>
+         {% endif %}
+         <div class="flex items-start gap-4">
+            <!-- Sidebar -->
+            <aside class="hidden md:block w-48 shrink-0">
+               <nav class="menu p-0 rounded-box bg-base-100 border border-base-300/60 shadow-sm text-sm">
+                  <ul class="[&>li>a]:py-2 [&>li>a]:px-3 [&>li>a]:gap-2">
+                     <li>
+                        <a href="#" class="flex items-center">
+                           <i class="la la-home text-primary text-lg"></i>
+                           <span>Inicio</span>
+                        </a>
+                     </li>
+                     <li class="menu-title mt-1 mb-0 px-3 pt-2 text-[10px] opacity-60">Operación</li>
+                     <li>
+                        <a href="#" class="flex items-center">
+                           <i class="la la-box text-secondary text-lg"></i>
+                           <span>Disponibilidad</span>
+                        </a>
+                     </li>
+                     <li>
+                        <a href="#" class="flex items-center">
+                           <i class="la la-clipboard-list text-accent text-lg"></i>
+                           <span>Pedidos</span>
+                        </a>
+                     </li>
+                     <li>
+                        <a href="#" class="flex items-center">
+                           <i class="la la-chart-line text-success text-lg"></i>
+                           <span>Ventas</span>
+                        </a>
+                     </li>
+                  </ul>
+               </nav>
+            </aside>
+            <!-- Sidebar móvil offcanvas -->
+            <div id="mobileSidebar" class="fixed inset-0 z-40 hidden" aria-hidden="true">
+               <div class="absolute inset-0 bg-base-content/40 backdrop-blur-sm" id="mobileSidebarBackdrop"></div>
+               <div class="absolute left-0 top-0 h-full w-64 bg-base-100 shadow-xl border-r border-base-300 flex flex-col">
+                  <div class="px-4 py-3 flex items-center justify-between border-b border-base-300">
+                     <span class="font-semibold text-sm">Menú</span>
+                     <button id="menuClose" class="btn btn-xs btn-ghost" aria-label="Cerrar menú"><i class="la la-times text-lg"></i></button>
+                  </div>
+                  <nav class="menu p-2 text-sm flex-1 overflow-y-auto">
+                     <ul>
+                        <li><a href="#"><i class="la la-home"></i> Inicio</a></li>
+                        <li class="menu-title">Operación</li>
+                        <li><a href="#"><i class="la la-box"></i> Disponibilidad</a></li>
+                        <li><a href="#"><i class="la la-clipboard-list"></i> Pedidos</a></li>
+                        <li><a href="#"><i class="la la-chart-line"></i> Ventas</a></li>
+                     </ul>
+                  </nav>
+               </div>
+            </div>
+            <!-- Contenido principal -->
+            <div class="flex-1 min-w-0">
+               <div class="grid gap-4">
+                  <div class="card bg-base-100 shadow-sm border border-base-300/60 gradient-border">
+                     <div class="card-body py-4 px-4">
+                        {% block content %}{% endblock %}
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </main>
+      <footer class="safe-bottom border-t border-base-300 text-[10px] py-4 bg-gradient-to-r from-base-100 via-base-200 to-base-100">
+         <div class="max-w-screen-md mx-auto px-3 flex flex-col sm:flex-row items-center justify-between gap-2">
+            <p class="opacity-70">&copy; 2025 KOSMO FLOWERS</p>
+            <p class="opacity-60">Desarrollado por <a class="link link-primary" href="mailto:eduardouio7@gmail.com">Eduardo Villota</a></p>
+         </div>
+      </footer>
+   </div>
+   {% block files_footer %}{% endblock %}
+   {% block script %}{% endblock %}
+   {% block script_app %}{% endblock %}
+   <script>
+      const toggle=document.getElementById('themeToggle');
+      const root=document.documentElement;const saved=localStorage.getItem('theme-mode');
+      if(saved==='dark'){root.classList.add('dark');root.setAttribute('data-theme','dark');toggle.checked=true;}
+      toggle?.addEventListener('change',()=>{if(toggle.checked){root.classList.add('dark');root.setAttribute('data-theme','dark');localStorage.setItem('theme-mode','dark');}else{root.classList.remove('dark');root.setAttribute('data-theme','light');localStorage.setItem('theme-mode','light');}});
+   // Sidebar móvil
+   const menuToggle=document.getElementById('menuToggle');
+   const mobileSidebar=document.getElementById('mobileSidebar');
+   const menuClose=document.getElementById('menuClose');
+   const mobileSidebarBackdrop=document.getElementById('mobileSidebarBackdrop');
+   function openSidebar(){mobileSidebar.classList.remove('hidden');document.body.classList.add('overflow-hidden');}
+   function closeSidebar(){mobileSidebar.classList.add('hidden');document.body.classList.remove('overflow-hidden');}
+   menuToggle?.addEventListener('click',openSidebar);
+   menuClose?.addEventListener('click',closeSidebar);
+   mobileSidebarBackdrop?.addEventListener('click',closeSidebar);
+   document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSidebar();}});
+   </script>
+</body>
+</html>

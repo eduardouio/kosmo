@@ -9,7 +9,7 @@ class SellerHomeView(LoginRequiredMixin, TemplateView):
 
     @cached_property
     def seller_data(self):
-        """Obtiene datos reales; si falla retorna datos ficticios de ejemplo."""
+        """Obtiene datos; si falla usa datos de ejemplo."""
         user = self.request.user
         try:
             data = SellerData.get_seller_info(user.id)
@@ -87,6 +87,7 @@ class SellerHomeView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         data = self.seller_data
         user_info = data.get('user', {})
+
         ctx['title_page'] = 'Dashboard Vendedor'
         ctx['seller_name'] = (
             f"{user_info.get('first_name', '')} "
@@ -100,4 +101,18 @@ class SellerHomeView(LoginRequiredMixin, TemplateView):
         ctx['customer_orders'] = data.get('customer_orders', [])[:10]
         ctx['supplier_orders'] = data.get('supplier_orders', [])[:10]
         ctx['top_customers'] = data.get('customers', [])[:6]
+
+        goal_stems = user_info.get('goal_stems') or 0
+        stems_sold = ctx['stems_sold'] or 0
+        try:
+            pct = (stems_sold / goal_stems * 100) if goal_stems else 0
+        except Exception:
+            pct = 0
+
+        # Limitar a 150% (protege layout) y guardar datos progreso
+        ctx['goal_stems'] = goal_stems
+        ctx['stems_progress_pct'] = round(pct, 1)
+        ctx['stems_progress_pct_capped'] = 150 if pct > 150 else round(pct, 1)
+        # Ancho para barra (0-100)
+        ctx['stems_progress_width'] = min(100, ctx['stems_progress_pct'])
         return ctx
