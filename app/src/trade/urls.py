@@ -36,6 +36,8 @@ from api.trade import (
     PaymentVoidAPI,
 )
 
+from trade.views.seller import SellerHomeView
+
 urlpatterns = [
     path('trade/<int:pk>/', DetailStockDetail.as_view(),name='stock_detail_detail'),
     path('trade/stock/', StockDayListView.as_view(), name='stock_list'),
@@ -73,4 +75,6 @@ urlpatterns = [
     path('api/payments/<int:payment_id>/delete/', PaymentVoidAPI.as_view(), name='payments_delete_api'),
     path('api/payments/delete/', PaymentVoidAPI.as_view(), name='payments_bulk_delete_api'),
     path('trade/payment/<int:pk>/', PaymentDetailView.as_view(), name='payment_detail'),
+    # seller
+    path('trade/seller/home/', SellerHomeView.as_view(), name='seller_home'),
 ]
