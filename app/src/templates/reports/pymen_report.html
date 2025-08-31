@@ -226,9 +226,9 @@
                                     <th>Número</th>
                                     <th>Fecha</th>
                                     <th>Monto</th>
+                                    <th>Aplicado</th>
+                                    <th>Saldo</th>
                                     <th>Partners</th>
-                                    <th>Banco</th>
-                                    <th>Nro. Operación</th>
                                     <th>Creado por</th>
                                 </tr>
                             </thead>
@@ -242,9 +242,13 @@
                                     </td>
                                     <td>{{ payment.date|date:"d/m/Y" }}</td>
                                     <td>${{ payment.amount|floatformat:2 }}</td>
+                                    <td>${{ payment.applied_amount|floatformat:2 }}</td>
+                                    <td>
+                                        <span {% if payment.balance > 0 %}class="text-warning fw-bold"{% else %}class="text-success"{% endif %}>
+                                            ${{ payment.balance|floatformat:2 }}
+                                        </span>
+                                    </td>
                                     <td>{{ payment.display_partners|default:"-" }}</td>
-                                    <td>{{ payment.bank|default:"-" }}</td>
-                                    <td>{{ payment.nro_operation|default:"-" }}</td>
                                     <td>{{ payment.creator_name|default:"-" }}</td>
                                 </tr>
                                 {% empty %}
@@ -520,7 +524,7 @@
         doc.text('Fecha: ' + today, 14, 30);
         
         // Tabla
-        const headers = [['Número', 'Fecha', 'Monto', 'Partners', 'Banco', 'Nro. Op.', 'Creado por']];
+        const headers = [['Número', 'Fecha', 'Monto', 'Aplicado', 'Saldo', 'Partners', 'Creado por']];
         const data = [];
         
         {% for payment in payments %}
@@ -528,9 +532,9 @@
             '{{ payment.payment_number }}',
             '{{ payment.date|date:"d/m/Y" }}',
             '${{ payment.amount|floatformat:2 }}',
-            '{{ payment.display_partners|default:"-"|truncatechars:30 }}',
-            '{{ payment.bank|default:"-" }}',
-            '{{ payment.nro_operation|default:"-" }}',
+            '${{ payment.applied_amount|floatformat:2 }}',
+            '${{ payment.balance|floatformat:2 }}',
+            '{{ payment.display_partners|default:"-"|truncatechars:25 }}',
             '{{ payment.creator_name|default:"-"|truncatechars:20 }}'
         ]);
         {% endfor %}
@@ -542,13 +546,13 @@
             theme: 'grid',
             styles: { fontSize: 8 },
             columnStyles: {
-                0: { cellWidth: 25 },
-                1: { cellWidth: 20 },
-                2: { cellWidth: 25 },
-                3: { cellWidth: 40 },
-                4: { cellWidth: 30 },
-                5: { cellWidth: 25 },
-                6: { cellWidth: 25 }
+                0: { cellWidth: 20 },  // Número
+                1: { cellWidth: 18 },  // Fecha
+                2: { cellWidth: 20 },  // Monto
+                3: { cellWidth: 20 },  // Aplicado
+                4: { cellWidth: 20 },  // Saldo
+                5: { cellWidth: 30 },  // Partners
+                6: { cellWidth: 22 }   // Creado por
             }
         });
         

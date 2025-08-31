@@ -3,7 +3,7 @@ from django.views import View
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta, datetime
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum
 from collections import defaultdict
 import json
 from trade.models import Payment
@@ -51,12 +51,13 @@ class PymenReportView(View):
             for payment in payments:
                 # Obtener proveedores de las facturas asociadas
                 payment_partners = payment.invoices.values_list(
-                    'invoice__partner__name', 
+                    'invoice__partner__name',
                     'invoice__partner__id'
                 ).distinct()
-                
+
                 for partner_name, partner_id_iter in payment_partners:
-                    if partner_id_iter and partner_name:  # Verificar que no sean None
+                    # Verificar que no sean None
+                    if partner_id_iter and partner_name:
                         if partner_id_iter not in provider_stats:
                             provider_stats[partner_id_iter] = {
                                 'name': partner_name,
@@ -64,25 +65,26 @@ class PymenReportView(View):
                                 'total': 0
                             }
                         provider_stats[partner_id_iter]['count'] += 1
-                        provider_stats[partner_id_iter]['total'] += float(payment.amount) if payment.amount else 0
-            
+                        amount = float(payment.amount) if payment.amount else 0
+                        provider_stats[partner_id_iter]['total'] += amount
+
             # Ordenar por monto total y tomar top 5
             top_providers = sorted(
-                provider_stats.values(), 
-                key=lambda x: x['total'], 
+                provider_stats.values(),
+                key=lambda x: x['total'],
                 reverse=True
-            )[:5]
-
-        # Calcular pagos por semana
+            )[:5]        # Calcular pagos por semana
         weekly_payments = defaultdict(lambda: {'count': 0, 'total': 0})
         
         if payments.exists():
             for payment in payments:
                 # Obtener el inicio de la semana (lunes)
-                week_start = payment.date - timedelta(days=payment.date.weekday())
+                week_start = payment.date - timedelta(
+                    days=payment.date.weekday())
                 week_key = week_start.strftime('%Y-%m-%d')
                 weekly_payments[week_key]['count'] += 1
-                weekly_payments[week_key]['total'] += float(payment.amount) if payment.amount else 0
+                amount = float(payment.amount) if payment.amount else 0
+                weekly_payments[week_key]['total'] += amount
         
         # Convertir a lista ordenada para el gráfico
         weekly_data = []
@@ -96,14 +98,20 @@ class PymenReportView(View):
             })
 
         # Agregar información adicional a cada pago para la tabla
-        # Usar un nombre diferente para evitar conflicto con la propiedad existente
         for payment in payments:
             # Obtener nombres de partners asociados
             partners_list = payment.invoices.values_list(
                 'invoice__partner__name', flat=True
             ).distinct()
-            payment.display_partners = ', '.join([p for p in partners_list if p])
-            
+            payment.display_partners = ', '.join(
+                [p for p in partners_list if p])
+
+            # Calcular monto aplicado a facturas y saldo
+            applied_amount = payment.invoices.aggregate(
+                total=Sum('amount'))['total'] or 0
+            payment.applied_amount = float(applied_amount)
+            payment.balance = float(payment.amount) - float(applied_amount)
+
             # Obtener el nombre del usuario creador
             user_creator = payment.user_creator
             if user_creator:
