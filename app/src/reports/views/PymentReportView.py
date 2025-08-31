@@ -10,8 +10,8 @@ from trade.models import Payment
 from partners.models import Partner
 
 
-class PymenReportView(View):
-    template_name = 'reports/pymen_report.html'
+class PymentReportView(View):
+    template_name = 'reports/pyment_report.html'
 
     def get(self, request, *args, **kwargs):
         # Filtros de fechas por defecto (último mes)
