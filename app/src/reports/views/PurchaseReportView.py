@@ -36,8 +36,8 @@ class PurchaseReportView(View):
         if supplier_id:
             invoices_query = invoices_query.filter(partner_id=supplier_id)
 
-        # Obtener facturas de compra
-        purchase_invoices = invoices_query.order_by('-date')
+        # Obtener facturas de compra ordenadas por fecha de vencimiento
+        purchase_invoices = invoices_query.order_by('due_date', '-date')
 
         # Agregar información de vencimiento a cada factura
         current_date = timezone.now().date()
@@ -78,7 +78,7 @@ class PurchaseReportView(View):
             due_date__date__lt=current_date,
             status__in=['PENDIENTE']  # Solo pendientes pueden estar vencidas
         )
-        
+
         overdue_count = overdue_invoices.count()
         overdue_total = overdue_invoices.aggregate(
             Sum('total_price'))['total_price__sum'] or 0
@@ -86,10 +86,10 @@ class PurchaseReportView(View):
         # Crear lista completa con todos los estados del modelo
         all_status = dict(Invoice._meta.get_field('status').choices)
         status_summary = []
-        
+
         # Convertir status_data a diccionario para acceso rápido
         status_dict = {item['status']: item for item in status_data}
-        
+
         # Agregar todos los estados definidos en el modelo
         for status_key, status_label in all_status.items():
             if status_key in status_dict:
@@ -106,7 +106,7 @@ class PurchaseReportView(View):
                     'count': 0,
                     'total': 0
                 })
-        
+
         # Agregar estado "VENCIDO" calculado
         status_summary.append({
             'status': 'VENCIDO',

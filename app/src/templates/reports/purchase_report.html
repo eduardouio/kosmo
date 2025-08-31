@@ -351,8 +351,8 @@
                             <thead>
                                 <tr>
                                     <th>Nº Factura</th>
-                                    <th>Serie</th>
                                     <th>Fecha</th>
+                                    <th>Hora</th>
                                     <th>Vencimiento</th>
                                     <th>Plazo D</th>
                                     <th>Proveedor</th>
@@ -365,8 +365,8 @@
                                 {% for invoice in purchase_invoices %}
                                 <tr{% if invoice.is_invoice_overdue %} class="invoice-overdue"{% endif %}>
                                     <td>{{ invoice.num_invoice|default:"-" }}</td>
-                                    <td>{{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}</td>
-                                    <td>{{ invoice.date|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ invoice.date|date:"d/m/Y" }}</td>
+                                    <td>{{ invoice.date|date:"H:i" }}</td>
                                     <td>
                                         {% if invoice.due_date %}
                                             {% if invoice.is_invoice_overdue %}
@@ -481,7 +481,7 @@
                     "sortDescending": ": activar para ordenar la columna de manera descendente"
                 }
             },
-            order: [[2, 'desc']], // Ordenar por fecha desc (columna 2)
+            order: [], // No ordenar por defecto (ya viene ordenado desde el servidor)
             pageLength: 15,
             lengthMenu: [15, 25, 50, 100, 500]
         });
@@ -643,7 +643,7 @@
             $(this).find('td').each(function(index) {
                 var cellText = $(this).text().trim();
                 
-                // Si la columna es "Total (Sin Margen)" (índice 7), procesar el valor numérico
+                // Si la columna es "Total (Sin Margen)" (ahora índice 7), procesar el valor numérico
                 if (index === 7 && cellText.startsWith('$')) {
                     // Remover el símbolo $ y reemplazar coma por punto
                     var numericValue = cellText.replace('$', '').replace(',', '.');
