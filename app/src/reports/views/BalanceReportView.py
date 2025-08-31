@@ -80,6 +80,20 @@ class BalanceReportView(View):
             type_transaction='EGRESO'
         ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
 
+        # Detalle de ingresos (cobros)
+        detalle_ingresos = payments.filter(
+            type_transaction='INGRESO'
+        ).values(
+            'payment_number', 'date', 'amount', 'method'
+        ).order_by('-date')[:10]
+
+        # Detalle de egresos (pagos)
+        detalle_egresos = payments.filter(
+            type_transaction='EGRESO'
+        ).values(
+            'payment_number', 'date', 'amount', 'method'
+        ).order_by('-date')[:10]
+
         # === CÁLCULOS DE BALANCE ===
         # La utilidad bruta es el margen real obtenido en las ventas
         utilidad_bruta = total_margen
@@ -200,6 +214,8 @@ class BalanceReportView(View):
             'ingresos': ingresos,
             'egresos': egresos,
             'flujo_efectivo': flujo_efectivo,
+            'detalle_ingresos': detalle_ingresos,
+            'detalle_egresos': detalle_egresos,
 
             # Balance y KPIs
             'utilidad_bruta': utilidad_bruta,

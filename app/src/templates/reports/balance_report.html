@@ -433,6 +433,94 @@
             </div>
         </div>
     </div>
+
+    <!-- Detalle de Flujo de Efectivo -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="compact-table">
+                <h6>Detalle de Cobros (Ingresos)</h6>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Número</th>
+                            <th style="width: 25%;">Fecha</th>
+                            <th style="width: 25%;">Método</th>
+                            <th style="width: 25%;" class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cobro in detalle_ingresos|slice:":8" %}
+                        <tr>
+                            <td>
+                                <small class="text-truncate d-block" style="max-width: 80px;">
+                                    {{ cobro.payment_number|default:"N/A" }}
+                                </small>
+                            </td>
+                            <td>
+                                <small>{{ cobro.date|date:"d/m/Y" }}</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ cobro.method }}</small>
+                            </td>
+                            <td class="text-end">
+                                <span class="badge bg-success">${{ cobro.amount|floatformat:0 }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Sin cobros registrados</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="text-end p-2 bg-light">
+                    <strong>Total Ingresos: ${{ ingresos|floatformat:0 }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="compact-table">
+                <h6>Detalle de Pagos (Egresos)</h6>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Número</th>
+                            <th style="width: 25%;">Fecha</th>
+                            <th style="width: 25%;">Método</th>
+                            <th style="width: 25%;" class="text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pago in detalle_egresos|slice:":8" %}
+                        <tr>
+                            <td>
+                                <small class="text-truncate d-block" style="max-width: 80px;">
+                                    {{ pago.payment_number|default:"N/A" }}
+                                </small>
+                            </td>
+                            <td>
+                                <small>{{ pago.date|date:"d/m/Y" }}</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ pago.method }}</small>
+                            </td>
+                            <td class="text-end">
+                                <span class="badge bg-danger">${{ pago.amount|floatformat:0 }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">Sin pagos registrados</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="text-end p-2 bg-light">
+                    <strong>Total Egresos: ${{ egresos|floatformat:0 }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
