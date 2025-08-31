@@ -1,0 +1,145 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<h1 class="font-bold mb-4">Detalle Vendedor</h1>
+
+<div class="bg-white shadow-md rounded-lg p-4 mb-4">
+	<div class="row g-3">
+		<div class="col-md-3 text-center">
+			{% if object.picture %}
+				<img src="{{ object.picture.url }}" alt="Foto" class="img-fluid rounded border" style="max-height:160px;object-fit:cover;">
+			{% else %}
+				<div class="d-flex flex-column justify-content-center align-items-center border rounded py-4 bg-light" style="height:160px;">
+					<i class="la la-user-circle" style="font-size:3rem;opacity:.4;"></i>
+					<span class="small text-muted">Sin foto</span>
+				</div>
+			{% endif %}
+			<div class="mt-3">
+				<span class="badge bg-primary">{{ object.roles }}</span>
+				{% if object.is_active %}
+					<span class="badge bg-success">Activo</span>
+				{% else %}
+					<span class="badge bg-danger">Inactivo</span>
+				{% endif %}
+			</div>
+		</div>
+		<div class="col-md-9">
+			<div class="row g-2">
+				<div class="col-md-6">
+					<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+						<label class="small mb-0 text-muted">Nombre</label>
+						<span class="fw-semibold">{{ object.first_name }} {{ object.last_name }}</span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+						<label class="small mb-0 text-muted">Correo</label>
+						<span class="fw-semibold">{{ object.email }}</span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+						<label class="small mb-0 text-muted">Teléfono</label>
+						<span class="fw-semibold">{{ object.phone|default:'-' }}</span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+						<label class="small mb-0 text-muted">Correo Confirmado</label>
+						{% if object.is_confirmed_mail %}
+							<span class="badge bg-success">Sí</span>
+						{% else %}
+							<span class="badge bg-secondary">No</span>
+						{% endif %}
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+						<label class="small mb-0 text-muted">Meta Ventas</label>
+						<span class="fw-semibold">{{ object.goal_sales }}</span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+						<label class="small mb-0 text-muted">Meta Tallos</label>
+						<span class="fw-semibold">{{ object.goal_stems }}</span>
+					</div>
+				</div>
+				{% if object.notes %}
+				<div class="col-12">
+					<div class="bg-gray-100 border border-gray-300 p-2">
+						<label class="small mb-1 text-muted d-block">Notas</label>
+						<span class="fw-semibold">{{ object.notes }}</span>
+					</div>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+
+<h5 class="fw-bold mt-4 mb-2">Metadatos</h5>
+<div class="bg-white shadow-sm rounded-lg p-3 mb-4">
+	<div class="row g-2">
+		<div class="col-md-3">
+			<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+				<label class="small mb-0 text-muted">ID</label>
+				<span class="fw-semibold">{{ object.id }}</span>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+				<label class="small mb-0 text-muted">Registrado</label>
+				<span class="fw-semibold">{{ object.date_joined|date:'Y-m-d H:i' }}</span>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+				<label class="small mb-0 text-muted">Último Login</label>
+				<span class="fw-semibold">{{ object.last_login|default:'-'|date:'Y-m-d H:i' }}</span>
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+				<label class="small mb-0 text-muted">Staff</label>
+				{% if object.is_staff %}<span class="badge bg-info">Sí</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+				<label class="small mb-0 text-muted">Superusuario</label>
+				{% if object.is_superuser %}<span class="badge bg-warning text-dark">Sí</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}
+			</div>
+		</div>
+		<div class="col-md-3">
+			<div class="bg-gray-100 border border-gray-300 p-2 d-flex justify-content-between align-items-center">
+				<label class="small mb-0 text-muted">Estado</label>
+				{% if object.is_active %}<span class="badge bg-success">Activo</span>{% else %}<span class="badge bg-danger">Inactivo</span>{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mt-3">
+	<a href="#" class="btn btn-sm bg-gray-300 border border-gray-400">
+		<i class="la la-edit me-1"></i> Editar
+	</a>
+	{% if object.is_active %}
+	<a href="#" class="btn btn-sm btn-danger border border-danger-subtle">
+		<i class="la la-ban me-1"></i> Bloquear
+	</a>
+	{% else %}
+	<a href="#" class="btn btn-sm btn-success border border-success-subtle">
+		<i class="la la-unlock me-1"></i> Activar
+	</a>
+	{% endif %}
+	<a href="#" class="btn btn-sm btn-warning border border-warning-subtle">
+		<i class="la la-key me-1"></i> Resetear Clave
+	</a>
+	<a href="#" class="btn btn-sm bg-gray-300 border border-gray-400">
+		<i class="la la-arrow-left me-1"></i> Volver
+	</a>
+</div>
+
+<p class="text-muted small mt-4">(Acciones próximamente: bloquear/desbloquear, reset de contraseña, edición avanzada)</p>
+
+{% endblock %}
