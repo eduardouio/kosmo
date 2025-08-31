@@ -123,7 +123,20 @@ class Payment(BaseModel):
             self.nro_account = self.nro_account.upper()
         if self.nro_operation:
             self.nro_operation = self.nro_operation.upper()
+        
+        # Detectar cambio de estado
+        status_changed = False
+        if self.pk:
+            old_payment = Payment.objects.get(pk=self.pk)
+            status_changed = old_payment.status != self.status
+        
         super().save(*args, **kwargs)
+        
+        # Si cambió el estado, actualizar todas las facturas relacionadas
+        if status_changed:
+            for payment_detail in self.invoices.all():
+                if payment_detail.invoice:
+                    payment_detail.invoice.update_payment_status()
 
     @property
     def total_invoices_amount(self):
@@ -274,6 +287,23 @@ class PaymentDetail(BaseModel):
                     f'({self.invoice.total_invoice})'
                 )
             )
+
+    def save(self, *args, **kwargs):
+        """Guardar y actualizar estado de la factura"""
+        super().save(*args, **kwargs)
+        
+        # Actualizar el estado de la factura después de guardar el pago
+        if self.invoice and self.payment.status == 'CONFIRMADO':
+            self.invoice.update_payment_status()
+
+    def delete(self, *args, **kwargs):
+        """Eliminar y actualizar estado de la factura"""
+        invoice = self.invoice
+        super().delete(*args, **kwargs)
+        
+        # Actualizar el estado de la factura después de eliminar el pago
+        if invoice:
+            invoice.update_payment_status()
 
     def __str__(self):
         return f"{self.payment} - {self.invoice} - {self.amount}"

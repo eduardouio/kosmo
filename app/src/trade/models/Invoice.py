@@ -37,7 +37,7 @@ class Invoice(BaseModel):
     serie = models.CharField(
         'Serie',
         max_length=5,
-        blank=True, 
+        blank=True,
         null=True,
         default=None,
         choices=SERIES
@@ -245,6 +245,65 @@ class Invoice(BaseModel):
         if self.due_date and self.is_dued:
             return (datetime.now().date() - self.due_date.date()).days
         return 0
+
+    @property
+    def total_paid(self):
+        """Calcula el total pagado de esta factura"""
+        from trade.models.Payment import PaymentDetail
+        return sum(
+            detail.amount for detail in PaymentDetail.objects.filter(
+                invoice=self,
+                is_active=True,
+                payment__status='CONFIRMADO'
+            )
+        )
+
+    @property
+    def is_fully_paid(self):
+        """Verifica si la factura está completamente pagada"""
+        return self.total_paid >= self.total_invoice
+
+    @property
+    def pending_amount(self):
+        """Calcula el monto pendiente de pago"""
+        return max(0, self.total_invoice - self.total_paid)
+
+    def update_payment_status(self):
+        """Actualiza el estado de la factura basado en los pagos"""
+        from common.AppLoger import loggin_event
+        
+        if self.status == 'ANULADO':
+            # No cambiar facturas anuladas
+            return
+            
+        old_status = self.status
+        
+        if self.is_fully_paid:
+            self.status = 'PAGADO'
+        else:
+            self.status = 'PENDIENTE'
+            
+        if old_status != self.status:
+            loggin_event(
+                f"Factura {self.id}: Estado cambiado de "
+                f"{old_status} a {self.status}"
+            )
+            self.save()
+
+    @classmethod
+    def update_all_payment_statuses(cls):
+        """Actualiza el estado de pago de todas las facturas activas"""
+        from common.AppLoger import loggin_event
+        
+        updated_count = 0
+        for invoice in cls.objects.filter(is_active=True):
+            old_status = invoice.status
+            invoice.update_payment_status()
+            if old_status != invoice.status:
+                updated_count += 1
+        
+        loggin_event(f"Actualizadas {updated_count} facturas")
+        return updated_count
 
     @classmethod
     def get_next_invoice_number(cls):
