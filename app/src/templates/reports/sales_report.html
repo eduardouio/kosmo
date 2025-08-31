@@ -356,6 +356,7 @@
                                     <th>Nº Factura</th>
                                     <th>Serie</th>
                                     <th>Fecha</th>
+                                    <th>Hora</th>
                                     <th>Vencimiento</th>
                                     <th>Plazo D</th>
                                     <th>Cliente</th>
@@ -380,7 +381,8 @@
                                         {% endif %}
                                     </td>
                                     <td>{{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}</td>
-                                    <td>{{ invoice.date|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ invoice.date|date:"d/m/Y" }}</td>
+                                    <td>{{ invoice.date|date:"H:i" }}</td>
                                     <td>
                                         {% if invoice.due_date %}
                                             {% if invoice.is_invoice_overdue %}
@@ -392,7 +394,7 @@
                                             <span class="text-muted">Sin fecha</span>
                                         {% endif %}
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center" data-order="{{ invoice.sort_order }}">
                                         {% if invoice.due_date %}
                                             {% if invoice.is_invoice_overdue %}
                                                 <span class="overdue-text">{{ invoice.days_invoice_overdue }} días vencido</span>
@@ -466,7 +468,8 @@
     // Inicializar DataTable
     $(document).ready(function() {
         $('#salesTable').DataTable({
-            lengthMenu: [15, 25, 50, 100, 500]
+            lengthMenu: [15, 25, 50, 100, 500],
+            order: [[5, 'asc']]  // Ordenar por Plazo D (columna 5) ascendente por defecto
         });
 
         // Debug: Verificar que los clientes se cargan

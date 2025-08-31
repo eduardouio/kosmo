@@ -16,10 +16,9 @@ class SalesReportView(View):
         # Filtros de fechas por defecto (último mes)
         end_date = timezone.now().date()
         start_date = end_date - timedelta(days=30)
-        
+
         # Obtener parámetros de filtro
-        date_from = request.GET.get('date_from', 
-                                   start_date.strftime('%Y-%m-%d'))
+        date_from = request.GET.get('date_from', start_date.strftime('%Y-%m-%d'))
         date_to = request.GET.get('date_to', end_date.strftime('%Y-%m-%d'))
         customer_id = request.GET.get('customer_id', '')
         product_id = request.GET.get('product_id', '')
@@ -36,8 +35,8 @@ class SalesReportView(View):
         if customer_id:
             invoices_query = invoices_query.filter(partner_id=customer_id)
 
-        # Obtener facturas de venta
-        sales_invoices = invoices_query.order_by('-date')
+        # Obtener facturas de venta ordenadas por fecha de vencimiento de menor a mayor y luego por fecha descendente
+        sales_invoices = invoices_query.order_by('due_date', '-date')
 
         # Agregar información de vencimiento a cada factura
         current_date = timezone.now().date()
@@ -50,16 +49,19 @@ class SalesReportView(View):
                         current_date - due_date
                     ).days
                     invoice.days_invoice_to_due = 0
+                    invoice.sort_order = -invoice.days_invoice_overdue
                 else:
                     invoice.is_invoice_overdue = False
                     invoice.days_invoice_overdue = 0
                     invoice.days_invoice_to_due = (
                         due_date - current_date
                     ).days
+                    invoice.sort_order = invoice.days_invoice_to_due
             else:
                 invoice.is_invoice_overdue = False
                 invoice.days_invoice_overdue = 0
                 invoice.days_invoice_to_due = 0
+                invoice.sort_order = 99999  # Sin fecha
 
         # Agrupar por estado de TODAS las facturas de venta (no solo rango)
         all_sales_invoices = Invoice.objects.filter(
