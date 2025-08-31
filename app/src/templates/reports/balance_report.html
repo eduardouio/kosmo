@@ -177,6 +177,29 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         margin-bottom: 15px;
     }
+    
+    /* Estilos para las cards y tablas (copiados de sales_report) */
+    .table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .summary-card {
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    .summary-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .table-responsive {
+            font-size: 0.875rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -356,167 +379,153 @@
         </div>
     </div>
 
-    <!-- Tablas Compactas -->
-    <div class="row">
+    <!-- Tablas de Resumen -->
+    <div class="row mb-4">
         <div class="col-md-6">
-            <div class="compact-table">
-                <h6>Top Proveedores</h6>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th style="width: 60%;">Proveedor</th>
-                            <th style="width: 20%;" class="text-center">Órd.</th>
-                            <th style="width: 20%;" class="text-end">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for proveedor in compras_por_proveedor|slice:":8" %}
-                        <tr>
-                            <td>
-                                <strong class="text-truncate d-block" style="max-width: 150px;">
-                                    {{ proveedor.partner__name|truncatechars:25 }}
-                                </strong>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-secondary">{{ proveedor.count }}</span>
-                            </td>
-                            <td class="text-end">
-                                <span class="badge bg-danger">${{ proveedor.total|floatformat:0 }}</span>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3" class="text-center text-muted">Sin datos</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-truck me-2"></i>Top Proveedores</h6>
+                </div>
+                <div class="card-body">
+                    {% if compras_por_proveedor %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Proveedor</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-end">Monto Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for proveedor in compras_por_proveedor|slice:":8" %}
+                                    <tr>
+                                        <td>{{ proveedor.partner__name|truncatechars:30 }}</td>
+                                        <td class="text-center">{{ proveedor.count }}</td>
+                                        <td class="text-end">${{ proveedor.total|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="compact-table">
-                <h6>Top Clientes</h6>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th style="width: 50%;">Cliente</th>
-                            <th style="width: 15%;" class="text-center">Órd.</th>
-                            <th style="width: 17%;" class="text-end">Margen</th>
-                            <th style="width: 18%;" class="text-end">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cliente in ventas_por_cliente|slice:":8" %}
-                        <tr>
-                            <td>
-                                <strong class="text-truncate d-block" style="max-width: 120px;">
-                                    {{ cliente.partner__name|truncatechars:20 }}
-                                </strong>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-secondary">{{ cliente.count }}</span>
-                            </td>
-                            <td class="text-end">
-                                <small class="text-muted">${{ cliente.margin|floatformat:0 }}</small>
-                            </td>
-                            <td class="text-end">
-                                <span class="badge bg-success">${{ cliente.total|floatformat:0 }}</span>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">Sin datos</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-users me-2"></i>Top Clientes</h6>
+                </div>
+                <div class="card-body">
+                    {% if ventas_por_cliente %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-end">Margen</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cliente in ventas_por_cliente|slice:":8" %}
+                                    <tr>
+                                        <td>{{ cliente.partner__name|truncatechars:25 }}</td>
+                                        <td class="text-center">{{ cliente.count }}</td>
+                                        <td class="text-end">${{ cliente.margin|floatformat:2 }}</td>
+                                        <td class="text-end">${{ cliente.total|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Detalle de Flujo de Efectivo -->
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-md-6">
-            <div class="compact-table">
-                <h6>Detalle de Cobros (Ingresos)</h6>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th style="width: 25%;">Número</th>
-                            <th style="width: 25%;">Fecha</th>
-                            <th style="width: 25%;">Método</th>
-                            <th style="width: 25%;" class="text-end">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cobro in detalle_ingresos|slice:":8" %}
-                        <tr>
-                            <td>
-                                <small class="text-truncate d-block" style="max-width: 80px;">
-                                    {{ cobro.payment_number|default:"N/A" }}
-                                </small>
-                            </td>
-                            <td>
-                                <small>{{ cobro.date|date:"d/m/Y" }}</small>
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ cobro.method }}</small>
-                            </td>
-                            <td class="text-end">
-                                <span class="badge bg-success">${{ cobro.amount|floatformat:2 }}</span>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">Sin cobros registrados</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="text-end p-2 bg-light">
-                    <strong>Total Ingresos: ${{ ingresos|floatformat:2 }}</strong>
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-arrow-down me-2 text-success"></i>Detalle de Cobros (Ingresos)</h6>
+                </div>
+                <div class="card-body">
+                    {% if detalle_ingresos %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Número</th>
+                                        <th>Fecha</th>
+                                        <th>Método</th>
+                                        <th class="text-end">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cobro in detalle_ingresos|slice:":8" %}
+                                    <tr>
+                                        <td>{{ cobro.payment_number|default:"N/A"|truncatechars:15 }}</td>
+                                        <td>{{ cobro.date|date:"d/m/Y" }}</td>
+                                        <td>{{ cobro.method }}</td>
+                                        <td class="text-end">${{ cobro.amount|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-end mt-2 pt-2 border-top">
+                            <strong>Total Ingresos: ${{ ingresos|floatformat:2 }}</strong>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Sin cobros registrados</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="compact-table">
-                <h6>Detalle de Pagos (Egresos)</h6>
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th style="width: 25%;">Número</th>
-                            <th style="width: 25%;">Fecha</th>
-                            <th style="width: 25%;">Método</th>
-                            <th style="width: 25%;" class="text-end">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for pago in detalle_egresos|slice:":8" %}
-                        <tr>
-                            <td>
-                                <small class="text-truncate d-block" style="max-width: 80px;">
-                                    {{ pago.payment_number|default:"N/A" }}
-                                </small>
-                            </td>
-                            <td>
-                                <small>{{ pago.date|date:"d/m/Y" }}</small>
-                            </td>
-                            <td>
-                                <small class="text-muted">{{ pago.method }}</small>
-                            </td>
-                            <td class="text-end">
-                                <span class="badge bg-danger">${{ pago.amount|floatformat:2 }}</span>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">Sin pagos registrados</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="text-end p-2 bg-light">
-                    <strong>Total Egresos: ${{ egresos|floatformat:2 }}</strong>
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-arrow-up me-2 text-danger"></i>Detalle de Pagos (Egresos)</h6>
+                </div>
+                <div class="card-body">
+                    {% if detalle_egresos %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Número</th>
+                                        <th>Fecha</th>
+                                        <th>Método</th>
+                                        <th class="text-end">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pago in detalle_egresos|slice:":8" %}
+                                    <tr>
+                                        <td>{{ pago.payment_number|default:"N/A"|truncatechars:15 }}</td>
+                                        <td>{{ pago.date|date:"d/m/Y" }}</td>
+                                        <td>{{ pago.method }}</td>
+                                        <td class="text-end">${{ pago.amount|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-end mt-2 pt-2 border-top">
+                            <strong>Total Egresos: ${{ egresos|floatformat:2 }}</strong>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Sin pagos registrados</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
