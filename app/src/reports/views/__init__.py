@@ -3,6 +3,7 @@ from .TemplateReportOrderSupView import TemplateReportOrderSupView
 from .TemplateReportCusOrderView import TemplateReportCusOrderView
 from .PDFReportCusOrder import PDFReportCusOrder
 from .TemplateInvoice import TemplateInvoice
+from .TemplateBalance import TemplateBalance
 from .PDFInvoice import PDFInvoice
 from .CollectionsReportsView import CollectionsReportsView
 from .PymentReportView import PymentReportView
@@ -12,8 +13,6 @@ from .BalanceReportView import BalanceReportView
 from .SalesByProductReportView import SalesByProductReportView
 from .PartnerAccountStatmentView import PartnerAccountStatmentView
 from .PartnerSearchView import PartnerSearchView
-from .PartnerAccountStatmentPDF import PartnerAccountStatmentPDF
-from .PartnerAccountStatmentExcel import PartnerAccountStatmentExcel
 from .PDFPayment import PDFPayment
 from .TemplatePayment import TemplatePayment
 from .TemplateCollection import TemplateCollection
@@ -25,6 +24,7 @@ __all__ = [
     'TemplateReportCusOrderView',
     'PDFReportCusOrder',
     'TemplateInvoice',
+    'TemplateBalance',
     'PDFInvoice',
     'CollectionsReportsView',
     'PymentReportView',
@@ -34,8 +34,6 @@ __all__ = [
     'SalesByProductReportView',
     'PartnerAccountStatmentView',
     'PartnerSearchView',
-    'PartnerAccountStatmentPDF',
-    'PartnerAccountStatmentExcel',
     'PDFPayment',
     'TemplatePayment',
     'TemplateCollection',
