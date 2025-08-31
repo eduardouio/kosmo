@@ -13,16 +13,18 @@ class PDFPayment(View):
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page(ignore_https_errors=True)
-            
+
             # Configurar la vista para que se ajuste al 80%
-            page.set_viewport_size({"width": 1240, "height": 1754})  # Tamaño A4 en píxeles (1.4 * 72 DPI)
-            
+            # Tamaño A4 en píxeles (1.4 * 72 DPI)
+            page.set_viewport_size({"width": 1240, "height": 1754})
+
             # Aplicar zoom al 80%
-            page.set_viewport_size({"width": int(1240 * 0.8), "height": int(1754 * 0.9)})
-            
+            page.set_viewport_size(
+                {"width": int(1240 * 0.8), "height": int(1754 * 0.9)})
+
             page.goto(url)
             page.wait_for_load_state("networkidle")
-            
+
             # Generar el PDF en memoria con la escala al 80%
             pdf_bytes = page.pdf(
                 format="A4",
@@ -49,26 +51,30 @@ class PDFPayment(View):
 
         loggin_event(f'Generando PDF del pago {id_payment} {target_url}')
         payment = Payment.objects.get(id=id_payment)
-        
+
         # Obtener el primer detalle de pago para el nombre del proveedor
         payment_detail = payment.invoices.first()
         supplier_name = 'Proveedor-Desconocido'
         invoice_number = 'Sin-Factura'
-        
+
         if payment_detail and hasattr(payment_detail, 'invoice') and payment_detail.invoice:
             if hasattr(payment_detail.invoice, 'partner') and payment_detail.invoice.partner:
-                supplier_name = payment_detail.invoice.partner.name.replace(' ', '-')
+                supplier_name = payment_detail.invoice.partner.name.replace(
+                    ' ', '-')
             if hasattr(payment_detail.invoice, 'num_invoice') and payment_detail.invoice.num_invoice:
-                invoice_number = payment_detail.invoice.num_invoice.replace(' ', '')
-        
+                invoice_number = payment_detail.invoice.num_invoice.replace(
+                    ' ', '')
+
         pdf_bytes = self.render_pdf_to_bytes(target_url)
-        
+
         # Crear respuesta con el PDF en memoria
-        safe_supplier_name = "".join([c for c in supplier_name if c.isalpha() or c.isdigit() or c in ('-', '_')]).rstrip()
-        safe_invoice = "".join([c for c in invoice_number if c.isalpha() or c.isdigit() or c in ('-', '_')]).rstrip()
-        
+        safe_supplier_name = "".join([c for c in supplier_name if c.isalpha(
+        ) or c.isdigit() or c in ('-', '_')]).rstrip()
+        safe_invoice = "".join([c for c in invoice_number if c.isalpha(
+        ) or c.isdigit() or c in ('-', '_')]).rstrip()
+
         filename = f"Pago-{payment.payment_number or payment.id}-{safe_supplier_name}-{safe_invoice}.pdf"
-        
+
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
