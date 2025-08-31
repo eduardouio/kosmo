@@ -33,13 +33,13 @@
                 Listado de Obligaciones Pendientes
             </div>
             <div class="col-8 text-end text-xl">
-                <span>Total facturas pendientes: {% verbatim %}{{ statistics.pending_invoices.count }}{% endverbatim %}</span>
+                <span>Total facturas pendientes: ${statistics.pending_invoices.count}</span>
                 <span class="text-muted ps-1 pe-1">|</span>
-                <span class="text-cyan-800">Total pendiente: ${%  verbatim %}{{ formatCurrency(statistics.pending_invoices.total_amount) }}{% endverbatim %}</span>
+                <span class="text-cyan-800">Total pendiente: $${formatCurrency(statistics.pending_invoices.total_amount)}</span>
                 <span class="text-muted ps-1 pe-1">|</span>
-                <span class="text-danger">Saldo Vencido: ${%  verbatim %}{{ formatCurrency(statistics.overdue_payments.total_amount) }}{% endverbatim %}</span>
+                <span class="text-danger">Saldo Vencido: $${formatCurrency(statistics.overdue_payments.total_amount)}</span>
                 <span class="text-muted ps-1 pe-1">|</span>
-                <span class="text-yellow-600">Por Vencer: ${%  verbatim %}{{ formatCurrency(statistics.upcoming_due_invoices.total_amount) }}{% endverbatim %}</span>
+                <span class="text-yellow-600">Por Vencer: $${formatCurrency(statistics.upcoming_due_invoices.total_amount)}</span>
             </div>
           </div>
 
@@ -66,8 +66,8 @@
                        :key="supplier.id"
                        @mousedown="selectSupplier(supplier)"
                        class="p-2 cursor-pointer hover-bg-light border-bottom">
-                    <div class="fw-semibold">{% verbatim %}{{ supplier.name }}{% endverbatim %}</div>
-                    <small class="text-muted">RUT: {% verbatim %}{{ supplier.business_tax_id }}{% endverbatim %}</small>
+                    <div class="fw-semibold">${supplier.name}</div>
+                    <small class="text-muted">RUT: ${supplier.business_tax_id}</small>
                   </div>
                   <div v-if="supplierSearchTerm && filteredSuppliers.length === 0" 
                        class="p-2 text-muted text-center">
@@ -83,19 +83,19 @@
               <!-- Proveedor seleccionado -->
               <div v-if="selectedSupplier" class="mt-2">
                 <span class="badge bg-primary">
-                  {% verbatim %}{{ selectedSupplier.name }}{% endverbatim %}
+                  ${selectedSupplier.name}
                   <i @click="clearSupplierFilter" class="fas fa-times ms-1 cursor-pointer"></i>
                 </span>
               </div>
             </div>
             <div class="col-8 text-end pt-4">
               <span class="badge bg-info">
-                Facturas mostradas: {% verbatim %}{{ filteredInvoices.length }}{% endverbatim %}
+                Facturas mostradas: ${filteredInvoices.length}
               </span>
               <button @click="openPaymentModal" 
                       :disabled="selectedInvoicesCount === 0"
                       class="btn btn-success btn-sm ms-2">
-                <i class="fas fa-plus"></i> Registrar Pago ({% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %})
+                <i class="fas fa-plus"></i> Registrar Pago (${selectedInvoicesCount})
               </button>
             </div>
           </div>
@@ -119,7 +119,7 @@
             <div class="col-12 text-center py-4 text-muted">
               <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
               <p><strong>¡Excelente!</strong></p>
-              <p v-if="selectedSupplier">No hay facturas pendientes para <strong>{% verbatim %}{{ selectedSupplier.name }}{% endverbatim %}</strong></p>
+              <p v-if="selectedSupplier">No hay facturas pendientes para <strong>${selectedSupplier.name}</strong></p>
               <p v-else>No hay facturas pendientes por pagar</p>
               <small>Todas las facturas han sido pagadas completamente.</small>
             </div>
@@ -133,35 +133,35 @@
             </div>
             <div class="col-2 border-end d-flex align-items-center">
               <div>
-                <div class="fw-semibold">{% verbatim %}{{ invoice.serie }}{% endverbatim %}-{% verbatim %}{{ invoice.consecutive }}{% endverbatim %}</div>
-                <small class="text-muted">{% verbatim %}{{ invoice.num_invoice || 'FAC_COMPRA' }}{% endverbatim %}</small>
+                <div class="fw-semibold">${invoice.serie}-${invoice.consecutive}</div>
+                <small class="text-muted">${invoice.num_invoice || 'FAC_COMPRA'}</small>
               </div>
             </div>
             <div class="col-2 border-end d-flex align-items-center">
               <div>
-                <div class="fw-semibold">{% verbatim %}{{ invoice.partner_name }}{% endverbatim %}</div>
-                <small class="text-muted">ID: {% verbatim %}{{ invoice.partner_id }}{% endverbatim %}</small>
+                <div class="fw-semibold">${invoice.partner_name}</div>
+                <small class="text-muted">ID: ${invoice.partner_id}</small>
               </div>
             </div>
             <div class="col-1 border-end d-flex align-items-center text-center">
-              {% verbatim %}{{ formatDate(invoice.date) }}{% endverbatim %}
+              ${formatDate(invoice.date)}
             </div>
             <div class="col-1 border-end d-flex align-items-center text-center">
-              {% verbatim %}{{ formatDate(invoice.due_date) }}{% endverbatim %}
+              ${formatDate(invoice.due_date)}
             </div>
             <div class="col-1 border-end d-flex align-items-center text-center">
-              <span v-if="invoice.days_overdue > 0" class="badge bg-danger">{% verbatim %}{{ invoice.days_overdue }}{% endverbatim %}</span>
+              <span v-if="invoice.days_overdue > 0" class="badge bg-danger">${invoice.days_overdue}</span>
               <span v-else-if="invoice.days_overdue === 0" class="badge bg-warning text-dark">Hoy</span>
-              <span v-else class="badge bg-success">{% verbatim %}{{ Math.abs(invoice.days_overdue) }}{% endverbatim %}</span>
+              <span v-else class="badge bg-success">${Math.abs(invoice.days_overdue)}</span>
             </div>
             <div class="col-1 border-end d-flex align-items-center text-end">
-              ${%  verbatim %}{{ formatCurrency(invoice.total_amount) }}{% endverbatim %}
+              $${formatCurrency(invoice.total_amount)}
             </div>
             <div class="col-1 border-end d-flex align-items-center text-end">
-              ${%  verbatim %}{{ formatCurrency(invoice.paid_amount) }}{% endverbatim %}
+              $${formatCurrency(invoice.paid_amount)}
             </div>
             <div class="col-1 border-end d-flex align-items-center text-end">
-              <span class="fw-semibold text-danger">${%  verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</span>
+              <span class="fw-semibold text-danger">$${formatCurrency(invoice.balance)}</span>
             </div>
             <div class="col-1 d-flex align-items-center">
               <input type="number" step="0.01" v-model="invoice.paymentAmount" 
@@ -178,18 +178,18 @@
               <div class="alert alert-info">
                 <div class="row">
                   <div class="col-3">
-                    <strong>Facturas Seleccionadas:</strong> {% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %}
+                    <strong>Facturas Seleccionadas:</strong> ${selectedInvoicesCount}
                   </div>
                   <div class="col-3">
-                    <strong>Total a Pagar:</strong> ${%  verbatim %}{{ formatCurrency(totalPaymentAmount) }}{% endverbatim %}
+                    <strong>Total a Pagar:</strong> $${formatCurrency(totalPaymentAmount)}
                   </div>
                   <div class="col-3">
-                    <strong>Saldo Total:</strong> ${%  verbatim %}{{ formatCurrency(totalBalanceAmount) }}{% endverbatim %}
+                    <strong>Saldo Total:</strong> $${formatCurrency(totalBalanceAmount)}
                   </div>
                   <div class="col-3">
                     <strong>Diferencia:</strong> 
                     <span :class="paymentDifference >= 0 ? 'text-success' : 'text-danger'">
-                      ${% verbatim %}{{ formatCurrency(Math.abs(paymentDifference)) }}{% endverbatim %}
+                      $${formatCurrency(Math.abs(paymentDifference))}
                     </span>
                   </div>
                 </div>
@@ -234,7 +234,7 @@
         <div v-if="modalMessage.show" class="alert m-3 mb-0" :class="`alert-${modalMessage.type}`">
           <div class="d-flex align-items-center">
             <i class="fas" :class="modalMessage.icon"></i>
-            <span class="ms-2">{% verbatim %}{{ modalMessage.text }}{% endverbatim %}</span>
+            <span class="ms-2">${modalMessage.text}</span>
             <button type="button" class="btn-close ms-auto" @click="clearModalMessage"></button>
           </div>
         </div>
@@ -245,10 +245,10 @@
           <div class="alert alert-info mb-3">
             <div class="row">
               <div class="col-6">
-                <strong>Facturas a Pagar:</strong> {% verbatim %}{{ selectedInvoicesCount }}{% endverbatim %}
+                <strong>Facturas a Pagar:</strong> ${selectedInvoicesCount}
               </div>
               <div class="col-6 text-end">
-                <strong>Total:</strong> ${%  verbatim %}{{ formatCurrency(totalPaymentAmount) }}{% endverbatim %}
+                <strong>Total:</strong> $${formatCurrency(totalPaymentAmount)}
               </div>
             </div>
           </div>
@@ -269,11 +269,11 @@
                 <tbody>
                   <tr v-for="invoice in selectedInvoicesForPayment" :key="invoice.id">
                     <td>
-                      <strong>{% verbatim %}{{ invoice.serie }}{% endverbatim %}-{% verbatim %}{{ invoice.consecutive }}{% endverbatim %}</strong>
-                      <br><small class="text-muted">{% verbatim %}{{ invoice.num_invoice || 'FAC_COMPRA' }}{% endverbatim %}</small>
+                      <strong>${invoice.serie}-${invoice.consecutive}</strong>
+                      <br><small class="text-muted">${invoice.num_invoice || 'FAC_COMPRA'}</small>
                     </td>
-                    <td>{% verbatim %}{{ invoice.partner_name }}{% endverbatim %}</td>
-                    <td class="text-end">${%  verbatim %}{{ formatCurrency(invoice.balance) }}{% endverbatim %}</td>
+                    <td>${invoice.partner_name}</td>
+                    <td class="text-end">$${formatCurrency(invoice.balance)}</td>
                     <td class="text-end">
                       <input type="number" step="0.01" v-model="invoice.paymentAmount" 
                              @input="validatePaymentAmount(invoice); updatePaymentFormAmount()"
@@ -299,7 +299,7 @@
         class="form-control" 
         :max="currentDate"
         required autocomplete="on" name="payment-date">
-                <div v-if="formErrors.date" class="text-danger small">{% verbatim %}{{ formErrors.date }}{% endverbatim %}</div>
+                <div v-if="formErrors.date" class="text-danger small">${formErrors.date}</div>
               </div>
               
               <div class="col-6">
@@ -309,10 +309,10 @@
                 <select v-model="paymentForm.method" class="form-select" required autocomplete="on" name="payment-method">
                   <option value="">Seleccionar...</option>
                   <option v-for="method in paymentMethods" :key="method.value" :value="method.value">
-                    {% verbatim %}{{ method.label }}{% endverbatim %}
+                    ${method.label}
                   </option>
                 </select>
-                <div v-if="formErrors.method" class="text-danger small">{% verbatim %}{{ formErrors.method }}{% endverbatim %}</div>
+                <div v-if="formErrors.method" class="text-danger small">${formErrors.method}</div>
               </div>
               
               <div class="col-6 mt-3">
@@ -325,7 +325,7 @@
         placeholder="Núm. cheque, transferencia..."
         maxlength="50" autocomplete="on" name="payment-reference">
                 <small class="text-muted">Número de cheque, código de transferencia, etc.</small>
-                <div v-if="formErrors.reference" class="text-danger small">{% verbatim %}{{ formErrors.reference }}{% endverbatim %}</div>
+                <div v-if="formErrors.reference" class="text-danger small">${formErrors.reference}</div>
               </div>
               
               <div class="col-6 mt-3">
@@ -352,7 +352,7 @@
                 <datalist id="popular-banks">
                   <option v-for="bank in popularBanks" :key="bank.bank" :value="bank.bank">
                 </datalist>
-                <div v-if="formErrors.bank" class="text-danger small">{% verbatim %}{{ formErrors.bank }}{% endverbatim %}</div>
+                <div v-if="formErrors.bank" class="text-danger small">${formErrors.bank}</div>
               </div>
               
               <div class="col-6 mt-3">
@@ -379,7 +379,7 @@
                 <small class="text-muted">Formatos: JPG, PNG, PDF, DOC (máx. 5MB)</small>
                 <div v-if="paymentForm.documentPreview" class="mt-2">
                   <small class="text-success">
-                    <i class="fas fa-check"></i> Archivo seleccionado: {% verbatim %}{{ paymentForm.documentName }}{% endverbatim %}
+                    <i class="fas fa-check"></i> Archivo seleccionado: ${paymentForm.documentName}
                   </small>
                 </div>
               </div>

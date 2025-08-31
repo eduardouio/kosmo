@@ -1,6 +1,7 @@
 const { createApp } = Vue;
 
 createApp({
+  delimiters: ['${', '}'],
   data() {
     return {
       loading: true,
@@ -57,7 +58,8 @@ createApp({
       },
       
       currentDate: '',
-      currentTime: ''
+      currentTime: '',
+      isEditMode: false
     }
   },
   computed: {
