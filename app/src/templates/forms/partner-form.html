@@ -43,101 +43,97 @@
                 </span>
             </div>
             <hr/>
-            <div class="row mb-3">
+        <div class="row mb-3">
                 <div class="col-md-3">
-                    <label for="business_tax_id" class="text-muted">RUC/DNI/TAXID/ID:</label>
+            <label for="id_business_tax_id" class="form-label text-muted">RUC/DNI/TAXID/ID:</label>
                     {{ form.business_tax_id }}
                 </div>
                 <div class="col-md-6">
-                    <label for="name" class="text-muted">Nombre del Socio:</label>
+            <label for="id_name" class="form-label text-muted">Nombre del Socio:</label>
                     {{ form.name }}
                 </div>
                 <div class="col-md-3">
-                    <label for="name" class="text-muted">Nombre Corto:</label>
+            <label for="id_short_name" class="form-label text-muted">Nombre Corto:</label>
                     {{ form.short_name }}
                 </div>
                 <div class="col-md-3">
-                    <label for="type_partner" class="text-muted">Tipo de Socio:</label>
+            <label for="id_type_partner" class="form-label text-muted">Tipo de Socio:</label>
                     {{ form.type_partner }}
                 </div>
-                <div class="col-md-3" id="seller_field" style="{% if form.instance.type_partner != 'CLIENTE' and form.instance.id %}display: none;{% endif %}">
-                    <label for="seller" class="text-muted">Vendedor:</label>
+                <div class="col-md-3" id="seller_field" {% if not form.instance.id or form.instance.type_partner != 'CLIENTE' %}style="display:none;"{% endif %}>
+            <label for="id_seller" class="form-label text-muted">Vendedor:</label>
                     {{ form.seller }}
                 </div>
                 <div class="col-md-3">
-                    <label for="status" class="text-muted">Estado:</label>
+            <label for="id_status" class="form-label text-muted">Estado:</label>
                     {{ form.status }}
                 </div>
                 <div class="col-md-3">
-                    <label for="date_aproved" class="text-muted">Fecha de Aprobación:</label>
+            <label for="id_date_aproved" class="form-label text-muted">Fecha de Aprobación:</label>
                     {{ form.date_aproved }}
                 </div>
                 <div class="col-md-3">
-                    <label for="email" class="text-muted">Correo Electrónico:</label>
+            <label for="id_email" class="form-label text-muted">Correo Electrónico:</label>
                     {{ form.email }}
                 </div>
                 <div class="col-md-3">
-                    <label for="phone" class="text-muted">Teléfono:</label>
+            <label for="id_phone" class="form-label text-muted">Teléfono:</label>
                     {{ form.phone }}
                 </div>
                 <div class="col-md-6">
-                    <label for="address" class="text-muted">Dirección:</label>
+            <label for="id_address" class="form-label text-muted">Dirección:</label>
                     {{ form.address }}
                 </div>
                 <div class="col-md-3">
-                    <label for="country" class="text-muted">País:</label>
+            <label for="id_country" class="form-label text-muted">País:</label>
                     {{ form.country }}
                 </div>
                 <div class="col-md-3">
-                    <label for="city" class="text-muted">Ciudad:</label>
+            <label for="id_city" class="form-label text-muted">Ciudad:</label>
                     {{ form.city }}
                 </div>
                 <div class="col-md-3">
-                    <label for="zip_code" class="text-muted">Código Postal:</label>
+            <label for="id_zip_code" class="form-label text-muted">Código Postal:</label>
                     {{ form.zip_code }}
                 </div>
                 <div class="col-md-3">
-                    <label for="zip_code" class="text-muted">Código de Area:</label>
+            <label for="id_area_code" class="form-label text-muted">Código de Area:</label>
                     {{ form.area_code }}
                 </div>
                 <div class="col-md-3">
-                    <label for="type_partner" class="text-muted">Tipo de Socio:</label>
-                    {{ form.type_partner }}
-                </div>
-                <div class="col-md-3">
-                    <label for="credit_term" class="text-muted">Plazo de Crédito:</label>
+            <label for="id_credit_term" class="form-label text-muted">Plazo de Crédito:</label>
                     {{ form.credit_term }}
                 </div>
                 <div class="col-md-3">
-                    <label for="website" class="text-muted">Sitio Web:</label>
+            <label for="id_website" class="form-label text-muted">Sitio Web:</label>
                     {{ form.website }}
                 </div>
                 <div class="col-md-3">
-                    <label for="skype" class="text-muted">Skype:</label>
+            <label for="id_skype" class="form-label text-muted">Skype / Teams:</label>
                     {{ form.skype }}
                 </div>
                 <div class="col-md-6">
-                    <label for="dispatch_address" class="text-muted">Dirección de Envío:</label>
+            <label for="id_dispatch_address" class="form-label text-muted">Dirección de Envío:</label>
                     {{ form.dispatch_address }}
                 </div>
                 <div class="col-md-2">
-                    <label for="dispatch_days" class="text-muted">Días de Envío:</label>
+            <label for="id_dispatch_days" class="form-label text-muted">Días de Envío:</label>
                     {{ form.dispatch_days }}
                 </div>
                 <div class="col-md-4">
-                    <label for="cargo_reference" class="text-muted">Referencia Carguera:</label>
+            <label for="id_cargo_reference" class="form-label text-muted">Referencia Carguera:</label>
                     {{ form.cargo_reference }}
                 </div>
                 <div class="col-md-3">
-                    <label for="cargo_reference" class="text-muted">Correo de Pagos:</label>
+            <label for="id_email_payment" class="form-label text-muted">Correo de Pagos:</label>
                     {{ form.email_payment }}
                 </div>
                 <div class="col-md-9">
-                    <label for="consolidate" class="text-muted">Notas:</label>
+            <label for="id_notes" class="form-label text-muted">Notas:</label>
                     {{ form.notes }}
                 </div>
                 <div class="col-md-12" id="prompt_field" style="{% if form.instance.type_partner != 'PROVEEDOR' and form.instance.id %}display: none;{% endif %}">
-                    <label for="prompt_disponibility" class="text-muted">Prompt de Disponibilidad:</label>
+            <label for="id_prompt_disponibility" class="form-label text-muted">Prompt de Disponibilidad:</label>
                     {{ form.prompt_disponibility }}
                 </div>
             </div>
@@ -180,31 +176,39 @@
                 </span>
             </div>
             <hr/>
-                <div class="d-flex flex-column justify-content-end gap-2">    
-                    <div class="d-flex align-items-center gap-3">
-                  {{ form.is_profit_margin_included }}
-                  <label for="consolidate" class="text-muted">¿Margen Incluido En Costo?</label>
-            </div>
-            <div class="d-flex align-items-center gap-3 w-20">
-                {{ form.default_profit_margin }}
-                <label for="consolidate" class="text-muted">Rendimiento Por Tallo</label>
-            </div>
-                <div class="d-flex align-items-center gap-3">
-                    {{ form.consolidate }}
-                    <label for="consolidate" class="text-muted">Consolidar</label>
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <div class="form-check form-switch">
+                            {{ form.is_profit_margin_included }}
+                            <label class="form-check-label" for="id_is_profit_margin_included">¿Margen Incluido En Costo?</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <label for="id_default_profit_margin" class="form-label text-muted">Rendimiento Por Tallo</label>
+                        {{ form.default_profit_margin }}
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <div class="form-check form-switch">
+                            {{ form.consolidate }}
+                            <label class="form-check-label" for="id_consolidate">Consolidar</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <div class="form-check form-switch">
+                            {{ form.is_verified }}
+                            <label class="form-check-label" for="id_is_verified">Socio Verificado</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <div class="form-check form-switch">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="id_is_active">¿Socio Activo?</label>
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex align-items-center gap-3">
-                    {{ form.is_verified }}
-                    <label for="consolidate" class="text-muted">Socio Verificado</label>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    {{ form.is_active }}
-                    <label for="consolidate" class="text-muted">¿Socio Activo?</label>
-              </div>
-            </div>
             <div class="row bg-gray bg-gradient p-2 rounded border">
                 <div class="col text-end">
-                  <button class="btn btn-sm btn-default">
+                  <button class="btn btn-sm btn-primary">
                     <svg  xmlns="http://www.w3.org/2000/svg"  width="20"  height="20"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="1.25"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
                     Guardar
                   </button>
@@ -223,13 +227,15 @@
         const promptField = document.getElementById('prompt_field');
         
         if (typePartnerSelect && sellerField) {
-            typePartnerSelect.addEventListener('change', function() {
-                if (this.value === 'CLIENTE') {
+            const toggleSeller = () => {
+                if (typePartnerSelect.value === 'CLIENTE') {
                     sellerField.style.display = 'block';
                 } else {
                     sellerField.style.display = 'none';
                 }
-            });
+            }
+            typePartnerSelect.addEventListener('change', toggleSeller);
+            toggleSeller(); // inicial
         }
         
         if (typePartnerSelect && promptField) {
