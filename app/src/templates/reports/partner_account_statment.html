@@ -43,7 +43,7 @@
       }
       .filters-grid {
         display: grid;
-        grid-template-columns: 2fr 1fr 1fr auto auto auto;
+        grid-template-columns: 2fr 1fr 1fr auto auto;
         gap: 15px;
         align-items: end;
       }
@@ -256,8 +256,7 @@
             </div>
             <button class="btn btn-primary">Filtrar</button>
             {% if partner %}
-            <a class="btn btn-outline-secondary" href="{% url 'partner_account_statement_pdf' %}?partner_id={{ partner.id }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}">PDF</a>
-            <a class="btn btn-outline-success" href="{% url 'partner_account_statement_excel' %}?partner_id={{ partner.id }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}">Excel</a>
+            <a class="btn btn-outline-secondary" href="{% url 'partner_account_statement_pdf' %}?partner_id={{ partner.id }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}" target="_blank">PDF</a>
             {% endif %}
           </div>
         </form>
