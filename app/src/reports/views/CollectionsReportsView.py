@@ -1,27 +1,28 @@
 from django.shortcuts import render
 from django.views import View
 from django.http import JsonResponse
-from django.db.models import Sum, Count, Q
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
+from django.db.models import Count, Q
+from collections import defaultdict
+import json
 from trade.models import Invoice, Payment, PaymentDetail
 from partners.models import Partner
 
 
 class CollectionsReportsView(View):
     template_name = 'reports/collections_report.html'
-    
+
     def get(self, request, *args, **kwargs):
         # Filtros de fechas por defecto (último mes)
         end_date = timezone.now().date()
         start_date = end_date - timedelta(days=30)
-        
+
         # Obtener parámetros de filtro
-        date_from = request.GET.get('date_from', 
-                                   start_date.strftime('%Y-%m-%d'))
+        date_from = request.GET.get(
+            'date_from', start_date.strftime('%Y-%m-%d'))
         date_to = request.GET.get('date_to', end_date.strftime('%Y-%m-%d'))
-        customer_id = request.GET.get('customer_id', '')
-        status = request.GET.get('status', '')
+        partner_id = request.GET.get('partner_id', '')
 
         # Construir query base para facturas de venta
         invoices_query = Invoice.objects.filter(
@@ -29,77 +30,141 @@ class CollectionsReportsView(View):
             date__date__range=[date_from, date_to]
         ).select_related('partner', 'order')
 
-        # Aplicar filtros adicionales
-        if customer_id:
-            invoices_query = invoices_query.filter(partner_id=customer_id)
-        if status:
-            invoices_query = invoices_query.filter(status=status)
+        # Aplicar filtro de partner si se especifica
+        if partner_id:
+            invoices_query = invoices_query.filter(partner_id=partner_id)
 
         # Obtener facturas
         invoices = invoices_query.order_by('-date')
 
-        # Calcular estadísticas
+        # Calcular estadísticas básicas
         total_invoices = invoices.count()
-        total_facturado = invoices.aggregate(
-            Sum('total_price'))['total_price__sum'] or 0
-        
-        # Facturas pagadas
-        paid_invoices = invoices.filter(status='PAGADO')
-        total_cobrado = paid_invoices.aggregate(
-            Sum('total_price'))['total_price__sum'] or 0
-        
-        # Facturas pendientes
-        pending_invoices = invoices.filter(status='PENDIENTE')
-        total_pendiente = pending_invoices.aggregate(
-            Sum('total_price'))['total_price__sum'] or 0
+        # Calcular total_amount sumando el monto con margen incluido
+        total_amount = 0
+        for invoice in invoices:
+            total_amount += invoice.total_invoice
 
-        # Agrupar por estado
-        status_summary = invoices.values('status').annotate(
-            count=Count('id'),
-            total=Sum('total_price')
-        ).order_by('status')
+        # Top de clientes con más facturas
+        top_customers = []
+        if invoices.exists():
+            customer_stats = {}
+            for invoice in invoices:
+                partner_id_iter = invoice.partner.id
+                partner_name = invoice.partner.name
 
-        # Agrupar por cliente
-        customer_summary = invoices.values(
-            'partner__name',
-            'partner_id'
-        ).annotate(
-            count=Count('id'),
-            total=Sum('total_price')
-        ).order_by('-total')[:10]  # Top 10 clientes
+                if partner_id_iter not in customer_stats:
+                    customer_stats[partner_id_iter] = {
+                        'name': partner_name,
+                        'count': 0,
+                        'total': 0
+                    }
+                customer_stats[partner_id_iter]['count'] += 1
+                customer_stats[partner_id_iter]['total'] += float(
+                    invoice.total_invoice)
 
-        # Facturas vencidas (pendientes con fecha de vencimiento pasada)
-        overdue_invoices = invoices.filter(
-            status='PENDIENTE',
-            due_date__lt=timezone.now().date()
-        )
-        total_vencido = overdue_invoices.aggregate(
-            Sum('total_price'))['total_price__sum'] or 0
+            # Ordenar por monto total y tomar top 5
+            top_customers = sorted(
+                customer_stats.values(),
+                key=lambda x: x['total'],
+                reverse=True
+            )[:5]
 
-        # Obtener listas para filtros
-        customers = Partner.objects.filter(
+        # Calcular facturas por semana
+        weekly_invoices = defaultdict(lambda: {'count': 0, 'total': 0})
+
+        if invoices.exists():
+            for invoice in invoices:
+                # Obtener el inicio de la semana (lunes)
+                # Asegurar que la fecha sea un date, no datetime
+                invoice_date = invoice.date
+                if hasattr(invoice_date, 'date'):
+                    invoice_date = invoice_date.date()
+
+                week_start = invoice_date - \
+                    timedelta(days=invoice_date.weekday())
+                week_key = week_start.strftime('%Y-%m-%d')
+                weekly_invoices[week_key]['count'] += 1
+                weekly_invoices[week_key]['total'] += float(
+                    invoice.total_invoice)
+
+        # Convertir a lista ordenada para el gráfico
+        weekly_data = []
+        for week, data in sorted(weekly_invoices.items()):
+            week_date = datetime.strptime(week, '%Y-%m-%d')
+            week_label = week_date.strftime('%d/%m')
+            weekly_data.append({
+                'week': week_label,
+                'total': data['total'],
+                'count': data['count']
+            })
+
+        # Agregar información adicional a cada factura para la tabla
+        for invoice in invoices:
+            # Obtener el nombre del usuario creador
+            user_creator = invoice.user_creator
+            if user_creator:
+                invoice.creator_name = user_creator.get_full_name()
+            else:
+                invoice.creator_name = 'Sistema'
+
+            # Calcular días de vencimiento
+            if invoice.due_date and invoice.status == 'PENDIENTE':
+                today = timezone.now().date()
+                # Asegurar que due_date sea un date, no datetime
+                due_date = invoice.due_date
+                if hasattr(due_date, 'date'):
+                    due_date = due_date.date()
+                
+                days_diff = (due_date - today).days
+                if days_diff < 0:
+                    invoice.is_overdue = True
+                    invoice.calculated_days_overdue = abs(days_diff)
+                else:
+                    invoice.is_overdue = False
+                    invoice.calculated_days_to_due = days_diff
+            else:
+                invoice.is_overdue = False
+
+        # Obtener listas para filtros (clientes)
+        partners = Partner.objects.filter(
             business_tax_id__isnull=False
         ).order_by('name')
+
+        # Estadísticas adicionales
+        paid_invoices = invoices.filter(status='PAGADO')
+        total_paid = 0
+        for invoice in paid_invoices:
+            total_paid += invoice.total_invoice
+
+        pending_invoices = invoices.filter(status='PENDIENTE')
+        total_pending = 0
+        for invoice in pending_invoices:
+            total_pending += invoice.total_invoice
+
+        overdue_invoices = invoices.filter(
+            status='PENDIENTE',
+            due_date__lt=timezone.now()
+        )
+        total_overdue = 0
+        for invoice in overdue_invoices:
+            total_overdue += invoice.total_invoice
 
         context = {
             'title_page': 'Reporte de Cobros',
             'invoices': invoices,
             'total_invoices': total_invoices,
-            'total_facturado': total_facturado,
-            'total_cobrado': total_cobrado,
-            'total_pendiente': total_pendiente,
-            'total_vencido': total_vencido,
-            'overdue_invoices': overdue_invoices,
-            'status_summary': status_summary,
-            'customer_summary': customer_summary,
-            'customers': customers,
+            'total_amount': total_amount,
+            'total_paid': total_paid,
+            'total_pending': total_pending,
+            'total_overdue': total_overdue,
+            'top_customers': top_customers,
+            'weekly_data_json': json.dumps(weekly_data),
+            'partners': partners,
             'filters': {
                 'date_from': date_from,
                 'date_to': date_to,
-                'customer_id': customer_id,
-                'status': status,
+                'partner_id': partner_id,
             },
-            'status_choices': Invoice._meta.get_field('status').choices,
         }
 
         return render(request, self.template_name, context)

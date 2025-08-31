@@ -9,44 +9,92 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    .stats-card {
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 15px;
-        color: white;
-    }
-    .stats-card.facturado {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    }
-    .stats-card.cobrado {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    }
-    .stats-card.pendiente {
-        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-    }
-    .stats-card.vencido {
-        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-    }
-    .stats-card h4 {
-        margin: 0;
-        font-size: 2rem;
-    }
-    .stats-card small {
-        opacity: 0.8;
-    }
     .table-responsive {
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .btn-export {
-        background: linear-gradient(45deg, #6f42c1, #6610f2);
+        background: linear-gradient(45deg, #007bff, #0056b3);
         border: none;
         color: white;
     }
     .btn-export:hover {
-        background: linear-gradient(45deg, #6610f2, #5a0fb0);
+        background: linear-gradient(45deg, #0056b3, #004085);
         color: white;
     }
+    
+    /* Estilos para autocomplete */
+    .autocomplete-container {
+        position: relative;
+    }
+    
+    .autocomplete-input {
+        width: 100%;
+    }
+    
+    .autocomplete-input:focus {
+        outline: none;
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+    
+    .autocomplete-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1050;
+        display: none;
+    }
+    
+    .autocomplete-suggestions.show {
+        display: block;
+    }
+    
+    .autocomplete-suggestions .dropdown-item {
+        cursor: pointer;
+        padding: 0.5rem 1rem;
+    }
+    
+    .autocomplete-suggestions .dropdown-item:hover,
+    .autocomplete-suggestions .dropdown-item:focus {
+        background-color: #f8f9fa;
+    }
+    
+    .autocomplete-suggestions .dropdown-item.active {
+        background-color: #007bff;
+        color: white;
+    }
+    
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        border-radius: 10px;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .filter-card {
+            padding: 15px;
+        }
+        .btn-export {
+            margin-bottom: 5px;
+        }
+    }
+    
     .overdue {
         background-color: #ffe6e6 !important;
     }
@@ -58,13 +106,13 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container">
     <div class="row">
         <div class="col-12">
-            <h2 class="mb-4">
+            <h5 class="mb-4">
                 <i class="fas fa-file-invoice-dollar me-2"></i>
-                Reporte de Cobros
-            </h2>
+                Reporte de Cobros y Facturas
+            </h5>
         </div>
     </div>
 
@@ -84,40 +132,24 @@
                             <input type="date" class="form-control" id="date_to" name="date_to" 
                                    value="{{ filters.date_to }}">
                         </div>
-                        <div class="col-md-3">
-                            <label for="customer_id" class="form-label">Cliente</label>
-                            <select class="form-select" id="customer_id" name="customer_id">
-                                <option value="">Todos los clientes</option>
-                                {% for customer in customers %}
-                                <option value="{{ customer.id }}" 
-                                        {% if filters.customer_id|stringformat:"s" == customer.id|stringformat:"s" %}selected{% endif %}>
-                                    {{ customer.name }}
-                                </option>
-                                {% endfor %}
-                            </select>
+                        <div class="col-md-4">
+                            <label for="partner_id" class="form-label">Cliente</label>
+                            <div class="autocomplete-container">
+                                <input type="text" class="form-control autocomplete-input" id="partner_search" 
+                                       placeholder="Buscar cliente..." autocomplete="off">
+                                <input type="hidden" id="partner_id" name="partner_id" value="{{ filters.partner_id }}">
+                                <div id="partner_suggestions" class="autocomplete-suggestions dropdown-menu w-100"></div>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <label for="status" class="form-label">Estado</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="">Todos los estados</option>
-                                {% for status_key, status_label in status_choices %}
-                                <option value="{{ status_key }}" 
-                                        {% if filters.status == status_key %}selected{% endif %}>
-                                    {{ status_label }}
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-default me-2">
-                                <i class="fas fa-search me-1"></i>Filtrar
-                            </button>
-                            <button type="button" class="btn btn-default me-2" onclick="clearFilters()">
-                                <i class="fas fa-times me-1"></i>Limpiar
-                            </button>
-                            <button type="button" class="btn btn-default" onclick="exportReport()">
-                                <i class="fas fa-download me-1"></i>Exportar
-                            </button>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-default">
+                                    <i class="fas fa-filter"></i> Filtrar
+                                </button>
+                                <button type="button" class="btn btn-default" onclick="clearFilters()">
+                                    <i class="fas fa-times"></i> Limpiar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -125,60 +157,47 @@
         </div>
     </div>
 
-    <!-- Estadísticas -->
-    <div class="row">
-        <div class="col-md-3">
-            <div class="stats-card facturado">
-                <h4>${{ total_facturado|floatformat:2 }}</h4>
-                <small>Total Facturado</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card cobrado">
-                <h4>${{ total_cobrado|floatformat:2 }}</h4>
-                <small>Total Cobrado</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card pendiente">
-                <h4>${{ total_pendiente|floatformat:2 }}</h4>
-                <small>Pendiente de Cobro</small>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stats-card vencido">
-                <h4>${{ total_vencido|floatformat:2 }}</h4>
-                <small>Vencido</small>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gráficos -->
+    <!-- Estadísticas y Gráficos -->
     <div class="row mb-4">
-        <div class="col-md-6">
+        <!-- Gráfico de Facturas por Semana -->
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-header">
-                    <h5>Estado de Cobranza</h5>
+                    <h6><i class="fas fa-chart-bar me-2"></i>Facturas por Semana</h6>
                 </div>
                 <div class="card-body">
-                    <canvas id="statusChart" width="400" height="200"></canvas>
+                    <canvas id="weeklyInvoicesChart" height="80"></canvas>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        
+        <!-- Top Clientes -->
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h5>Top Clientes por Facturación</h5>
+                    <h6><i class="fas fa-trophy me-2"></i>Top Clientes</h6>
                 </div>
                 <div class="card-body">
-                    {% for customer in customer_summary %}
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span>{{ customer.partner__name|truncatechars:30 }}</span>
-                        <span class="badge bg-primary">${{ customer.total|floatformat:2 }}</span>
-                    </div>
-                    {% empty %}
-                    <p class="text-muted">No hay datos disponibles</p>
-                    {% endfor %}
+                    {% if top_customers %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <tbody>
+                                    {% for customer in top_customers %}
+                                    <tr>
+                                        <td>{{ customer.name|truncatechars:25 }}</td>
+                                        <td class="text-end">
+                                            <strong>${{ customer.total|floatformat:0 }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ customer.count }} facturas</small>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No hay datos disponibles</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -188,80 +207,66 @@
     <div class="row">
         <div class="col-12">
             <div class="card">
-                <div class="card-header">
-                    <h5>Facturas de Venta</h5>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Detalle de Facturas</h5>
+                    <div class="d-flex gap-2">
+                        <button id="exportExcel" class="btn btn-success btn-sm">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button id="exportPDF" class="btn btn-danger btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-striped" id="collectionsTable">
+                        <table class="table table-striped" id="invoicesTable">
                             <thead>
                                 <tr>
-                                    <th>Nº Factura</th>
+                                    <th>Número</th>
                                     <th>Fecha</th>
                                     <th>Cliente</th>
-                                    <th>Vencimiento</th>
-                                    <th>Total</th>
+                                    <th>Monto</th>
                                     <th>Estado</th>
-                                    <th>Días Venc.</th>
-                                    <th>Acciones</th>
+                                    <th>Vencimiento</th>
+                                    <th>Creado por</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for invoice in invoices %}
-                                <tr {% if invoice.status == 'PENDIENTE' and invoice.is_dued %}class="overdue"{% endif %}>
-                                    <td>{{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}</td>
-                                    <td>{{ invoice.date|date:"d/m/Y" }}</td>
-                                    <td>{{ invoice.partner.name|truncatechars:40 }}</td>
+                                <tr {% if invoice.is_overdue %}class="overdue"{% endif %}>
                                     <td>
-                                        {% if invoice.due_date %}
-                                            {{ invoice.due_date|date:"d/m/Y" }}
-                                        {% else %}
-                                            -
-                                        {% endif %}
+                                        <a href="{% url 'invoice_detail_presentation' invoice.pk %}" target="_blank" class="text-decoration-none">
+                                            {{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}
+                                        </a>
                                     </td>
-                                    <td>${{ invoice.total_price|floatformat:2 }}</td>
+                                    <td>{{ invoice.date|date:"d/m/Y" }}</td>
+                                    <td>{{ invoice.partner.name|truncatechars:30 }}</td>
+                                    <td>${{ invoice.total_invoice|floatformat:2 }}</td>
                                     <td>
                                         <span class="badge 
                                             {% if invoice.status == 'PAGADO' %}bg-success
-                                            {% elif invoice.status == 'PENDIENTE' %}bg-warning
+                                            {% elif invoice.status == 'PENDIENTE' %}bg-warning text-dark
                                             {% elif invoice.status == 'ANULADO' %}bg-danger
                                             {% else %}bg-secondary{% endif %}">
                                             {{ invoice.get_status_display }}
                                         </span>
                                     </td>
                                     <td>
-                                        {% if invoice.status == 'PENDIENTE' and invoice.due_date %}
-                                            {% if invoice.is_dued %}
-                                                <span class="text-danger">
-                                                    {{ invoice.days_overdue }} días
-                                                </span>
-                                            {% else %}
-                                                <span class="text-success">
-                                                    {{ invoice.days_to_due }} días
-                                                </span>
+                                        {% if invoice.due_date %}
+                                            {{ invoice.due_date|date:"d/m/Y" }}
+                                            {% if invoice.is_overdue %}
+                                                <br><small class="text-danger">{{ invoice.calculated_days_overdue }} días vencido</small>
                                             {% endif %}
                                         {% else %}
                                             -
                                         {% endif %}
                                     </td>
-                                    <td>
-                                        <a href="#" class="btn btn-sm btn-outline-primary" 
-                                           title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        {% if invoice.status == 'PENDIENTE' %}
-                                        <a href="#" class="btn btn-sm btn-outline-success" 
-                                           title="Registrar pago">
-                                            <i class="fas fa-money-bill"></i>
-                                        </a>
-                                        {% endif %}
-                                    </td>
+                                    <td>{{ invoice.creator_name|default:"-" }}</td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted">
-                                        No se encontraron facturas con los filtros seleccionados
-                                    </td>
+                                    <td colspan="7" class="text-center">No se encontraron facturas</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -280,74 +285,288 @@
 {% endblock %}
 
 {% block script %}
+<!-- Librerías para exportación -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
 <script>
+    // Datos de partners para autocomplete
+    const partners = [
+        {id: '', name: 'Todos los clientes'},
+        {% for partner in partners %}
+        {id: {{ partner.id }}, name: "{{ partner.name|escapejs }}"},
+        {% endfor %}
+    ];
+
+    // Datos para el gráfico semanal
+    const weeklyData = JSON.parse('{{ weekly_data_json|escapejs }}');
+
     // Inicializar DataTable
     $(document).ready(function() {
-        $('#collectionsTable').DataTable({
+        $('#invoicesTable').DataTable({
             responsive: true,
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
             },
             order: [[1, 'desc']], // Ordenar por fecha desc
-            columnDefs: [
-                {
-                    targets: 6, // Columna de días vencidos
-                    type: 'num'
-                }
-            ]
+            lengthMenu: [15, 25, 50, 100, 500]
         });
+
+        // Inicializar gráfico de barras semanal
+        initWeeklyChart();
+        
+        // Inicializar autocomplete de partners
+        initPartnerAutocomplete();
     });
 
-    // Gráfico de estados
-    const ctx = document.getElementById('statusChart').getContext('2d');
-    const statusData = [
-        {% for item in status_summary %}
-        {
-            label: '{{ item.status }}',
-            data: {{ item.total|default:0 }},
-            count: {{ item.count }}
-        }{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    ];
-
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: statusData.map(item => item.label),
-            datasets: [{
-                data: statusData.map(item => item.data),
-                backgroundColor: [
-                    '#28a745', '#ffc107', '#dc3545', '#6c757d'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
+    // Función para inicializar el gráfico de barras semanal
+    function initWeeklyChart() {
+        const ctx = document.getElementById('weeklyInvoicesChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: weeklyData.map(item => 'Sem. ' + item.week),
+                datasets: [{
+                    label: 'Monto Total ($)',
+                    data: weeklyData.map(item => item.total),
+                    backgroundColor: 'rgba(23, 162, 184, 0.6)',
+                    borderColor: 'rgba(23, 162, 184, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y-amount'
+                }, {
+                    label: 'Cantidad de Facturas',
+                    data: weeklyData.map(item => item.count),
+                    type: 'line',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y-count'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
                 },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            const item = statusData[context.dataIndex];
-                            return item.label + ': $' + item.data.toFixed(2) + ' (' + item.count + ' facturas)';
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return 'Semana ' + context[0].label.replace('Sem. ', '');
+                            },
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return 'Monto: $' + context.parsed.y.toLocaleString();
+                                } else {
+                                    return 'Facturas: ' + context.parsed.y;
+                                }
+                            }
                         }
+                    }
+                },
+                scales: {
+                    'y-amount': {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Monto ($)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    },
+                    'y-count': {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Cantidad'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
                     }
                 }
             }
+        });
+    }
+
+    function initPartnerAutocomplete() {
+        const searchInput = document.getElementById('partner_search');
+        const hiddenInput = document.getElementById('partner_id');
+        const suggestions = document.getElementById('partner_suggestions');
+        let selectedIndex = -1;
+
+        // Set initial value if there's a selected partner
+        const selectedPartnerId = hiddenInput.value;
+        if (selectedPartnerId) {
+            const selectedPartner = partners.find(p => p.id == selectedPartnerId);
+            if (selectedPartner) {
+                searchInput.value = selectedPartner.name;
+            }
         }
-    });
+
+        searchInput.addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            suggestions.innerHTML = '';
+            selectedIndex = -1;
+
+            if (searchValue.length < 1) {
+                suggestions.classList.remove('show');
+                return;
+            }
+
+            const filteredPartners = partners.filter(partner => 
+                partner.name.toLowerCase().includes(searchValue)
+            );
+
+            if (filteredPartners.length > 0) {
+                filteredPartners.forEach((partner, index) => {
+                    const item = document.createElement('a');
+                    item.classList.add('dropdown-item');
+                    item.textContent = partner.name;
+                    item.href = '#';
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        searchInput.value = partner.name;
+                        hiddenInput.value = partner.id;
+                        suggestions.classList.remove('show');
+                    });
+                    suggestions.appendChild(item);
+                });
+                suggestions.classList.add('show');
+            } else {
+                suggestions.classList.remove('show');
+            }
+        });
+
+        searchInput.addEventListener('keydown', function(e) {
+            const items = suggestions.querySelectorAll('.dropdown-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    items[selectedIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                suggestions.classList.remove('show');
+                selectedIndex = -1;
+            }
+        });
+
+        function updateSelection(items) {
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+                suggestions.classList.remove('show');
+            }
+        });
+    }
 
     // Funciones auxiliares
     function clearFilters() {
-        document.getElementById('filterForm').reset();
+        document.getElementById('date_from').value = '';
+        document.getElementById('date_to').value = '';
+        document.getElementById('partner_search').value = '';
+        document.getElementById('partner_id').value = '';
         document.getElementById('filterForm').submit();
     }
 
-    function exportReport() {
-        // Implementar exportación
-        alert('Función de exportación por implementar');
-    }
+    // Funcionalidad de exportación Excel
+    $('#exportExcel').off('click').on('click', function(e) {
+        e.preventDefault();
+        
+        const table = document.getElementById('invoicesTable');
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.table_to_sheet(table);
+        
+        XLSX.utils.book_append_sheet(wb, ws, "Facturas");
+        
+        const fecha = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, "reporte_cobros_" + fecha + ".xlsx");
+    });
+    
+    // Funcionalidad de exportación PDF
+    $('#exportPDF').off('click').on('click', function(e) {
+        e.preventDefault();
+        
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        // Título
+        doc.setFontSize(18);
+        doc.text('Reporte de Cobros', 14, 22);
+        
+        // Fecha del reporte
+        doc.setFontSize(11);
+        const today = new Date().toLocaleDateString('es-ES');
+        doc.text('Fecha: ' + today, 14, 30);
+        
+        // Tabla
+        const headers = [['Número', 'Fecha', 'Cliente', 'Monto', 'Estado', 'Vencimiento', 'Creado por']];
+        const data = [];
+        
+        {% for invoice in invoices %}
+        data.push([
+            '{{ invoice.serie }}-{{ invoice.consecutive|stringformat:"04d" }}',
+            '{{ invoice.date|date:"d/m/Y" }}',
+            '{{ invoice.partner.name|truncatechars:25|escapejs }}',
+            '${{ invoice.total_invoice|floatformat:2 }}',
+            '{{ invoice.get_status_display|escapejs }}',
+            '{% if invoice.due_date %}{{ invoice.due_date|date:"d/m/Y" }}{% else %}-{% endif %}',
+            '{{ invoice.creator_name|default:"-"|truncatechars:20|escapejs }}'
+        ]);
+        {% endfor %}
+        
+        doc.autoTable({
+            head: headers,
+            body: data,
+            startY: 40,
+            theme: 'grid',
+            styles: { fontSize: 8 },
+            columnStyles: {
+                0: { cellWidth: 25 },
+                1: { cellWidth: 20 },
+                2: { cellWidth: 35 },
+                3: { cellWidth: 25 },
+                4: { cellWidth: 20 },
+                5: { cellWidth: 20 },
+                6: { cellWidth: 25 }
+            }
+        });
+        
+        const fecha = new Date().toISOString().slice(0, 10);
+        doc.save("reporte_cobros_" + fecha + ".pdf");
+    });
 </script>
 {% endblock %}
