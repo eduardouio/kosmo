@@ -24,6 +24,13 @@ class UpdateUserAPIView(LoginRequiredMixin, View):
         if action == 'update_license':
             return self._update_license(user, data)
 
+        # Acciones administrativas sobre otros usuarios (solo ADMINISTRADOR)
+        if action == 'admin_toggle_active':
+            return self._admin_toggle_active(request.user, data)
+
+        if action == 'admin_reset_password':
+            return self._admin_reset_password(request.user, data)
+
         return self._update_profile(user, request)
 
     def _get_request_data(self, request):
@@ -158,6 +165,104 @@ class UpdateUserAPIView(LoginRequiredMixin, View):
 
         return JsonResponse(
             {'detail': 'Contraseña actualizada correctamente.'},
+            status=200,
+        )
+
+    # ===================== ADMIN ACTIONS ===================== #
+    def _ensure_admin(self, user: CustomUserModel):
+        if getattr(user, 'roles', '') != 'ADMINISTRADOR':
+            loggin_event("Intento no autorizado de acción admin")
+            return JsonResponse(
+                {'detail': 'No autorizado.'},
+                status=403,
+            )
+        return None
+
+    @transaction.atomic
+    def _admin_toggle_active(self, admin: CustomUserModel, data):
+        err = self._ensure_admin(admin)
+        if err:
+            return err
+        target_id = data.get('target_user_id')
+        if not target_id:
+            return JsonResponse(
+                {'detail': 'target_user_id es requerido.'},
+                status=400,
+            )
+        try:
+            target = CustomUserModel.objects.get(pk=target_id)
+        except CustomUserModel.DoesNotExist:
+            return JsonResponse(
+                {'detail': 'Usuario objetivo no existe.'},
+                status=404,
+            )
+        # Evitar que un admin se desactive a sí mismo accidentalmente
+        if target.pk == admin.pk:
+            return JsonResponse(
+                {'detail': 'No puede cambiar su propio estado activo.'},
+                status=400,
+            )
+        target.is_active = not target.is_active
+        target.save()
+        loggin_event(
+            f"Admin {admin.email} cambió estado activo de {target.email} "
+            f"a {target.is_active}"
+        )
+        return JsonResponse(
+            {
+                'detail': 'Estado actualizado',
+                'user_id': target.pk,
+                'is_active': target.is_active,
+            },
+            status=200,
+        )
+
+    @transaction.atomic
+    def _admin_reset_password(self, admin: CustomUserModel, data):
+        err = self._ensure_admin(admin)
+        if err:
+            return err
+        target_id = data.get('target_user_id')
+        new_password = data.get('new_password')
+        confirm_password = data.get('confirm_password')
+        if not all([target_id, new_password, confirm_password]):
+            return JsonResponse(
+                {
+                    'detail': (
+                        'Campos requeridos: target_user_id, new_password, '
+                        'confirm_password.'
+                    )
+                },
+                status=400,
+            )
+        if new_password != confirm_password:
+            return JsonResponse(
+                {'detail': 'Las contraseñas no coinciden.'},
+                status=400,
+            )
+        if len(new_password) < 8:
+            return JsonResponse(
+                {'detail': 'La contraseña debe tener al menos 8 caracteres.'},
+                status=400,
+            )
+        try:
+            target = CustomUserModel.objects.get(pk=target_id)
+        except CustomUserModel.DoesNotExist:
+            return JsonResponse(
+                {'detail': 'Usuario objetivo no existe.'},
+                status=404,
+            )
+        # Un admin puede resetear su propia contraseña, eso sí está permitido
+        target.set_password(new_password)
+        target.save()
+        loggin_event(
+            f"Admin {admin.email} reseteó contraseña de usuario {target.email}"
+        )
+        return JsonResponse(
+            {
+                'detail': 'Contraseña reseteada correctamente.',
+                'user_id': target.pk,
+            },
             status=200,
         )
 
