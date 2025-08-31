@@ -14,18 +14,27 @@ from accounts.models import CustomUserModel
 
 
 class PartnerForm(forms.ModelForm):
+    # Campo de formulario (no directamente del modelo) redefinido como ChoiceField
+    # para mostrar un select de usuarios con rol VENDEDOR. El valor será el id
+    # del usuario y se almacenará en los campos del modelo: id_seller y seller.
+    seller = forms.ChoiceField(
+        required=False,
+        choices=[],
+        widget=forms.Select(attrs={'class': 'form-control form-control-sm'})
+    )
+
     class Meta:
         model = Partner
         fields = [
-            'business_tax_id', 'name', 'status', 'date_aproved', 'country', 'city', 'zip_code',
-            'address', 'phone', 'email', 'type_partner', 'credit_term',
-            'website', 'skype', 'dispatch_address', 'dispatch_days',
-            'cargo_reference', 'consolidate', 'is_active', 'notes',
-            'email_payment','reference_1', 'contact_reference_1',
+            'business_tax_id', 'name', 'status', 'date_aproved', 'country',
+            'city', 'zip_code', 'address', 'phone', 'email', 'type_partner',
+            'credit_term', 'website', 'skype', 'dispatch_address',
+            'dispatch_days', 'cargo_reference', 'consolidate', 'is_active',
+            'notes', 'email_payment', 'reference_1', 'contact_reference_1',
             'default_profit_margin', 'is_profit_margin_included',
-            'reference_2','area_code','phone_reference_1', 'phone_reference_2',
             'contact_reference_2', 'short_name', 'is_verified', 'seller',
-            'prompt_disponibility'
+            'reference_2', 'area_code', 'phone_reference_1',
+            'prompt_disponibility', 'phone_reference_2'
         ]
         widgets = {
             'business_tax_id': forms.TextInput(attrs={'maxlength': '15', 'class': 'form-control form-control-sm'}),
@@ -58,18 +67,56 @@ class PartnerForm(forms.ModelForm):
             'phone_reference_1': forms.TextInput(attrs={'maxlength': '20', 'class': 'form-control form-control-sm'}),
             'phone_reference_2': forms.TextInput(attrs={'maxlength': '20', 'class': 'form-control form-control-sm'}),
             'short_name': forms.TextInput(attrs={'maxlength': '50', 'class': 'form-control form-control-sm'}),
-            'seller': forms.TextInput(attrs={'class': 'form-control form-control-sm'}),
             'status': forms.Select(attrs={'class': 'form-control form-control-sm'}),
             'date_aproved': forms.DateInput(attrs={'class': 'form-control form-control-sm', 'type': 'date'}),
             'prompt_disponibility': forms.Textarea(attrs={'class': 'form-control form-control-sm', 'rows': 4}),
-            
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Construir lista de vendedores (usuarios con rol VENDEDOR)
         sellers = CustomUserModel.get_sellers()
-        seller_choices = [(seller.get_full_name() if seller.get_full_name() else seller.email, seller.get_full_name() if seller.get_full_name() else seller.email) for seller in sellers]
+        # Valor = id del usuario; Etiqueta = Nombre completo o email
+        seller_choices = [
+            (
+                seller.pk,
+                (seller.get_full_name().strip()
+                 if seller.get_full_name() else seller.email)
+            )
+            for seller in sellers
+        ]
         self.fields['seller'].choices = [('', '---------')] + seller_choices
+        # Pre-cargar valor al editar si existe
+        if self.instance and self.instance.id_seller:
+            self.initial['seller'] = self.instance.id_seller
+        # Si no hay id_seller pero sí texto en seller intentamos emparejar
+        elif self.instance and self.instance.seller:
+            match = next((u for u in sellers if (u.get_full_name().strip(
+            ) if u.get_full_name() else u.email) == self.instance.seller), None)
+            if match:
+                self.initial['seller'] = match.pk
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        seller_id = self.cleaned_data.get('seller')
+        if instance.type_partner == 'CLIENTE' and seller_id:
+            try:
+                user = CustomUserModel.objects.get(pk=seller_id)
+                full_name = user.get_full_name().strip()
+                instance.id_seller = user.pk
+                instance.seller = full_name if full_name else user.email
+            except CustomUserModel.DoesNotExist:
+                instance.id_seller = None
+                instance.seller = None
+        else:
+            # Para proveedores u opción vacía limpiamos los campos
+            instance.id_seller = None
+            instance.seller = None
+
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
 
 
 # socios/nuevo/
