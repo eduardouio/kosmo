@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load l10n %}
 
 {% block style %}
 <style>
@@ -88,6 +89,7 @@
         text-align: center;
         position: relative;
         font-size: 0.8rem;
+        transition: transform 0.5s ease;
     }
     .scale-left {
         background: linear-gradient(135deg, #dc3545, #c82333);
@@ -120,6 +122,8 @@
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 1;
+        transition: transform 0.5s ease;
+        transform-origin: center;
     }
     .trend-positive {
         color: #28a745;
@@ -181,7 +185,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container">
     <div class="row">
         <div class="col-12">
             <h3 class="mb-3">
@@ -211,12 +215,6 @@
                             <div class="d-flex gap-1">
                                 <button type="submit" class="btn btn-default btn-sm">
                                     <i class="fas fa-search me-1"></i>Analizar
-                                </button>
-                                <button type="button" class="btn btn-default btn-sm" onclick="clearFilters()">
-                                    <i class="fas fa-times me-1"></i>Limpiar
-                                </button>
-                                <button type="button" class="btn btn-default btn-sm" onclick="exportReport()">
-                                    <i class="fas fa-download me-1"></i>Exportar
                                 </button>
                             </div>
                         </div>
@@ -530,7 +528,7 @@
         data: {
             labels: ['Ingresos', 'Egresos'],
             datasets: [{
-                data: [{{ ingresos }}, {{ egresos }}],
+                data: [{{ ingresos|unlocalize }}, {{ egresos|unlocalize }}],
                 backgroundColor: ['#28a745', '#dc3545'],
                 borderWidth: 0
             }]
@@ -556,6 +554,33 @@
                     bottom: 5
                 }
             }
+        }
+    });
+
+    // Aplicar inclinación a la balanza según el balance
+    document.addEventListener('DOMContentLoaded', function() {
+        const scaleBeam = document.querySelector('.scale-beam');
+        const scaleLeft = document.querySelector('.scale-left');
+        const scaleRight = document.querySelector('.scale-right');
+        
+        // Validar que balance_angle sea un número válido
+        let balanceAngle = {% if balance_angle %}{{ balance_angle|unlocalize }}{% else %}0{% endif %};
+        
+        // Asegurar que sea un número
+        if (isNaN(balanceAngle) || balanceAngle === null || balanceAngle === undefined) {
+            balanceAngle = 0;
+        }
+        
+        if (scaleBeam) {
+            // Inclinar la viga principal
+            scaleBeam.style.transform = `translate(-50%, -50%) rotate(${balanceAngle}deg)`;
+        }
+        
+        if (scaleLeft && scaleRight) {
+            // Inclinar ligeramente los platillos en dirección opuesta para realismo
+            const plateAngle = balanceAngle * 0.3; // Reducir el ángulo para los platillos
+            scaleLeft.style.transform = `rotate(${-plateAngle}deg)`;
+            scaleRight.style.transform = `rotate(${plateAngle}deg)`;
         }
     });
 
