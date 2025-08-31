@@ -43,6 +43,18 @@ class CustomUserModel(AbstractUser):
         'notas',
         blank=True
     )
+    goal_sales = models.DecimalField(
+        'Meta de Ventas',
+        max_digits=15,
+        decimal_places=2,
+        default=0
+    )
+    goal_stems = models.DecimalField(
+        'Meta de Tallos',
+        max_digits=15,
+        decimal_places=2,
+        default=0
+    )
     roles = models.CharField(
         'Role',
         choices=ROLE_CHOICES,
