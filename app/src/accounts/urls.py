@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from .views import LoginTV, LogoutRV, HomeTV, UserProfileView
-from .views.SellersView import SellersListView, SellerDetailView
+from .views.SellersView import SellersListView, SellerDetailView, SellerCreateView
 from .views.CertValidationView import pki_validation_view
 
 urlpatterns = [
@@ -12,6 +12,11 @@ urlpatterns = [
         'accounts/sellers/',
         SellersListView.as_view(),
         name='sellers_list'
+    ),
+    path(
+        'accounts/sellers/new/',
+        SellerCreateView.as_view(),
+        name='seller_create'
     ),
     path(
         'accounts/sellers/<int:pk>/',
