@@ -113,6 +113,29 @@
         color: #dc3545;
         font-weight: 600;
     }
+    
+    /* Estilos estandarizados para tablas (copiados de balance_report) */
+    .table th {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
+    }
+    
+    .summary-card {
+        transition: transform 0.2s ease-in-out;
+    }
+    
+    .summary-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .table-responsive {
+            font-size: 0.875rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -121,7 +144,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container">
     <div class="row">
         <div class="col-12">
             <h3 class="mb-3">
@@ -233,151 +256,141 @@
     </div>
 
     <!-- Top Productos por Ingresos -->
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-md-6">
-            <div class="product-table">
-                <h6>Top Productos por Ingresos</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th style="width: 35%;">Producto</th>
-                                <th style="width: 15%;" class="text-center">Tallos</th>
-                                <th style="width: 15%;" class="text-center">Órdenes</th>
-                                <th style="width: 15%;" class="text-center">Margen</th>
-                                <th style="width: 20%;" class="text-end">Ingresos</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for product in top_products_by_revenue|slice:":10" %}
-                            <tr class="product-row">
-                                <td>
-                                    <div>
-                                        <strong>{{ product.product__name|truncatechars:20 }}</strong>
-                                        <br>
-                                        <span class="variety-badge">{{ product.product__variety|truncatechars:15 }}</span>
-                                    </div>
-                                </td>
-                                <td class="text-center">
-                                    <span class="metric-badge metric-stems">{{ product.total_stems|floatformat:0 }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary">{{ product.total_orders }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="metric-badge metric-margin">${{ product.total_margin|floatformat:0 }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <span class="metric-badge metric-revenue">${{ product.total_revenue|floatformat:0 }}</span>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center text-muted">Sin datos</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-chart-line me-2"></i>Top Productos por Ingresos</h6>
+                </div>
+                <div class="card-body">
+                    {% if top_products_by_revenue %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th class="text-center">Tallos</th>
+                                        <th class="text-center">Órdenes</th>
+                                        <th class="text-center">Margen</th>
+                                        <th class="text-end">Ingresos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in top_products_by_revenue|slice:":10" %}
+                                    <tr class="product-row">
+                                        <td>
+                                            <div>
+                                                <strong>{{ product.product__name|truncatechars:20 }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ product.product__variety|truncatechars:15 }}</small>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">{{ product.total_stems|floatformat:0 }}</td>
+                                        <td class="text-center">{{ product.total_orders }}</td>
+                                        <td class="text-center">${{ product.total_margin|floatformat:2 }}</td>
+                                        <td class="text-end">${{ product.total_revenue|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="product-table">
-                <h6>Productos Más Rentables (ROI)</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th style="width: 40%;">Producto</th>
-                                <th style="width: 20%;" class="text-center">Costo</th>
-                                <th style="width: 20%;" class="text-center">Margen</th>
-                                <th style="width: 20%;" class="text-center">ROI</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in most_profitable|slice:":10" %}
-                            <tr class="product-row">
-                                <td>
-                                    <div>
-                                        <strong>{{ item.product.product__name|truncatechars:15 }}</strong>
-                                        <br>
-                                        <span class="variety-badge">{{ item.product.product__variety|truncatechars:12 }}</span>
-                                    </div>
-                                </td>
-                                <td class="text-center">
-                                    <small class="text-muted">${{ item.product.total_cost|floatformat:0 }}</small>
-                                </td>
-                                <td class="text-center">
-                                    <span class="metric-badge metric-margin">${{ item.product.total_margin|floatformat:0 }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="{% if item.roi >= 0 %}roi-positive{% else %}roi-negative{% endif %}">
-                                        {{ item.roi|floatformat:1 }}%
-                                    </span>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="text-center text-muted">Sin datos</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-percentage me-2"></i>Productos Más Rentables (ROI)</h6>
+                </div>
+                <div class="card-body">
+                    {% if most_profitable %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th class="text-center">Costo</th>
+                                        <th class="text-center">Margen</th>
+                                        <th class="text-center">ROI</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in most_profitable|slice:":10" %}
+                                    <tr class="product-row">
+                                        <td>
+                                            <div>
+                                                <strong>{{ item.product.product__name|truncatechars:15 }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ item.product.product__variety|truncatechars:12 }}</small>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">${{ item.product.total_cost|floatformat:2 }}</td>
+                                        <td class="text-center">${{ item.product.total_margin|floatformat:2 }}</td>
+                                        <td class="text-center">
+                                            <span class="{% if item.roi >= 0 %}roi-positive{% else %}roi-negative{% endif %}">
+                                                {{ item.roi|floatformat:1 }}%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Análisis por Variedad -->
-    <div class="row">
+    <div class="row mb-4">
         <div class="col-12">
-            <div class="product-table">
-                <h6>Análisis por Variedad</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm" id="myTableSmall">
-                        <thead>
-                            <tr>
-                                <th style="width: 25%;">Variedad</th>
-                                <th style="width: 15%;" class="text-center">Productos</th>
-                                <th style="width: 15%;" class="text-center">Tallos</th>
-                                <th style="width: 15%;" class="text-center">Órdenes</th>
-                                <th style="width: 15%;" class="text-end">Ingresos</th>
-                                <th style="width: 15%;" class="text-center">Promedio/Orden</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for variety in varieties_analysis %}
-                            <tr>
-                                <td>
-                                    <strong>{{ variety.product__variety }}</strong>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-info">{{ variety.variety_products }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="metric-badge metric-stems">{{ variety.variety_stems|floatformat:0 }}</span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="badge bg-secondary">{{ variety.variety_orders }}</span>
-                                </td>
-                                <td class="text-end">
-                                    <span class="metric-badge metric-revenue">${{ variety.variety_revenue|floatformat:0 }}</span>
-                                </td>
-                                <td class="text-center">
-                                    {% if variety.variety_orders > 0 %}
-                                        <small class="text-muted">${{ variety.avg_revenue_per_order|floatformat:0 }}</small>
-                                    {% else %}
-                                        <small class="text-muted">-</small>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="6" class="text-center text-muted">Sin datos</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-list me-2"></i>Análisis por Variedad</h6>
+                </div>
+                <div class="card-body">
+                    {% if varieties_analysis %}
+                        <div class="table-responsive">
+                            <table class="table table-sm" id="myTableSmall">
+                                <thead>
+                                    <tr>
+                                        <th>Variedad</th>
+                                        <th class="text-center">Productos</th>
+                                        <th class="text-center">Tallos</th>
+                                        <th class="text-center">Órdenes</th>
+                                        <th class="text-end">Ingresos</th>
+                                        <th class="text-center">Promedio/Orden</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for variety in varieties_analysis %}
+                                    <tr>
+                                        <td><strong>{{ variety.product__variety }}</strong></td>
+                                        <td class="text-center">{{ variety.variety_products }}</td>
+                                        <td class="text-center">{{ variety.variety_stems|floatformat:0 }}</td>
+                                        <td class="text-center">{{ variety.variety_orders }}</td>
+                                        <td class="text-end">${{ variety.variety_revenue|floatformat:2 }}</td>
+                                        <td class="text-center">
+                                            {% if variety.variety_orders > 0 %}
+                                                ${{ variety.avg_revenue_per_order|floatformat:2 }}
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay datos disponibles</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -483,16 +496,19 @@
     ];
 
     new Chart(varietiesCtx, {
-        type: 'doughnut',
+        type: 'bar',
         data: {
             labels: topVarieties.map(item => item.label),
             datasets: [{
+                label: 'Ingresos ($)',
                 data: topVarieties.map(item => item.value),
                 backgroundColor: [
                     '#007bff', '#28a745', '#ffc107', '#dc3545', '#6f42c1'
                 ],
-                borderWidth: 2,
-                borderColor: '#fff'
+                borderColor: [
+                    '#0056b3', '#1e7e34', '#e0a800', '#c82333', '#5a2d91'
+                ],
+                borderWidth: 1
             }]
         },
         options: {
@@ -506,11 +522,23 @@
             },
             plugins: {
                 legend: {
-                    position: 'bottom',
-                    labels: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        font: { size: 10 },
+                        callback: function(value) {
+                            return '$' + (value/1000).toFixed(0) + 'K';
+                        }
+                    }
+                },
+                x: {
+                    ticks: {
                         font: { size: 9 },
-                        boxWidth: 10,
-                        padding: 8
+                        maxRotation: 45
                     }
                 }
             }
