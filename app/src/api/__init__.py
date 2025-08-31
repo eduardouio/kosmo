@@ -54,5 +54,5 @@ __all__ = [
     'UpdateProductAPI',
     'PaymentContextData',
     'CollectionsContextAPI',
-    'CustomerInvoiceDetailAPI'
+    'CustomerInvoiceDetailAPI',
 ]
