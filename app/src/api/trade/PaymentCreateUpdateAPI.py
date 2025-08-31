@@ -205,6 +205,16 @@ class PaymentCreateUpdateAPI(View):
             loggin_event(
                 f'Pago creado exitosamente: {payment.payment_number}')
 
+            # Actualizar el estado de todas las facturas relacionadas
+            for invoice_data in payment_data['invoices']:
+                try:
+                    invoice = Invoice.objects.get(
+                        id=invoice_data['invoice_id']
+                    )
+                    invoice.update_payment_status()
+                except Invoice.DoesNotExist:
+                    pass
+
             # Devolver información completa del pago creado
             return JsonResponse({
                 'message': 'Payment created successfully',
