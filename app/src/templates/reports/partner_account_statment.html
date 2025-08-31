@@ -97,11 +97,12 @@
         border: 1px solid #28a745;
       }
       .section-title {
-        color: #007bff;
+        color: #495057;
         font-size: 1.1em;
         margin: 15px 0 10px 0;
-        border-bottom: 1px solid #007bff;
+        border-bottom: 1px solid #dee2e6;
         padding-bottom: 5px;
+        font-weight: 600;
       }
       .partner-info-container {
         display: grid;
@@ -109,24 +110,26 @@
         gap: 20px;
         margin-bottom: 20px;
         padding: 20px;
-        border: 2px solid #007bff;
-        border-radius: 16px;
+        background-color: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
       }
       .partner-details {
         font-size: 14px;
       }
       .account-summary {
         background-color: #f8f9fa;
-        border: 1px solid #007bff;
+        border: 1px solid #e5e7eb;
         border-radius: 8px;
         overflow: hidden;
       }
       .account-summary-header {
-        background-color: #007bff;
-        color: white;
+        background-color: #f8f9fa;
+        color: #495057;
         text-align: center;
         padding: 8px;
         font-weight: bold;
+        border-bottom: 2px solid #dee2e6;
       }
       .account-summary-row {
         display: grid;
@@ -291,7 +294,7 @@
         </div>
         
         <div class="account-summary">
-          <div class="account-summary-header">RESUMEN DE CUENTA</div>
+          <div class="account-summary-header bg-gray-200">RESUMEN DE CUENTA</div>
           <div class="account-summary-row">
             <div class="account-summary-label">FECHA</div>
             <div class="account-summary-value">{{ today|date:'j/n/y' }}</div>
