@@ -258,7 +258,7 @@
         </div>
         <div class="col-md-2 col-6">
             <div class="balance-card flujo">
-                <h3>${{ flujo_efectivo|floatformat:0 }}</h3>
+                <h3>${{ flujo_efectivo|floatformat:2 }}</h3>
                 <div class="subtitle">Flujo</div>
                 <small>Efectivo</small>
             </div>
@@ -463,7 +463,7 @@
                                 <small class="text-muted">{{ cobro.method }}</small>
                             </td>
                             <td class="text-end">
-                                <span class="badge bg-success">${{ cobro.amount|floatformat:0 }}</span>
+                                <span class="badge bg-success">${{ cobro.amount|floatformat:2 }}</span>
                             </td>
                         </tr>
                         {% empty %}
@@ -474,7 +474,7 @@
                     </tbody>
                 </table>
                 <div class="text-end p-2 bg-light">
-                    <strong>Total Ingresos: ${{ ingresos|floatformat:0 }}</strong>
+                    <strong>Total Ingresos: ${{ ingresos|floatformat:2 }}</strong>
                 </div>
             </div>
         </div>
@@ -505,7 +505,7 @@
                                 <small class="text-muted">{{ pago.method }}</small>
                             </td>
                             <td class="text-end">
-                                <span class="badge bg-danger">${{ pago.amount|floatformat:0 }}</span>
+                                <span class="badge bg-danger">${{ pago.amount|floatformat:2 }}</span>
                             </td>
                         </tr>
                         {% empty %}
@@ -516,7 +516,7 @@
                     </tbody>
                 </table>
                 <div class="text-end p-2 bg-light">
-                    <strong>Total Egresos: ${{ egresos|floatformat:0 }}</strong>
+                    <strong>Total Egresos: ${{ egresos|floatformat:2 }}</strong>
                 </div>
             </div>
         </div>
