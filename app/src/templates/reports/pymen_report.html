@@ -14,12 +14,12 @@
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     .btn-export {
-        background: linear-gradient(45deg, #17a2b8, #138496);
+        background: linear-gradient(45deg, #007bff, #0056b3);
         border: none;
         color: white;
     }
     .btn-export:hover {
-        background: linear-gradient(45deg, #138496, #117a8b);
+        background: linear-gradient(45deg, #0056b3, #004085);
         color: white;
     }
     
@@ -30,21 +30,12 @@
     
     .autocomplete-input {
         width: 100%;
-        padding: 0.375rem 0.75rem;
-        border: 1px solid #ced4da;
-        border-radius: 0.25rem;
-        background-color: #fff;
-        background-clip: padding-box;
-        color: #495057;
-        font-size: 0.875rem;
-        line-height: 1.5;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
     }
     
     .autocomplete-input:focus {
+        outline: none;
         border-color: #80bdff;
-        outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
     }
     
     .autocomplete-suggestions {
@@ -52,13 +43,9 @@
         top: 100%;
         left: 0;
         right: 0;
-        z-index: 1000;
-        background-color: #fff;
-        border: 1px solid rgba(0, 0, 0, 0.15);
-        border-radius: 0.25rem;
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
-        max-height: 200px;
+        max-height: 300px;
         overflow-y: auto;
+        z-index: 1050;
         display: none;
     }
     
@@ -67,50 +54,44 @@
     }
     
     .autocomplete-suggestions .dropdown-item {
-        display: block;
-        width: 100%;
-        padding: 0.375rem 0.75rem;
-        clear: both;
-        font-weight: 400;
-        color: #212529;
-        text-decoration: none;
-        white-space: nowrap;
-        background-color: transparent;
-        border: 0;
-        font-size: 0.875rem;
+        cursor: pointer;
+        padding: 0.5rem 1rem;
     }
     
     .autocomplete-suggestions .dropdown-item:hover,
     .autocomplete-suggestions .dropdown-item:focus {
-        color: #16181b;
-        text-decoration: none;
         background-color: #f8f9fa;
     }
     
     .autocomplete-suggestions .dropdown-item.active {
-        color: #fff;
-        text-decoration: none;
         background-color: #007bff;
+        color: white;
     }
     
     .table th {
         background-color: #f8f9fa;
-        border-bottom: 2px solid #dee2e6;
         font-weight: 600;
-        color: #495057;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        border-radius: 10px;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
     }
     
     /* Responsive adjustments */
     @media (max-width: 768px) {
-        .autocomplete-suggestions {
-            position: fixed;
-            left: 1rem;
-            right: 1rem;
-            top: auto;
+        .filter-card {
+            padding: 15px;
         }
-        
-        .table-responsive {
-            font-size: 0.875rem;
+        .btn-export {
+            margin-bottom: 5px;
         }
     }
 </style>
@@ -124,10 +105,10 @@
 <div class="container">
     <div class="row">
         <div class="col-12">
-            <h2 class="mb-4">
-                <i class="fas fa-money-bill-wave me-2"></i>
-                Reporte de Pagos
-            </h2>
+            <h5 class="mb-4">
+                <i class="fas fa-money-check-alt me-2"></i>
+                Reporte de Pagos y Transacciones
+            </h5>
         </div>
     </div>
 
@@ -148,15 +129,12 @@
                                    value="{{ filters.date_to }}">
                         </div>
                         <div class="col-md-4">
-                            <label for="partner_search" class="form-label">Partner</label>
+                            <label for="partner_id" class="form-label">Partner</label>
                             <div class="autocomplete-container">
-                                <input type="text" 
-                                       class="form-control autocomplete-input" 
-                                       id="partner_search" 
-                                       placeholder="Buscar partner..."
-                                       autocomplete="off">
+                                <input type="text" class="form-control autocomplete-input" id="partner_search" 
+                                       placeholder="Buscar partner..." autocomplete="off">
                                 <input type="hidden" id="partner_id" name="partner_id" value="{{ filters.partner_id }}">
-                                <div id="partner_suggestions" class="autocomplete-suggestions"></div>
+                                <div id="partner_suggestions" class="autocomplete-suggestions dropdown-menu w-100"></div>
                             </div>
                         </div>
                         <div class="col-md-2 d-flex align-items-end">
@@ -175,17 +153,67 @@
         </div>
     </div>
 
+    <!-- Estadísticas y Gráficos -->
+    <div class="row mb-4">
+        <!-- Gráfico de Pagos por Semana -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-chart-bar me-2"></i>Pagos por Semana</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="weeklyPaymentsChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Proveedores -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="fas fa-trophy me-2"></i>Top Proveedores</h6>
+                </div>
+                <div class="card-body">
+                    {% if top_providers %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Proveedor</th>
+                                        <th class="text-center">Cant.</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for provider in top_providers %}
+                                    <tr>
+                                        <td>{{ provider.name|truncatechars:25 }}</td>
+                                        <td class="text-center">{{ provider.count }}</td>
+                                        <td class="text-end">${{ provider.total|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">No hay datos disponibles</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Tabla de Pagos -->
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Pagos y Transacciones</h5>
+                    <h5 class="mb-0">Detalle de Pagos</h5>
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-success btn-sm" id="exportExcel">
+                        <button id="exportExcel" class="btn btn-export btn-sm">
                             <i class="fas fa-file-excel"></i> Excel
                         </button>
-                        <button type="button" class="btn btn-danger btn-sm" id="exportPDF">
+                        <button id="exportPDF" class="btn btn-export btn-sm">
                             <i class="fas fa-file-pdf"></i> PDF
                         </button>
                     </div>
@@ -207,10 +235,14 @@
                             <tbody>
                                 {% for payment in payments %}
                                 <tr>
-                                    <td>{{ payment.payment_number|default:payment.id }}</td>
+                                    <td>
+                                        <a href="#">
+                                            {{ payment.payment_number }}
+                                        </a>
+                                    </td>
                                     <td>{{ payment.date|date:"d/m/Y" }}</td>
                                     <td>${{ payment.amount|floatformat:2 }}</td>
-                                    <td>{{ payment.partners_names|default:"-" }}</td>
+                                    <td>{{ payment.display_partners|default:"-" }}</td>
                                     <td>{{ payment.bank|default:"-" }}</td>
                                     <td>{{ payment.nro_operation|default:"-" }}</td>
                                     <td>{{ payment.processed_by.get_full_name|default:"-" }}</td>
@@ -232,6 +264,7 @@
 
 {% block files_footer %}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block script %}
@@ -249,6 +282,9 @@
         {% endfor %}
     ];
 
+    // Datos para el gráfico semanal
+    const weeklyData = JSON.parse('{{ weekly_data_json|escapejs }}');
+
     // Inicializar DataTable
     $(document).ready(function() {
         $('#paymentsTable').DataTable({
@@ -260,167 +296,264 @@
             lengthMenu: [15, 25, 50, 100, 500]
         });
 
-        // Debug: Verificar que los partners se cargan
-        console.log('Partners cargados:', partners.length);
+        // Inicializar gráfico de barras semanal
+        initWeeklyChart();
         
         // Inicializar autocomplete de partners
         initPartnerAutocomplete();
     });
 
+    // Función para inicializar el gráfico de barras semanal
+    function initWeeklyChart() {
+        const ctx = document.getElementById('weeklyPaymentsChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: weeklyData.map(item => 'Sem. ' + item.week),
+                datasets: [{
+                    label: 'Monto Total ($)',
+                    data: weeklyData.map(item => item.total),
+                    backgroundColor: 'rgba(23, 162, 184, 0.6)',
+                    borderColor: 'rgba(23, 162, 184, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y-amount'
+                }, {
+                    label: 'Cantidad de Pagos',
+                    data: weeklyData.map(item => item.count),
+                    type: 'line',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y-count'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    if (context.datasetIndex === 0) {
+                                        label += '$' + context.parsed.y.toFixed(2);
+                                    } else {
+                                        label += context.parsed.y + ' pagos';
+                                    }
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    'y-amount': {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Monto ($)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    },
+                    'y-count': {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Cantidad'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     function initPartnerAutocomplete() {
         const searchInput = document.getElementById('partner_search');
         const hiddenInput = document.getElementById('partner_id');
-        const suggestionsDiv = document.getElementById('partner_suggestions');
+        const suggestions = document.getElementById('partner_suggestions');
+        let selectedIndex = -1;
 
-        // Debug: Verificar que los elementos existen
-        console.log('Input encontrado:', searchInput !== null);
-        console.log('Hidden input encontrado:', hiddenInput !== null);
-        console.log('Suggestions div encontrado:', suggestionsDiv !== null);
-        
-        if (!searchInput || !hiddenInput || !suggestionsDiv) {
-            console.error('No se encontraron todos los elementos necesarios para el autocomplete');
-            return;
-        }
-
-        // Mostrar partner seleccionado al cargar
-        if (hiddenInput.value) {
-            const selectedPartner = partners.find(p => p.id == hiddenInput.value);
+        // Set initial value if there's a selected partner
+        const selectedPartnerId = hiddenInput.value;
+        if (selectedPartnerId) {
+            const selectedPartner = partners.find(p => p.id == selectedPartnerId);
             if (selectedPartner) {
                 searchInput.value = selectedPartner.name;
             }
-        } else {
-            searchInput.value = '';
         }
 
-        // Evento de búsqueda
         searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            const filtered = partners.filter(partner => 
-                partner.name.toLowerCase().includes(query)
-            );
-            showSuggestions(filtered);
-        });
+            const searchValue = this.value.toLowerCase();
+            suggestions.innerHTML = '';
+            selectedIndex = -1;
 
-        // Mostrar todas las sugerencias al hacer focus
-        searchInput.addEventListener('focus', function() {
-            showAllSuggestions();
-        });
-
-        // Ocultar sugerencias al perder el focus (con delay para permitir clicks)
-        searchInput.addEventListener('blur', function() {
-            setTimeout(() => hideSuggestions(), 200);
-        });
-
-        function showAllSuggestions() {
-            showSuggestions(partners);
-        }
-
-        function showSuggestions(filteredPartners) {
-            suggestionsDiv.innerHTML = '';
-            
-            if (filteredPartners.length === 0) {
-                hideSuggestions();
+            if (searchValue.length < 1) {
+                suggestions.classList.remove('show');
                 return;
             }
 
-            filteredPartners.forEach(partner => {
-                const item = document.createElement('button');
-                item.type = 'button';
-                item.className = 'dropdown-item';
-                item.textContent = partner.name;
-                item.addEventListener('click', function() {
-                    selectPartner(partner);
+            const filteredPartners = partners.filter(partner => 
+                partner.name.toLowerCase().includes(searchValue)
+            );
+
+            if (filteredPartners.length > 0) {
+                filteredPartners.forEach((partner, index) => {
+                    const item = document.createElement('a');
+                    item.classList.add('dropdown-item');
+                    item.textContent = partner.name;
+                    item.href = '#';
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        searchInput.value = partner.name;
+                        hiddenInput.value = partner.id;
+                        suggestions.classList.remove('show');
+                    });
+                    suggestions.appendChild(item);
                 });
-                suggestionsDiv.appendChild(item);
-            });
+                suggestions.classList.add('show');
+            } else {
+                suggestions.classList.remove('show');
+            }
+        });
 
-            suggestionsDiv.classList.add('show');
-        }
-
-        function hideSuggestions() {
-            suggestionsDiv.classList.remove('show');
-        }
-
-        function selectPartner(partner) {
-            searchInput.value = partner.name;
-            hiddenInput.value = partner.id;
-            hideSuggestions();
-        }
-
-        // Limpiar selección si el texto no coincide exactamente
-        searchInput.addEventListener('blur', function() {
-            setTimeout(() => {
-                const exactMatch = partners.find(p => p.name === this.value);
-                if (!exactMatch && this.value !== '') {
-                    this.value = '';
-                    hiddenInput.value = '';
+        searchInput.addEventListener('keydown', function(e) {
+            const items = suggestions.querySelectorAll('.dropdown-item');
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                updateSelection(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && items[selectedIndex]) {
+                    items[selectedIndex].click();
                 }
-            }, 300);
+            } else if (e.key === 'Escape') {
+                suggestions.classList.remove('show');
+                selectedIndex = -1;
+            }
+        });
+
+        function updateSelection(items) {
+            items.forEach((item, index) => {
+                if (index === selectedIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+                suggestions.classList.remove('show');
+            }
         });
     }
 
     // Funciones auxiliares
     function clearFilters() {
-        document.getElementById('filterForm').reset();
+        document.getElementById('date_from').value = '';
+        document.getElementById('date_to').value = '';
         document.getElementById('partner_search').value = '';
         document.getElementById('partner_id').value = '';
         document.getElementById('filterForm').submit();
     }
 
-    // Funcionalidad de exportación PDF y Excel
+    // Funcionalidad de exportación Excel
     $('#exportExcel').off('click').on('click', function(e) {
         e.preventDefault();
         
-        // Crear workbook
-        const wb = XLSX.utils.book_new();
-        
-        // Obtener datos de la tabla
         const table = document.getElementById('paymentsTable');
+        const wb = XLSX.utils.book_new();
         const ws = XLSX.utils.table_to_sheet(table);
         
-        // Agregar hoja al workbook
-        XLSX.utils.book_append_sheet(wb, ws, "Reporte Pagos");
+        XLSX.utils.book_append_sheet(wb, ws, "Pagos");
         
-        // Generar nombre de archivo con fecha
-        const fecha = new Date().toISOString().split('T')[0];
+        const fecha = new Date().toISOString().slice(0, 10);
         XLSX.writeFile(wb, "reporte_pagos_" + fecha + ".xlsx");
     });
     
+    // Funcionalidad de exportación PDF
     $('#exportPDF').off('click').on('click', function(e) {
         e.preventDefault();
         
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
-        // Agregar título
-        doc.setFontSize(16);
+        // Título
+        doc.setFontSize(18);
         doc.text('Reporte de Pagos', 14, 22);
         
-        // Agregar fecha
-        doc.setFontSize(10);
-        doc.text('Fecha: ' + new Date().toLocaleDateString(), 14, 30);
+        // Fecha del reporte
+        doc.setFontSize(11);
+        const today = new Date().toLocaleDateString('es-ES');
+        doc.text('Fecha: ' + today, 14, 30);
         
-        // Configurar tabla
-        const table = document.getElementById('paymentsTable');
+        // Tabla
+        const headers = [['Número', 'Fecha', 'Monto', 'Partners', 'Banco', 'Nro. Op.', 'Procesado']];
+        const data = [];
+        
+        {% for payment in payments %}
+        data.push([
+            '{{ payment.payment_number }}',
+            '{{ payment.date|date:"d/m/Y" }}',
+            '${{ payment.amount|floatformat:2 }}',
+            '{{ payment.display_partners|default:"-"|truncatechars:30 }}',
+            '{{ payment.bank|default:"-" }}',
+            '{{ payment.nro_operation|default:"-" }}',
+            '{{ payment.processed_by.get_full_name|default:"-"|truncatechars:20 }}'
+        ]);
+        {% endfor %}
+        
         doc.autoTable({
-            html: table,
-            startY: 35,
-            headStyles: { fillColor: [41, 128, 185] },
+            head: headers,
+            body: data,
+            startY: 40,
+            theme: 'grid',
             styles: { fontSize: 8 },
             columnStyles: {
-                0: { cellWidth: 25 },  // Número
-                1: { cellWidth: 25 },  // Fecha
-                2: { cellWidth: 25 },  // Monto
-                3: { cellWidth: 40 },  // Partners
-                4: { cellWidth: 30 },  // Banco
-                5: { cellWidth: 30 },  // Nro. Operación
-                6: { cellWidth: 35 }   // Procesado por
+                0: { cellWidth: 25 },
+                1: { cellWidth: 20 },
+                2: { cellWidth: 25 },
+                3: { cellWidth: 40 },
+                4: { cellWidth: 30 },
+                5: { cellWidth: 25 },
+                6: { cellWidth: 25 }
             }
         });
         
-        // Generar nombre de archivo con fecha
-        const fecha = new Date().toISOString().split('T')[0];
-        doc.save('reporte_pagos_' + fecha + '.pdf');
+        const fecha = new Date().toISOString().slice(0, 10);
+        doc.save("reporte_pagos_" + fecha + ".pdf");
     });
 </script>
 {% endblock %}
