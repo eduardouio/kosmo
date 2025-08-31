@@ -297,7 +297,7 @@
           <div class="account-summary-header bg-gray-200">RESUMEN DE CUENTA</div>
           <div class="account-summary-row">
             <div class="account-summary-label">FECHA</div>
-            <div class="account-summary-value">{{ today|date:'j/n/y' }}</div>
+            <div class="account-summary-value">{{ today|date:'d/m/Y' }}</div>
           </div>
           <div class="account-summary-row">
             <div class="account-summary-label">SALDO</div>
@@ -332,7 +332,7 @@
                     {% for e in entries %}
                       {% if e.type == 'INVOICE' %}
                       <tr class="{% if e.reference == 'FACTURA VENCIDA' %}invoice-overdue{% endif %}">
-                        <td>{{ e.date|date:'j \d\e F \d\e Y' }}</td>
+                        <td>{{ e.date|date:'d/m/Y' }}</td>
                         <td>{{ e.document }}</td>
                         <td class="text-center">{{ e.credit_days }}</td>
                         <td class="text-end">${{ e.invoice_amount|floatformat:2 }}</td>
@@ -345,7 +345,7 @@
                       </tr>
                       {% else %}
                       <tr class="payment-row">
-                        <td>{{ e.date|date:'j \d\e F \d\e Y' }}</td>
+                        <td>{{ e.date|date:'d/m/Y' }}</td>
                         <td>{{ e.document }}</td>
                         <td></td>
                         <td></td>
