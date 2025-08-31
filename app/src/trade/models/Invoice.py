@@ -231,7 +231,7 @@ class Invoice(BaseModel):
     @property
     def days_to_due(self):
         if self.due_date:
-            return (self.due_date - self.date).days
+            return (self.due_date.date() - datetime.now().date()).days
         return None
 
     @property

@@ -27,25 +27,48 @@ class CustomerInvoiceList(ListView):
         return super().get_queryset().filter(
             type_document='FAC_VENTA',
             is_active=True,
-        ).select_related('order', 'order__parent_order', 'partner').order_by('-date')
+        ).select_related(
+            'order', 'order__parent_order', 'partner'
+        ).order_by('-date')
 
     def get_values_stats(self):
         invoices = self.get_queryset()
+        now = timezone.now()
+        
+        # Documentos activos pendientes
         active_invoices = invoices.filter(status='PENDIENTE').count()
-        total_dued = invoices.filter(status='PENDIENTE').aggregate(models.Sum('total_price'))['total_price__sum'] or 0
+        
+        # Por cobrar: todas las facturas pendientes
+        total_for_charge = invoices.filter(status='PENDIENTE').aggregate(
+            models.Sum('total_price'))['total_price__sum'] or 0
+        
+        # Por vencer este mes: facturas pendientes que vencen este mes
+        # y aún no han vencido
         total_dued_this_month = invoices.filter(
             status='PENDIENTE',
-            due_date__month=self.request.GET.get('month', timezone.now().month)
+            due_date__month=now.month,
+            due_date__year=now.year,
+            due_date__gte=now.date()
         ).aggregate(models.Sum('total_price'))['total_price__sum'] or 0
-        total_for_charge = invoices.filter(status='PAGADO').aggregate(models.Sum('total_price'))['total_price__sum'] or 0
+        
+        # Vencido: facturas pendientes que ya vencieron
+        total_dued = invoices.filter(
+            status='PENDIENTE',
+            due_date__lt=now.date()
+        ).aggregate(models.Sum('total_price'))['total_price__sum'] or 0
+        
+        # Tallos vendidos este mes (basado en fecha de factura)
         total_stems_this_month = invoices.filter(
-            delivery_date__month=self.request.GET.get('month', timezone.now().month)
+            date__month=now.month,
+            date__year=now.year
         ).aggregate(models.Sum('tot_stem_flower'))['tot_stem_flower__sum'] or 0
 
         return {
             'active_invoices': active_invoices,
             'total_dued': f"$ {number_format(total_dued, decimal_pos=2)}",
-            'total_dued_this_month': f"$ {number_format(total_dued_this_month, decimal_pos=2)}",
-            'total_for_charge': f"$ {number_format(total_for_charge, decimal_pos=2)}",
+            'total_dued_this_month':
+                f"$ {number_format(total_dued_this_month, decimal_pos=2)}",
+            'total_for_charge':
+                f"$ {number_format(total_for_charge, decimal_pos=2)}",
             'total_stems_this_month': total_stems_this_month,
         }
