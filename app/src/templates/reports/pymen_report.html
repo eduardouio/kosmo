@@ -210,10 +210,10 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Detalle de Pagos</h5>
                     <div class="d-flex gap-2">
-                        <button id="exportExcel" class="btn btn-export btn-sm">
+                        <button id="exportExcel" class="btn btn-success btn-sm">
                             <i class="fas fa-file-excel"></i> Excel
                         </button>
-                        <button id="exportPDF" class="btn btn-export btn-sm">
+                        <button id="exportPDF" class="btn btn-danger btn-sm">
                             <i class="fas fa-file-pdf"></i> PDF
                         </button>
                     </div>
@@ -229,7 +229,7 @@
                                     <th>Partners</th>
                                     <th>Banco</th>
                                     <th>Nro. Operación</th>
-                                    <th>Procesado por</th>
+                                    <th>Creado por</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -245,7 +245,7 @@
                                     <td>{{ payment.display_partners|default:"-" }}</td>
                                     <td>{{ payment.bank|default:"-" }}</td>
                                     <td>{{ payment.nro_operation|default:"-" }}</td>
-                                    <td>{{ payment.processed_by.get_full_name|default:"-" }}</td>
+                                    <td>{{ payment.creator_name|default:"-" }}</td>
                                 </tr>
                                 {% empty %}
                                 <tr>
@@ -520,7 +520,7 @@
         doc.text('Fecha: ' + today, 14, 30);
         
         // Tabla
-        const headers = [['Número', 'Fecha', 'Monto', 'Partners', 'Banco', 'Nro. Op.', 'Procesado']];
+        const headers = [['Número', 'Fecha', 'Monto', 'Partners', 'Banco', 'Nro. Op.', 'Creado por']];
         const data = [];
         
         {% for payment in payments %}
@@ -531,7 +531,7 @@
             '{{ payment.display_partners|default:"-"|truncatechars:30 }}',
             '{{ payment.bank|default:"-" }}',
             '{{ payment.nro_operation|default:"-" }}',
-            '{{ payment.processed_by.get_full_name|default:"-"|truncatechars:20 }}'
+            '{{ payment.creator_name|default:"-"|truncatechars:20 }}'
         ]);
         {% endfor %}
         

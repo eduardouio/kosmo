@@ -103,6 +103,13 @@ class PymenReportView(View):
                 'invoice__partner__name', flat=True
             ).distinct()
             payment.display_partners = ', '.join([p for p in partners_list if p])
+            
+            # Obtener el nombre del usuario creador
+            user_creator = payment.user_creator
+            if user_creator:
+                payment.creator_name = user_creator.get_full_name()
+            else:
+                payment.creator_name = 'Sistema'
 
         # Obtener listas para filtros
         partners = Partner.objects.filter(
