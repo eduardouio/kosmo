@@ -227,7 +227,8 @@
                                     <th>Fecha</th>
                                     <th>Cliente</th>
                                     <th>Monto</th>
-                                    <th>Estado</th>
+                                    <th>Cobrado</th>
+                                    <th>Saldo</th>
                                     <th>Vencimiento</th>
                                     <th>Creado por</th>
                                 </tr>
@@ -243,13 +244,10 @@
                                     <td>{{ invoice.date|date:"d/m/Y" }}</td>
                                     <td>{{ invoice.partner.name|truncatechars:30 }}</td>
                                     <td>${{ invoice.total_invoice|floatformat:2 }}</td>
+                                    <td>${{ invoice.paid_amount|floatformat:2 }}</td>
                                     <td>
-                                        <span class="badge 
-                                            {% if invoice.status == 'PAGADO' %}bg-success
-                                            {% elif invoice.status == 'PENDIENTE' %}bg-warning text-dark
-                                            {% elif invoice.status == 'ANULADO' %}bg-danger
-                                            {% else %}bg-secondary{% endif %}">
-                                            {{ invoice.get_status_display }}
+                                        <span {% if invoice.balance > 0 %}class="text-danger fw-bold"{% else %}class="text-success"{% endif %}>
+                                            ${{ invoice.balance|floatformat:2 }}
                                         </span>
                                     </td>
                                     <td>
@@ -266,7 +264,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="7" class="text-center">No se encontraron facturas</td>
+                                    <td colspan="8" class="text-center">No se encontraron facturas</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -533,7 +531,7 @@
         doc.text('Fecha: ' + today, 14, 30);
         
         // Tabla
-        const headers = [['Número', 'Fecha', 'Cliente', 'Monto', 'Estado', 'Vencimiento', 'Creado por']];
+        const headers = [['Número', 'Fecha', 'Cliente', 'Monto', 'Cobrado', 'Saldo', 'Vencimiento', 'Creado por']];
         const data = [];
         
         {% for invoice in invoices %}
@@ -542,7 +540,8 @@
             '{{ invoice.date|date:"d/m/Y" }}',
             '{{ invoice.partner.name|truncatechars:25|escapejs }}',
             '${{ invoice.total_invoice|floatformat:2 }}',
-            '{{ invoice.get_status_display|escapejs }}',
+            '${{ invoice.paid_amount|floatformat:2 }}',
+            '${{ invoice.balance|floatformat:2 }}',
             '{% if invoice.due_date %}{{ invoice.due_date|date:"d/m/Y" }}{% else %}-{% endif %}',
             '{{ invoice.creator_name|default:"-"|truncatechars:20|escapejs }}'
         ]);
@@ -555,13 +554,14 @@
             theme: 'grid',
             styles: { fontSize: 8 },
             columnStyles: {
-                0: { cellWidth: 25 },
-                1: { cellWidth: 20 },
-                2: { cellWidth: 35 },
-                3: { cellWidth: 25 },
-                4: { cellWidth: 20 },
-                5: { cellWidth: 20 },
-                6: { cellWidth: 25 }
+                0: { cellWidth: 20 },  // Número
+                1: { cellWidth: 18 },  // Fecha
+                2: { cellWidth: 30 },  // Cliente
+                3: { cellWidth: 20 },  // Monto
+                4: { cellWidth: 20 },  // Cobrado
+                5: { cellWidth: 20 },  // Saldo
+                6: { cellWidth: 18 },  // Vencimiento
+                7: { cellWidth: 24 }   // Creado por
             }
         });
         

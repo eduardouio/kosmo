@@ -3,10 +3,10 @@ from django.views import View
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta, datetime
-from django.db.models import Count, Q
+from django.db.models import Sum
 from collections import defaultdict
 import json
-from trade.models import Invoice, Payment, PaymentDetail
+from trade.models import Invoice, PaymentDetail
 from partners.models import Partner
 
 
@@ -106,6 +106,14 @@ class CollectionsReportsView(View):
                 invoice.creator_name = user_creator.get_full_name()
             else:
                 invoice.creator_name = 'Sistema'
+
+            # Calcular monto cobrado de esta factura
+            paid_amount = PaymentDetail.objects.filter(
+                invoice=invoice
+            ).aggregate(total=Sum('amount'))['total'] or 0
+            
+            invoice.paid_amount = float(paid_amount)
+            invoice.balance = float(invoice.total_invoice) - float(paid_amount)
 
             # Calcular días de vencimiento
             if invoice.due_date and invoice.status == 'PENDIENTE':
