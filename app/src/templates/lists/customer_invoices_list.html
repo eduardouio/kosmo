@@ -50,6 +50,7 @@
             <th class="bg-secondary bg-opacity-25 text-center p-1">Fecha</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Vencimiento</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Total</th>
+            <th class="bg-secondary bg-opacity-25 text-center p-1">Tallos</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">DAE</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">AWB</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">HAWB</th>
@@ -76,6 +77,7 @@
                 <td class="p-0 text-end">{{ invoice.date|date:"d/m/Y" }}</td>
                 <td class="p-0 text-end">{{ invoice.due_date|date:"d/m/Y" }}</td>
                 <td class="p-0 text-end">{{ invoice.total_price }}</td>
+                <td class="p-0 text-center">{{ invoice.tot_stem_flower|default:"0" }}</td>
                 <td class="p-0 text-center">{{ invoice.dae_export|default:"-" }}</td>
                 <td class="p-0 text-center">{{ invoice.awb|default:"-" }}</td>
                 <td class="p-0 text-center">{{ invoice.hawb|default:"-" }}</td>
