@@ -4,6 +4,7 @@ from .TemplateReportCusOrderView import TemplateReportCusOrderView
 from .PDFReportCusOrder import PDFReportCusOrder
 from .TemplateInvoice import TemplateInvoice
 from .TemplateBalance import TemplateBalance
+from .PDFBalance import PDFBalance
 from .PDFInvoice import PDFInvoice
 from .CollectionsReportsView import CollectionsReportsView
 from .PymentReportView import PymentReportView
@@ -25,6 +26,7 @@ __all__ = [
     'PDFReportCusOrder',
     'TemplateInvoice',
     'TemplateBalance',
+    'PDFBalance',
     'PDFInvoice',
     'CollectionsReportsView',
     'PymentReportView',
