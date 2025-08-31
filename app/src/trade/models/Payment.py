@@ -123,7 +123,7 @@ class Payment(BaseModel):
             self.nro_account = self.nro_account.upper()
         if self.nro_operation:
             self.nro_operation = self.nro_operation.upper()
-        
+
         # Detectar cambio de estado
         status_changed = False
         if self.pk:
@@ -133,10 +133,16 @@ class Payment(BaseModel):
         super().save(*args, **kwargs)
         
         # Si cambió el estado, actualizar todas las facturas relacionadas
+        # Optimización: recopilar facturas únicas para evitar duplicados
         if status_changed:
+            unique_invoices = set()
             for payment_detail in self.invoices.all():
                 if payment_detail.invoice:
-                    payment_detail.invoice.update_payment_status()
+                    unique_invoices.add(payment_detail.invoice)
+            
+            # Actualizar cada factura única una sola vez
+            for invoice in unique_invoices:
+                invoice.update_payment_status()
 
     @property
     def total_invoices_amount(self):
@@ -291,7 +297,7 @@ class PaymentDetail(BaseModel):
     def save(self, *args, **kwargs):
         """Guardar y actualizar estado de la factura"""
         super().save(*args, **kwargs)
-        
+
         # Actualizar el estado de la factura después de guardar el pago
         if self.invoice and self.payment.status == 'CONFIRMADO':
             self.invoice.update_payment_status()
@@ -300,7 +306,7 @@ class PaymentDetail(BaseModel):
         """Eliminar y actualizar estado de la factura"""
         invoice = self.invoice
         super().delete(*args, **kwargs)
-        
+
         # Actualizar el estado de la factura después de eliminar el pago
         if invoice:
             invoice.update_payment_status()
