@@ -1,13 +1,7 @@
+{% extends 'base/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{% static 'css/invoice_style.css' %}" rel="stylesheet" type="text/css" />
-    <title>Estado de Cuenta{% if partner %} - {{ partner.name }}{% endif %}</title>
-    <style>
+{% block style %}
+<style>
       /* Estilos específicos para el estado de cuenta */
       .account-header {
         display: flex;
@@ -22,6 +16,23 @@
         text-align: right;
         color: #fb923c;
         font-weight: bold;
+      }
+      .company-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+      }
+      .company-info-left,
+      .company-info-right {
+        font-size: 14px;
+      }
+      .company-info-right {
+        text-align: right;
       }
       .filters-section {
         background-color: #f9fafb;
@@ -190,12 +201,6 @@
         color: #dc2626;
         border: 1px solid #fca5a5;
       }
-      .footer {
-        margin-top: 30px;
-        font-size: 0.8em;
-        text-align: center;
-        color: #6b7280;
-      }
       /* Estilos para el autocomplete */
       .partner-search-container {
         position: relative;
@@ -226,41 +231,19 @@
         border-bottom: none;
       }
     </style>
-  </head>
-  <body>
+{% endblock %}
+{% block content %}
     <div class="container">
-      <!-- Encabezado con logo y título -->
-      <div class="account-header">
-        <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" 
-             alt="Logo Kosmo Flowers" class="account-logo"/>
-        <div class="account-title">
-          <h2>ESTADO DE CUENTA</h2>
-          <p>Fecha: {{ today|date:'d/m/Y' }}</p>
-        </div>
-      </div>
-
-      <!-- Información de la empresa -->
-      <div class="company-info">
-        <div class="company-info-left">
-          <div><strong>Roses Grown by:</strong> KOSMO FLOWERS</div>
-          <div><strong>Address:</strong> Tupigachi - Tabacundo</div>
-          <div><strong>Country:</strong> ECUADOR</div>
-        </div>
-        <div class="company-info-right">
-          <p><strong>Email:</strong> invoices@kosmoflowers.com</p>
-          <p><strong>Phone:</strong> (+593) 0999475741</p>
-        </div>
-      </div>
 
       <!-- Filtros -->
       <div class="filters-section">
-        <h2 class="section-title">Filtros de Búsqueda</h2>
+        <h2 class="section-title">Estado de Cuenta</h2>
         <form method="get">
           <div class="filters-grid">
             <div class="form-group partner-search-container">
-              <label class="form-label">Cliente</label>
+              <label class="form-label">Cliente/Proveedor</label>
               <input type="hidden" name="partner_id" id="partnerIdInput" value="{{ request.GET.partner_id }}">
-              <input type="text" id="partnerSearch" class="form-control" placeholder="Buscar cliente..." autocomplete="off" value="{% if partner %}{{ partner.name }}{% endif %}">
+              <input type="text" id="partnerSearch" class="form-control" placeholder="Buscar cliente o proveedor..." autocomplete="off" value="{% if partner %}{{ partner.name }}{% endif %}">
               <div id="partnerSuggestions" class="partner-suggestions"></div>
             </div>
             <div class="form-group">
@@ -280,15 +263,15 @@
         </form>
       </div>      <!-- Mensajes de estado -->
       {% if missing_partner %}
-        <div class="alert alert-info">Seleccione un cliente para ver el estado de cuenta.</div>
+        <div class="alert alert-info">Seleccione un cliente o proveedor para ver el estado de cuenta.</div>
       {% elif partner_not_found %}
-        <div class="alert alert-danger">Cliente no encontrado.</div>
+        <div class="alert alert-danger">Cliente o proveedor no encontrado.</div>
       {% else %}
 
-      <!-- Información del cliente -->
+      <!-- Información del partner -->
       <div class="partner-info-container">
         <div class="partner-details">
-          <h2 class="section-title">Información del Cliente</h2>
+          <h2 class="section-title">Información del {{ partner.type_partner }}</h2>
           <div><strong>{{ partner.name|upper }}</strong></div>
           <div>City/Country: {{ partner.city|upper }} / {{ partner.country|upper }}</div>
           <div>E-mail: {{ partner.email }}</div>
@@ -367,13 +350,9 @@
         </table>
       </div>
       {% endif %}
-
-      <!-- Pie de página -->
-      <div class="footer">
-        <p>Este es un documento generado electrónicamente por el sistema de KOSMO FLOWERS</p>
-        <p>© {% now "Y" %} KOSMO FLOWERS - Todos los derechos reservados</p>
       </div>
-    </div>
+{% endblock %}
+{% block script %}
 
     <script>
       (function(){
@@ -439,5 +418,4 @@
         }
       })();
     </script>
-  </body>
-</html>
+{% endblock %}
