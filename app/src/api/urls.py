@@ -37,6 +37,10 @@ from api.trade import (
     CollectionsContextAPI,
 )
 
+from api.seller import (
+    SellerDataAPI
+)
+
 from api.users import UpdateUserAPIView
 
 urlpatterns = [
@@ -84,4 +88,7 @@ urlpatterns = [
     path('api/collections-context/', CollectionsContextAPI.as_view(), name='collections_context_data'),
     # User APIs
     path('api/users/update/', UpdateUserAPIView.as_view(), name='update_user'),
+
+    # Seller APIs
+    path('api/sellers/data/', SellerDataAPI.as_view(), name='seller_data'),
 ]
