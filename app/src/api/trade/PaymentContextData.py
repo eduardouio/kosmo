@@ -811,17 +811,36 @@ class PaymentContextData(View):
                 'upcoming_due_invoices': {'count': 0, 'total_amount': 0}
             }
 
+    def _get_payment_methods(self):
+        """Obtiene los métodos de pago disponibles"""
+        try:
+            # Métodos de pago que coinciden con METHOD_CHOICES
+            methods = [
+                {'value': 'TRANSF', 'label': 'Transferencia Bancaria'},
+                {'value': 'EFECTIVO', 'label': 'Efectivo'},
+                {'value': 'CHEQUE', 'label': 'Cheque'},
+                {'value': 'TC', 'label': 'Tarjeta de Crédito'},
+                {'value': 'TD', 'label': 'Tarjeta de Débito'},
+                {'value': 'NC', 'label': 'Nota de Crédito'},
+                {'value': 'OTRO', 'label': 'Otro'}
+            ]
+
+            return methods
+
+        except Exception as e:
+            loggin_event(
+                'ERROR',
+                f'PaymentContextData: Error obteniendo métodos: {str(e)}'
+            )
+            return []
+
     def _get_payment_configuration(self):
         """
         Obtiene configuración de métodos de pago y bancos
         """
         try:
-            # Métodos de pago disponibles
-            from trade.models.Payment import METHOD_CHOICES
-            payment_methods = [
-                {'value': choice[0], 'label': choice[1]}
-                for choice in METHOD_CHOICES
-            ]
+            # Obtener métodos de pago
+            payment_methods = self._get_payment_methods()
 
             # Bancos más utilizados (últimos 6 meses)
             today = date.today()

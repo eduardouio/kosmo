@@ -101,9 +101,29 @@ createApp({
     this.initializeDateTime();
     this.loadBankConfig();
     this.loadPaymentContextData();
+    
+    // Fallback: Definir métodos de pago por defecto si no se cargan desde el API
+    this.setDefaultPaymentMethods();
   },
   
   methods: {
+    // ===== CONFIGURACIÓN INICIAL =====
+    setDefaultPaymentMethods() {
+      // Métodos de pago por defecto - mismo formato que el API
+      if (!this.paymentMethods || this.paymentMethods.length === 0) {
+        this.paymentMethods = [
+          {'value': 'TRANSF', 'label': 'Transferencia Bancaria'},
+          {'value': 'EFECTIVO', 'label': 'Efectivo'},
+          {'value': 'CHEQUE', 'label': 'Cheque'},
+          {'value': 'TC', 'label': 'Tarjeta de Crédito'},
+          {'value': 'TD', 'label': 'Tarjeta de Débito'},
+          {'value': 'NC', 'label': 'Nota de Crédito'},
+          {'value': 'OTRO', 'label': 'Otro'}
+        ];
+        console.log('Usando métodos de pago por defecto');
+      }
+    },
+
     async loadBankConfig() {
       try {
         const response = await fetch('/api/bank-config/');
@@ -144,15 +164,27 @@ createApp({
             }));
             
           this.refreshFilteredInvoices();
-          this.paymentMethods = data.payment_methods;
+          this.paymentMethods = data.payment_methods || [];
           this.popularBanks = data.popular_banks;
           this.statistics = data.statistics;
           this.paymentForm.date = data.current_date;
+          
+          // Debug: Verificar que los métodos de pago se cargaron correctamente
+          console.log('Métodos de pago cargados:', this.paymentMethods);
+          
+          if (this.paymentMethods.length === 0) {
+            console.warn('No se cargaron métodos de pago desde el API');
+            this.setDefaultPaymentMethods();
+          }
         } else {
           this.showError('Error al cargar los datos: ' + data.error);
+          // Si hay error, usar métodos por defecto
+          this.setDefaultPaymentMethods();
         }
       } catch (error) {
         this.showError('Error de conexión: ' + error.message);
+        // Si hay error de conexión, usar métodos por defecto
+        this.setDefaultPaymentMethods();
       } finally {
         this.loading = false;
       }
@@ -251,6 +283,12 @@ createApp({
       if (this.selectedInvoicesCount === 0) {
         this.showModalWarning('Debe seleccionar al menos una factura para pagar');
         return;
+      }
+      
+      // Verificar que los métodos de pago estén cargados
+      if (!this.paymentMethods || this.paymentMethods.length === 0) {
+        console.warn('Métodos de pago no disponibles, aplicando fallback...');
+        this.setDefaultPaymentMethods();
       }
       
       this.clearFormErrors();
@@ -731,6 +769,21 @@ createApp({
     },
     
     // ===== UTILIDADES =====
+    testPaymentMethods() {
+      console.log('=== TESTING MÉTODOS DE PAGO ===');
+      console.log('Cantidad de métodos:', this.paymentMethods.length);
+      console.log('Métodos disponibles:', this.paymentMethods);
+      console.log('Método seleccionado:', this.paymentForm.method);
+      
+      if (this.paymentMethods.length === 0) {
+        console.warn('⚠️ No hay métodos de pago cargados');
+        this.setDefaultPaymentMethods();
+        console.log('✅ Métodos de pago por defecto aplicados');
+      } else {
+        console.log('✅ Métodos de pago cargados correctamente');
+      }
+    },
+
     goBack() {
       window.location.href = '/pagos/';
     },

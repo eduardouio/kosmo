@@ -203,8 +203,12 @@
               <button type="button" @click="clearSelection" class="btn btn-sm btn-secondary me-2">
                 🔄 Limpiar Selección
               </button>
-              <button type="button" @click="selectAllInvoices" class="btn btn-sm btn-outline-primary">
+              <button type="button" @click="selectAllInvoices" class="btn btn-sm btn-outline-primary me-2">
                 ☑️ Seleccionar Todas las Mostradas
+              </button>
+              <!-- Debug button - Remove in production -->
+              <button type="button" @click="testPaymentMethods" class="btn btn-sm btn-outline-info">
+                🔧 Test Métodos
               </button>
             </div>
             <div class="col-6 text-end">
@@ -308,8 +312,7 @@
                 </label>
                 <select v-model="paymentForm.method" class="form-select" required autocomplete="on" name="payment-method">
                   <option value="">Seleccionar...</option>
-                  <option v-for="method in paymentMethods" :key="method.value" :value="method.value">
-                    ${method.label}
+                  <option v-for="method in paymentMethods" :key="method.value" :value="method.value" v-text="method.label">
                   </option>
                 </select>
                 <div v-if="formErrors.method" class="text-danger small">${formErrors.method}</div>
