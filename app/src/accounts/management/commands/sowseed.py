@@ -114,7 +114,8 @@ class Command(BaseCommand):
         users_emails = [
             'eduardouio7@gmail.com',
             'invoices@kosmoflowers.com',
-            'ventas@kosmoflowers.com'
+            'ventas@kosmoflowers.com',
+            'seller@kosmoflowers.com'
         ]
 
         for email in users_emails:
