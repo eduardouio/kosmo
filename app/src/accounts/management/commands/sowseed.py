@@ -79,17 +79,28 @@ class Command(BaseCommand):
             user_invoices.set_password('seguro')
             user_invoices.save()
 
-        # Usuario de ventas
-        user_ventas = CustomUserModel.get('ventas@kosmoflowers.com')
+        # Usuario de Administrador de Kosmo
+        user_ventas = CustomUserModel.get('seller@kosmoflowers.com')
         if not user_ventas:
             user_ventas = CustomUserModel(
-                email='ventas@kosmoflowers.com',
+                email='seller@kosmoflowers.com',
                 first_name='Ventas',
                 last_name='Kosmo',
                 is_staff=True,
             )
             user_ventas.set_password('seguro')
             user_ventas.save()
+
+        user_seller = CustomUserModel.get('seller@kosmoflowers.com')
+        if not user_seller:
+            user_seller = CustomUserModel(
+                email='seller@kosmoflowers.com',
+                first_name='Seller',
+                last_name='Kosmo',
+                roles='VENDEDOR'
+            )
+            user_seller.set_password('seguro')
+            user_seller.save()
 
     def create_licences(self):
         if License.objects.all().count() > 0:
