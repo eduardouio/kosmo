@@ -1,6 +1,8 @@
 from django.urls import path, re_path
 from .views import LoginTV, LogoutRV, HomeTV, UserProfileView
-from .views.SellersView import SellersListView, SellerDetailView, SellerCreateView
+from .views.SellersListView import SellersListView
+from .views.SellerDetailView import SellerDetailView
+from .views.SellerCreateView import SellerCreateView
 from .views.CertValidationView import pki_validation_view
 
 urlpatterns = [

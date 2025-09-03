@@ -25,6 +25,8 @@ class TemplateInvoice(TemplateView):
         context['user_owner'] = CustomUserModel.get_by_id(id_user_created)
         context['now'] = datetime.now()
 
+        import ipdb; ipdb.set_trace()
+
         # Obtener el nombre de la finca (proveedor) para la factura
         try:
             # La factura está asociada a una orden
