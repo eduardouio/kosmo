@@ -61,7 +61,7 @@
                     </a>
                 </td>
                 <td class="p-0 text-center">
-                    <a href="{% url 'order_detail_presentation' invoice.order.id %}" class="text-primary">
+                    <a href="{% url 'order_detail_presentation' invoice.order.parent_order.id %}" class="text-primary">
                         <i class="fa-solid fa-link me-1"></i>{{ invoice.order.serie }}-{{ invoice.order.consecutive | stringformat:'06d' }}
                     </a>
                 </td>
