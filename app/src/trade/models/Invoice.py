@@ -569,12 +569,6 @@ class InvoiceBoxItems(BaseModel):
         return self.unit_price * self.qty_stem_flower * self.invoice_item.quantity
 
     @property
-    def total_price_with_margin_and_quantity(self):
-        """Total del producto con margen incluido
-        multiplicado por la cantidad de cajas"""
-        return self.total_price_with_margin * self.invoice_item.quantity
-
-    @property
     def total_stems(self):
         """Total de tallos para este box item específico (cant cajas * tallos por box item)"""
         return self.qty_stem_flower * self.invoice_item.quantity

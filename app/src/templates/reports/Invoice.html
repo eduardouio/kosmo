@@ -163,7 +163,7 @@
                 </td>
                 <td>
                   {% for bxs in item.box_items %}
-                  <p class="border-bottom">{% if bxs.total_price_with_margin_and_quantity is not None %}${{ bxs.total_price_with_margin_and_quantity|floatformat:2 }}{% endif %}</p>
+                  <p class="border-bottom">{% if bxs.total_price_with_margin is not None %}${{ bxs.total_price_with_margin|floatformat:2 }}{% endif %}</p>
                   {% endfor %}
                 </td>
               </tr>
