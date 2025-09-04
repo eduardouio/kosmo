@@ -305,12 +305,22 @@ export const useStockStore = defineStore('stockStore', {
             let box_items = [];
             this.stock.forEach(stockItem => {
                 if (stockItem.is_selected) {
-                    stockItem.box_items.forEach(currentItem => {
-                        if(this.checkFilter(currentItem)) {
-                            currentItem[column] = newValue;
-                            box_items.push(currentItem);
+                    // Para qty_stem_flower, solo actualizar el primer item de la caja
+                    if (column === 'qty_stem_flower') {
+                        const firstItem = stockItem.box_items.find(item => this.checkFilter(item));
+                        if (firstItem) {
+                            firstItem[column] = newValue;
+                            box_items.push(firstItem);
                         }
-                    });
+                    } else {
+                        // Para otros campos, mantener el comportamiento original
+                        stockItem.box_items.forEach(currentItem => {
+                            if(this.checkFilter(currentItem)) {
+                                currentItem[column] = newValue;
+                                box_items.push(currentItem);
+                            }
+                        });
+                    }
                 };
             });
             this.updateStockDetail(box_items);
