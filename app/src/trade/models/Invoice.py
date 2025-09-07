@@ -6,6 +6,12 @@ from common.AppLoger import loggin_event
 from datetime import datetime
 
 
+STATUS_CHOICES = (
+    ('PENDIENTE', 'PENDIENTE'),
+    ('PAGADO', 'PAGADO'),
+    ('ANULADO', 'ANULADO'),
+)
+
 TYPE_DOCUMENT_CHOICES = (
     ('FAC_VENTA', 'FACTURA VENTA'),
     ('FAC_COMPRA', 'FACTURA COMPRA'),
@@ -189,11 +195,7 @@ class Invoice(BaseModel):
     status = models.CharField(
         'Estado',
         max_length=50,
-        choices=(
-            ('PENDIENTE', 'PENDIENTE'),
-            ('PAGADO', 'PAGADO'),
-            ('ANULADO', 'ANULADO')
-        ),
+        choices=STATUS_CHOICES,
         default='PENDIENTE'
     )
 
