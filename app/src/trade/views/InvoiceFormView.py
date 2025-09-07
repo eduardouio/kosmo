@@ -73,6 +73,7 @@ class InvoiceFormView(View):
         invoice.marking = request.POST.get('marking')
         invoice.awb = request.POST.get('awb')
         invoice.hawb = request.POST.get('hawb')
+        invoice.po_number = request.POST.get('po_number')
         invoice.dae_export = request.POST.get('dae_export')
         invoice.destination_country = request.POST.get('destination_country')
         invoice.cargo_agency = request.POST.get('cargo_agency')
