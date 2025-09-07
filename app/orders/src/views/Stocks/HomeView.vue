@@ -161,7 +161,7 @@ const formatNumber = (event, box = null) => {
 const formatInteger = (event, box = null) => {
     let value = event.target.value;
     value = value.replace(',', '.');
-    if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ' || value === '0') {
+    if (value === '' || value === '.' || value === ',' || isNaN(value) || value === ' ') {
         event.target.value = '0';
         return;
     }
