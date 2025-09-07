@@ -31,7 +31,7 @@ const selectOrder = (id) => {
 
 // COMPUTED
 const isAllLoaded = computed(() => {
-    return baseStore.stagesLoaded === 4;
+    return baseStore.stagesLoaded >= 4;
 })
 
 
@@ -48,14 +48,14 @@ const formatSerieConsecutivo = (serie, consecutivo) => {
 
 // ON MOUNTED
 onMounted(() => {
-    baseStore.stagesLoaded = 0;
-    baseStore.loadProducts(baseStore);
+    baseStore.resetStages('OrdersView-onMounted');
+    baseStore.loadProducts();
     ordersStore.loadCustomers(baseStore);
     ordersStore.loadOrders(baseStore);
     if (stockStore.stockDay === null) {
         stockStore.getStock(baseStore);
-    }else{
-        baseStore.stagesLoaded++;
+    } else {
+        baseStore.incrementStage('OrdersView-stockDay-cached');
     }
     
     // Para inicializar el mensaje por defecto

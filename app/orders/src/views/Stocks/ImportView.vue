@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBaseStore } from '@/stores/baseStore.js';
 import { appConfig } from '@/AppConfig';
+import { safeNavigate, cancelPendingRedirects } from '@/router';
 import Loader from '@/components/Sotcks/Loader.vue';
 import axios from 'axios';
 import {
@@ -20,11 +21,8 @@ const profitMargin = ref(0.06);
 const appendStock = ref(true);
 const route = useRouter();
 
-// Seteamos el valor del contador a cero
-baseStore.stagesLoaded = 0;
-
 const analyzeStock = async () => {
-    baseStore.stagesLoaded = 0;
+    baseStore.resetStages('ImportView-analyzeStock');
     try {
         const payload = {
             idStock: baseStore.idStock,
@@ -47,16 +45,21 @@ const analyzeStock = async () => {
         alert(`Ocurrió un error: ${error.message}`);
     } finally {
         baseStore.isLoading = false;
-        route.push('/');
+        safeNavigate('home', {}, 500);
     }
 };
 
 // COMPUTED
 const isAllLoaded = computed(() => {
-    return baseStore.stagesLoaded === 2;
+    return baseStore.stagesLoaded >= 2;
 })
+
 onMounted(() => {
-    baseStore.stagesLoaded = 0;
+    // Cancelar redirecciones pendientes
+    cancelPendingRedirects();
+    
+    // Cargar datos necesarios para la vista de import
+    baseStore.resetStages('ImportView-onMounted');
     baseStore.loadSuppliers();
     baseStore.loadProducts();
 });

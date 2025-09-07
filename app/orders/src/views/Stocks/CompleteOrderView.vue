@@ -25,7 +25,7 @@ const selectedTab = ref('customer');
 
 // Computed
 const isAllLoaded = computed(() => {
-    return baseStore.stagesLoaded === 2;
+    return baseStore.stagesLoaded >= 2;
 })
 
 
@@ -44,7 +44,7 @@ const precentConfirmed = computed(() => {
 
 // Mounted
 onMounted(()=>{
-  baseStore.stagesLoaded = 0;
+  baseStore.resetStages('CompleteOrderView-onMounted');
   orderStore.loadOrders(baseStore);
   purchaseStore.getOrdersByCustomerOrder(route.params.id, baseStore);
 });
@@ -55,11 +55,11 @@ onUnmounted(()=>{
 
 // Watch
 watch(()=> baseStore.stagesLoaded, (newValue) => {
-  if (newValue === 2) {
+  if (newValue >= 2) {
     console.log('Seleccionado Pedido Activo')
     orderStore.selectOrder(route.params.id);
   }
-});
+}, { immediate: false });
 
 </script>
 <template>

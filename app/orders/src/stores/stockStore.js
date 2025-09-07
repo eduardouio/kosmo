@@ -19,7 +19,7 @@ export const useStockStore = defineStore('stockStore', {
             try {
                 const response = await axios.get(appConfig.urlOrdersByStock + '?type=purchase');
                 this.orders = response.data;
-                baseStore.stagesLoaded++;
+                baseStore.incrementStage('LoadOrders');
             } catch (error) {
                 console.error('Error al cargar las órdenes:', error);
                 alert(`Hubo un error al cargar las órdenes: ${error.message}`);
@@ -40,7 +40,7 @@ export const useStockStore = defineStore('stockStore', {
                 this.extractColors();
                 this.extractLengths();
                 this.extractBoxModels();
-                baseStore.stagesLoaded++;
+                baseStore.incrementStage('getStock');
                 return true;
             } catch (error) {
                 console.error('Error al obtener el stock:', error);

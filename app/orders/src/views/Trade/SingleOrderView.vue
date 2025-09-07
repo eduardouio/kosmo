@@ -23,18 +23,19 @@ orderStore.order.date = baseStore.formatDate(new Date())
 
 // computed
 const isLoading = computed(() => {
-  return baseStore.stagesLoaded != stagesToLoad.value
+  return baseStore.stagesLoaded < stagesToLoad.value
 })
 
 // mouted
 onMounted(() => {
-  baseStore.loadSuppliers()
-  baseStore.loadProducts()
-  baseStore.loadCustomers(true)
-  validateData()
+  baseStore.resetStages('SingleOrderView-onMounted');
+  baseStore.loadSuppliers();
+  baseStore.loadProducts();
+  baseStore.loadCustomers(true);
+  validateData();
   // Calcular totales iniciales después de cargar los datos
-  setTimeout(calculateOrderTotals, 500)
-})
+  setTimeout(calculateOrderTotals, 500);
+});
 
 onUnmounted(() => {clearInterval(validateInterval)});
 

@@ -32,7 +32,7 @@ const orderId = computed(() => route.params.id)
 
 // computed
 const formLoading = computed(() => {
-  return baseStore.stagesLoaded != stagesToLoad.value
+  return baseStore.stagesLoaded < stagesToLoad.value
 })
 
 async function loadOrderData() {
@@ -229,15 +229,16 @@ async function updateOrder() {
 }
 
 onMounted(async () => {
-  baseStore.loadSuppliers()
-  baseStore.loadProducts()
-  baseStore.loadCustomers(true)
-  await loadOrderData()
+  baseStore.resetStages('SingleEditOrderView-onMounted');
+  baseStore.loadSuppliers();
+  baseStore.loadProducts();
+  baseStore.loadCustomers(true);
+  await loadOrderData();
   
   setInterval(() => {
-    validateData()
-  }, 2000)
-})
+    validateData();
+  }, 2000);
+});
 
 // Agregar función de navegación por teclado
 const handleKeydown = (event) => {

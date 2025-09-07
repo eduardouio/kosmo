@@ -44,6 +44,8 @@ export const useBaseStore = defineStore("baseStore", {
         customers:[],
         isLoading: false,
         stagesLoaded: 0,
+        maxStages: 4, // Definir el máximo de stages
+        isLoadingComplete: false, // Flag para controlar si la carga está completa
         idStock: appConfig.idStock,
         selectedProduct: null,
         selectedCustomer: null,
@@ -54,6 +56,27 @@ export const useBaseStore = defineStore("baseStore", {
       setAlert(message, type = 'info') {
         this.alertMessage = message;
         this.alertType = type;
+      },
+      
+      // Función para resetear stages de forma segura
+      resetStages(reason = 'unknown') {
+        console.log(`[baseStore] RESET stagesLoaded: ${this.stagesLoaded} -> 0 (reason: ${reason})`);
+        this.stagesLoaded = 0;
+        this.isLoadingComplete = false;
+      },
+      
+      // Función para incrementar stages de forma segura
+      incrementStage(source = 'unknown') {
+        if (this.stagesLoaded < this.maxStages) {
+          const prev = this.stagesLoaded;
+          this.stagesLoaded++;
+          console.log(`[baseStore] stagesLoaded: ${prev} -> ${this.stagesLoaded} (source: ${source})`);
+          
+          if (this.stagesLoaded >= this.maxStages) {
+            this.isLoadingComplete = true;
+            console.log(`[baseStore] Loading complete!`);
+          }
+        }
       },
       
       updateGlobalAlertStatus(ordersStore) {
@@ -94,7 +117,7 @@ export const useBaseStore = defineStore("baseStore", {
       
       async loadSuppliers(all=false){
         if (this.suppliers.length > 0) {
-          this.stagesLoaded++;
+          this.incrementStage('loadSuppliers-cached');
           return;
         }
         try {
@@ -107,7 +130,7 @@ export const useBaseStore = defineStore("baseStore", {
           const response = await axios.get(url, { headers: appConfig.headers });
           this.suppliers = response.data;
           this.suppliers.sort((a, b) => a.name.localeCompare(b.name));
-          this.stagesLoaded++;
+          this.incrementStage('loadSuppliers');
         }
         catch (error) {
           console.error('Error al cargar los proveedores:', error);
@@ -116,7 +139,7 @@ export const useBaseStore = defineStore("baseStore", {
       },
       async loadProducts(){
         if (this.products.length > 0) { 
-          this.stagesLoaded++;
+          this.incrementStage('loadProducts-cached');
           return;
         }
         try{
@@ -124,7 +147,7 @@ export const useBaseStore = defineStore("baseStore", {
             appConfig.urlAllProducts, { headers: appConfig.headers }
           );
           this.products = response.data.products;
-          this.stagesLoaded++;
+          this.incrementStage('loadProducts');
         }
         catch (error) {
           console.error('Error al cargar los productos:', error);
@@ -134,7 +157,7 @@ export const useBaseStore = defineStore("baseStore", {
       async loadCustomers(){
         console.log("Cargando clientes...");
         if (this.customers.length > 0) {
-          this.stagesLoaded++;
+          this.incrementStage('loadCustomers-cached');
           return;
         }
         try{
@@ -143,7 +166,7 @@ export const useBaseStore = defineStore("baseStore", {
           );
           this.customers = response.data;
           this.customers.sort((a, b) => a.name.localeCompare(b.name));
-          this.stagesLoaded++;
+          this.incrementStage('loadCustomers');
         }
         catch (error) {
           console.error('Error al cargar los clientes:', error);

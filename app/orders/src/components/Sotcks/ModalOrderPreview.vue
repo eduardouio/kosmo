@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useOrdersStore } from '@/stores/ordersStore.js';
 import { useBaseStore } from '@/stores/baseStore.js';
+import { safeNavigate } from '@/router';
 import { 
   IconCheckbox,
   IconX,
@@ -42,9 +43,8 @@ const selectText = (event) => {
 }
 
 const createOrder = () => {
-  baseStore.stagesLoaded = 0;
-  router.push('/customer-orders/');
-
+  baseStore.resetStages('ModalOrderPreview-createOrder');
+  safeNavigate('customerOrders', {}, 100);
 } 
 
 const totalOrder = computed(() => {

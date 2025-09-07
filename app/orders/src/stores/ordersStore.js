@@ -28,7 +28,7 @@ export const useOrdersStore = defineStore("ordersStore", {
     actions: {
         async loadCustomers(baseStore) {
             if (this.customers.length > 0) {
-                baseStore.stagesLoaded++;
+                baseStore.incrementStage('loadCustomers-ordersStore-cached');
                 return
             }
             try {
@@ -36,7 +36,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                     appConfig.urlAllCustomers, {headers: appConfig.headers}
                 )
                 this.customers = response.data
-                baseStore.stagesLoaded++;
+                baseStore.incrementStage('loadCustomers-ordersStore');
               } catch (error) {
                 console.error('Error al cargar los clientes:', error)
                 alert(`Hubo un error al cargar los clientes: ${error.message}`)
@@ -72,7 +72,7 @@ export const useOrdersStore = defineStore("ordersStore", {
         async loadOrders(baseStore) {
             console.log('Cargando pedidos de clientes...');
             if (this.orders.length > 0) {
-                baseStore.stagesLoaded++;
+                baseStore.incrementStage('loadOrders-ordersStore-cached');
                 return
             }
             
@@ -80,7 +80,7 @@ export const useOrdersStore = defineStore("ordersStore", {
                 console.log('Cargando pedidos de clientes...' +  appConfig.urlOrdersByStock + '?type=sale');
                 const response = await axios.get(appConfig.urlOrdersByStock + '?type=sale')
                 this.orders = response.data
-                baseStore.stagesLoaded++;
+                baseStore.incrementStage('loadOrders-ordersStore');
             } catch (error) {
                 console.error('Error al cargar los pedidos:', error)
                 alert(`Hubo un error al cargar los pedidos: ${error.message}`)

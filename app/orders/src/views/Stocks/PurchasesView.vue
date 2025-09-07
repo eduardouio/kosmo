@@ -15,7 +15,7 @@ const stockStore = useStockStore();
 const tableRef = ref(null);
 let dataTableInstance = null;
 
-const isAllLoaded = computed(() => baseStore.stagesLoaded === 3);
+const isAllLoaded = computed(() => baseStore.stagesLoaded >= 3);
 
 const initDataTable = async () => {
     await nextTick();
@@ -57,13 +57,13 @@ const formatSerieConsecutivo = (serie, consecutivo) => {
 
 // Cargar datos en `onMounted`
 onMounted(() => {
-    baseStore.stagesLoaded = 0;
-    baseStore.loadProducts(baseStore);
+    baseStore.resetStages('PurchasesView-onMounted');
+    baseStore.loadProducts();
     purchaseStore.loadSales(baseStore);
     if (stockStore.stockDay === null) {
         stockStore.getStock(baseStore);
-    }else{
-        baseStore.stagesLoaded++;
+    } else {
+        baseStore.incrementStage('PurchasesView-stockDay-cached');
     }
 });
 

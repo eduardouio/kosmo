@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useStockStore } from '@/stores/stockStore.js';
 import { useBaseStore } from '@/stores/baseStore.js';
 import { useOrdersStore } from '@/stores/ordersStore.js';
+import { safeNavigate, cancelPendingRedirects } from '@/router';
 import ModalProduct from '@/components/Sotcks/ModalProduct.vue';
 import ModalSuplier from '@/components/Sotcks/ModalSuplier.vue';
 import ModalShareStock from '@/components/Sotcks/ModalShareStock.vue';
@@ -183,7 +184,7 @@ const uniqueColors = (boxItems) => {
 
 // COMPUTED
 const isAllLoaded = computed(() => {
-    return baseStore.stagesLoaded === totalStages;
+    return baseStore.isLoadingComplete;
 })
 
 const filterData = computed(() => {
@@ -228,23 +229,42 @@ const canMergeSelected = computed(() => {
 watch(() => querySearch.value, (newValue) => {
     stockStore.filterStock(newValue);
     confirmDelete.value = false;
-},
-    { immediate: true }
-);
+}, { immediate: false });
 
 onMounted(() => {
-    baseStore.stagesLoaded = 0;
-    stockStore.getStock(baseStore);
-    baseStore.loadProducts(baseStore);
-    ordersStore.loadCustomers(baseStore);
-    baseStore.loadSuppliers();
-    calcIndicators();
-    setTimeout(() => {
-        if (!stockStore.stock.length) {
-            router.push({ name: 'import' });
-        }
-    }, 3000);
+    // Cancelar redirecciones pendientes al montar
+    cancelPendingRedirects();
+    
+    // Solo resetear si realmente es necesario
+    if (baseStore.stagesLoaded === 0 || !baseStore.isLoadingComplete) {
+        baseStore.resetStages('HomeView-onMounted');
+        loadAllData();
+    }
 });
+
+const loadAllData = async () => {
+    try {
+        await Promise.all([
+            stockStore.getStock(baseStore),
+            baseStore.loadProducts(),
+            ordersStore.loadCustomers(baseStore),
+            baseStore.loadSuppliers()
+        ]);
+        
+        calcIndicators();
+        
+        // Solo redirigir si después de cargar todo, realmente no hay stock
+        setTimeout(() => {
+            if (baseStore.isLoadingComplete && (!stockStore.stock || stockStore.stock.length === 0)) {
+                console.log('[HomeView] No hay stock disponible, redirigiendo a import');
+                safeNavigate('import', {}, 500);
+            }
+        }, 1000);
+        
+    } catch (error) {
+        console.error('[HomeView] Error loading data:', error);
+    }
+};
 
 /**
  * Split a box into smaller boxes
