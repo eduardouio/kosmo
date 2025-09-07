@@ -803,7 +803,7 @@ const app = createApp({
           return;
         }
 
-        const pdfUrl = `/trade/collection/${collectionId}/pdf/`;
+        const pdfUrl = `/reports/collection/${collectionId}/`;
 
         const link = document.createElement('a');
         link.href = pdfUrl;
@@ -819,7 +819,7 @@ const app = createApp({
       } catch (error) {
         console.error('Error al descargar el PDF del cobro:', error);
         try {
-          const pdfUrl = `/trade/collection/${collectionId}/pdf/`;
+          const pdfUrl = `/reports/collection/${collectionId}/`;
           window.open(pdfUrl, '_blank', 'noopener,noreferrer');
         } catch (fallbackError) {
           console.error('Error en método de respaldo de descarga:', fallbackError);
@@ -846,7 +846,6 @@ window.downloadCollectionPDF = function(collectionId) {
     return vm.downloadCollectionPDF(collectionId);
   } else {
     console.error('La función downloadCollectionPDF no está disponible');
-    // Redirigir a la URL de descarga como respaldo
-    window.open(`/trade/collection/${collectionId}/pdf/`, '_blank');
+    alert('Error al generar el PDF, consulte la pagina de cobros')
   }
 };
