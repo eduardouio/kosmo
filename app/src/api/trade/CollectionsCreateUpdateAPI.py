@@ -40,6 +40,16 @@ class CollectionsCreateUpdateAPI(View):
                         for inv_id, amount in invoice_collections.items()
                     ]
 
+            # Convertir invoices de JSON string a lista si es necesario
+            if 'invoices' in data and isinstance(data['invoices'], str):
+                try:
+                    data['invoices'] = json.loads(data['invoices'])
+                except json.JSONDecodeError:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Formato de invoices inválido'
+                    }, status=400)
+
             loggin_event(f'Datos recibidos para cobro: {data}')
 
             # Validación de campos requeridos
@@ -58,7 +68,8 @@ class CollectionsCreateUpdateAPI(View):
                     'error': 'Debe especificar al menos una factura'
                 }, status=400)
 
-            # Validar que el monto total de facturas no exceda el monto del cobro
+            # Validar que el monto total de facturas no exceda el monto
+            # del cobro
             total_invoices = sum(
                 Decimal(str(inv['amount'])) for inv in data['invoices'])
             collection_amount = Decimal(str(data['amount']))
@@ -66,7 +77,8 @@ class CollectionsCreateUpdateAPI(View):
             if total_invoices > collection_amount:
                 return JsonResponse({
                     'success': False,
-                    'error': 'El monto total de facturas no puede exceder el monto del cobro'
+                    'error': ('El monto total de facturas no puede exceder '
+                              'el monto del cobro')
                 }, status=400)
 
             with transaction.atomic():
@@ -168,7 +180,7 @@ class CollectionsCreateUpdateAPI(View):
                         'id': collection.id,
                         'payment_number': collection.payment_number,
                         'date': collection.date.isoformat(),
-                        'amount': str(collection.amount),
+                        'amount': collection.amount,
                         'method': collection.method,
                         'status': collection.status
                     }
@@ -211,6 +223,17 @@ class CollectionsCreateUpdateAPI(View):
                 return JsonResponse({'error': 'No data provided'}, status=400)
 
             data = json.loads(request.body)
+            
+            # Convertir invoices de JSON string a lista si es necesario
+            if 'invoices' in data and isinstance(data['invoices'], str):
+                try:
+                    data['invoices'] = json.loads(data['invoices'])
+                except json.JSONDecodeError:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Formato de invoices inválido'
+                    }, status=400)
+                    
             loggin_event(
                 f'Datos para actualizar cobro {collection_id}: {data}'
             )
@@ -321,7 +344,7 @@ class CollectionsCreateUpdateAPI(View):
                         'id': collection.id,
                         'payment_number': collection.payment_number,
                         'date': collection.date.isoformat(),
-                        'amount': str(collection.amount),
+                        'amount': collection.amount,
                         'method': collection.method,
                         'status': collection.status
                     }
