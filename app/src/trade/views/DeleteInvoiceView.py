@@ -20,6 +20,7 @@ class DeleteInvoiceView(LoginRequiredMixin, RedirectView):
 
             # Marcar la factura como inactiva
             invoice.is_active = False
+            invoice.status = 'ANULADO'
             invoice.save()
 
             # Actualizar la orden relacionada
