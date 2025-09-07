@@ -55,7 +55,9 @@
                     @blur="hideCustomerDropdown"
                     class="form-control" 
                     placeholder="Buscar cliente..."
-                    autocomplete="on" name="customer-search">
+                    autocomplete="on" 
+                    name="customer-search"
+                    >
                   
                   <!-- Dropdown de clientes filtrados -->
                   <div v-if="showCustomerDropdown && filteredCustomers.length > 0" 
@@ -346,7 +348,10 @@
         class="form-control" 
         placeholder="Nombre del banco" 
         list="popular-banks"
-        maxlength="100" autocomplete="on" name="collection-bank">
+        maxlength="100"
+        autocomplete="on" 
+        name="collection-bank"
+        >
                 <datalist id="popular-banks">
                   <option v-for="bank in popularBanks" :key="bank.bank" :value="bank.bank">
                 </datalist>
