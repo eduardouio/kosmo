@@ -126,7 +126,8 @@ class PartnerAccountStatmentView(TemplateView):
                 ).aggregate(s=Sum('amount'))['s'] or 0
             )
             # permitir negativo (saldo a favor)
-            balance = (inv.total_price or 0) - all_payments_sum
+            # Usar total_invoice que incluye margen para facturas de venta
+            balance = (inv.total_invoice or 0) - all_payments_sum
 
             # Días de crédito restantes: credit_term - días transcurridos
             inv_date_only = _to_date(inv.date)
@@ -154,7 +155,8 @@ class PartnerAccountStatmentView(TemplateView):
                 'date': inv_date_only,
                 'document': inv.num_invoice or f'INV-{inv.id}',
                 'credit_days': credit_days,
-                'invoice_amount': inv.total_price,
+                # Usar total_invoice para incluir margen en facturas de venta
+                'invoice_amount': inv.total_invoice,
                 'payment_amount': (
                     payments_amount_in_range
                     if payments_amount_in_range else None
@@ -164,7 +166,8 @@ class PartnerAccountStatmentView(TemplateView):
                 'invoice': inv,
             })
 
-            total_invoices_amount += float(inv.total_price or 0)
+            # Usar total_invoice que incluye margen para facturas de venta
+            total_invoices_amount += float(inv.total_invoice or 0)
             total_payments_amount += float(payments_amount_in_range)
             if inv.status == 'PENDIENTE' and balance > 0:
                 total_pending_balance += float(balance)

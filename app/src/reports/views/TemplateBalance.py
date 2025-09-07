@@ -131,7 +131,8 @@ class TemplateBalance(TemplateView):
             )
             
             # Calcular balance (permitir negativo para saldo a favor)
-            balance = (inv.total_price or 0) - all_payments_sum
+            # Usar total_invoice que incluye el margen para facturas de venta
+            balance = (inv.total_invoice or 0) - all_payments_sum
             
             # Calcular días de crédito restantes
             inv_date_only = _to_date(inv.date)
@@ -161,7 +162,8 @@ class TemplateBalance(TemplateView):
                 'date': inv_date_only,
                 'document': inv.num_invoice or f'INV-{inv.id}',
                 'credit_days': credit_days,
-                'invoice_amount': inv.total_price,
+                # Usar total_invoice para incluir margen en facturas de venta
+                'invoice_amount': inv.total_invoice,
                 'payment_amount': (
                     payments_amount_in_range
                     if payments_amount_in_range else None
@@ -171,8 +173,8 @@ class TemplateBalance(TemplateView):
                 'invoice': inv,
             })
             
-            # Actualizar totales
-            total_invoices_amount += float(inv.total_price or 0)
+            # Actualizar totales usando total_invoice que incluye margen
+            total_invoices_amount += float(inv.total_invoice or 0)
             total_payments_amount += float(payments_amount_in_range)
             if inv.status == 'PENDIENTE' and balance > 0:
                 total_pending_balance += float(balance)
