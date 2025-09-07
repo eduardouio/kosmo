@@ -11,7 +11,7 @@ from products.models import Product
 
 class SalesReportView(View):
     template_name = 'reports/sales_report.html'
-    
+
     def get(self, request, *args, **kwargs):
         # Filtros de fechas por defecto (último mes)
         end_date = timezone.now().date()
@@ -26,6 +26,7 @@ class SalesReportView(View):
         # Construir query base para facturas de venta
         invoices_query = Invoice.objects.filter(
             type_document='FAC_VENTA',
+            is_active=True,
             date__date__range=[date_from, date_to]
         ).select_related('partner').prefetch_related(
             'invoiceitems_set__invoiceboxitems_set__product'
