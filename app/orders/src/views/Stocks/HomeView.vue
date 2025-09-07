@@ -632,7 +632,10 @@ const handleMerge = () => {
                                         <div class="table-body">
                                             <div v-for="(item, index) in filterData" :key="item" 
                                                  class="order-row"
-                                                 :class="{ 'bg-gray-50': index % 2 === 0 }">
+                                                 :class="{ 
+                                                     'bg-gray-50': index % 2 === 0,
+                                                     'text-red-600': !item.quantity || item.quantity === 0
+                                                 }">
                                                 <div class="row g-0 align-items-center">
                                                     <!-- Index -->
                                                     <div class="col-1 border-end p-1 text-center">
