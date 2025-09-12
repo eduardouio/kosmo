@@ -19,6 +19,43 @@ class SupplierInvoiceList(ListView):
         context['action'] = None
         context['stats'] = self.get_values_stats()
 
+        # Obtener información del cliente relacionado para cada factura
+        invoices_with_customers = []
+        for invoice in context['invoices']:
+            # Obtener la orden de venta relacionada (parent_order)
+            if (hasattr(invoice, 'order') and invoice.order and
+                    hasattr(invoice.order, 'parent_order') and
+                    invoice.order.parent_order):
+                sale_order = invoice.order.parent_order
+                if hasattr(sale_order, 'partner') and sale_order.partner:
+                    partner_name = sale_order.partner.name
+                    invoice.customer_name = partner_name or 'Sin nombre'
+                    
+                    # Buscar factura de venta relacionada
+                    try:
+                        from trade.models import Invoice as InvoiceModel
+                        customer_invoice = InvoiceModel.objects.get(
+                            order=sale_order,
+                            type_document='FAC_VENTA'
+                        )
+                        invoice_num = customer_invoice.num_invoice
+                        invoice.customer_invoice_num = (invoice_num or
+                                                        'Sin número')
+                    except InvoiceModel.DoesNotExist:
+                        invoice.customer_invoice_num = 'Sin Factura'
+                    except Exception:
+                        invoice.customer_invoice_num = 'Error'
+                else:
+                    invoice.customer_name = 'Sin Cliente'
+                    invoice.customer_invoice_num = 'N/A'
+            else:
+                invoice.customer_name = 'Sin Cliente'
+                invoice.customer_invoice_num = 'N/A'
+            
+            invoices_with_customers.append(invoice)
+        
+        context['invoices'] = invoices_with_customers
+
         if self.request.GET.get('action') == 'deleted':
             context['action_type'] = 'success'
             context['message'] = 'Factura eliminada exitosamente'
