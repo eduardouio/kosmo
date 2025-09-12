@@ -18,6 +18,55 @@ class CustomerInvoiceList(ListView):
         context['title_page'] = 'Facturas de Clientes'
         context['action'] = None
         context['stats'] = self.get_values_stats()
+        
+        # Obtener información de proveedores relacionados para cada factura
+        invoices_with_suppliers = []
+        for invoice in context['invoices']:
+            # Calcular total con margen para ventas
+            total_price = invoice.total_price or 0
+            total_margin = invoice.total_margin or 0
+            invoice.total_with_margin = total_price + total_margin
+            
+            # Obtener órdenes de compra relacionadas con la orden de venta
+            if hasattr(invoice, 'order') and invoice.order:
+                purchase_orders = invoice.order.order_set.filter(
+                    type_document='ORD_COMPRA',
+                    is_active=True
+                )
+                suppliers_info = []
+                
+                for purchase_order in purchase_orders:
+                    has_partner = (hasattr(purchase_order, 'partner') and
+                                   purchase_order.partner)
+                    if has_partner:
+                        partner_name = purchase_order.partner.name
+                        supplier_name = partner_name or 'Sin nombre'
+                        # Buscar factura de compra relacionada
+                        try:
+                            from trade.models import Invoice as InvoiceModel
+                            supplier_invoice = InvoiceModel.objects.get(
+                                order=purchase_order,
+                                type_document='FAC_COMPRA'
+                            )
+                            invoice_num = supplier_invoice.num_invoice
+                            supplier_invoice_num = invoice_num or 'Sin número'
+                        except InvoiceModel.DoesNotExist:
+                            supplier_invoice_num = 'Sin Factura'
+                        except Exception:
+                            supplier_invoice_num = 'Error'
+                        
+                        suppliers_info.append({
+                            'name': supplier_name,
+                            'invoice_num': supplier_invoice_num
+                        })
+                
+                invoice.suppliers_info = suppliers_info
+            else:
+                invoice.suppliers_info = []
+            invoices_with_suppliers.append(invoice)
+        
+        context['invoices'] = invoices_with_suppliers
+        
         if self.request.GET.get('action') == 'deleted':
             context['action_type'] = 'success'
             context['message'] = 'Factura eliminada exitosamente'
@@ -29,6 +78,8 @@ class CustomerInvoiceList(ListView):
             is_active=True,
         ).select_related(
             'order', 'order__parent_order', 'partner'
+        ).prefetch_related(
+            'order__order_set'  # Órdenes de compra relacionadas
         ).order_by('-date')
 
     def get_values_stats(self):

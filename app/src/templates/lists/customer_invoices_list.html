@@ -43,18 +43,13 @@
     <table class="table table-bordered table-striped list-table" id="myTable">
         <thead>
         <tr>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">#</th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">N Fac</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">OV</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Cliente</th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">Fecha</th>
+            <th class="bg-secondary bg-opacity-25 text-center p-1">Proveedor</th>
+            <th class="bg-secondary bg-opacity-25 text-center p-1">Fecha Emisión</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Vencimiento</th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">Total</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Tallos</th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">DAE</th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">AWB</th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">HAWB</th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">Agencia</th>
+            <th class="bg-secondary bg-opacity-25 text-center p-1">Valor Total</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Dias</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Pago</th>
         </tr>
@@ -62,26 +57,35 @@
         <tbody>
             {% for invoice in invoices %}
             <tr>
-                <td class="p-0 text-center">{{ forloop.counter }}</td>
-                <td class="p-0">
-                    <a href="{% url 'invoice_detail_presentation' invoice.id %}" class="text-primary ms-2">
-                        <i class="fa-solid fa-link me-1"></i>{{ invoice.serie }}-{{ invoice.consecutive | stringformat:'06d' }}
-                    </a>
-                </td>
                 <td class="p-0 text-center">
                     <a href="{% url 'order_detail_presentation' invoice.order.id %}" class="text-primary">
                         <i class="fa-solid fa-link me-1"></i>{{ invoice.order.serie }}-{{ invoice.order.consecutive | stringformat:'06d' }}
                     </a>
                 </td>
-                <td class="p-0">{{ invoice.partner.name }}</td>
+                <td class="p-0">
+                    <div class="">
+                        <span class="badge border text-muted">{{ invoice.num_invoice }}</span>
+                        <span>{{ invoice.partner.name }}</span>
+                    </div>
+                </td>
+                <td class="p-0">
+                    <div class="d-flex flex-column">
+                        {% for supplier_info in invoice.suppliers_info %}
+                            <div class="mb-1">
+                                <span class="badge border text-muted">{{ supplier_info.invoice_num }}</span>
+                                <span class="small">{{ supplier_info.name }}</span>
+                            </div>
+                        {% empty %}
+                            <span class="text-muted">Sin proveedores</span>
+                        {% endfor %}
+                    </div>
+                </td>
                 <td class="p-0 text-end">{{ invoice.date|date:"d/m/Y" }}</td>
                 <td class="p-0 text-end">{{ invoice.due_date|date:"d/m/Y" }}</td>
-                <td class="p-0 text-end">{{ invoice.total_price }}</td>
                 <td class="p-0 text-center">{{ invoice.tot_stem_flower|default:"0" }}</td>
-                <td class="p-0 text-center">{{ invoice.dae_export|default:"-" }}</td>
-                <td class="p-0 text-center">{{ invoice.awb|default:"-" }}</td>
-                <td class="p-0 text-center">{{ invoice.hawb|default:"-" }}</td>
-                <td class="p-0 text-center">{{ invoice.cargo_agency|default:"-" }}</td>
+                <td class="p-0 text-end">
+                    {{ invoice.total_with_margin }}
+                </td>
                 <td class="p-0 text-center">
                     {% if invoice.days_to_due %}
                         {{ invoice.days_to_due }}
@@ -96,13 +100,10 @@
                         <span class="text-danger">Sin Vencimiento</span>
                     {% endif %}
                 </td>
-                <td class="p-0 text-center d-flex justify-content-between gap-2">
+                <td class="p-0 text-center">
                     <span class="{% if invoice.status == 'PAGADO' %}text-success{% elif invoice.status == 'PENDIENTE' %}text-cyan-700{% else %}text-danger{% endif %}">
                         {{ invoice.status }}
                     </span>
-                    <a href="{% url 'report_invoice' invoice.id %}" class="text-primary" title="Imprimir">
-                        <i class="fa-solid fa-print"></i>
-                    </a>
                 </td>
             </tr>
             {% endfor %}
