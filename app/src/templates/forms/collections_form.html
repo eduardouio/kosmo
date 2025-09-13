@@ -101,77 +101,85 @@
               </div>
             </div>
 
-            <!-- Encabezados de tabla -->
-            <div class="row p-1 text-white">
-              <div class="col-1 border-end bg-gray-400 text-center">Sel.</div>
-              <div class="col-2 border-end bg-gray-400 text-center">Factura</div>
-              <div class="col-2 border-end bg-gray-400 text-center">Cliente</div>
-              <div class="col-1 border-end bg-gray-400 text-center">Fecha</div>
-              <div class="col-1 border-end bg-gray-400 text-center">Vence</div>
-              <div class="col-1 border-end bg-gray-400 text-center">Días</div>
-              <div class="col-1 border-end bg-sky-500 text-center">Total</div>
-              <div class="col-1 border-end bg-sky-500 text-center">Cobrado</div>
-              <div class="col-1 border-end bg-sky-500 text-center">Saldo</div>
-              <div class="col-1 bg-lime-600 text-center">A Cobrar</div>
-            </div>
-
-            <!-- Filas de facturas -->
-            <div v-if="filteredInvoices.length === 0" class="row mb-1 border">
-              <div class="col-12 text-center py-4 text-muted">
-                <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
-                <p><strong>¡Excelente!</strong></p>
-                <p v-if="selectedCustomer">No hay facturas pendientes para <strong>${ selectedCustomer.name }</strong></p>
-                <p v-else>No hay facturas pendientes por cobrar</p>
-                <small>Todas las facturas han sido cobradas completamente.</small>
-              </div>
-            </div>
-
-            <div v-for="(invoice, index) in filteredInvoices" :key="invoice.id" 
-                 v-show="parseFloat(invoice.balance) > 0"
-                 :class="['row', 'mb-1', 'border', 'my-hover-2', index % 2 === 0 ? 'bg-gray' : '']">
-              <div class="col-1 border-end d-flex align-items-center justify-content-center">
-                <input type="checkbox" v-model="invoice.selected" @change="updateCollectionAmount(invoice)" class="form-check-input">
-              </div>
-              <div class="col-2 border-end d-flex align-items-center">
-                <div>
-                  <div class="fw-semibold">${ invoice.number || 'Sin número' }</div>
-                  <small class="text-muted">${ invoice.type || 'FAC_VENTA' }</small>
-                </div>
-              </div>
-              <div class="col-2 border-end d-flex align-items-center">
-                <div>
-                  <div class="fw-semibold">${ invoice.customer_name || 'Sin cliente' }</div>
-                  <small class="text-muted">ID: ${ invoice.customer_id }</small>
-                </div>
-              </div>
-              <div class="col-1 border-end d-flex align-items-center text-center">
-                ${ formatDate(invoice.date) }
-              </div>
-              <div class="col-1 border-end d-flex align-items-center text-center">
-                ${ formatDate(invoice.due_date) }
-              </div>
-              <div class="col-1 border-end d-flex align-items-center text-center">
-                <span v-if="invoice.days_overdue > 0" class="badge bg-danger">${ invoice.days_overdue }</span>
-                <span v-else-if="invoice.days_overdue === 0" class="badge bg-warning text-dark">Hoy</span>
-                <span v-else class="badge bg-success">${ Math.abs(invoice.days_overdue) }</span>
-              </div>
-              <div class="col-1 border-end d-flex align-items-center text-end">
-                ${ formatCurrency(invoice.total_amount) }
-              </div>
-              <div class="col-1 border-end d-flex align-items-center text-end">
-                ${ formatCurrency(invoice.paid_amount) }
-              </div>
-              <div class="col-1 border-end d-flex align-items-center text-end">
-                <span class="fw-semibold text-danger">${ formatCurrency(invoice.balance) }</span>
-              </div>
-              <div class="col-1 d-flex align-items-center">
-                <input type="number" step="0.01" v-model="invoice.collectionAmount" 
-                       :disabled="!invoice.selected"
-                       @input="validateCollectionAmount(invoice)"
-                       :max="invoice.balance"
-                       class="form-control form-control-sm text-end">
-              </div>
-            </div>
+            <!-- Tabla de facturas -->
+            <table class="table tabla-striped table-hover table-bordered">
+              <thead>
+                <tr>
+                  <th class="bg-gray-300">Sel.</th>
+                  <th class="bg-gray-300">Factura</th>
+                  <th class="bg-gray-300">Cliente</th>
+                  <th class="bg-gray-300">F. Emisión</th>
+                  <th class="bg-gray-300">Vence</th>
+                  <th class="bg-gray-300">Días</th>
+                  <th class="bg-gray-300">Total</th>
+                  <th class="bg-gray-300">Cobrado</th>
+                  <th class="bg-gray-300">Saldo</th>
+                  <th class="bg-gray-300">A Cobrar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Mensaje cuando no hay facturas -->
+                <tr v-if="filteredInvoices.length === 0">
+                  <td colspan="10" class="text-center py-5 text-muted">
+                    <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+                    <p><strong>¡Excelente!</strong></p>
+                    <p v-if="selectedCustomer">No hay facturas pendientes para <strong>${ selectedCustomer.name }</strong></p>
+                    <p v-else>No hay facturas pendientes por cobrar</p>
+                    <small>Todas las facturas han sido cobradas completamente.</small>
+                  </td>
+                </tr>
+                
+                <!-- Filas de facturas -->
+                <tr v-for="(invoice, index) in filteredInvoices" 
+                    :key="invoice.id" 
+                    v-show="parseFloat(invoice.balance) > 0">
+                  <td class="text-center p-0">
+                    <input type="checkbox" 
+                           v-model="invoice.selected" 
+                           @change="updateCollectionAmount(invoice)" 
+                           class="form-check-input">
+                  </td>
+                  <td class="p-0">
+                    <div class="fw-semibold">${ invoice.number || 'Sin número' }</div>
+                  </td>
+                  <td class="p-0">
+                    <div>
+                      <small class="text-muted badge border me-2">ID: ${ invoice.customer_id }</small>
+                      <div class="fw-semibold">${ invoice.customer_name || 'Sin cliente' }</div>
+                    </div>
+                  </td>
+                  <td class="text-center p-0">
+                    ${ formatDate(invoice.date) }
+                  </td>
+                  <td class="text-center p-0">
+                    ${ formatDate(invoice.due_date) }
+                  </td>
+                  <td class="text-center p-0">
+                    <span v-if="invoice.days_overdue > 0" class="badge bg-danger">${ invoice.days_overdue }</span>
+                    <span v-else-if="invoice.days_overdue === 0" class="badge bg-warning text-dark">Hoy</span>
+                    <span v-else class="badge bg-success">${ Math.abs(invoice.days_overdue) }</span>
+                  </td>
+                  <td class="text-end p-0">
+                    ${ formatCurrency(invoice.total_amount) }
+                  </td>
+                  <td class="text-end p-0">
+                    ${ formatCurrency(invoice.paid_amount) }
+                  </td>
+                  <td class="text-end p-0">
+                    <span class="fw-semibold text-danger">${ formatCurrency(invoice.balance) }</span>
+                  </td>
+                  <td class="text-end p-0">
+                    <input type="number" 
+                           step="0.01" 
+                           v-model="invoice.collectionAmount" 
+                           :disabled="!invoice.selected"
+                           @input="validateCollectionAmount(invoice)"
+                           :max="invoice.balance"
+                           class="form-control form-control-sm text-end">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
             <!-- Resumen de totales -->
             <div class="row mt-3 border-top pt-3">
@@ -272,7 +280,6 @@
                   <tr v-for="invoice in selectedInvoicesForCollection" :key="invoice.id">
                     <td>
                       <strong>${ invoice.number || 'Sin número' }</strong>
-                      <br><small class="text-muted">${ invoice.type || 'FAC_VENTA' }</small>
                     </td>
                     <td>${ invoice.customer_name || 'Sin cliente' }</td>
                     <td class="text-end">${ formatCurrency(invoice.balance) }</td>
