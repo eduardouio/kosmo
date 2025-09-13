@@ -58,14 +58,14 @@
             totalInput.value = total.toFixed(2);
             
             // Recalcular el monto total de la nota de crédito
-            updateTotalAmount();
+            updateTotalAmount(row);
           }
         });
       });
     }
     
     // Nueva función para calcular el monto total automáticamente
-    function updateTotalAmount() {
+    function updateTotalAmount(currentRow = null) {
       let totalAmount = 0;
       
       // Sumar todos los totales de las filas de detalles
@@ -86,7 +86,24 @@
           const percentage = (totalAmount / maxAmount) * 100;
           
           if (totalAmount > maxAmount) {
-            // Excede el límite - error
+            // Excede el límite - mostrar alerta y resetear la línea actual
+            alert(`El monto total ($${totalAmount.toFixed(2)}) excede el saldo pendiente de $${maxAmount.toFixed(2)}. Se resetearán los valores de la línea actual.`);
+            
+            // Si tenemos la fila que causó el exceso, resetear sus valores
+            if (currentRow) {
+              const qtyInput = currentRow.querySelector('input[name*="quantity"]');
+              const priceInput = currentRow.querySelector('input[name*="unit_price"]');
+              const totalInput = currentRow.querySelector('input[name*="total_price"]');
+              
+              if (qtyInput) qtyInput.value = '';
+              if (priceInput) priceInput.value = '';
+              if (totalInput) totalInput.value = '';
+              
+              // Recalcular después del reset
+              setTimeout(() => updateTotalAmount(), 100);
+              return;
+            }
+            
             amountInput.setCustomValidity(`El monto total ($${totalAmount.toFixed(2)}) no puede exceder el saldo pendiente de $${maxAmount.toFixed(2)}`);
             amountInput.classList.add('is-invalid');
             amountInput.classList.remove('is-valid');
