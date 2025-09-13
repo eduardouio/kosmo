@@ -1,50 +1,134 @@
 {% extends 'base/base.html' %}
+{% load humanize %}
+
 {% block content %}
-<div class="container mt-3">
-	<div class="d-flex justify-content-between align-items-center mb-3">
-		<h5 class="m-0">Nota de Crédito {{ credit_note.num_credit_note }}</h5>
-		<div>
-			<a href="{% url 'creditnote_list' %}" class="btn btn-sm btn-secondary">Volver</a>
-			{% if credit_note.status != 'ANULADO' %}
-			<form method="post" action="{% url 'creditnote_void' credit_note.id %}" class="d-inline" onsubmit="return confirm('¿Anular nota de crédito?');">
-				{% csrf_token %}
-				<button class="btn btn-sm btn-danger">Anular</button>
-			</form>
-			{% endif %}
-		</div>
-	</div>
-	<div class="row g-2">
-		<div class="col-md-3"><strong>Factura:</strong> {{ credit_note.invoice.num_invoice }}</div>
-		<div class="col-md-2"><strong>Fecha:</strong> {{ credit_note.date }}</div>
-		<div class="col-md-2"><strong>Monto:</strong> {{ credit_note.amount }}</div>
-		<div class="col-md-2"><strong>Estado:</strong> {{ credit_note.status }}</div>
-		<div class="col-md-3"><strong>Pago ID:</strong> {{ credit_note.id_payment }}</div>
-		<div class="col-12"><strong>Motivo:</strong><br>{{ credit_note.reason }}</div>
-		<div class="col-12"><strong>Notas:</strong><br>{{ credit_note.notes }}</div>
-	</div>
-	<hr>
-	<h6>Detalles</h6>
-	<table class="table table-sm table-bordered">
-		<thead class="table-light">
-			<tr>
-				<th>Descripción</th>
-				<th>Cantidad</th>
-				<th>Precio Unit.</th>
-				<th>Total</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for d in details %}
-			<tr>
-				<td>{{ d.description }}</td>
-				<td>{{ d.quantity }}</td>
-				<td>{{ d.unit_price }}</td>
-				<td>{{ d.total_price }}</td>
-			</tr>
-			{% empty %}
-			<tr><td colspan="4" class="text-center">Sin detalles</td></tr>
-			{% endfor %}
-		</tbody>
-	</table>
+<div class="container mt-4">
+    <div class="mb-5">
+        <!-- Encabezado de Nota de Crédito -->
+        <div class="row mb-4 align-items-center">
+            <div class="col-8">
+                <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" class="img-fluid" style="height: 60px"/>
+            </div>
+            <div class="col-4">
+                <div class="border border-2 border-primary p-2 rounded">
+                    <div class="d-flex justify-content-end align-items-center mb-1">
+                        <span class="small fw-bold me-2">NOTA DE CRÉDITO:</span>
+                        <span class="text-danger fs-4">{{ credit_note.num_credit_note }}</span>
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center border-top border-primary pt-1 mb-1">
+                        <span class="small fw-bold me-2">FECHA:</span>
+                        <span class="fs-4">{{ credit_note.date|date:"Y-m-d" }}</span>
+                    </div>
+                    <div class="d-flex justify-content-end align-items-center border-top border-info pt-1">
+                        <span class="small fw-bold me-2">ESTADO:</span>
+                        <span class="badge 
+                            {% if credit_note.status == 'PENDIENTE' %}bg-warning text-dark
+                            {% elif credit_note.status == 'APLICADO' %}bg-success
+                            {% elif credit_note.status == 'ANULADO' %}bg-danger
+                            {% else %}bg-light text-dark
+                            {% endif %} fs-6">{{ credit_note.status }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información del Cliente y de la Nota de Crédito -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="border border-2 border-primary p-3 rounded h-100">
+                    <h6 class="fw-bold mb-3">Información del Cliente</h6>
+                    {% with partner=credit_note.invoice.partner %}
+                    <div class="form-control bg-light mb-2">{{ partner.name }}</div>
+                    <p class="small mb-1"><strong>ID/RUC:</strong> {{ partner.business_tax_id|default:'N/A' }}</p>
+                    <p class="small mb-1"><strong>Dirección:</strong> {{ partner.address|default:'N/A' }}</p>
+                    <p class="small mb-1"><strong>Ciudad - País:</strong> {{ partner.city|default:'N/A' }} - {{ partner.country|default:'N/A' }}</p>
+                    <p class="small mb-1"><strong>Email:</strong> {{ partner.email|default:'N/A' }}</p>
+                    <p class="small mb-1"><strong>Teléfono:</strong> {{ partner.phone|default:'N/A' }}</p>
+                    {% endwith %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="border border-2 border-primary p-3 rounded h-100">
+                    <h6 class="fw-bold mb-3">Información de la Nota de Crédito</h6>
+                    <p class="small mb-1"><strong>Factura Afectada:</strong> 
+                        <a href="{% url 'invoice_detail_presentation' credit_note.invoice.id %}">
+                            {{ credit_note.invoice.serie }}-{{ credit_note.invoice.consecutive|stringformat:'06d' }}
+                        </a>
+                    </p>
+                    <p class="small mb-1"><strong>ID de Pago Relacionado:</strong> {{ credit_note.id_payment|default:'N/A' }}</p>
+                    <p class="small mb-1"><strong>Motivo:</strong></p>
+                    <div class="form-control bg-light" style="white-space: pre-wrap;">{{ credit_note.reason }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de detalles -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm table-hover">
+                        <thead class="bg-primary bg-opacity-25">
+                            <tr class="text-center small">
+                                <th>DESCRIPCIÓN</th>
+                                <th>CANTIDAD</th>
+                                <th>PRECIO UNIT.</th>
+                                <th>TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in details %}
+                            <tr>
+                                <td>{{ d.description }}</td>
+                                <td class="text-end">{{ d.quantity|intcomma }}</td>
+                                <td class="text-end">${{ d.unit_price|intcomma }}</td>
+                                <td class="text-end">${{ d.total_price|intcomma }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center">Sin detalles</td></tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-primary bg-opacity-10">
+                                <td colspan="3" class="text-end fw-bold">MONTO TOTAL:</td>
+                                <td class="text-end text-primary fw-bold">${{ credit_note.amount|intcomma }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {% if credit_note.notes %}
+        <!-- Notas -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light py-2"><strong>Notas Adicionales</strong></div>
+                    <div class="card-body small" style="white-space: pre-wrap;">{{ credit_note.notes }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Botones de acción -->
+        <div class="row mt-4">
+            <div class="col d-flex justify-content-end gap-3">
+                <a href="{% url 'creditnote_list' %}" class="btn btn-secondary btn-sm">
+                    <i class="las la-arrow-left me-1"></i>
+                    <span class="btn-text">Volver a la Lista</span>
+                </a>
+                {% if credit_note.status != 'ANULADO' %}
+                <form method="post" action="{% url 'creditnote_void' credit_note.id %}" class="d-inline" onsubmit="return confirm('¿Está seguro de que desea anular esta nota de crédito? Esta acción es irreversible.');">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm">
+                        <i class="las la-ban me-1"></i>
+                        <span class="btn-text">Anular Nota de Crédito</span>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
