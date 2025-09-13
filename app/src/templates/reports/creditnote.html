@@ -1,0 +1,158 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'css/invoice_style.css' %}" rel="stylesheet" type="text/css" />
+    <title>Nota de Crédito {{ credit_note.num_credit_note }}</title>
+  </head>
+  <body id="content">
+    <div id="app">
+      <div class="container">
+        <!-- Encabezado -->
+        <div class="header">
+          <div class="header-logo">
+            <img src="https://kosmoflowers.com/wp-content/uploads/2022/07/Mesa-de-trabajo-6.svg" alt="Logo Kosmo Flowers"/>
+          </div>
+          <div class="header-invoice">
+            <div class="invoice-box">
+              <div class="invoice-number">
+                <p class="invoice-number-label">CREDIT NOTE:</p>
+                <p class="invoice-number-value">{{ credit_note.num_credit_note }}</p>
+              </div>
+              <div class="invoice-date">
+                <p class="invoice-date-label">DATE:</p>
+                <p class="invoice-date-value">{{ credit_note.date | date:'Y-m-d' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="company-info">
+          <div class="company-info-left">
+            <div><strong>Roses Grown by:</strong> KOSMO FLOWERS</div>
+            <div><strong>Address:</strong> Tupigachi - Tabacundo</div>
+            <div><strong>Country:</strong> ECUADOR</div>
+          </div>
+          <div class="company-info-right">
+            <p><strong>Email:</strong> invoices@kosmoflowers.com</p>
+            <p><strong>Phone:</strong> (+593) 0999475741</p>
+          </div>
+        </div>
+
+        <!-- Información del cliente y adicional -->
+        <div class="info-section">
+          <!-- Información del cliente -->
+          <div class="customer-info">
+            <h2 class="section-title">Customer Information</h2>
+            <div class="info-row">
+              <div class="label-col">To:</div>
+              <div class="value-col">{{ credit_note.invoice.partner.name|default_if_none:'' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="label-col">Original Invoice:</div>
+              <div class="value-col">{{ credit_note.invoice.serie }}-{{ credit_note.invoice.consecutive|stringformat:'06d' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="label-col">Invoice Date:</div>
+              <div class="value-col">{{ credit_note.invoice.date|date:'Y-m-d' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="label-col">Address:</div>
+              <div class="value-col">{{ credit_note.invoice.partner.address|default_if_none:'' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="label-col">City - Country:</div>
+              <div class="value-col">{{ credit_note.invoice.partner.city|default_if_none:'' }} - {{ credit_note.invoice.partner.country|default_if_none:'' }}</div>
+            </div>
+            <div class="info-row email-credit-row">
+              <div class="label-col w-1/6">E-mail:</div>
+              <div class="value-col email-value">{{ credit_note.invoice.partner.email|default_if_none:'' }}</div>
+              <div class="credit-container">
+                <div class="label-col">Credit:</div>
+                <div class="value-col">{{ credit_note.invoice.partner.credit_term|default_if_none:'' }}{% if credit_note.invoice.partner.credit_term %} Days{% endif %}</div>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="label-col">Status:</div>
+              <div class="value-col"><strong>{{ credit_note.status }}</strong></div>
+            </div>
+          </div>
+          <!-- Información adicional -->
+          <div class="additional-info">
+            <h2 class="section-title">Credit Note Information</h2>
+            <div class="info-row">
+              <div class="label-col">Credit Date:</div>
+              <div class="value-col">{{ credit_note.date | date:'Y-m-d' }}</div>
+            </div>
+            <div class="info-row">
+              <div class="label-col">Amount USD:</div>
+              <div class="value-col"><strong>${{ credit_note.amount|floatformat:2 }}</strong></div>
+            </div>
+            {% if credit_note.id_payment %}
+            <div class="info-row">
+              <div class="label-col">Payment ID:</div>
+              <div class="value-col">{{ credit_note.id_payment }}</div>
+            </div>
+            {% endif %}
+            <div class="info-row">
+              <div class="label-col">Reason:</div>
+              <div class="value-col" style="white-space: pre-wrap;">{{ credit_note.reason|default_if_none:'' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de detalles -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>DESCRIPTION</th>
+                <th>QUANTITY</th>
+                <th>UNIT PRICE $</th>
+                <th>TOTAL PRICE $</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for detail in details %}
+              <tr>
+                <td>{{ detail.description|default_if_none:'' }}</td>
+                <td class="td-width-small">{{ detail.quantity|default_if_none:'' }}</td>
+                <td>${{ detail.unit_price|floatformat:2|default_if_none:'' }}</td>
+                <td>${{ detail.total_price|floatformat:2|default_if_none:'' }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="4" style="text-align: center; font-style: italic;">No details available</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Total de la Nota de Crédito -->
+        <div class="total-invoice">
+          <p>TOTAL CREDIT NOTE USD: ${{ credit_note.amount|floatformat:2|default_if_none:'' }}</p>
+        </div>
+
+        {% if credit_note.notes %}
+        <!-- Notas adicionales -->
+        <div class="summary-section">
+          <div class="summary-totals">
+            <div class="summary-row">
+              <strong>Additional Notes:</strong>
+            </div>
+            <div style="white-space: pre-wrap; margin-top: 8px; font-size: 0.85rem;">{{ credit_note.notes }}</div>
+          </div>
+        </div>
+        {% endif %}
+      
+        <small class="footer-note fw-bold" style="font-size: 9px; color: #ee0000;">
+            This credit note is issued against invoice {{ credit_note.invoice.serie }}-{{ credit_note.invoice.consecutive|stringformat:'06d' }} dated {{ credit_note.invoice.date|date:'Y-m-d' }}. Credit amount: ${{ credit_note.amount|floatformat:2 }} USD.
+        </small>
+      </div>
+    </div>
+  </body>
+</html>
