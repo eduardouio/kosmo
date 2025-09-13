@@ -47,6 +47,8 @@ class BaseModel(models.Model):
     updated_at = models.DateTimeField(
         'fecha de actualización',
         auto_now=True,
+        blank=True,
+        null=True,
         help_text='Fecha de ultima actualización del registro.'
     )
 
