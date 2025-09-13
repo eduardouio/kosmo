@@ -799,7 +799,11 @@ createApp({
     
     formatDate(dateString) {
       if (!dateString) return '-';
-      return new Date(dateString).toLocaleDateString('es-ES');
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
     },
     
     formatCurrency(amount) {
