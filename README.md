@@ -458,3 +458,15 @@ select * from products_historicalstockday ;
 delete from products_historicalstockday where true;
 SELECT last_value FROM products_historicalstockday_history_id_seq; 
 SELECT setval('products_historicalstockday_history_id_seq', 1, false);
+
+
+
+Dashboard: http://localhost:8000/sellers/
+
+Stocks: http://localhost:8000/sellers/stocks/
+
+Órdenes: http://localhost:8000/sellers/orders/
+
+Nueva Orden: http://localhost:8000/sellers/orders/create/
+
+Facturas: http://localhost:8000/sellers/invoices/
