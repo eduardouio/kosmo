@@ -25,6 +25,7 @@ from .UpdateProductAPI import UpdateProductAPI
 from .trade.PaymentContextData import PaymentContextData
 from .trade.CollectionsContextAPI import CollectionsContextAPI
 from .CustomerInvoiceDetailAPI import CustomerInvoiceDetailAPI
+from .InvoicesByPartnerAPI import InvoicesByPartnerAPI
 
 
 __all__ = [
@@ -55,4 +56,5 @@ __all__ = [
     'PaymentContextData',
     'CollectionsContextAPI',
     'CustomerInvoiceDetailAPI',
+    'InvoicesByPartnerAPI',
 ]
