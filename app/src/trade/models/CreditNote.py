@@ -3,7 +3,20 @@ from django.core.exceptions import ValidationError
 from trade.models import Invoice
 from common.BaseModel import BaseModel
 
-NC_STATUS = (
+
+TYPE_DOCUMENT_CHOICES = (
+    ('FAC_VENTA', 'FACTURA VENTA'),
+    ('FAC_COMPRA', 'FACTURA COMPRA'),
+)
+
+BOX_CHOICES = (
+    ('EB', 'EB'),
+    ('HB', 'HB'),
+    ('QB', 'QB'),
+    ('FB', 'FB')
+)
+
+STATUS_CHOICES = (
     ('APLICADO', 'APLICADO'),
     ('ANULADO', 'ANULADO')
     )
@@ -32,6 +45,36 @@ class CreditNote(BaseModel):
         default=None,
         help_text='Consecutivo autogenerado dentro de la serie.'
     )
+    marking = models.CharField(
+        'Marcación',
+        max_length=50,
+        blank=True,
+        null=True,
+        default=None
+    )
+    hawb = models.CharField(
+        'HAWB',
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    cargo_agency = models.CharField(
+        'Agencia de Carga',
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    delivery_date = models.DateField(
+        'Fecha de entrega',
+        blank=True,
+        null=True
+    )
+    amount = models.DecimalField(
+        'Valor',
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
     num_credit_note = models.CharField(
         'Número Nota de Crédito',
         max_length=30,
@@ -44,10 +87,11 @@ class CreditNote(BaseModel):
         Invoice,
         on_delete=models.CASCADE
     )
+
     status = models.CharField(
         'Estado',
         max_length=10,
-        choices=NC_STATUS,
+        choices=STATUS_CHOICES,
         default='APLICADO'
     )
     id_payment = models.PositiveIntegerField(
@@ -135,6 +179,11 @@ class CreditNoteDetail(BaseModel):
     quantity = models.IntegerField(
         'Cantidad'
     )
+    box_model = models.CharField(
+        'Tipo de caja',
+        max_length=50,
+        choices=BOX_CHOICES
+    )
     unit_price = models.DecimalField(
         'Precio unitario',
         max_digits=10,
@@ -144,6 +193,22 @@ class CreditNoteDetail(BaseModel):
         'Precio total',
         max_digits=10,
         decimal_places=2
+    )
+    tot_stem_flower = models.IntegerField(
+        'Cantidad Tallos',
+        default=0
+    )
+    total_bunches = models.IntegerField(
+        'Total de ramos',
+        blank=True,
+        null=True,
+        default=0
+    )
+    line_price = models.DecimalField(
+        'Precio Linea',
+        max_digits=10,
+        decimal_places=2,
+        default=0.00
     )
 
     def save(self, *args, **kwargs):
