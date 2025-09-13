@@ -7,6 +7,13 @@
 {% block script %}
 <script>
   document.addEventListener('DOMContentLoaded', function(){
+    const partnerSelect = document.getElementById('id_partner');
+    const invoiceSelect = document.getElementById('id_invoice');
+    const amountInput = document.getElementById('id_amount');
+    const pendingBalanceInput = document.getElementById('pending_balance');
+    const invoiceHelp = document.getElementById('invoice-help');
+    
+    // Funcionalidad del botón agregar detalle
     const addBtn = document.getElementById('add-detail-row');
     if(addBtn){
       addBtn.addEventListener('click', function(e){
@@ -43,6 +50,88 @@
         });
       });
     }
+    
+    // Manejar cambio de cliente
+    if (partnerSelect) {
+      partnerSelect.addEventListener('change', function() {
+        const partnerId = this.value;
+        
+        // Limpiar select de facturas
+        invoiceSelect.innerHTML = '<option value="">Seleccione una factura...</option>';
+        invoiceSelect.disabled = true;
+        amountInput.value = '';
+        pendingBalanceInput.value = '';
+        invoiceHelp.textContent = 'Cargando facturas...';
+        
+        if (partnerId) {
+          // Cargar facturas del cliente
+          fetch(`/api/invoices/by-partner/?partner_id=${partnerId}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                if (data.invoices.length > 0) {
+                  data.invoices.forEach(invoice => {
+                    const option = document.createElement('option');
+                    option.value = invoice.id;
+                    option.textContent = invoice.display_number;
+                    option.dataset.pendingBalance = invoice.pending_balance;
+                    invoiceSelect.appendChild(option);
+                  });
+                  invoiceSelect.disabled = false;
+                  invoiceHelp.textContent = 'Seleccione una factura pendiente';
+                } else {
+                  invoiceHelp.textContent = 'No hay facturas pendientes para este cliente';
+                }
+              } else {
+                invoiceHelp.textContent = 'Error al cargar facturas: ' + data.error;
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              invoiceHelp.textContent = 'Error al cargar facturas';
+            });
+        } else {
+          invoiceHelp.textContent = 'Primero seleccione un cliente';
+        }
+      });
+    }
+    
+    // Manejar cambio de factura
+    if (invoiceSelect) {
+      invoiceSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        
+        if (selectedOption.value) {
+          const pendingBalance = parseFloat(selectedOption.dataset.pendingBalance) || 0;
+          pendingBalanceInput.value = '$' + pendingBalance.toFixed(2);
+          amountInput.max = pendingBalance;
+          amountInput.placeholder = `Máximo: $${pendingBalance.toFixed(2)}`;
+          
+          // Si no hay monto, sugerir el saldo completo
+          if (!amountInput.value) {
+            amountInput.value = pendingBalance.toFixed(2);
+          }
+        } else {
+          pendingBalanceInput.value = '';
+          amountInput.removeAttribute('max');
+          amountInput.placeholder = '0.00';
+        }
+      });
+    }
+    
+    // Validar que el monto no exceda el saldo pendiente
+    if (amountInput) {
+      amountInput.addEventListener('input', function() {
+        const maxAmount = parseFloat(this.max) || Infinity;
+        const currentAmount = parseFloat(this.value) || 0;
+        
+        if (currentAmount > maxAmount) {
+          this.setCustomValidity(`El monto no puede exceder el saldo pendiente de $${maxAmount.toFixed(2)}`);
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+    }
   });
 </script>
 {% endblock %}
@@ -76,24 +165,52 @@
             {% csrf_token %}
             <div class="row mb-3">
                 <div class="col-md-4">
+                    <label for="partner" class="text-muted">{{ form.partner.label }}:</label>
+                    {{ form.partner }}
+                    {% if form.partner.errors %}
+                        <div class="text-danger small">{{ form.partner.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
                     <label for="invoice" class="text-muted">{{ form.invoice.label }}:</label>
                     {{ form.invoice }}
+                    <div id="invoice-help" class="form-text text-muted">Primero seleccione un cliente</div>
+                    {% if form.invoice.errors %}
+                        <div class="text-danger small">{{ form.invoice.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label for="pending_balance" class="text-muted">Saldo Pendiente:</label>
+                    <input type="text" id="pending_balance" class="form-control" readonly placeholder="$0.00">
+                    <div class="form-text text-muted">Máximo monto aplicable</div>
                 </div>
                 <div class="col-md-2">
                     <label for="date" class="text-muted">{{ form.date.label }}:</label>
                     {{ form.date }}
+                    {% if form.date.errors %}
+                        <div class="text-danger small">{{ form.date.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="col-md-2">
                     <label for="amount" class="text-muted">{{ form.amount.label }}:</label>
                     {{ form.amount }}
+                    {% if form.amount.errors %}
+                        <div class="text-danger small">{{ form.amount.errors }}</div>
+                    {% endif %}
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-8">
                     <label for="reason" class="text-muted">{{ form.reason.label }}:</label>
                     {{ form.reason }}
+                    {% if form.reason.errors %}
+                        <div class="text-danger small">{{ form.reason.errors }}</div>
+                    {% endif %}
                 </div>
                 <div class="col-md-12">
                     <label for="notes" class="text-muted">{{ form.notes.label }}:</label>
                     {{ form.notes }}
+                    {% if form.notes.errors %}
+                        <div class="text-danger small">{{ form.notes.errors }}</div>
+                    {% endif %}
                 </div>
             </div>
           </form>
