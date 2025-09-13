@@ -148,6 +148,37 @@
           </div>
         </div>
         {% endif %}
+
+        <!-- Botones de acción -->
+        {% if credit_note.status != 'ANULADO' and credit_note.is_active %}
+        <div class="action-buttons" style="margin-top: 20px; padding: 15px; border-top: 1px solid #ddd; text-align: center;">
+          <form method="post" action="{% url 'creditnote_void' credit_note.pk %}" 
+                onsubmit="return confirm('¿Está seguro de que desea anular esta nota de crédito? Esta acción liberará el saldo de la factura relacionada y no se puede deshacer.');" 
+                style="display: inline-block;">
+            {% csrf_token %}
+            <button type="submit" 
+                    style="background-color: #dc3545; color: white; border: none; padding: 10px 20px; 
+                           border-radius: 4px; cursor: pointer; font-size: 14px; margin: 0 5px;"
+                    onmouseover="this.style.backgroundColor='#c82333'" 
+                    onmouseout="this.style.backgroundColor='#dc3545'">
+              Anular Nota de Crédito
+            </button>
+          </form>
+          <button onclick="window.print()" 
+                  style="background-color: #007bff; color: white; border: none; padding: 10px 20px; 
+                         border-radius: 4px; cursor: pointer; font-size: 14px; margin: 0 5px;"
+                  onmouseover="this.style.backgroundColor='#0056b3'" 
+                  onmouseout="this.style.backgroundColor='#007bff'">
+            Imprimir
+          </button>
+        </div>
+        {% elif credit_note.status == 'ANULADO' %}
+        <div class="status-notice" style="margin-top: 20px; padding: 15px; background-color: #f8d7da; 
+                                           color: #721c24; border: 1px solid #f5c6cb; border-radius: 4px; 
+                                           text-align: center; font-weight: bold;">
+          Esta nota de crédito ha sido ANULADA
+        </div>
+        {% endif %}
       
         <small class="footer-note fw-bold" style="font-size: 9px; color: #ee0000;">
             This credit note is issued against invoice {{ credit_note.invoice.serie }}-{{ credit_note.invoice.consecutive|stringformat:'06d' }} dated {{ credit_note.invoice.date|date:'Y-m-d' }}. Credit amount: ${{ credit_note.amount|floatformat:2 }} USD.
