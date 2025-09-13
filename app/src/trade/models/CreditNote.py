@@ -105,12 +105,40 @@ class CreditNote(BaseModel):
         )
     )
     date = models.DateField(
-        'Fecha de la nota de crédito'
+        'Fecha de la nota de crédito',
+        blank=True,
+        null=True, 
+        default=None
     )
-    amount = models.DecimalField(
-        'Monto',
-        max_digits=10,
-        decimal_places=2
+    po_number = models.CharField(
+        'Número PO',
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    awb = models.CharField(
+        'MAWB',
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    unities = models.PositiveSmallIntegerField(
+        'Unidades',
+        default=0,
+        blank=True,
+        null=True
+    )
+    farm_name = models.CharField(
+        'Nombre de la finca',
+        max_length=100,
+        blank=True,
+        null=True
+    )
+    dae_export = models.CharField(
+        'DAE Exportación',
+        max_length=50,
+        blank=True,
+        null=True
     )
     reason = models.TextField(
         'Motivo de la nota de crédito'
