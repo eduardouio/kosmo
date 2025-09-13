@@ -79,11 +79,39 @@
         amountInput.value = totalAmount.toFixed(2);
         
         // Validar contra el saldo pendiente si hay una factura seleccionada
-        const maxAmount = parseFloat(amountInput.max) || Infinity;
-        if (totalAmount > maxAmount) {
-          amountInput.setCustomValidity(`El monto total ($${totalAmount.toFixed(2)}) no puede exceder el saldo pendiente de $${maxAmount.toFixed(2)}`);
+        const maxAmount = parseFloat(amountInput.max) || 0;
+        const balanceWarning = document.getElementById('balance-warning');
+        
+        if (maxAmount > 0) {
+          const percentage = (totalAmount / maxAmount) * 100;
+          
+          if (totalAmount > maxAmount) {
+            // Excede el límite - error
+            amountInput.setCustomValidity(`El monto total ($${totalAmount.toFixed(2)}) no puede exceder el saldo pendiente de $${maxAmount.toFixed(2)}`);
+            amountInput.classList.add('is-invalid');
+            amountInput.classList.remove('is-valid');
+            if (balanceWarning) balanceWarning.style.display = 'none';
+          } else if (percentage >= 80) {
+            // Se acerca al límite - advertencia
+            amountInput.setCustomValidity('');
+            amountInput.classList.remove('is-invalid');
+            amountInput.classList.add('is-valid');
+            if (balanceWarning) {
+              balanceWarning.style.display = 'block';
+              balanceWarning.innerHTML = `<i class="la la-exclamation-triangle"></i> Usando ${percentage.toFixed(0)}% del saldo disponible`;
+            }
+          } else {
+            // Todo bien
+            amountInput.setCustomValidity('');
+            amountInput.classList.remove('is-invalid');
+            amountInput.classList.add('is-valid');
+            if (balanceWarning) balanceWarning.style.display = 'none';
+          }
         } else {
+          // No hay límite establecido
           amountInput.setCustomValidity('');
+          amountInput.classList.remove('is-invalid', 'is-valid');
+          if (balanceWarning) balanceWarning.style.display = 'none';
         }
       }
     }
@@ -158,13 +186,55 @@
     // Validar que el monto no exceda el saldo pendiente
     if (amountInput) {
       amountInput.addEventListener('input', function() {
-        const maxAmount = parseFloat(this.max) || Infinity;
+        const maxAmount = parseFloat(this.max) || 0;
         const currentAmount = parseFloat(this.value) || 0;
+        const balanceWarning = document.getElementById('balance-warning');
         
-        if (currentAmount > maxAmount) {
-          this.setCustomValidity(`El monto no puede exceder el saldo pendiente de $${maxAmount.toFixed(2)}`);
-        } else {
-          this.setCustomValidity('');
+        if (maxAmount > 0) {
+          const percentage = (currentAmount / maxAmount) * 100;
+          
+          if (currentAmount > maxAmount) {
+            this.setCustomValidity(`El monto no puede exceder el saldo pendiente de $${maxAmount.toFixed(2)}`);
+            this.classList.add('is-invalid');
+            this.classList.remove('is-valid');
+            if (balanceWarning) balanceWarning.style.display = 'none';
+          } else if (percentage >= 80) {
+            this.setCustomValidity('');
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+            if (balanceWarning) {
+              balanceWarning.style.display = 'block';
+              balanceWarning.innerHTML = `<i class="la la-exclamation-triangle"></i> Usando ${percentage.toFixed(0)}% del saldo disponible`;
+            }
+          } else {
+            this.setCustomValidity('');
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+            if (balanceWarning) balanceWarning.style.display = 'none';
+          }
+        }
+      });
+    }
+    
+    // Validar formulario antes de enviar
+    const form = document.querySelector('form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        const maxAmount = parseFloat(amountInput.max) || 0;
+        const currentAmount = parseFloat(amountInput.value) || 0;
+        
+        if (maxAmount > 0 && currentAmount > maxAmount) {
+          e.preventDefault();
+          alert(`No se puede crear la nota de crédito. El monto ($${currentAmount.toFixed(2)}) excede el saldo pendiente de $${maxAmount.toFixed(2)}`);
+          amountInput.focus();
+          return false;
+        }
+        
+        if (currentAmount <= 0) {
+          e.preventDefault();
+          alert('El monto de la nota de crédito debe ser mayor a 0');
+          amountInput.focus();
+          return false;
         }
       });
     }
@@ -217,6 +287,10 @@
                     <label for="pending_balance" class="text-muted">Saldo Pendiente:</label>
                     <input type="text" id="pending_balance" class="form-control" readonly placeholder="$0.00">
                     <div class="form-text text-muted">Máximo monto aplicable</div>
+                    <div id="balance-warning" class="alert alert-warning small mt-1" style="display: none;">
+                        <i class="la la-exclamation-triangle"></i>
+                        El monto se acerca al límite disponible
+                    </div>
                 </div>
                 <div class="col-md-2">
                     <label for="date" class="text-muted">{{ form.date.label }}:</label>
@@ -228,6 +302,9 @@
                 <div class="col-md-2">
                     <label for="amount" class="text-muted">{{ form.amount.label }}:</label>
                     {{ form.amount }}
+                    <div id="amount-feedback" class="invalid-feedback">
+                        El monto excede el saldo pendiente
+                    </div>
                     {% if form.amount.errors %}
                         <div class="text-danger small">{{ form.amount.errors }}</div>
                     {% endif %}
