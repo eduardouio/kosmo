@@ -20,10 +20,11 @@ class InvoicesByPartnerAPI(View):
             })
 
         try:
-            # Obtener facturas del cliente que no estén anuladas
+            # Obtener facturas de venta del cliente que no estén anuladas
             invoices = Invoice.objects.filter(
                 partner_id=partner_id,
-                is_active=True
+                is_active=True,
+                type_document='FAC_VENTA'
             ).exclude(
                 status='ANULADO'
             ).select_related('order')
@@ -46,14 +47,10 @@ class InvoicesByPartnerAPI(View):
                 # Solo incluir facturas con saldo pendiente
                 if pending_balance > 0:
                     # Formatear número de factura con serie-consecutivo
+                    # (formato: serie-consecutivo con 6 dígitos)
                     serie = invoice.serie or '000'
-                    consecutive = str(invoice.consecutive or '0').zfill(7)
+                    consecutive = str(invoice.consecutive or 0).zfill(6)
                     display_number = f"{serie}-{consecutive}"
-                    
-                    # Agregar número de pedido si existe
-                    if invoice.order and invoice.order.num_order:
-                        order_num = invoice.order.num_order
-                        display_number += f" (Pedido: {order_num})"
 
                     date_str = ''
                     if invoice.date:
