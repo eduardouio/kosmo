@@ -10,11 +10,25 @@ class CreditNoteForm(forms.ModelForm):
             'invoice', 'date', 'amount', 'reason', 'notes'
         ]
         widgets = {
-            'invoice': forms.Select(),
-            'date': forms.DateInput(attrs={'type': 'date'}),
-            'amount': forms.NumberInput(attrs={'step': '0.01'}),
-            'reason': forms.Textarea(attrs={'rows': 3}),
-            'notes': forms.Textarea(attrs={'rows': 2}),
+            'invoice': forms.Select(attrs={
+                'class': 'form-control form-select'
+            }),
+            'date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control'
+            }),
+            'amount': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control'
+            }),
+            'reason': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'form-control'
+            }),
+            'notes': forms.Textarea(attrs={
+                'rows': 2,
+                'class': 'form-control'
+            }),
         }
 
     def clean_amount(self):
@@ -31,10 +45,23 @@ class CreditNoteDetailForm(forms.ModelForm):
             'description', 'quantity', 'unit_price', 'total_price'
         ]
         widgets = {
-            'description': forms.TextInput(attrs={'maxlength': '200'}),
-            'quantity': forms.NumberInput(attrs={'step': '1', 'min': '1'}),
-            'unit_price': forms.NumberInput(attrs={'step': '0.01'}),
-            'total_price': forms.NumberInput(attrs={'step': '0.01'}),
+            'description': forms.TextInput(attrs={
+                'maxlength': '200',
+                'class': 'form-control'
+            }),
+            'quantity': forms.NumberInput(attrs={
+                'step': '1',
+                'min': '1',
+                'class': 'form-control'
+            }),
+            'unit_price': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control'
+            }),
+            'total_price': forms.NumberInput(attrs={
+                'step': '0.01',
+                'class': 'form-control'
+            }),
         }
 
     def clean(self):
