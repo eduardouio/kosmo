@@ -46,9 +46,11 @@ class InvoicesByPartnerAPI(View):
                 # Solo incluir facturas con saldo pendiente
                 if pending_balance > 0:
                     # Formatear número de factura con serie-consecutivo
-                    serie = invoice.serie or ''
-                    consecutive = invoice.consecutive or ''
+                    serie = invoice.serie or '000'
+                    consecutive = str(invoice.consecutive or '0').zfill(7)
                     display_number = f"{serie}-{consecutive}"
+                    
+                    # Agregar número de pedido si existe
                     if invoice.order and invoice.order.num_order:
                         order_num = invoice.order.num_order
                         display_number += f" (Pedido: {order_num})"
@@ -65,6 +67,8 @@ class InvoicesByPartnerAPI(View):
                         'id': invoice.id,
                         'display_number': display_number,
                         'num_invoice': invoice.num_invoice,
+                        'serie': serie,
+                        'consecutive': consecutive,
                         'total_price': float(invoice.total_price),
                         'paid_amount': float(paid_amount),
                         'pending_balance': float(pending_balance),

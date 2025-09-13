@@ -33,7 +33,6 @@ class CreditNoteForm(forms.ModelForm):
             'amount': forms.NumberInput(attrs={
                 'step': '0.01',
                 'class': 'form-control',
-                'readonly': True,
                 'id': 'id_amount'
             }),
             'reason': forms.Textarea(attrs={
