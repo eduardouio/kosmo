@@ -265,3 +265,4 @@ app/src/media/*
 app/src/trade/migrations/0002_creditnotedetail.py
 app/src/trade/migrations/0003_alter_creditnote_options_and_more.py
 app/src/trade/migrations/0004_creditnote_id_payment_creditnote_status_and_more.py
+app/src/trade/migrations/0005_creditnote_consecutive_creditnote_serie_and_more.py

@@ -157,6 +157,12 @@
                                  Facturas de Venta
                               </a>
                            </li>
+                             <li>
+                                <a class="dropdown-item d-flex align-items-center gap-2" href="{% url 'creditnote_list' %}">
+                                   <i class="la la-file-invoice-dollar"></i>
+                                   Notas de Crédito
+                                </a>
+                             </li>
                         </ul>
                      </li>
                      <!-- Vehículos -->
@@ -348,6 +354,7 @@
                      <ul class="">
                         <li><a href="{% url 'customer_orders_list' %}" class="text-dark text-decoration-none small">Órdenes de Venta</a></li>
                         <li><a href="{% url 'customer_invoice_list' %}" class="text-dark text-decoration-none small">Facturas</a></li>
+                        <li><a href="{% url 'creditnote_list' %}" class="text-dark text-decoration-none small">Notas de Crédito</a></li>
                         <li><a href="{% url 'sellers_list' %}" class="text-dark text-decoration-none small">Vendedores</a></li>
                      </ul>
                   </div>

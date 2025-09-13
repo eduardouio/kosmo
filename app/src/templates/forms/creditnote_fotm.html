@@ -1,0 +1,78 @@
+{% extends 'base/base.html' %}
+{% block style %}
+<style>
+	.table-details input { min-width: 120px; }
+</style>
+{% endblock %}
+{% block script_header %}{% endblock %}
+{% block script %}
+<script>
+	document.addEventListener('DOMContentLoaded', function(){
+		const addBtn = document.getElementById('add-detail-row');
+		if(addBtn){
+			addBtn.addEventListener('click', function(e){
+				e.preventDefault();
+				const totalForms = document.getElementById('id_creditnotedetail_set-TOTAL_FORMS');
+				const formIdx = parseInt(totalForms.value, 10);
+				const emptyRow = document.getElementById('empty-form-row').innerHTML.replace(/__prefix__/g, formIdx);
+				document.querySelector('#details-body').insertAdjacentHTML('beforeend', emptyRow);
+				totalForms.value = formIdx + 1;
+			});
+		}
+	});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-3">
+	<h5 class="mb-3">{{ title_page }}</h5>
+	<form method="post" novalidate>
+		{% csrf_token %}
+		<div class="row g-3 mb-3">
+			<div class="col-md-4">{{ form.invoice.label_tag }} {{ form.invoice }}</div>
+			<div class="col-md-2">{{ form.date.label_tag }} {{ form.date }}</div>
+			<div class="col-md-2">{{ form.amount.label_tag }} {{ form.amount }}</div>
+			<div class="col-md-4">{{ form.reason.label_tag }} {{ form.reason }}</div>
+			<div class="col-12">{{ form.notes.label_tag }} {{ form.notes }}</div>
+		</div>
+		<hr>
+		<h6>Detalles</h6>
+		{{ formset.management_form }}
+		<table class="table table-sm table-bordered table-details">
+			<thead class="table-light">
+				<tr>
+					<th>Descripción</th>
+					<th>Cantidad</th>
+					<th>Precio Unit.</th>
+					<th>Total</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody id="details-body">
+				{% for f in formset.forms %}
+				<tr>
+					<td>{{ f.description }}</td>
+					<td>{{ f.quantity }}</td>
+						<td>{{ f.unit_price }}</td>
+						<td>{{ f.total_price }}</td>
+						<td>{% if forloop.first %}<button id="add-detail-row" class="btn btn-outline-primary btn-sm">+</button>{% else %}{{ f.DELETE }}{% endif %}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<div id="empty-form-row" class="d-none">
+			<table><tbody><tr>
+				<td>__prefix__-description</td>
+				<td>__prefix__-quantity</td>
+				<td>__prefix__-unit_price</td>
+				<td>__prefix__-total_price</td>
+				<td></td>
+			</tr></tbody></table>
+		</div>
+		<div class="mt-3">
+			<button type="submit" class="btn btn-primary">Guardar</button>
+			<a href="{% url 'creditnote_list' %}" class="btn btn-secondary">Cancelar</a>
+		</div>
+	</form>
+</div>
+{% endblock %}

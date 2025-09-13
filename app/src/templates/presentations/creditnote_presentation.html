@@ -1,0 +1,50 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container-fluid mt-3">
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<h5 class="m-0">Nota de Crédito {{ credit_note.num_credit_note }}</h5>
+		<div>
+			<a href="{% url 'creditnote_list' %}" class="btn btn-sm btn-secondary">Volver</a>
+			{% if credit_note.status != 'ANULADO' %}
+			<form method="post" action="{% url 'creditnote_void' credit_note.id %}" class="d-inline" onsubmit="return confirm('¿Anular nota de crédito?');">
+				{% csrf_token %}
+				<button class="btn btn-sm btn-danger">Anular</button>
+			</form>
+			{% endif %}
+		</div>
+	</div>
+	<div class="row g-2">
+		<div class="col-md-3"><strong>Factura:</strong> {{ credit_note.invoice.num_invoice }}</div>
+		<div class="col-md-2"><strong>Fecha:</strong> {{ credit_note.date }}</div>
+		<div class="col-md-2"><strong>Monto:</strong> {{ credit_note.amount }}</div>
+		<div class="col-md-2"><strong>Estado:</strong> {{ credit_note.status }}</div>
+		<div class="col-md-3"><strong>Pago ID:</strong> {{ credit_note.id_payment }}</div>
+		<div class="col-12"><strong>Motivo:</strong><br>{{ credit_note.reason }}</div>
+		<div class="col-12"><strong>Notas:</strong><br>{{ credit_note.notes }}</div>
+	</div>
+	<hr>
+	<h6>Detalles</h6>
+	<table class="table table-sm table-bordered">
+		<thead class="table-light">
+			<tr>
+				<th>Descripción</th>
+				<th>Cantidad</th>
+				<th>Precio Unit.</th>
+				<th>Total</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for d in details %}
+			<tr>
+				<td>{{ d.description }}</td>
+				<td>{{ d.quantity }}</td>
+				<td>{{ d.unit_price }}</td>
+				<td>{{ d.total_price }}</td>
+			</tr>
+			{% empty %}
+			<tr><td colspan="4" class="text-center">Sin detalles</td></tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+{% endblock %}
