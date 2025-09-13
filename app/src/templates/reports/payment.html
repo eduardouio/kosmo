@@ -194,6 +194,11 @@
           
           <div class="info-label">Fecha de generación:</div>
           <div>{{ now|date:'Y-m-d H:i:s' }}</div>
+          
+          {% if payment.notes %}
+          <div class="info-label">Notas:</div>
+          <div>{{ payment.notes|linebreaksbr }}</div>
+          {% endif %}
         </div>
       </div>
 

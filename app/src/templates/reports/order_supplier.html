@@ -133,6 +133,16 @@
                     <p class="text-sm font-bold">TOTAL OC {{order.total_purchase_price}}</p>
                 </div>
         
+                <!-- Notas -->
+                {% if order.notes %}
+                <div class="notes-section mb-6 text-xs">
+                    <h2 class="text-sm font-semibold mb-2">Notas</h2>
+                    <div class="border-2 border-gray-300 p-4 rounded">
+                        <p>{{ order.notes|linebreaksbr }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
                 <!-- Resumen de totales -->
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div>

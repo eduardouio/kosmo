@@ -177,6 +177,14 @@
           <p>TOTAL INVOICE USD: {{ invoice.total_invoice|default_if_none:'' }}</p>
         </div>
 
+        <!-- Notas -->
+        {% if invoice.notes %}
+        <div class="notes-section" style="margin-top: 12px; font-size: 0.70rem;">
+            <p><strong>Notes:</strong></p>
+            <p>{{ invoice.notes|linebreaksbr }}</p>
+        </div>
+        {% endif %}
+
         <!-- Resumen de totales (dos columnas) -->
         <div class="summary-section">
           <div class="summary-totals" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.70rem;">
