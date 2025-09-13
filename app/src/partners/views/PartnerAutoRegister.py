@@ -50,13 +50,17 @@ class PartnerAutoRegister(TemplateView):
             }
 
             # Procesamos los años en el negocio
-            if request.POST.get('businnes_start'):
+            businnes_start_str = request.POST.get('businnes_start')
+            if businnes_start_str and businnes_start_str.strip():
                 try:
-                    years = int(request.POST.get('businnes_start'))
+                    years = int(businnes_start_str)
                     partner_data['years_in_market'] = years
                 except ValueError:
-                    # Si hay error de conversión, lo dejamos como None
-                    pass
+                    # Si hay error de conversión, lo dejamos como None,
+                    # el modelo se encargará del valor por defecto.
+                    partner_data['years_in_market'] = None
+            else:
+                partner_data['years_in_market'] = None
 
             # Filtramos los valores None para permitir los valores por defecto de la base de datos
             filtered_data = {k: v for k, v in partner_data.items() if v is not None}
