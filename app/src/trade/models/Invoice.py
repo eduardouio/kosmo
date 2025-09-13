@@ -215,6 +215,31 @@ class Invoice(BaseModel):
             self.hawb = self.hawb.upper()
         if self.cargo_agency:
             self.cargo_agency = self.cargo_agency.upper()
+
+        # Generar consecutivo automáticamente si no existe
+        generating_number = False
+        if not self.pk:
+            # Asignar serie por defecto si no viene
+            if not self.serie:
+                self.serie = SERIES[0][0]  # '300' por defecto
+            if self.consecutive is None:
+                generating_number = True
+
+        if generating_number:
+            from django.db import transaction
+            with transaction.atomic():
+                # Bloquear filas de la misma serie para evitar colisiones
+                last = (
+                    Invoice.objects.select_for_update()
+                    .filter(serie=self.serie)
+                    .order_by('-consecutive')
+                    .first()
+                )
+                self.consecutive = (
+                    1 if not last or not last.consecutive
+                    else last.consecutive + 1
+                )
+
         super().save(*args, **kwargs)
 
     @property
@@ -396,7 +421,9 @@ class Invoice(BaseModel):
         invoice.save()
 
     def __str__(self):
-        return f"Factura {self.id} - Pedido {self.order.id}"
+        serie = self.serie or '000'
+        consecutive = str(self.consecutive or 0).zfill(6)
+        return f"{serie}-{consecutive}"
 
 
 class InvoiceItems(BaseModel):

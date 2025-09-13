@@ -7,7 +7,10 @@ from partners.models import Partner
 class CreditNoteForm(forms.ModelForm):
     # Campo adicional para seleccionar cliente
     partner = forms.ModelChoiceField(
-        queryset=Partner.objects.filter(is_active=True),
+        queryset=Partner.objects.filter(
+            is_active=True,
+            type_partner='CLIENTE'
+        ),
         empty_label="Seleccione un cliente...",
         widget=forms.Select(attrs={
             'class': 'form-control form-select',
