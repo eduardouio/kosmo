@@ -27,6 +27,7 @@ from api import (
     PaymentContextData,
     CollectionsContextAPI,
     CustomerInvoiceDetailAPI,
+    InvoicesByPartnerAPI,
 )
 from api.trade import (
     PaymentCreateUpdateAPI,
@@ -91,4 +92,7 @@ urlpatterns = [
 
     # Seller APIs
     path('api/sellers/data/', SellerDataAPI.as_view(), name='seller_data'),
+    
+    # Credit Note APIs
+    path('api/invoices/by-partner/', InvoicesByPartnerAPI.as_view(), name='invoices_by_partner'),
 ]
