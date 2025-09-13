@@ -7,6 +7,7 @@ from .views.SellerCreateOrderView import (
     SellerEditOrderView
 )
 from .views.SellerInvoiceView import SellerInvoiceView
+from .views.api_views import get_customers_api, create_order_api
 
 app_name = 'sellers'
 
@@ -22,5 +23,9 @@ urlpatterns = [
 
     # Facturas
     path('invoices/', SellerInvoiceView.as_view(), name='invoices'),
+    
+    # APIs
+    path('api/customers/', get_customers_api, name='api_customers'),
+    path('api/orders/create/', create_order_api, name='api_create_order'),
 ]
 

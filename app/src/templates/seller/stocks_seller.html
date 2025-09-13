@@ -1,6 +1,7 @@
 {% extends 'seller/base_seller.html' %}
+
 {% block content %}
-<section class="space-y-3">
+<section class="space-y-3" id="stockApp">
 	<header class="flex justify-between items-center">
 		<div>
 			<h1 class="text-base font-semibold">Disponibilidades</h1>
@@ -14,49 +15,48 @@
 	<!-- Filtros de búsqueda -->
 	<div class="card bg-base-100 shadow-sm border border-base-200">
 		<div class="card-body p-3">
-			<form method="get" class="flex gap-2 items-center">
+			<div class="flex gap-2 items-center">
 				<input 
 					type="text" 
-					name="search" 
-					value="{{ current_search }}"
+					id="searchInput"
 					placeholder="Buscar por proveedor, variedad, tipo de caja..." 
 					class="input input-sm input-bordered flex-1"
 				>
-				<button type="submit" class="btn btn-sm btn-primary">
-					<i class="la la-search"></i> Buscar
-				</button>
-				{% if current_search %}
-				<a href="{% url 'sellers:stocks' %}" class="btn btn-sm btn-ghost">Limpiar</a>
-				{% endif %}
-			</form>
+				<button id="clearSearch" class="btn btn-sm btn-ghost">Limpiar</button>
+			</div>
 		</div>
 	</div>
 
 	<!-- Resumen rápido -->
-	<div class="grid grid-cols-2 gap-2 md:grid-cols-4">
+	<div class="grid grid-cols-2 gap-2 md:grid-cols-4" id="summaryCards">
 		<div class="card bg-base-100 shadow-sm border border-base-200">
 			<div class="card-body p-3">
 				<h6 class="text-[10px] font-semibold uppercase opacity-60">Total Cajas</h6>
-				<p class="text-lg font-bold">{{ total_boxes|default:0 }}</p>
+				<p class="text-lg font-bold" id="totalBoxes">{{ total_boxes|default:0 }}</p>
 				<span class="text-[10px] opacity-60">Disponibles</span>
 			</div>
 		</div>
 		<div class="card bg-base-100 shadow-sm border border-base-200">
 			<div class="card-body p-3">
 				<h6 class="text-[10px] font-semibold uppercase opacity-60">Total Tallos</h6>
-				<p class="text-lg font-bold">{{ total_stems|default:0 }}</p>
+				<p class="text-lg font-bold" id="totalStems">{{ total_stems|default:0 }}</p>
 				<span class="text-[10px] opacity-60">En stock</span>
 			</div>
 		</div>
-		{% for box_type, data in box_summary.items %}
 		<div class="card bg-base-100 shadow-sm border border-base-200">
 			<div class="card-body p-3">
-				<h6 class="text-[10px] font-semibold uppercase opacity-60">{{ box_type }}</h6>
-				<p class="text-lg font-bold">{{ data.quantity }}</p>
-				<span class="text-[10px] opacity-60">{{ data.stems }} tallos</span>
+				<h6 class="text-[10px] font-semibold uppercase opacity-60">Items</h6>
+				<p class="text-lg font-bold" id="filteredCount">0</p>
+				<span class="text-[10px] opacity-60">Mostrados</span>
 			</div>
 		</div>
-		{% endfor %}
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h6 class="text-[10px] font-semibold uppercase opacity-60">Página</h6>
+				<p class="text-lg font-bold" id="currentPageDisplay">1</p>
+				<span class="text-[10px] opacity-60" id="totalPagesDisplay">de 1</span>
+			</div>
+		</div>
 	</div>
 
 	<!-- Lista de stock -->
@@ -64,196 +64,441 @@
 		<div class="card-body p-3">
 			<div class="flex justify-between items-center mb-3">
 				<h2 class="text-sm font-semibold">Stock Detallado por Proveedor</h2>
-				<a href="{% url 'sellers:create_order' %}" class="btn btn-sm btn-primary">
+				<button onclick="openOrderModal()" class="btn btn-sm btn-primary">
 					<i class="la la-plus"></i> Nueva Orden
-				</a>
+				</button>
 			</div>
 			
-			<div class="space-y-2">
-				<!-- Vista de escritorio -->
-				<div class="hidden lg:block">
-					<table class="table table-xs w-full">
-						<thead>
-							<tr class="text-[10px] opacity-60">
-								<th>Proveedor</th>
-								<th>Tipo</th>
-								<th>Variedades</th>
-								<th class="text-right">Cajas</th>
-								<th class="text-right">Tallos</th>
-								<th class="text-right">Costo/T</th>
-								<th class="text-right">Costo/C</th>
-								<th class="text-right">Margen</th>
-								<th class="text-center">Acciones</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for item in stock_items %}
-							<tr class="text-[11px]">
-								<td>
-									<div class="font-medium">{{ item.partner.short_name|default:item.partner.name }}</div>
-								</td>
-								<td>
-									<span class="badge badge-ghost badge-sm">{{ item.box_model }}</span>
-								</td>
-								<td>
-									<div class="max-w-40">
-										{% for box_item in item.boxitems_set.all %}
-										<div class="text-[10px] mb-1">
-											<span class="font-medium">{{ box_item.product.name }}</span>
-											<br>
-											<span class="opacity-60">{{ box_item.length }}cm - {{ box_item.qty_stem_flower }}t</span>
-										</div>
-										{% empty %}
-										<span class="text-[10px] opacity-50">Sin detalles</span>
-										{% endfor %}
-									</div>
-								</td>
-								<td class="text-right font-medium">{{ item.quantity }}</td>
-								<td class="text-right">{{ item.tot_stem_flower }}</td>
-								<td class="text-right">
-									{% for box_item in item.boxitems_set.all %}
-									<div class="text-[10px]">${{ box_item.stem_cost_price|floatformat:3 }}</div>
-									{% empty %}
-									<span class="text-[10px] opacity-50">N/A</span>
-									{% endfor %}
-								</td>
-								<td class="text-right">${{ item.tot_cost_price_box|floatformat:2 }}</td>
-								<td class="text-right">{{ item.profit_margin|floatformat:1 }}%</td>
-								<td class="text-center">
-									<div class="dropdown dropdown-end">
-										<div tabindex="0" role="button" class="btn btn-xs btn-primary">
-											<i class="la la-cart-plus"></i>
-										</div>
-										<ul tabindex="0" class="dropdown-content z-10 menu p-1 shadow bg-base-100 rounded-box w-40 text-[10px]">
-											<li>
-												<a href="{% url 'sellers:create_order' %}?stock_detail={{ item.id }}" class="gap-2">
-													<i class="la la-plus"></i>
-													Orden completa
-												</a>
-											</li>
-											{% for box_item in item.boxitems_set.all %}
-											<li>
-												<a href="{% url 'sellers:create_order' %}?box_item={{ box_item.id }}" class="gap-2">
-													<i class="la la-leaf"></i>
-													{{ box_item.product.name|truncatechars:15 }}
-												</a>
-											</li>
-											{% endfor %}
-										</ul>
-									</div>
-								</td>
-							</tr>
-							{% empty %}
-							<tr>
-								<td colspan="9" class="text-center text-xs opacity-50 py-4">
-									{% if current_search %}
-									No se encontraron resultados para "{{ current_search }}"
-									{% else %}
-									No hay stock disponible
-									{% endif %}
-								</td>
-							</tr>
-							{% endfor %}
-						</tbody>
-					</table>
-				</div>
-				
-				<!-- Vista móvil/tablet -->
-				<div class="lg:hidden space-y-2">
-					{% for item in stock_items %}
-					<div class="card bg-base-200 border border-base-300">
-						<div class="card-body p-3">
-							<div class="flex justify-between items-start mb-2">
-								<div>
-									<h3 class="font-medium text-sm">{{ item.partner.short_name|default:item.partner.name }}</h3>
-									<div class="flex gap-2 items-center mt-1">
-										<span class="badge badge-ghost badge-sm">{{ item.box_model }}</span>
-										<span class="text-xs opacity-60">{{ item.quantity }} cajas</span>
-									</div>
-								</div>
-								<div class="dropdown dropdown-end">
-									<div tabindex="0" role="button" class="btn btn-xs btn-primary">
-										<i class="la la-cart-plus"></i>
-									</div>
-									<ul tabindex="0" class="dropdown-content z-10 menu p-1 shadow bg-base-100 rounded-box w-40 text-[10px]">
-										<li>
-											<a href="{% url 'sellers:create_order' %}?stock_detail={{ item.id }}" class="gap-2">
-												<i class="la la-plus"></i>
-												Orden completa
-											</a>
-										</li>
-										{% for box_item in item.boxitems_set.all %}
-										<li>
-											<a href="{% url 'sellers:create_order' %}?box_item={{ box_item.id }}" class="gap-2">
-												<i class="la la-leaf"></i>
-												{{ box_item.product.name|truncatechars:15 }}
-											</a>
-										</li>
-										{% endfor %}
-									</ul>
-								</div>
-							</div>
-							
-							<!-- Variedades -->
-							<div class="mb-2">
-								<span class="text-xs font-medium opacity-70">Variedades:</span>
-								<div class="grid grid-cols-1 sm:grid-cols-2 gap-1 mt-1">
-									{% for box_item in item.boxitems_set.all %}
-									<div class="bg-base-100 rounded p-2 text-xs">
-										<div class="font-medium">{{ box_item.product.name }}</div>
-										<div class="opacity-60">{{ box_item.length }}cm - {{ box_item.qty_stem_flower }} tallos</div>
-										<div class="opacity-60">${{ box_item.stem_cost_price|floatformat:3 }}/tallo</div>
-									</div>
-									{% empty %}
-									<span class="text-xs opacity-50">Sin detalles</span>
-									{% endfor %}
-								</div>
-							</div>
-							
-							<!-- Stats -->
-							<div class="grid grid-cols-3 gap-2 text-center text-xs">
-								<div>
-									<div class="font-medium">{{ item.tot_stem_flower }}</div>
-									<div class="opacity-60">Tallos</div>
-								</div>
-								<div>
-									<div class="font-medium">${{ item.tot_cost_price_box|floatformat:2 }}</div>
-									<div class="opacity-60">Costo/Caja</div>
-								</div>
-								<div>
-									<div class="font-medium">{{ item.profit_margin|floatformat:1 }}%</div>
-									<div class="opacity-60">Margen</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					{% empty %}
-					<div class="text-center text-sm opacity-50 py-8">
-						{% if current_search %}
-						No se encontraron resultados para "{{ current_search }}"
-						{% else %}
-						No hay stock disponible
-						{% endif %}
-					</div>
-					{% endfor %}
-				</div>
+			<!-- Tabla sin scroll horizontal -->
+			<div class="space-y-2" id="stockTable">
+				<!-- Los datos se cargarán via JavaScript -->
 			</div>
 			
 			<!-- Paginación -->
-			{% if is_paginated %}
 			<div class="flex justify-center mt-3">
-				<div class="join">
-					{% if page_obj.has_previous %}
-					<a href="?page={{ page_obj.previous_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}" class="join-item btn btn-xs">❮</a>
-					{% endif %}
-					<button class="join-item btn btn-xs btn-active">{{ page_obj.number }}</button>
-					{% if page_obj.has_next %}
-					<a href="?page={{ page_obj.next_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}" class="join-item btn btn-xs">❯</a>
-					{% endif %}
+				<div class="join" id="pagination">
+					<!-- Paginación se generará via JavaScript -->
 				</div>
 			</div>
-			{% endif %}
 		</div>
 	</div>
 </section>
+
+<!-- Modal para nueva orden -->
+<div id="orderModal" class="modal">
+	<div class="modal-box w-11/12 max-w-2xl">
+		<div class="flex justify-between items-center mb-4">
+			<h3 class="font-bold text-lg">Crear Nueva Orden</h3>
+			<button class="btn btn-sm btn-circle btn-ghost" onclick="closeOrderModal()">✕</button>
+		</div>
+		
+		<form id="orderForm" class="space-y-4">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Cliente</span>
+					</label>
+					<select name="customer" class="select select-bordered" required>
+						<option value="">Seleccionar cliente</option>
+						<!-- Se llenarán desde el backend -->
+					</select>
+				</div>
+				
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">PO Cliente</span>
+					</label>
+					<input type="text" name="po_customer" class="input input-bordered" placeholder="Número de orden del cliente">
+				</div>
+				
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Fecha de Entrega</span>
+					</label>
+					<input type="date" name="delivery_date" class="input input-bordered">
+				</div>
+				
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Descuento (%)</span>
+					</label>
+					<input type="number" name="discount_percent" step="0.01" min="0" max="100" value="0" class="input input-bordered">
+				</div>
+			</div>
+			
+			<div id="preselectedStock" class="hidden">
+				<div class="alert alert-info">
+					<i class="la la-info-circle"></i>
+					<span id="preselectedInfo"></span>
+				</div>
+			</div>
+			
+			<div class="modal-action">
+				<button type="button" onclick="closeOrderModal()" class="btn btn-ghost">Cancelar</button>
+				<button type="submit" class="btn btn-primary">Crear Orden</button>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+// Datos del stock desde Django
+const stockData = {{ stock_data_json|safe }};
+let filteredData = [...stockData];
+let currentPage = 1;
+const itemsPerPage = 10;
+let customers = [];
+let preselectedData = null;
+
+// Inicializar la aplicación
+document.addEventListener('DOMContentLoaded', function() {
+	setupEventListeners();
+	renderTable();
+	updateSummary();
+	loadCustomers();
+});
+
+function setupEventListeners() {
+	const searchInput = document.getElementById('searchInput');
+	const clearButton = document.getElementById('clearSearch');
+	const orderForm = document.getElementById('orderForm');
+	
+	searchInput.addEventListener('input', debounce(filterData, 300));
+	clearButton.addEventListener('click', clearSearch);
+	orderForm.addEventListener('submit', handleOrderSubmit);
+}
+
+function debounce(func, wait) {
+	let timeout;
+	return function executedFunction(...args) {
+		const later = () => {
+			clearTimeout(timeout);
+			func(...args);
+		};
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
+}
+
+async function loadCustomers() {
+	try {
+		const response = await fetch('/sellers/api/customers/');
+		const data = await response.json();
+		
+		if (data.success) {
+			customers = data.customers;
+			populateCustomerSelect();
+		}
+	} catch (error) {
+		console.error('Error loading customers:', error);
+	}
+}
+
+function populateCustomerSelect() {
+	const select = document.querySelector('#orderForm select');
+	const defaultOption = select.querySelector('option[value=""]');
+	
+	// Limpiar opciones excepto la primera
+	select.innerHTML = '';
+	select.appendChild(defaultOption);
+	
+	// Agregar clientes
+	customers.forEach(customer => {
+		const option = document.createElement('option');
+		option.value = customer.id;
+		option.textContent = customer.short_name || customer.name;
+		select.appendChild(option);
+	});
+}
+
+function filterData() {
+	const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+	
+	if (!searchTerm.trim()) {
+		filteredData = [...stockData];
+	} else {
+		filteredData = stockData.filter(item => {
+			const matchesProvider = item.partner_name.toLowerCase().includes(searchTerm) ||
+									item.partner_short_name.toLowerCase().includes(searchTerm);
+			const matchesBox = item.box_model.toLowerCase().includes(searchTerm);
+			const matchesVariety = item.varieties.some(variety => 
+				variety.product_name.toLowerCase().includes(searchTerm)
+			);
+			
+			return matchesProvider || matchesBox || matchesVariety;
+		});
+	}
+	
+	currentPage = 1;
+	renderTable();
+	updateSummary();
+}
+
+function clearSearch() {
+	document.getElementById('searchInput').value = '';
+	filteredData = [...stockData];
+	currentPage = 1;
+	renderTable();
+	updateSummary();
+}
+
+function renderTable() {
+	const tableContainer = document.getElementById('stockTable');
+	const startIndex = (currentPage - 1) * itemsPerPage;
+	const endIndex = startIndex + itemsPerPage;
+	const pageData = filteredData.slice(startIndex, endIndex);
+	
+	if (pageData.length === 0) {
+		tableContainer.innerHTML = `
+			<div class="text-center py-8 text-gray-500">
+				<i class="la la-search text-2xl mb-2"></i>
+				<p>No se encontraron resultados</p>
+			</div>
+		`;
+		renderPagination();
+		return;
+	}
+	
+	let html = '';
+	pageData.forEach(item => {
+		const varietiesHtml = item.varieties.map(variety => `
+			<div class="bg-base-200 rounded p-2 mb-1 text-xs">
+				<div class="font-medium">${variety.product_name}</div>
+				<div class="opacity-70">${variety.length}cm - ${variety.qty_stem_flower} tallos</div>
+				<div class="opacity-70">$${variety.stem_cost_price.toFixed(3)}/tallo</div>
+				${variety.total_bunches > 0 ? `<div class="opacity-70">${variety.total_bunches} ramos (${variety.stems_bunch} tallos/ramo)</div>` : ''}
+			</div>
+		`).join('');
+		
+		html += `
+			<div class="border border-base-300 rounded-lg p-3 space-y-3">
+				<div class="flex justify-between items-start">
+					<div class="flex-1">
+						<div class="flex items-center gap-3 mb-2">
+							<div>
+								<div class="font-medium">${item.partner_short_name}</div>
+								<div class="text-xs opacity-60">${item.partner_name}</div>
+							</div>
+							<span class="badge badge-ghost badge-sm">${item.box_model}</span>
+						</div>
+						
+						<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3">
+							<div><span class="opacity-60">Cajas:</span> <span class="font-medium">${item.quantity}</span></div>
+							<div><span class="opacity-60">Tallos:</span> <span class="font-medium">${item.tot_stem_flower}</span></div>
+							<div><span class="opacity-60">Costo/Caja:</span> <span class="font-medium">$${item.tot_cost_price_box.toFixed(2)}</span></div>
+							<div><span class="opacity-60">Margen:</span> <span class="font-medium">${item.profit_margin.toFixed(1)}%</span></div>
+						</div>
+						
+						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+							${varietiesHtml}
+						</div>
+					</div>
+					
+					<div class="ml-3">
+						<div class="dropdown dropdown-end">
+							<div tabindex="0" role="button" class="btn btn-xs btn-primary">
+								<i class="la la-cart-plus"></i>
+							</div>
+							<ul tabindex="0" class="dropdown-content z-10 menu p-1 shadow bg-base-100 rounded-box w-40 text-[10px]">
+								<li><a onclick="addToOrder(${item.id}, 'stock')" class="gap-2">
+									<i class="la la-plus"></i> Orden completa
+								</a></li>
+								${item.varieties.map(variety => `
+									<li><a onclick="addToOrder(${variety.id}, 'variety')" class="gap-2">
+										<i class="la la-leaf"></i> ${variety.product_name.substring(0, 15)}
+									</a></li>
+								`).join('')}
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		`;
+	});
+	
+	tableContainer.innerHTML = html;
+	renderPagination();
+}
+
+function renderPagination() {
+	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+	const pagination = document.getElementById('pagination');
+	
+	if (totalPages <= 1) {
+		pagination.innerHTML = '';
+		return;
+	}
+	
+	let html = '';
+	
+	// Botón anterior
+	if (currentPage > 1) {
+		html += `<button class="join-item btn btn-xs" onclick="changePage(${currentPage - 1})">❮</button>`;
+	}
+	
+	// Números de página
+	const startPage = Math.max(1, currentPage - 2);
+	const endPage = Math.min(totalPages, currentPage + 2);
+	
+	for (let i = startPage; i <= endPage; i++) {
+		const activeClass = i === currentPage ? 'btn-active' : '';
+		html += `<button class="join-item btn btn-xs ${activeClass}" onclick="changePage(${i})">${i}</button>`;
+	}
+	
+	// Botón siguiente
+	if (currentPage < totalPages) {
+		html += `<button class="join-item btn btn-xs" onclick="changePage(${currentPage + 1})">❯</button>`;
+	}
+	
+	pagination.innerHTML = html;
+	
+	// Actualizar display de página
+	document.getElementById('currentPageDisplay').textContent = currentPage;
+	document.getElementById('totalPagesDisplay').textContent = `de ${totalPages}`;
+}
+
+function changePage(page) {
+	currentPage = page;
+	renderTable();
+}
+
+function updateSummary() {
+	const totalBoxes = filteredData.reduce((sum, item) => sum + item.quantity, 0);
+	const totalStems = filteredData.reduce((sum, item) => sum + item.tot_stem_flower, 0);
+	
+	document.getElementById('totalBoxes').textContent = totalBoxes;
+	document.getElementById('totalStems').textContent = totalStems;
+	document.getElementById('filteredCount').textContent = filteredData.length;
+}
+
+function addToOrder(id, type) {
+	// Preparar datos preseleccionados
+	const preselectedDiv = document.getElementById('preselectedStock');
+	const preselectedInfo = document.getElementById('preselectedInfo');
+	
+	if (type === 'stock') {
+		const item = stockData.find(s => s.id === id);
+		preselectedInfo.textContent = `Stock completo: ${item.partner_name} - ${item.box_model} (${item.quantity} cajas)`;
+		preselectedData = { type: 'stock', id: id, item: item };
+	} else {
+		// Encontrar la variedad
+		let variety = null;
+		let parentStock = null;
+		for (const stock of stockData) {
+			variety = stock.varieties.find(v => v.id === id);
+			if (variety) {
+				parentStock = stock;
+				break;
+			}
+		}
+		preselectedInfo.textContent = `Variedad: ${variety.product_name} - ${variety.length}cm`;
+		preselectedData = { type: 'variety', id: id, variety: variety, stock: parentStock };
+	}
+	
+	preselectedDiv.classList.remove('hidden');
+	openOrderModal();
+}
+
+async function handleOrderSubmit(e) {
+	e.preventDefault();
+	
+	const formData = new FormData(e.target);
+	const submitButton = e.target.querySelector('button[type="submit"]');
+	
+	// Deshabilitar botón
+	submitButton.disabled = true;
+	submitButton.innerHTML = '<span class="loading loading-spinner loading-sm"></span> Creando...';
+	
+	try {
+		const orderData = {
+			customer_id: formData.get('customer') || e.target.querySelector('select').value,
+			po_customer: formData.get('po_customer') || e.target.querySelector('input[placeholder*="orden"]').value,
+			delivery_date: formData.get('delivery_date') || e.target.querySelector('input[type="date"]').value,
+			discount_percent: formData.get('discount_percent') || e.target.querySelector('input[type="number"]').value,
+			preselected: preselectedData
+		};
+		
+		const response = await fetch('/sellers/api/orders/create/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': getCookie('csrftoken')
+			},
+			body: JSON.stringify(orderData)
+		});
+		
+		const result = await response.json();
+		
+		if (result.success) {
+			// Mostrar mensaje de éxito
+			showAlert('success', result.message);
+			closeOrderModal();
+			// Opcional: redirigir a la orden creada
+			setTimeout(() => {
+				window.location.href = `/sellers/orders/${result.order_id}/edit/`;
+			}, 1500);
+		} else {
+			showAlert('error', result.error || 'Error al crear la orden');
+		}
+		
+	} catch (error) {
+		console.error('Error:', error);
+		showAlert('error', 'Error de conexión');
+	} finally {
+		// Rehabilitar botón
+		submitButton.disabled = false;
+		submitButton.innerHTML = 'Crear Orden';
+	}
+}
+
+function getCookie(name) {
+	let cookieValue = null;
+	if (document.cookie && document.cookie !== '') {
+		const cookies = document.cookie.split(';');
+		for (let i = 0; i < cookies.length; i++) {
+			const cookie = cookies[i].trim();
+			if (cookie.substring(0, name.length + 1) === (name + '=')) {
+				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+				break;
+			}
+		}
+	}
+	return cookieValue;
+}
+
+function showAlert(type, message) {
+	const alertDiv = document.createElement('div');
+	alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'error'} fixed top-4 right-4 w-80 z-50`;
+	alertDiv.innerHTML = `
+		<i class="la la-${type === 'success' ? 'check' : 'exclamation'}-circle"></i>
+		<span>${message}</span>
+	`;
+	
+	document.body.appendChild(alertDiv);
+	
+	setTimeout(() => {
+		alertDiv.remove();
+	}, 3000);
+}
+
+function openOrderModal() {
+	document.getElementById('orderModal').classList.add('modal-open');
+}
+
+function closeOrderModal() {
+	document.getElementById('orderModal').classList.remove('modal-open');
+	document.getElementById('preselectedStock').classList.add('hidden');
+	document.getElementById('orderForm').reset();
+	preselectedData = null;
+}
+
+// Cerrar modal al hacer clic fuera
+document.getElementById('orderModal').addEventListener('click', function(e) {
+	if (e.target === this) {
+		closeOrderModal();
+	}
+});
+</script>
 {% endblock %}

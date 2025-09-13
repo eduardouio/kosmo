@@ -470,3 +470,14 @@ Stocks: http://localhost:8000/sellers/stocks/
 Nueva Orden: http://localhost:8000/sellers/orders/create/
 
 Facturas: http://localhost:8000/sellers/invoices/
+
+se debe eligirt de la misma finca
+
+no puede hacer pedidos a varias fincas
+
+usar formato de tabla
+
+ventana de comisiones reporte 
+nuevio tipo de pago
+
+ekl pago de comisiones
