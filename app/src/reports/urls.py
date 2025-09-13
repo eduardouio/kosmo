@@ -21,6 +21,8 @@ from .views import (
     PartnerSearchView,
     PDFCollection,
     TemplateCollection,
+    TemplateCreditNote,
+    PDFCreditNote,
 )
 
 urlpatterns = [
@@ -45,4 +47,6 @@ urlpatterns = [
     path('reports/partner-search/', PartnerSearchView.as_view(), name='partner_search'),
     path('reports/collection-template/<int:id_collection>/', TemplateCollection.as_view(), name='collection_template'),
     path('reports/collection/<int:id_collection>/', PDFCollection.as_view(), name='collection_pdf'),
+    path('reports/creditnote-template/<int:id_credit_note>/', TemplateCreditNote.as_view(), name='creditnote_template'),
+    path('reports/creditnote/<int:id_credit_note>/', PDFCreditNote.as_view(), name='creditnote_pdf'),
 ]
