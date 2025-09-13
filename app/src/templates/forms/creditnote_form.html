@@ -11,6 +11,8 @@
 {% block script %}
 <script>
   document.addEventListener('DOMContentLoaded', function(){
+    console.log('JavaScript cargado para creditnote_form');
+    
     // Aplicar alineación a la derecha a campos numéricos existentes
     document.querySelectorAll('input[name*="quantity"], input[name*="unit_price"], input[name*="total_price"]').forEach(input => {
       input.classList.add('text-end');
@@ -147,7 +149,7 @@
         
         if (partnerId) {
           // Cargar facturas del cliente
-          fetch(`/api/invoices/by-partner/?partner_id=${partnerId}`)
+          fetch(`/api/creditnote/invoices/?partner_id=${partnerId}`)
             .then(response => response.json())
             .then(data => {
               if (data.success) {
@@ -155,14 +157,17 @@
                   data.invoices.forEach(invoice => {
                     const option = document.createElement('option');
                     option.value = invoice.id;
-                    option.textContent = invoice.display_number;
+                    option.textContent = `${invoice.display_number} - Total: $${invoice.total_price.toFixed(2)} (Saldo: $${invoice.pending_balance.toFixed(2)})`;
                     option.dataset.pendingBalance = invoice.pending_balance;
+                    option.dataset.totalPrice = invoice.total_price;
                     invoiceSelect.appendChild(option);
+                    console.log('Agregada factura:', invoice.id, invoice.display_number);
                   });
                   invoiceSelect.disabled = false;
-                  invoiceHelp.textContent = 'Seleccione una factura pendiente';
+                  invoiceSelect.removeAttribute('disabled');
+                  invoiceHelp.textContent = 'Seleccione una factura';
                 } else {
-                  invoiceHelp.textContent = 'No hay facturas pendientes para este cliente';
+                  invoiceHelp.textContent = 'No hay facturas para este cliente';
                 }
               } else {
                 invoiceHelp.textContent = 'Error al cargar facturas: ' + data.error;
@@ -181,6 +186,7 @@
     // Manejar cambio de factura
     if (invoiceSelect) {
       invoiceSelect.addEventListener('change', function() {
+        console.log('Factura seleccionada:', this.value, this.options[this.selectedIndex]?.text);
         const selectedOption = this.options[this.selectedIndex];
         
         if (selectedOption.value) {
@@ -237,9 +243,29 @@
     const form = document.querySelector('form');
     if (form) {
       form.addEventListener('submit', function(e) {
+        console.log('Formulario enviado');
+        
+        // Verificar valores de los campos principales
+        const partnerValue = partnerSelect ? partnerSelect.value : 'no encontrado';
+        const invoiceValue = invoiceSelect ? invoiceSelect.value : 'no encontrado';
+        const amountValue = amountInput ? amountInput.value : 'no encontrado';
+        
+        console.log('Partner seleccionado:', partnerValue);
+        console.log('Factura seleccionada:', invoiceValue);
+        console.log('Monto:', amountValue);
+        
+        // Habilitar el campo de factura antes de enviar para asegurar que se incluya
+        if (invoiceSelect) {
+          invoiceSelect.disabled = false;
+          invoiceSelect.removeAttribute('disabled');
+        }
+        
         const maxAmount = parseFloat(amountInput.max) || 0;
         const currentAmount = parseFloat(amountInput.value) || 0;
         
+        console.log('Max amount:', maxAmount, 'Current amount:', currentAmount);
+        
+        // Solo validar si hay un máximo establecido y es mayor que 0
         if (maxAmount > 0 && currentAmount > maxAmount) {
           e.preventDefault();
           alert(`No se puede crear la nota de crédito. El monto ($${currentAmount.toFixed(2)}) excede el saldo pendiente de $${maxAmount.toFixed(2)}`);
@@ -253,6 +279,10 @@
           amountInput.focus();
           return false;
         }
+        
+        // Si llegamos aquí, el formulario debería enviarse
+        console.log('Formulario válido, enviando...');
+        return true;
       });
     }
   });
@@ -282,6 +312,29 @@
             Información de la Nota de Crédito
         </div>
         <div class="card-body">
+          <!-- Mostrar mensajes de Django -->
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+          
+          <!-- Mostrar errores generales del formulario -->
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
+          
+          {% if formset.non_form_errors %}
+            <div class="alert alert-danger">
+              {{ formset.non_form_errors }}
+            </div>
+          {% endif %}
+          
           <form method="post" novalidate>
             {% csrf_token %}
             <div class="row mb-3">
@@ -341,7 +394,6 @@
                     {% endif %}
                 </div>
             </div>
-          </form>
         </div>
     </div>
     
@@ -353,7 +405,7 @@
         <div class="card-body">
             {{ formset.management_form }}
             <div class="d-flex justify-content-end mb-2">
-                <button id="add-detail-row" class="btn btn-sm btn-outline-primary">
+                <button id="add-detail-row" type="button" class="btn btn-sm btn-outline-primary">
                   <i class="la la-plus"></i>
                   Agregar
                 </button>
@@ -370,7 +422,12 @@
               <tbody id="details-body">
                 {% for f in formset.forms %}
                 <tr>
-                  <td class="description-col">{{ f.description }}</td>
+                  <td class="description-col">
+                    {{ f.description }}
+                    {% for hidden in f.hidden_fields %}
+                      {{ hidden }}
+                    {% endfor %}
+                  </td>
                   <td class="quantity-col text-end">{{ f.quantity }}</td>
                   <td class="price-col text-end">{{ f.unit_price }}</td>
                   <td class="total-col text-end">{{ f.total_price }}</td>
@@ -389,7 +446,7 @@
             
             <div class="row bg-gray bg-gradient p-2 rounded border mt-3">
                 <div class="col text-end">
-                  <button type="submit" class="btn btn-sm btn-primary">
+                  <button type="submit" class="btn btn-sm btn-primary" onclick="console.log('Botón guardar clickeado')">
                     <i class="la la-save"></i>
                     Guardar
                   </button>
@@ -401,5 +458,8 @@
             </div>
         </div>
     </div>
+    
+    <!-- Cerrar el formulario aquí -->
+    </form>
 </div>
 {% endblock %}

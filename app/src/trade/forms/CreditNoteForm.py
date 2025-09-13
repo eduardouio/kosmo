@@ -36,8 +36,7 @@ class CreditNoteForm(forms.ModelForm):
             'amount': forms.NumberInput(attrs={
                 'step': '0.01',
                 'class': 'form-control',
-                'id': 'id_amount',
-                'readonly': True
+                'id': 'id_amount'
             }),
             'reason': forms.Textarea(attrs={
                 'rows': 3,
@@ -64,6 +63,22 @@ class CreditNoteForm(forms.ModelForm):
         if amount is None or amount <= 0:
             raise forms.ValidationError('El monto debe ser mayor a 0')
         return amount
+
+    def clean_invoice(self):
+        invoice = self.cleaned_data.get('invoice')
+        partner = self.cleaned_data.get('partner')
+        
+        if not invoice and not partner:
+            raise forms.ValidationError('Debe seleccionar una factura.')
+        
+        if invoice and partner:
+            # Verificar que la factura pertenezca al cliente seleccionado
+            if invoice.partner != partner:
+                raise forms.ValidationError(
+                    'La factura seleccionada no pertenece al cliente elegido.'
+                )
+        
+        return invoice
 
 
 class CreditNoteDetailForm(forms.ModelForm):

@@ -25,6 +25,25 @@ class CreditNoteCreateView(View):
             initial['partner'] = partner_id
             
         form = CreditNoteForm(initial=initial)
+        
+        # Si hay factura inicial, configurar el formulario apropiadamente
+        if invoice_id:
+            invoice = get_object_or_404(Invoice, pk=invoice_id)
+            form.fields['invoice'].queryset = Invoice.objects.filter(
+                partner=invoice.partner,
+                is_active=True,
+                type_document='FAC_VENTA'
+            ).exclude(status='ANULADO')
+            form.fields['invoice'].widget.attrs.update({'disabled': False})
+        elif partner_id:
+            # Si solo hay partner, configurar queryset de facturas
+            form.fields['invoice'].queryset = Invoice.objects.filter(
+                partner_id=partner_id,
+                is_active=True,
+                type_document='FAC_VENTA'
+            ).exclude(status='ANULADO')
+            form.fields['invoice'].widget.attrs.update({'disabled': False})
+        
         formset = CreditNoteDetailFormSet()
         context = {
             'form': form,
@@ -34,8 +53,33 @@ class CreditNoteCreateView(View):
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
+        print("POST request recibido para CreditNote")
+        print("POST data:", request.POST)
+        
         form = CreditNoteForm(request.POST)
         formset = CreditNoteDetailFormSet(request.POST)
+        
+        # Configurar queryset del campo invoice basado en partner seleccionado
+        partner_id = request.POST.get('partner')
+        if partner_id:
+            try:
+                form.fields['invoice'].queryset = Invoice.objects.filter(
+                    partner_id=partner_id,
+                    is_active=True,
+                    type_document='FAC_VENTA'
+                ).exclude(status='ANULADO')
+                form.fields['invoice'].widget.attrs.pop('disabled', None)
+            except Exception as e:
+                print(f"Error configurando queryset de facturas: {e}")
+        
+        print("Form válido:", form.is_valid())
+        if not form.is_valid():
+            print("Errores del form:", form.errors)
+            
+        print("Formset válido:", formset.is_valid())
+        if not formset.is_valid():
+            print("Errores del formset:", formset.errors)
+        
         if form.is_valid() and formset.is_valid():
             with transaction.atomic():
                 credit_note: CreditNote = form.save(commit=False)
@@ -58,7 +102,9 @@ class CreditNoteCreateView(View):
                 formset.save()
 
                 invoice = credit_note.invoice
-                payment = Payment.objects.create(
+                
+                # Crear cobro asociado a la nota de crédito
+                payment = Payment(
                     date=credit_note.date,
                     amount=credit_note.amount,
                     method='NC',
@@ -66,18 +112,55 @@ class CreditNoteCreateView(View):
                     status='CONFIRMADO',
                     notes=f'Generado por NC {credit_note.num_credit_note}'
                 )
+                
+                # Generar número de pago si no se proporciona
+                if not payment.payment_number:
+                    payment.payment_number = (
+                        Payment.get_next_collection_number()
+                    )
+                
+                payment.save()
+                
+                # Crear detalle del cobro
                 PaymentDetail.objects.create(
                     payment=payment,
                     invoice=invoice,
                     amount=credit_note.amount
                 )
+                
+                # Actualizar ID del pago en la nota de crédito
                 credit_note.id_payment = payment.id
                 credit_note.save()
+                
+                # Actualizar estado de pago de la factura
+                invoice.update_payment_status()
             messages.success(request, 'Nota de crédito creada correctamente.')
             return redirect(reverse(
                 'creditnote_detail', args=[credit_note.pk]
             ))
-        messages.error(request, 'Por favor corrige los errores.')
+        else:
+            print("Formulario no válido")
+            if not form.is_valid():
+                print("Errores del form principal:", form.errors)
+            if not formset.is_valid():
+                print("Errores del formset:", formset.errors)
+            messages.error(
+                request, 'Por favor corrige los errores en el formulario.'
+            )
+            
+            # Si hay errores, configurar el queryset para mostrar el formulario
+            partner_id = request.POST.get('partner')
+            if partner_id:
+                try:
+                    form.fields['invoice'].queryset = Invoice.objects.filter(
+                        partner_id=partner_id,
+                        is_active=True,
+                        type_document='FAC_VENTA'
+                    ).exclude(status='ANULADO')
+                    form.fields['invoice'].widget.attrs.pop('disabled', None)
+                except Exception as e:
+                    print(f"Error configurando queryset en error: {e}")
+        
         return render(request, self.template_name, {
             'form': form,
             'formset': formset,
