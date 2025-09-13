@@ -4,25 +4,25 @@
     <div class="d-flex justify-content-between">
         {% if action %}
         <span class="bg-kosmo-green bg-gradient p-2 rounded">
-            <i class="fa-solid fa-circle-check me-1"></i>
+            <i class="las la-circle-check me-1"></i>
             {{ message }}
         </span>
         {% endif %}
         <div class="d-flex gap-2">
             <button id="exportExcel" class="btn btn-success btn-sm" title="Exportar a Excel">
-                <i class="fa-solid fa-file-excel me-1"></i>
+                <i class="las la-file-excel me-1"></i>
                 Excel
             </button>
             <button id="exportPDF" class="btn btn-danger btn-sm" title="Exportar a PDF">
-                <i class="fa-solid fa-file-pdf me-1"></i>
+                <i class="las la-file-pdf me-1"></i>
                 PDF
             </button>
             <button type="button" class="btn btn-default btn-sm" id="bulk-edit-btn" disabled>
-                <i class="fa-regular fa-pen-to-square me-1"></i>
+                <i class="lar la-pen-to-square me-1"></i>
                 Editar Seleccionados
             </button>
             <a href="{% url 'product_create' %}" class="btn btn-default btn-sm">
-                <i class="fa-solid fa-plus me-1"></i>
+                <i class="las la-plus me-1"></i>
                 Nuevo Producto
             </a>
         </div>
@@ -160,14 +160,14 @@
         <div class="modal-content">
         <div class="modal-header bg-secondary bg-gradient bg-opacity-75 text-white">
                 <h4 class="modal-title" id="bulk-edit-modal-label">
-            <i class="fa-regular fa-pen-to-square me-2"></i>
+            <i class="lar la-pen-to-square me-2"></i>
                     Editar Productos Seleccionados
                 </h4>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-info d-flex align-items-center mb-3">
-                    <i class="fa-solid fa-circle-info me-2"></i>
+                    <i class="las la-circle-info me-2"></i>
                     <div>
                         <strong>Productos seleccionados:</strong> <span id="selected-count">0</span>
                         <br><small>Los cambios se aplicarán a todos los productos seleccionados. La combinación nombre + variedad debe ser única.</small>
@@ -200,11 +200,11 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-bs-dismiss="modal">
-                    <i class="fa-solid fa-xmark me-1"></i>
+                    <i class="las la-xmark me-1"></i>
                     Cancelar
                 </button>
                 <button type="button" class="btn btn-default" id="save-bulk-edit">
-                    <i class="fa-regular fa-floppy-disk me-1"></i>
+                    <i class="lar la-floppy-disk me-1"></i>
                     Guardar Cambios
                 </button>
             </div>

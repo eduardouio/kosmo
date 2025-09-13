@@ -3,25 +3,25 @@
 <div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-1">
     <div class="d-flex justify-content-between">
         <div class="d-flex align-items-center gap-3">
-            <div class="text-primary"><i class="fa-solid fa-sack-dollar me-2"></i>Listado de Cobros</div>
+            <div class="text-primary"><i class="las la-sack-dollar me-2"></i>Listado de Cobros</div>
             <div class="d-flex gap-2">
                 <button id="exportExcel" class="btn btn-success btn-sm" title="Exportar a Excel">
-                    <i class="fa-solid fa-file-excel me-1"></i> Excel
+                    <i class="las la-file-excel me-1"></i> Excel
                 </button>
                 <button id="exportPDF" class="btn btn-danger btn-sm" title="Exportar a PDF">
-                    <i class="fa-solid fa-file-pdf me-1"></i> PDF
+                    <i class="las la-file-pdf me-1"></i> PDF
                 </button>
             </div>
         </div>
         <div class="d-flex align-items-center gap-3">
             {% if action %}
             <span class="bg-peisol-secondary bg-gradient p-2 rounded">
-                <i class="fa-solid fa-circle-check me-1 text-secondary"></i>
+                <i class="las la-circle-check me-1 text-secondary"></i>
                 {{ message }}
             </span>
             {% endif %}
             <a href="{% url 'collect_form' %}" class="btn btn-sm btn-default">
-                <i class="fa-solid fa-plus me-1"></i> Nuevo Cobro
+                <i class="las la-plus me-1"></i> Nuevo Cobro
             </a>
         </div>
         <div class="d-flex justify-content-end gap-4">
@@ -101,10 +101,10 @@
                 </td>
                 <td class="p-1 text-center">
                         <a class="btn btn-outline-primary btn-sm" href="/trade/collection/{{ item.id }}/" title="Ver detalles">
-                            <i class="fa-solid fa-eye me-1"></i> Ver
+                            <i class="las la-eye me-1"></i> Ver
                         </a>
                         <a href="{% url 'collection_pdf' item.id %}" class="btn btn-outline-danger btn-sm" title="Descargar PDF del comprobante">
-                            <i class="fa-solid fa-file-pdf me-1"></i> PDF
+                            <i class="las la-file-pdf me-1"></i> PDF
                         </a>
                 </td>
             </tr>

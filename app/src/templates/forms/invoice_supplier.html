@@ -7,12 +7,12 @@
 {% if error %}
 <div class="container">
     <div class="alert alert-danger" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>
+        <i class="las la-exclamation-triangle me-2"></i>
         {{ error }}
     </div>
     <div class="text-center mt-3">
         <a href="{% url 'supplier_invoices_list' %}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>
+            <i class="las la-arrow-left me-2"></i>
             Volver al Listado
         </a>
     </div>
@@ -26,7 +26,7 @@
                 <div class="card-header bg-orange-100">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
-                            <i class="fas fa-edit me-2"></i>
+                            <i class="las la-edit me-2"></i>
                             {{ title_page }}
                         </h5>
                         <a href="{% url 'supplier_invoice_detail' invoice.pk %}" class="btn btn-default btn-sm">
@@ -46,7 +46,7 @@
                 <div class="card mb-4">
                     <div class="card-header bg-gray-100">
                         <h6 class="mb-0">
-                            <i class="fas fa-file-invoice me-2"></i>
+                            <i class="las la-file-invoice me-2"></i>
                             Información Básica
                         </h6>
                     </div>
@@ -75,7 +75,7 @@
                 <div class="card mb-4">
                     <div class="card-header bg-blue-100">
                         <h6 class="mb-0">
-                            <i class="fas fa-info-circle me-2"></i>
+                            <i class="las la-info-circle me-2"></i>
                             Información de Solo Lectura
                         </h6>
                     </div>

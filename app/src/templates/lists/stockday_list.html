@@ -4,20 +4,20 @@
     <div class="d-flex justify-content-between">
         {% if action == 'delete' %}
                 <a class="btn btn-danger btn-sm" href="{% url 'stock_delete' dae.pk %}">
-                    <i class="fa-regular fa-trash-can me-1"></i>
+                    <i class="lar la-trash-can me-1"></i>
                Confirmar Eliminación {{ dae.dae }}
             </a>
          {% endif %}
         {% if action %}
         <span class="bg-peisol-secondary bg-gradient p-2 rounded">
-            <i class="fa-solid fa-circle-check me-1"></i>
+            <i class="las la-circle-check me-1"></i>
             {{ message }}
         </span>
         {% endif %}
         <div class="d-flex gap-2">
-            <button id="exportExcel" class="btn btn-success btn-sm" title="Exportar a Excel"><i class="fa-solid fa-file-excel me-1"></i>Excel</button>
-            <button id="exportPDF" class="btn btn-danger btn-sm" title="Exportar a PDF"><i class="fa-solid fa-file-pdf me-1"></i>PDF</button>
-            <a href="{% url 'stock_create' %}" class="btn btn-sm btn-default"><i class="fa-solid fa-plus me-1"></i>Nuevo Stock</a>
+            <button id="exportExcel" class="btn btn-success btn-sm" title="Exportar a Excel"><i class="las la-file-excel me-1"></i>Excel</button>
+            <button id="exportPDF" class="btn btn-danger btn-sm" title="Exportar a PDF"><i class="las la-file-pdf me-1"></i>PDF</button>
+            <a href="{% url 'stock_create' %}" class="btn btn-sm btn-default"><i class="las la-plus me-1"></i>Nuevo Stock</a>
         </div>
     </div>
 </div>
@@ -38,7 +38,7 @@
             <tr>
                 <td class="p-1 text-center">
                     <a href="{% url 'stock_detail_detail' item.id %}" class="text-primary text-decoration-none">
-                        <i class="fa-solid fa-crosshairs me-1"></i>{{ forloop.counter }}
+                        <i class="las la-crosshairs me-1"></i>{{ forloop.counter }}
                     </a>
                 </td>
                 <td class="p-1">
@@ -50,17 +50,17 @@
                 <td class="p-1">{{ item.updated_at }}</td>
                 <td class="p-1 text-end">
                     {% if item.is_active %}
-                        <span class="text-success"><i class="fa-regular fa-square-check me-1"></i>Activo</span>
+                        <span class="text-success"><i class="lar la-square-check me-1"></i>Activo</span>
                     {% else %}
-                        <span class="text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>Inactivo</span>
+                        <span class="text-danger"><i class="las la-triangle-exclamation me-1"></i>Inactivo</span>
                     {% endif %}
                 </td>
                 <td class="p-1 text-center">
                     <a href="{% url 'stock_detail_detail' item.id %}" class="text-primary me-2" title="Ver Detalle">
-                        <i class="fa-regular fa-eye"></i> Ver
+                        <i class="lar la-eye"></i> Ver
                     </a>
                     <a href="{% url 'stock_detail' item.id %}?action=delete" class="text-danger" title="Eliminar Stock">
-                        <i class="fa-regular fa-trash-can"></i> Eliminar
+                        <i class="lar la-trash-can"></i> Eliminar
                     </a>
                 </td>
             </tr>

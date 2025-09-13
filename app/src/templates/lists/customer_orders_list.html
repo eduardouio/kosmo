@@ -4,18 +4,18 @@
 {% csrf_token %}
 <div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-1 d-flex justify-content-between">
     <div class="d-flex align-items-center gap-3">
-    <div class="text-primary"><i class="fa-solid fa-clipboard-list me-2"></i>Ordenes de Venta a Clientes</div>
+    <div class="text-primary"><i class="las la-clipboard-list me-2"></i>Ordenes de Venta a Clientes</div>
         <div class="d-flex gap-2">
             <button id="exportExcel" class="btn btn-success btn-sm" title="Exportar a Excel">
-        <i class="fa-solid fa-file-excel me-1"></i> Excel
+        <i class="las la-file-excel me-1"></i> Excel
             </button>
             <button id="exportPDF" class="btn btn-danger btn-sm" title="Exportar a PDF">
-        <i class="fa-solid fa-file-pdf me-1"></i> PDF
+        <i class="las la-file-pdf me-1"></i> PDF
             </button>
         </div>
         <!-- Botón Confirmar (se muestra cuando hay selecciones) -->
     <button type="button" class="btn btn-success btn-sm" id="confirmButton" style="display: none;" data-bs-toggle="modal" data-bs-target="#confirmModal">
-        <i class="fa-solid fa-circle-check me-1"></i>
+        <i class="las la-circle-check me-1"></i>
         Confirmar (<span id="selectedCount">0</span>)
     </button>
     </div>
@@ -78,7 +78,7 @@
                 <td class="p-0 text-center">{{ forloop.counter }}</td>
                 <td class="p-0">
                     <a href="{% url 'order_detail_presentation' order.id %}" class="text-primary ms-2">
-                        <i class="fa-solid fa-link me-1"></i>
+                        <i class="las la-link me-1"></i>
                         {{ order.serie }}-{{ order.consecutive | stringformat:'06d' }}
                     </a>
                 </td>
@@ -104,7 +104,7 @@
                 <td class="p-0 text-end">{{ order.total_price }}</td>
                 <td class="p-0 text-center d-flex justify-content-between gap-2">
                     <a href="{% url 'report_customer_order' order.id %}" class="text-primary" title="Imprimir">
-                        <i class="fa-solid fa-print"></i>
+                        <i class="las la-print"></i>
                     </a>
                     <span class="{% if order.status == 'PENDIENTE' %}text-cyan-600{% elif order.status == 'CONFIRMADO' %}text-green-600{% elif order.status == 'MODIFICADO' %}text-yellow-600{% elif order.status == 'FACTURADO' %}text-blue-600{% elif order.status == 'CANCELADO' %}text-red-600{% elif order.status == 'PROMESA' %}text-orange-600{% endif %}">
                         {{ order.status }}
@@ -147,7 +147,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-success" id="executeConfirm">
-                    <i class="fa-solid fa-circle-check me-1"></i>
+                    <i class="las la-circle-check me-1"></i>
                     Confirmar Pedidos
                 </button>
             </div>

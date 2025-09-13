@@ -14,7 +14,7 @@
               Guardando...
             </span>
             <span v-else>
-              <i class="fas fa-check"></i> 
+              <i class="las la-check"></i> 
               Confirmar y Registrar
             </span>atos -->
         <div v-if="loading" class="text-center py-5">
@@ -75,7 +75,7 @@
                   </div>
                   <div @mousedown="clearSupplierFilter" 
                        class="p-2 text-center bg-light cursor-pointer hover-bg-secondary text-primary">
-                    <small><i class="fas fa-times"></i> Mostrar todos los proveedores</small>
+                    <small><i class="las la-times"></i> Mostrar todos los proveedores</small>
                   </div>
                 </div>
               </div>
@@ -84,7 +84,7 @@
               <div v-if="selectedSupplier" class="mt-2">
                 <span class="badge bg-primary">
                   ${selectedSupplier.name}
-                  <i @click="clearSupplierFilter" class="fas fa-times ms-1 cursor-pointer"></i>
+                  <i @click="clearSupplierFilter" class="las la-times ms-1 cursor-pointer"></i>
                 </span>
               </div>
             </div>
@@ -95,7 +95,7 @@
               <button @click="openPaymentModal" 
                       :disabled="selectedInvoicesCount === 0"
                       class="btn btn-success btn-sm ms-2">
-                <i class="fas fa-plus"></i> Registrar Pago (${selectedInvoicesCount})
+                <i class="las la-plus"></i> Registrar Pago (${selectedInvoicesCount})
               </button>
             </div>
           </div>
@@ -120,7 +120,7 @@
               <!-- Mensaje cuando no hay facturas -->
               <tr v-if="filteredInvoices.length === 0">
                 <td colspan="10" class="text-center py-5 text-muted">
-                  <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+                  <i class="las la-check-circle la-2x mb-2 text-success"></i>
                   <p><strong>¡Excelente!</strong></p>
                   <p v-if="selectedSupplier">No hay facturas pendientes para <strong>${selectedSupplier.name}</strong></p>
                   <p v-else>No hay facturas pendientes por pagar</p>
@@ -235,7 +235,7 @@
       <div class="modal-content">
         <div class="modal-header bg-success text-white">
           <h5 class="modal-title" id="paymentModalLabel">
-            <i class="fas fa-money-bill-wave"></i> 
+            <i class="las la-money-bill-wave"></i> 
             Registrar Pago
           </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -244,7 +244,7 @@
         <!-- Sección de mensajes del modal -->
         <div v-if="modalMessage.show" class="alert m-3 mb-0" :class="`alert-${modalMessage.type}`">
           <div class="d-flex align-items-center">
-            <i class="fas" :class="modalMessage.icon"></i>
+            <i class="las" :class="modalMessage.icon"></i>
             <span class="ms-2">${modalMessage.text}</span>
             <button type="button" class="btn-close ms-auto" @click="clearModalMessage"></button>
           </div>
@@ -303,7 +303,7 @@
             <div class="row">
               <div class="col-6">
                 <label class="form-label fw-semibold">
-                  <i class="fas fa-calendar"></i> Fecha del Pago *
+                  <i class="las la-calendar"></i> Fecha del Pago *
                 </label>
       <input type="date" 
         v-model="paymentForm.date" 
@@ -315,7 +315,7 @@
               
               <div class="col-6">
                 <label class="form-label fw-semibold">
-                  <i class="fas fa-credit-card"></i> Método de Pago *
+                  <i class="las la-credit-card"></i> Método de Pago *
                 </label>
                 <select v-model="paymentForm.method" class="form-select" required autocomplete="on" name="payment-method">
                   <option value="">Seleccionar...</option>
@@ -327,7 +327,7 @@
               
               <div class="col-6 mt-3">
                 <label class="form-label fw-semibold">
-                  <i class="fas fa-hashtag"></i> Referencia/Documento
+                  <i class="las la-hashtag"></i> Referencia/Documento
                 </label>
       <input type="text" 
         v-model="paymentForm.reference" 
@@ -340,7 +340,7 @@
               
               <div class="col-6 mt-3">
                 <label class="form-label fw-semibold">
-                  <i class="fas fa-dollar-sign"></i> Monto Total
+                  <i class="las la-dollar-sign"></i> Monto Total
                 </label>
       <input type="number" 
         step="0.01" 
@@ -351,7 +351,7 @@
               
               <div class="col-6 mt-3">
                 <label class="form-label fw-semibold">
-                  <i class="fas fa-university"></i> Banco
+                  <i class="las la-university"></i> Banco
                 </label>
       <input type="text" 
         v-model="paymentForm.bank" 
@@ -367,7 +367,7 @@
               
               <div class="col-6 mt-3">
                 <label class="form-label fw-semibold">
-                  <i class="fas fa-credit-card"></i> Número de Cuenta
+                  <i class="las la-credit-card"></i> Número de Cuenta
                 </label>
       <input type="text" 
         v-model="paymentForm.accountNumber" 
@@ -378,7 +378,7 @@
 
               <div class="col-6 mt-3">
                 <label class="form-label fw-semibold">
-                  <i class="fas fa-file-upload"></i> Comprobante/Documento
+                  <i class="las la-file-upload"></i> Comprobante/Documento
                 </label>
                 <input type="file" 
                        ref="documentFile"
@@ -389,14 +389,14 @@
                 <small class="text-muted">Formatos: JPG, PNG, PDF, DOC (máx. 5MB)</small>
                 <div v-if="paymentForm.documentPreview" class="mt-2">
                   <small class="text-success">
-                    <i class="fas fa-check"></i> Archivo seleccionado: ${paymentForm.documentName}
+                    <i class="las la-check"></i> Archivo seleccionado: ${paymentForm.documentName}
                   </small>
                 </div>
               </div>
 
               <div class="col-12 mt-3">
                 <label class="form-label fw-semibold" for="payment-notes">
-                  <i class="fas fa-sticky-note"></i> Notas
+                  <i class="las la-sticky-note"></i> Notas
                 </label>
                 <textarea id="payment-notes"
                           class="form-control"
@@ -411,7 +411,7 @@
         
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            <i class="fas fa-times"></i> Cancelar
+            <i class="las la-times"></i> Cancelar
           </button>
           <button type="button" @click="savePayment" :disabled="!canSavePayment" class="btn btn-success">
             <span v-if="saving">
@@ -420,7 +420,7 @@
               <span v-else>Guardando...</span>
             </span>
             <span v-else>
-              <i class="fas fa-check"></i> 
+              <i class="las la-check"></i> 
               <span v-if="isEditMode">Actualizar Pago</span>
               <span v-else>Confirmar y Registrar</span>
             </span>
@@ -487,7 +487,7 @@
   margin-bottom: 0;
 }
 
-.modal .alert .fas {
+.modal .alert .las {
   width: 16px;
   text-align: center;
 }

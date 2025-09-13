@@ -7,7 +7,7 @@
 {% if error %}
 <div class="container">
     <div class="alert alert-danger" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>
+        <i class="las la-exclamation-triangle me-2"></i>
         {{ error }}
     </div>
 </div>
@@ -24,13 +24,13 @@
                                 <div class="row align-items-center mb-2">
                                     <div class="col-md-4">
                                         <h5 class="mb-0 fw-bold">
-                                            <i class="fas fa-industry me-2"></i>
+                                            <i class="las la-industry me-2"></i>
                                             {{ invoice.partner.name }}
                                         </h5>
                                     </div>
                                     <div class="col-md-4 text-center">
                                         <h6 class="mb-0">
-                                            <i class="fas fa-file-invoice-dollar me-2"></i>
+                                            <i class="las la-file-invoice-dollar me-2"></i>
                                             <span class="badge badge-soft-warning text-center fs-6">FACTURA DE PROVEEDOR</span>
                                         </h6>
                                     </div>
@@ -50,12 +50,12 @@
                                 <div class="row g-2">
                                     <div class="col-md-6">
                                         <div class="d-flex align-items-center mb-1">
-                                            <i class="fas fa-id-card me-2"></i>
+                                            <i class="las la-id-card me-2"></i>
                                             <strong class="me-2">RUC:</strong>
                                             <span>{{ invoice.partner.business_tax_id|default:'N/A' }}</span>
                                         </div>
                                         <div class="d-flex align-items-start">
-                                            <i class="fas fa-map-marker-alt me-2 mt-1"></i>
+                                            <i class="las la-map-marker-alt me-2 mt-1"></i>
                                             <div>
                                                 <strong class="me-2">Dirección:</strong>
                                                 <span>{{ invoice.partner.address|default:'N/A' }}</span>
@@ -65,12 +65,12 @@
                                     
                                     <div class="col-md-6">
                                         <div class="d-flex align-items-center mb-1">
-                                            <i class="fas fa-calendar me-2"></i>
+                                            <i class="las la-calendar me-2"></i>
                                             <strong class="me-2">Fecha:</strong>
                                             <span>{{ invoice.date|date:'Y-m-d' }}</span>
                                         </div>
                                         <div class="d-flex align-items-center">
-                                            <i class="fas fa-calendar-check me-2"></i>
+                                            <i class="las la-calendar-check me-2"></i>
                                             <strong class="me-2">Vencimiento:</strong>
                                             <span>{{ invoice.due_date|date:'Y-m-d'|default:'N/A' }}</span>
                                         </div>
@@ -82,7 +82,7 @@
                                 <div class="row mt-2">
                                     <div class="col-12">
                                         <div class="d-flex flex-wrap align-items-center gap-1">
-                                            <i class="fas fa-shopping-cart me-2"></i>
+                                            <i class="las la-shopping-cart me-2"></i>
                                             <strong>Orden de Compra:</strong>
                                             <span class="badge badge-soft-secondary">{{ invoice.order.serie }}-{{ invoice.order.consecutive|default:"000000"|stringformat:"06d" }}</span>
                                             {% if invoice.awb %}
@@ -109,7 +109,7 @@
                         <div class="card card-soft border-0">
                             <div class="card-header bg-gray-100 py-reduced">
                                 <h6 class="mb-0">
-                                    <i class="fas fa-list-alt me-2"></i>
+                                    <i class="las la-list-alt me-2"></i>
                                     Detalles de la Factura
                                 </h6>
                             </div>
@@ -227,7 +227,7 @@
                         <div class="card card-soft border-0 h-100">
                             <div class="card-header ">
                                 <h6 class="mb-0">
-                                    <i class="fas fa-chart-bar me-2"></i>
+                                    <i class="las la-chart-bar me-2"></i>
                                     Resumen de Cajas
                                 </h6>
                             </div>
@@ -267,7 +267,7 @@
                         <div class="card card-soft border-0 h-100">
                             <div class="card-header ">
                                 <h6 class="mb-0">
-                                    <i class="fas fa-dollar-sign me-2"></i>
+                                    <i class="las la-dollar-sign me-2"></i>
                                     Resumen Financiero - Compra
                                 </h6>
                             </div>
@@ -301,7 +301,7 @@
                                                 <div class="col-md-6">
                                                     <small class="text-muted">Número de Factura:</small>
                                                     <div class="d-flex align-items-center mt-1">
-                                                        <i class="fas fa-file-invoice me-2 text-primary"></i>
+                                                        <i class="las la-file-invoice me-2 text-primary"></i>
                                                         <span class="fw-bold">{{ invoice.num_invoice }}</span>
                                                     </div>
                                                 </div>
@@ -309,7 +309,7 @@
                                                 <div class="col-md-6">
                                                     <small class="text-muted">Marcación:</small>
                                                     <div class="d-flex align-items-center mt-1">
-                                                        <i class="fas fa-tag me-2 text-success"></i>
+                                                        <i class="las la-tag me-2 text-success"></i>
                                                         <span class="fw-bold">{{ invoice.marking }}</span>
                                                     </div>
                                                 </div>
