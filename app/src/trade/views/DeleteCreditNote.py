@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.urls import reverse
 from django.db import transaction
 from trade.models.CreditNote import CreditNote
-from trade.models.Payment import Payment, PaymentDetail
+from trade.models.Payment import Payment
 from common.AppLoger import loggin_event
 
 
@@ -23,15 +23,14 @@ class CreditNoteVoidView(View):
                         payment = Payment.objects.get(
                             pk=credit_note.id_payment
                         )
-                        payment.status = 'ANULADO'
-                        payment.is_active = False
-                        payment.save()
                         
-                        # Eliminar los detalles de pago para liberar el saldo
-                        PaymentDetail.objects.filter(payment=payment).delete()
+                        # Eliminar completamente el pago y sus detalles
+                        payment_id = payment.pk
+                        # Esto eliminará automáticamente los PaymentDetail
+                        payment.delete()
                         
                         loggin_event(
-                            f"Pago {payment.pk} anulado correctamente para "
+                            f"Pago {payment_id} eliminado completamente para "
                             f"nota de crédito {credit_note.pk}"
                         )
                     except Payment.DoesNotExist:
@@ -44,6 +43,8 @@ class CreditNoteVoidView(View):
                 # Anular la nota de crédito
                 credit_note.status = 'ANULADO'
                 credit_note.is_active = False
+                # Limpiar referencia al pago eliminado
+                credit_note.id_payment = None
                 credit_note.save()
                 
                 # Actualizar el estado de pago de la factura para
