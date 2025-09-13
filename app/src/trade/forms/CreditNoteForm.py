@@ -1,9 +1,21 @@
 from django import forms
 from django.forms import inlineformset_factory
 from trade.models.CreditNote import CreditNote, CreditNoteDetail
+from partners.models import Partner
 
 
 class CreditNoteForm(forms.ModelForm):
+    # Campo adicional para seleccionar cliente
+    partner = forms.ModelChoiceField(
+        queryset=Partner.objects.filter(is_active=True),
+        empty_label="Seleccione un cliente...",
+        widget=forms.Select(attrs={
+            'class': 'form-control form-select',
+            'id': 'id_partner'
+        }),
+        label='Cliente'
+    )
+    
     class Meta:
         model = CreditNote
         fields = [
@@ -11,7 +23,8 @@ class CreditNoteForm(forms.ModelForm):
         ]
         widgets = {
             'invoice': forms.Select(attrs={
-                'class': 'form-control form-select'
+                'class': 'form-control form-select',
+                'id': 'id_invoice'
             }),
             'date': forms.DateInput(attrs={
                 'type': 'date',
@@ -19,7 +32,9 @@ class CreditNoteForm(forms.ModelForm):
             }),
             'amount': forms.NumberInput(attrs={
                 'step': '0.01',
-                'class': 'form-control'
+                'class': 'form-control',
+                'readonly': True,
+                'id': 'id_amount'
             }),
             'reason': forms.Textarea(attrs={
                 'rows': 3,
@@ -30,6 +45,16 @@ class CreditNoteForm(forms.ModelForm):
                 'class': 'form-control'
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Inicialmente el select de facturas está vacío
+        self.fields['invoice'].queryset = (
+            self.fields['invoice'].queryset.none()
+        )
+        self.fields['invoice'].widget.attrs.update({
+            'disabled': True
+        })
 
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
