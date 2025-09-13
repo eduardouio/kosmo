@@ -36,7 +36,6 @@ from api.trade import (
     PaymentVoidAPI,
 )
 
-from trade.views.seller import SellerHomeView
 from trade.views.CreateCreditNote import CreditNoteCreateView
 from trade.views.DetailCreditNote import (
     CreditNoteListView,
@@ -49,76 +48,20 @@ urlpatterns = [
     path('trade/stock/', StockDayListView.as_view(), name='stock_list'),
     path('trade/stock/<int:pk>/', StockDayDetailView.as_view(), name='stock_detail'),
     path('trade/stock/nuevo/', StockDayCreateView.as_view(), name='stock_create'),
-    path(
-        'trade/stock/eliminar/<int:pk>/',
-        StockDayDeleteView.as_view(),
-        name='stock_delete'
-    ),
-    path(
-        'trade/stock/detalle/actualizar/<int:pk>/',
-        SingleStockDetailUpdateView.as_view(),
-        name='stock_detail_update'
-    ),
-    path(
-        'trade/customer-invoices/',
-        CustomerInvoiceList.as_view(),
-        name='customer_invoice_list'
-    ),
-    path(
-        'trade/customer-orders/',
-        CustomerOrdersList.as_view(),
-        name='customer_orders_list'
-    ),
-    path(
-        'trade/supplier-orders/',
-        SupplierOrdersList.as_view(),
-        name='supplier_orders_list'
-    ),
-    path(
-        'trade/supplier-invoices/',
-        SupplierInvoiceList.as_view(),
-        name='supplier_invoice_list'
-    ),
-    path(
-        'trade/supplier-invoice/update/<int:invoice_id>/',
-        InvoiceSupplierUpdate.as_view(),
-        name='invoice_supplier_update'
-    ),
-    path(
-        'trade/invoice/<int:pk>/',
-        InvoiceDetailView.as_view(),
-        name='invoice_detail_presentation'
-    ),
-    path(
-        'trade/invoice-form/<int:pk>/',
-        InvoiceFormView.as_view(),
-        name='edit_invoice_form'
-    ),
-    path(
-        'trade/invoice/update/<int:pk>/',
-        InvoiceFormView.as_view(),
-        name='update_invoice'
-    ),
-    path(
-        'trade/invoice/delete/<int:pk>/',
-        DeleteInvoiceView.as_view(),
-        name='delete_invoice'
-    ),
-    path(
-        'trade/supplier-invoice/<int:invoice_id>/',
-        SupplierInvoiceDetail.as_view(),
-        name='supplier_invoice_detail'
-    ),
-    path(
-        'trade/order/<int:pk>/',
-        OrderDetailView.as_view(),
-        name='order_detail_presentation'
-    ),
-    path(
-        'trade/order/aprove/<int:pk>/',
-        AprovePurchaseOrderView.as_view(),
-        name='aprove_purchase_order'
-    ),
+    path('trade/stock/eliminar/<int:pk>/', StockDayDeleteView.as_view(), name='stock_delete'),
+    path('trade/stock/detalle/actualizar/<int:pk>/', SingleStockDetailUpdateView.as_view(), name='stock_detail_update'),
+    path('trade/customer-invoices/', CustomerInvoiceList.as_view(), name='customer_invoice_list'),
+    path('trade/customer-orders/', CustomerOrdersList.as_view(), name='customer_orders_list'),
+    path('trade/supplier-orders/', SupplierOrdersList.as_view(), name='supplier_orders_list'),
+    path('trade/supplier-invoices/', SupplierInvoiceList.as_view(), name='supplier_invoice_list'),
+    path('trade/supplier-invoice/update/<int:invoice_id>/', InvoiceSupplierUpdate.as_view(), name='invoice_supplier_update'),
+    path('trade/invoice/<int:pk>/', InvoiceDetailView.as_view(), name='invoice_detail_presentation'),
+    path('trade/invoice-form/<int:pk>/', InvoiceFormView.as_view(), name='edit_invoice_form'),
+    path('trade/invoice/update/<int:pk>/', InvoiceFormView.as_view(), name='update_invoice'),
+    path('trade/invoice/delete/<int:pk>/', DeleteInvoiceView.as_view(), name='delete_invoice'),
+    path('trade/supplier-invoice/<int:invoice_id>/', SupplierInvoiceDetail.as_view(), name='supplier_invoice_detail'),
+    path('trade/order/<int:pk>/', OrderDetailView.as_view(), name='order_detail_presentation'),
+    path('trade/order/aprove/<int:pk>/', AprovePurchaseOrderView.as_view(), name='aprove_purchase_order'),
     path('trade/aprove-batch-orders/', BatchOrderApprovalView.as_view(), name='aprove_batch_orders'),
     path('trade/order/generate-invoice/<int:pk>/', CreateInvoiceByOrder.as_view(), name='generate_invoice_by_order'),
     path('cobros/', CollectionsListView.as_view(), name='collections_list'),
@@ -137,27 +80,9 @@ urlpatterns = [
     path('api/payments/<int:payment_id>/delete/', PaymentVoidAPI.as_view(), name='payments_delete_api'),
     path('api/payments/delete/', PaymentVoidAPI.as_view(), name='payments_bulk_delete_api'),
     path('trade/payment/<int:pk>/', PaymentDetailView.as_view(), name='payment_detail'),
-    # seller
-    path('trade/seller/home/', SellerHomeView.as_view(), name='seller_home'),
     # credit notes
-    path(
-        'trade/credit-notes/',
-        CreditNoteListView.as_view(),
-        name='creditnote_list'
-    ),
-    path(
-        'trade/credit-notes/nueva/',
-        CreditNoteCreateView.as_view(),
-        name='creditnote_create'
-    ),
-    path(
-        'trade/credit-notes/<int:pk>/',
-        CreditNoteDetailView.as_view(),
-        name='creditnote_detail'
-    ),
-    path(
-        'trade/credit-notes/<int:pk>/void/',
-        CreditNoteVoidView.as_view(),
-        name='creditnote_void'
-    ),
+    path('trade/credit-notes/', CreditNoteListView.as_view(), name='creditnote_list'),
+    path('trade/credit-notes/nueva/', CreditNoteCreateView.as_view(), name='creditnote_create'),
+    path('trade/credit-notes/<int:pk>/', CreditNoteDetailView.as_view(), name='creditnote_detail'),
+    path('trade/credit-notes/<int:pk>/void/', CreditNoteVoidView.as_view(), name='creditnote_void'),
 ]
