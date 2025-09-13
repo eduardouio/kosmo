@@ -1,43 +1,305 @@
 {% extends 'base/base.html' %}
 {% block content %}
-<div class="container-fluid mt-3 list-container">
-	<div class="d-flex justify-content-between align-items-center mb-2">
-		<h5 class="m-0">Notas de Crédito</h5>
-		<a href="{% url 'creditnote_create' %}" class="btn btn-sm btn-primary">Nueva</a>
-	</div>
-	<table id="myTableSmall" class="table table-sm table-striped table-bordered list-table">
-		<thead class="table-light">
-			<tr>
-				<th>ID</th>
-				<th>Número</th>
-				<th>Factura</th>
-				<th>Fecha</th>
-				<th>Monto</th>
-				<th>Estado</th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for nc in credit_notes %}
-			<tr>
-				<td>{{ nc.id }}</td>
-				<td>{{ nc.num_credit_note }}</td>
-				<td>{{ nc.invoice.num_invoice }}</td>
-				<td>{{ nc.date }}</td>
-				<td>{{ nc.amount }}</td>
-				<td>{{ nc.status }}</td>
-				<td>
-					<a class="btn btn-outline-secondary btn-sm" href="{% url 'creditnote_detail' nc.id %}"><i class="fa fa-eye"></i></a>
-					{% if nc.status != 'ANULADO' %}
-					<form method="post" action="{% url 'creditnote_void' nc.id %}" class="d-inline" onsubmit="return confirm('¿Anular nota de crédito?');">
-						{% csrf_token %}
-						<button class="btn btn-outline-danger btn-sm"><i class="fa fa-ban"></i></button>
-					</form>
-					{% endif %}
-				</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+<div class="container-fluid mx-auto mt-3 mb-3 border shadow rounded bg-opacity-50 m-2 p-1">
+    <div class="d-flex justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+            <div class="text-primary"><i class="las la-file-invoice me-2"></i>Notas de Crédito</div>
+            {% if action %}
+            <span class="bg-peisol-secondary bg-gradient p-2 rounded">
+                <i class="las la-check-circle"></i>
+                {{ message }}
+            </span>
+            {% endif %}
+            <div class="d-flex gap-2">
+                <button id="exportExcel" class="btn btn-success btn-sm" title="Exportar a Excel"><i class="las la-file-excel me-1"></i> Excel</button>
+                <button id="exportPDF" class="btn btn-danger btn-sm" title="Exportar a PDF"><i class="las la-file-pdf me-1"></i> PDF</button>
+            </div>
+            <a href="{% url 'creditnote_create' %}" class="btn btn-sm btn-default">
+                <i class="las la-plus"></i>
+                Nueva Nota de Crédito
+            </a>
+        </div>
+        <div class="d-flex justify-content-end gap-4">
+            <div class="fw-bold">
+                <span>Total Notas:</span>
+                <span class="text-primary"> {{ credit_notes.count|default:0 }} </span>
+            </div>
+            <div class="fw-bold">
+                <span>Monto Total:</span>
+                <span class="text-success">$ {{ total_amount|floatformat:2|default:"0.00" }}</span>
+            </div>
+        </div>
+    </div>
 </div>
+<div class="mx-auto list-container">
+    {% if credit_notes %}
+    <table class="table table-bordered table-striped list-table" id="myTable">
+        <thead>
+            <tr>
+                <th class="bg-secondary bg-opacity-25">#</th>
+                <th class="bg-secondary bg-opacity-25">Número</th>
+                <th class="bg-secondary bg-opacity-25">Factura</th>
+                <th class="bg-secondary bg-opacity-25">Fecha</th>
+                <th class="bg-secondary bg-opacity-25">Monto</th>
+                <th class="bg-secondary bg-opacity-25">Estado</th>
+                <th class="bg-secondary bg-opacity-25">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for nc in credit_notes %}
+            <tr>
+                <td class="p-1">
+                    <a href="{% url 'creditnote_detail' nc.id %}" class="text-decoration-none">
+                        {{ nc.id }}
+                    </a>
+                </td>
+                <td class="p-1 text-start">{{ nc.num_credit_note|default:"-" }}</td>
+                <td class="p-1 text-start">{{ nc.invoice.num_invoice|default:"-" }}</td>
+                <td class="p-1 text-start">{{ nc.date|date:"d/m/Y" }}</td>
+                <td class="p-1 text-end">$ {{ nc.amount|floatformat:2 }}</td>
+                <td class="p-1">
+                    <strong class="
+                        {% if nc.status == 'VIGENTE' %}text-success
+                        {% elif nc.status == 'PENDIENTE' %}text-warning
+                        {% elif nc.status == 'ANULADO' %}text-danger
+                        {% endif %}">
+                        {{ nc.get_status_display|default:nc.status }}
+                    </strong>
+                </td>
+                <td class="p-1 text-center">
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'creditnote_detail' nc.id %}" title="Ver detalles">
+                        <i class="las la-eye"></i>
+                        Ver
+                    </a>
+                    {% if nc.status != 'ANULADO' %}
+                    <form method="post" action="{% url 'creditnote_void' nc.id %}" class="d-inline" onsubmit="return confirm('¿Anular nota de crédito?');">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-danger btn-sm" title="Anular nota de crédito">
+                            <i class="las la-ban"></i>
+                            Anular
+                        </button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No hay notas de crédito registradas</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-warning text-center">
+        No hay notas de crédito registradas
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<!-- Librerías para exportación -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Funcionalidad de exportación Excel
+    $('#exportExcel').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var table = $('#myTable')[0];
+        var wb = XLSX.utils.book_new();
+        var ws = XLSX.utils.table_to_sheet(table);
+        XLSX.utils.book_append_sheet(wb, ws, "Notas de Credito");
+        var fecha = new Date().toISOString().slice(0,10);
+        XLSX.writeFile(wb, "notas_credito_" + fecha + ".xlsx");
+    });
+    
+    // Funcionalidad de exportación PDF
+    $('#exportPDF').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const { jsPDF } = window.jspdf;
+        var doc = new jsPDF('l', 'pt', 'a4');
+        
+        // Crear imagen del logo
+        var logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        logoImg.onload = function() {
+            // Agregar logo (ajustar tamaño proporcional)
+            var logoWidth = 80;
+            var logoHeight = (logoImg.height * logoWidth) / logoImg.width;
+            doc.addImage(logoImg, 'PNG', 20, 20, logoWidth, logoHeight);
+            
+            // Agregar texto junto al logo
+            doc.setFontSize(16);
+            doc.text('Kosmo Flowers', 110, 35);
+            doc.setFontSize(12);
+            doc.text('Listado de Notas de Crédito', 110, 55);
+            var fecha = new Date().toLocaleDateString('es-ES');
+            doc.setFontSize(10);
+            doc.text('Generado el: ' + fecha, 110, 75);
+            
+            // Generar tabla
+            var table = $('#myTable')[0];
+            var headers = [];
+            var data = [];
+            
+            $(table).find('thead tr th').each(function() {
+                headers.push($(this).text().trim());
+            });
+            
+            $(table).find('tbody tr').each(function() {
+                var row = [];
+                $(this).find('td').each(function() {
+                    var cellText = $(this).text().trim().replace(/\s+/g, ' ');
+                    row.push(cellText);
+                });
+                data.push(row);
+            });
+            
+            doc.autoTable({
+                head: [headers],
+                body: data,
+                startY: 100,
+                styles: { fontSize: 8, cellPadding: 3 },
+                headStyles: { fillColor: [52, 58, 64], textColor: 255, fontSize: 9, fontStyle: 'bold' },
+                margin: { top: 100, left: 15, right: 15 },
+            });
+            
+            var fechaArchivo = new Date().toISOString().slice(0,10);
+            doc.save("notas_credito_" + fechaArchivo + ".pdf");
+        };
+        
+        // Cargar logo desde la ruta del servidor
+        logoImg.src = '/static/img/logo-kosmo.png';
+    });
+});
+
+// Funciones para gestión de notas de crédito
+async function deleteCreditNote(creditNoteId) {
+    if (!confirm('¿Está seguro de que desea eliminar esta nota de crédito? Esta acción no se puede deshacer.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/credit-notes/${creditNoteId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            alert('Nota de crédito eliminada correctamente');
+            location.reload();
+        } else {
+            alert('Error al eliminar la nota de crédito: ' + (result.message || 'Error desconocido'));
+        }
+        
+    } catch (error) {
+        console.error('Error al eliminar nota de crédito:', error);
+        alert('Error de conexión al eliminar la nota de crédito');
+    }
+}
+</script>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Estilos personalizados para la tabla de notas de crédito */
+    #myTable {
+        font-size: 0.85rem;
+    }
+    
+    #myTable th {
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+    
+    #myTable td {
+        vertical-align: middle;
+        font-size: 0.8rem;
+    }
+    
+    /* Estilos para las columnas específicas */
+    #myTable td:nth-child(1) { /* ID */
+        width: 80px;
+        text-align: center;
+    }
+    
+    #myTable td:nth-child(2) { /* Número */
+        width: 150px;
+    }
+    
+    #myTable td:nth-child(3) { /* Factura */
+        width: 150px;
+    }
+    
+    #myTable td:nth-child(4) { /* Fecha */
+        width: 120px;
+    }
+    
+    #myTable td:nth-child(5) { /* Monto */
+        width: 120px;
+    }
+    
+    #myTable td:nth-child(6) { /* Estado */
+        width: 100px;
+        text-align: center;
+    }
+    
+    #myTable td:nth-child(7) { /* Acciones */
+        width: 180px;
+        text-align: center;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+        #myTable {
+            font-size: 0.75rem;
+        }
+        
+        #myTable th, #myTable td {
+            padding: 0.3rem !important;
+        }
+    }
+    
+    /* Mejorar la visualización de badges de estado */
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.3em 0.6em;
+    }
+    
+    /* Estilos para iconos */
+    .las {
+        font-size: 1.1em;
+    }
+    
+    /* Consistencia con el diseño de payments */
+    .container-fluid.mx-auto {
+        border: 1px solid #dee2e6;
+    }
+    
+    .btn-default {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        color: #495057;
+    }
+    
+    .btn-default:hover {
+        background-color: #e2e6ea;
+        border-color: #dae0e5;
+        color: #495057;
+    }
+</style>
 {% endblock %}
