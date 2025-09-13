@@ -1,0 +1,136 @@
+{% extends 'seller/base_seller.html' %}
+{% block content %}
+<section class="space-y-3">
+	<header>
+		<h1 class="text-base font-semibold">Facturas</h1>
+		<p class="text-xs opacity-70">Órdenes facturadas y pagadas</p>
+	</header>
+
+	<!-- Stats rápidas -->
+	<div class="grid grid-cols-2 gap-2 md:grid-cols-4">
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h6 class="text-[10px] font-semibold uppercase opacity-60">Facturas</h6>
+				<p class="text-lg font-bold">{{ total_invoices }}</p>
+				<span class="text-[10px] opacity-60">Total emitidas</span>
+			</div>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h6 class="text-[10px] font-semibold uppercase opacity-60">Ventas</h6>
+				<p class="text-lg font-bold">${{ total_amount|floatformat:2 }}</p>
+				<span class="text-[10px] opacity-60">Monto facturado</span>
+			</div>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h6 class="text-[10px] font-semibold uppercase opacity-60">Tallos</h6>
+				<p class="text-lg font-bold">{{ total_stems }}</p>
+				<span class="text-[10px] opacity-60">Facturados</span>
+			</div>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h6 class="text-[10px] font-semibold uppercase opacity-60">Margen</h6>
+				<p class="text-lg font-bold">${{ total_margin|floatformat:2 }}</p>
+				<span class="text-[10px] opacity-60">Ganancia</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Filtros -->
+	<div class="card bg-base-100 shadow-sm border border-base-200">
+		<div class="card-body p-3">
+			<form method="get" class="flex gap-2 items-center">
+				<input 
+					type="text" 
+					name="search" 
+					value="{{ current_search }}"
+					placeholder="Buscar factura, cliente..." 
+					class="input input-sm input-bordered flex-1"
+				>
+				<button type="submit" class="btn btn-sm btn-primary">Buscar</button>
+				{% if current_search %}
+				<a href="{% url 'sellers:invoices' %}" class="btn btn-sm btn-ghost">Limpiar</a>
+				{% endif %}
+			</form>
+		</div>
+	</div>
+
+	<!-- Lista de facturas -->
+	<div class="card bg-base-100 shadow-sm border border-base-200">
+		<div class="card-body p-3">
+			<div class="overflow-x-auto">
+				<table class="table table-xs">
+					<thead>
+						<tr class="text-[10px] opacity-60">
+							<th>No. Factura</th>
+							<th>Consecutivo</th>
+							<th>Cliente</th>
+							<th>Fecha</th>
+							<th class="text-right">Tallos</th>
+							<th class="text-right">Total</th>
+							<th class="text-right">Margen</th>
+							<th class="text-center">Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for invoice in invoices %}
+						<tr class="text-[11px]">
+							<td>
+								<div class="font-medium">{{ invoice.num_invoice|default:"N/A" }}</div>
+							</td>
+							<td>
+								<div class="font-medium">{{ invoice.consecutive }}</div>
+								{% if invoice.num_order %}
+								<div class="text-[10px] opacity-60">PO: {{ invoice.num_order }}</div>
+								{% endif %}
+							</td>
+							<td>
+								<div class="font-medium">{{ invoice.partner.short_name|default:invoice.partner.name }}</div>
+							</td>
+							<td>{{ invoice.date|date:"d/m/Y" }}</td>
+							<td class="text-right">{{ invoice.total_stem_flower|default:0 }}</td>
+							<td class="text-right font-medium">${{ invoice.total_price|floatformat:2 }}</td>
+							<td class="text-right text-success">${{ invoice.total_margin|floatformat:2 }}</td>
+							<td class="text-center">
+								<div class="dropdown dropdown-end">
+									<div tabindex="0" role="button" class="btn btn-xs btn-ghost">
+										<i class="la la-ellipsis-v"></i>
+									</div>
+									<ul tabindex="0" class="dropdown-content z-10 menu p-1 shadow bg-base-100 rounded-box w-32 text-[10px]">
+										<li><a href="#">Ver Detalle</a></li>
+										<li><a href="#">Descargar PDF</a></li>
+									</ul>
+								</div>
+							</td>
+						</tr>
+						{% empty %}
+						<tr>
+							<td colspan="8" class="text-center text-xs opacity-50 py-4">
+								No hay facturas que mostrar
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			
+			<!-- Paginación -->
+			{% if is_paginated %}
+			<div class="flex justify-center mt-3">
+				<div class="join">
+					{% if page_obj.has_previous %}
+					<a href="?page={{ page_obj.previous_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}" class="join-item btn btn-xs">❮</a>
+					{% endif %}
+					<button class="join-item btn btn-xs btn-active">{{ page_obj.number }}</button>
+					{% if page_obj.has_next %}
+					<a href="?page={{ page_obj.next_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}" class="join-item btn btn-xs">❯</a>
+					{% endif %}
+				</div>
+			</div>
+			{% endif %}
+		</div>
+	</div>
+</section>
+{% endblock %}

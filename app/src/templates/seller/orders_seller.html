@@ -1,0 +1,198 @@
+{% extends 'seller/base_seller.html' %}
+{% block content %}
+<section class="space-y-3">
+	<header class="flex justify-between items-center">
+		<div>
+			<h1 class="text-base font-semibold">Órdenes de Venta</h1>
+			<p class="text-xs opacity-70">Gestiona tus órdenes de venta</p>
+		</div>
+		<a href="{% url 'sellers:create_order' %}" class="btn btn-primary btn-sm">
+			<i class="la la-plus"></i> Nueva Orden
+		</a>
+	</header>
+
+	<!-- Stats rápidas -->
+	<div class="grid grid-cols-3 gap-2">
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3 text-center">
+				<p class="text-sm font-bold">{{ total_orders }}</p>
+				<span class="text-[10px] opacity-60">Órdenes</span>
+			</div>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3 text-center">
+				<p class="text-sm font-bold">${{ total_amount|floatformat:2 }}</p>
+				<span class="text-[10px] opacity-60">Total Ventas</span>
+			</div>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3 text-center">
+				<p class="text-sm font-bold">{{ total_stems }}</p>
+				<span class="text-[10px] opacity-60">Tallos</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Filtros -->
+	<div class="card bg-base-100 shadow-sm border border-base-200">
+		<div class="card-body p-3">
+			<form method="get" class="flex flex-wrap gap-2 items-center">
+				<input 
+					type="text" 
+					name="search" 
+					value="{{ current_search }}"
+					placeholder="Buscar orden, cliente..." 
+					class="input input-sm input-bordered flex-1 min-w-40"
+				>
+				<select name="status" class="select select-sm select-bordered">
+					<option value="">Todos los estados</option>
+					{% for value, label in status_choices %}
+					<option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+						{{ label }}
+					</option>
+					{% endfor %}
+				</select>
+				<button type="submit" class="btn btn-sm btn-primary">Filtrar</button>
+				{% if current_search or current_status %}
+				<a href="{% url 'sellers:orders' %}" class="btn btn-sm btn-ghost">Limpiar</a>
+				{% endif %}
+			</form>
+		</div>
+	</div>
+
+	<!-- Lista de órdenes -->
+	<div class="card bg-base-100 shadow-sm border border-base-200">
+		<div class="card-body p-3">
+			<div class="space-y-2">
+				<!-- Vista de escritorio -->
+				<div class="hidden lg:block">
+					<table class="table table-xs w-full">
+						<thead>
+							<tr class="text-[10px] opacity-60">
+								<th>Consecutivo</th>
+								<th>Cliente</th>
+								<th>Fecha</th>
+								<th>Estado</th>
+								<th class="text-right">Tallos</th>
+								<th class="text-right">Total</th>
+								<th class="text-center">Acciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for order in orders %}
+							<tr class="text-[11px]">
+								<td>
+									<div class="font-medium">{{ order.consecutive }}</div>
+									{% if order.num_order %}
+									<div class="text-[10px] opacity-60">PO: {{ order.num_order }}</div>
+									{% endif %}
+								</td>
+								<td>
+									<div class="font-medium">{{ order.partner.short_name|default:order.partner.name }}</div>
+								</td>
+								<td>{{ order.date|date:"d/m/Y" }}</td>
+								<td>
+									<span class="badge badge-sm {% if order.status == 'PENDIENTE' %}badge-warning{% elif order.status == 'CONFIRMADO' %}badge-success{% elif order.status == 'FACTURADO' %}badge-info{% elif order.status == 'CANCELADO' %}badge-error{% else %}badge-ghost{% endif %}">
+										{{ order.status }}
+									</span>
+								</td>
+								<td class="text-right">{{ order.total_stem_flower|default:0 }}</td>
+								<td class="text-right font-medium">${{ order.total_price|floatformat:2 }}</td>
+								<td class="text-center">
+									<div class="dropdown dropdown-end">
+										<div tabindex="0" role="button" class="btn btn-xs btn-ghost">
+											<i class="la la-ellipsis-v"></i>
+										</div>
+										<ul tabindex="0" class="dropdown-content z-10 menu p-1 shadow bg-base-100 rounded-box w-32 text-[10px]">
+											{% if order.status in 'PENDIENTE,MODIFICADO' %}
+											<li><a href="{% url 'sellers:edit_order' order.pk %}">Editar</a></li>
+											{% endif %}
+											<li><a href="#">Ver Detalle</a></li>
+										</ul>
+									</div>
+								</td>
+							</tr>
+							{% empty %}
+							<tr>
+								<td colspan="7" class="text-center text-xs opacity-50 py-4">
+									No hay órdenes que mostrar
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				
+				<!-- Vista móvil/tablet -->
+				<div class="lg:hidden space-y-2">
+					{% for order in orders %}
+					<div class="card bg-base-200 border border-base-300">
+						<div class="card-body p-3">
+							<div class="flex justify-between items-start mb-2">
+								<div>
+									<h3 class="font-medium text-sm">{{ order.consecutive }}</h3>
+									<div class="text-xs opacity-60">{{ order.partner.short_name|default:order.partner.name }}</div>
+									{% if order.num_order %}
+									<div class="text-[10px] opacity-60">PO: {{ order.num_order }}</div>
+									{% endif %}
+								</div>
+								<div class="flex items-center gap-2">
+									<span class="badge badge-sm {% if order.status == 'PENDIENTE' %}badge-warning{% elif order.status == 'CONFIRMADO' %}badge-success{% elif order.status == 'FACTURADO' %}badge-info{% elif order.status == 'CANCELADO' %}badge-error{% else %}badge-ghost{% endif %}">
+										{{ order.status }}
+									</span>
+									<div class="dropdown dropdown-end">
+										<div tabindex="0" role="button" class="btn btn-xs btn-ghost">
+											<i class="la la-ellipsis-v"></i>
+										</div>
+										<ul tabindex="0" class="dropdown-content z-10 menu p-1 shadow bg-base-100 rounded-box w-32 text-[10px]">
+											{% if order.status in 'PENDIENTE,MODIFICADO' %}
+											<li><a href="{% url 'sellers:edit_order' order.pk %}">Editar</a></li>
+											{% endif %}
+											<li><a href="#">Ver Detalle</a></li>
+										</ul>
+									</div>
+								</div>
+							</div>
+							
+							<div class="grid grid-cols-3 gap-2 text-center text-xs">
+								<div>
+									<div class="font-medium">{{ order.date|date:"d/m" }}</div>
+									<div class="opacity-60">Fecha</div>
+								</div>
+								<div>
+									<div class="font-medium">{{ order.total_stem_flower|default:0 }}</div>
+									<div class="opacity-60">Tallos</div>
+								</div>
+								<div>
+									<div class="font-medium">${{ order.total_price|floatformat:2 }}</div>
+									<div class="opacity-60">Total</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					{% empty %}
+					<div class="text-center text-sm opacity-50 py-8">
+						No hay órdenes que mostrar
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			
+			<!-- Paginación -->
+			{% if is_paginated %}
+			<div class="flex justify-center mt-3">
+				<div class="join">
+					{% if page_obj.has_previous %}
+					<a href="?page={{ page_obj.previous_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" class="join-item btn btn-xs">❮</a>
+					{% endif %}
+					<button class="join-item btn btn-xs btn-active">{{ page_obj.number }}</button>
+					{% if page_obj.has_next %}
+					<a href="?page={{ page_obj.next_page_number }}{% if current_search %}&search={{ current_search }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}" class="join-item btn btn-xs">❯</a>
+					{% endif %}
+				</div>
+			</div>
+			{% endif %}
+		</div>
+	</div>
+</section>
+{% endblock %}

@@ -1,0 +1,216 @@
+{% extends 'seller/base_seller.html' %}
+{% block content %}
+<section class="space-y-3">
+	<header class="flex items-center gap-2">
+		<a href="{% url 'sellers:orders' %}" class="btn btn-sm btn-ghost">
+			<i class="la la-arrow-left"></i>
+		</a>
+		<div>
+			<h1 class="text-base font-semibold">Crear Orden de Venta</h1>
+			<p class="text-xs opacity-70">Nueva orden para cliente</p>
+		</div>
+	</header>
+
+	{% if preselected_stock %}
+	<div class="alert alert-success text-xs">
+		<i class="la la-check-circle"></i>
+		<span>Stock preseleccionado: {{ preselected_stock.partner.name }} - {{ preselected_stock.box_model }} ({{ preselected_stock.quantity }} cajas)</span>
+	</div>
+	{% elif preselected_box_item %}
+	<div class="alert alert-success text-xs">
+		<i class="la la-check-circle"></i>
+		<span>Variedad preseleccionada: {{ preselected_box_item.product.name }} - {{ preselected_box_item.length }}cm</span>
+	</div>
+	{% elif current_stock_day %}
+	<div class="alert alert-info text-xs">
+		<i class="la la-info-circle"></i>
+		<span>Stock disponible del {{ current_stock_day.date }}</span>
+	</div>
+	{% else %}
+	<div class="alert alert-warning text-xs">
+		<i class="la la-exclamation-triangle"></i>
+		<span>No hay stock disponible actualmente</span>
+	</div>
+	{% endif %}
+
+	<form method="post" class="space-y-3">
+		{% csrf_token %}
+		
+		<!-- Información básica -->
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h3 class="text-sm font-semibold mb-3">Información de la Orden</h3>
+				
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">Cliente</span>
+						</label>
+						<select name="partner" class="select select-sm select-bordered" required>
+							<option value="">Seleccionar cliente</option>
+							{% for customer in customers %}
+							<option value="{{ customer.id }}"
+								{% if preselected_partner and customer.id == preselected_partner.id %}selected{% endif %}>
+								{{ customer.name }}
+							</option>
+							{% endfor %}
+						</select>
+						{% if preselected_partner %}
+						<div class="text-xs text-success mt-1">
+							<i class="la la-info-circle"></i>
+							Proveedor del stock: {{ preselected_partner.name }}
+						</div>
+						{% endif %}
+					</div>
+					
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">PO Cliente</span>
+						</label>
+						<input 
+							type="text" 
+							name="num_order" 
+							class="input input-sm input-bordered" 
+							placeholder="Número de orden del cliente"
+						>
+					</div>
+					
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">Fecha de Entrega</span>
+						</label>
+						<input 
+							type="date" 
+							name="delivery_date" 
+							class="input input-sm input-bordered"
+						>
+					</div>
+					
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">Descuento (%)</span>
+						</label>
+						<input 
+							type="number" 
+							name="discount" 
+							step="0.01" 
+							min="0" 
+							max="100" 
+							value="0"
+							class="input input-sm input-bordered"
+						>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Información del stock preseleccionado -->
+		{% if preselected_stock or preselected_box_item %}
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h3 class="text-sm font-semibold mb-3">Stock Seleccionado</h3>
+				
+				{% if preselected_stock %}
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+					<div>
+						<span class="font-medium">Proveedor:</span><br>
+						<span>{{ preselected_stock.partner.name }}</span>
+					</div>
+					<div>
+						<span class="font-medium">Tipo de Caja:</span><br>
+						<span class="badge badge-ghost">{{ preselected_stock.box_model }}</span>
+					</div>
+					<div>
+						<span class="font-medium">Disponible:</span><br>
+						<span>{{ preselected_stock.quantity }} cajas ({{ preselected_stock.tot_stem_flower }} tallos)</span>
+					</div>
+				</div>
+				
+				<!-- Variedades disponibles -->
+				<div class="mt-3">
+					<span class="font-medium text-sm">Variedades disponibles:</span>
+					<div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+						{% for box_item in preselected_stock.boxitems_set.all %}
+						<div class="bg-base-200 rounded p-2 text-xs">
+							<div class="font-medium">{{ box_item.product.name }}</div>
+							<div class="opacity-70">{{ box_item.length }}cm - {{ box_item.qty_stem_flower }} tallos</div>
+							<div class="opacity-70">${{ box_item.stem_cost_price|floatformat:3 }}/tallo</div>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+				
+				{% elif preselected_box_item %}
+				<div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+					<div>
+						<span class="font-medium">Variedad:</span><br>
+						<span>{{ preselected_box_item.product.name }}</span>
+					</div>
+					<div>
+						<span class="font-medium">Largo:</span><br>
+						<span>{{ preselected_box_item.length }}cm</span>
+					</div>
+					<div>
+						<span class="font-medium">Tallos:</span><br>
+						<span>{{ preselected_box_item.qty_stem_flower }} tallos</span>
+					</div>
+					<div>
+						<span class="font-medium">Costo:</span><br>
+						<span>${{ preselected_box_item.stem_cost_price|floatformat:3 }}/tallo</span>
+					</div>
+				</div>
+				{% endif %}
+			</div>
+		</div>
+		{% endif %}
+
+		<!-- Totales estimados -->
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h3 class="text-sm font-semibold mb-3">Totales (Estimados)</h3>
+				
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">Total Precio</span>
+						</label>
+						<input 
+							type="number" 
+							name="total_price" 
+							step="0.01" 
+							min="0" 
+							value="0"
+							class="input input-sm input-bordered"
+						>
+					</div>
+					
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">Total Margen</span>
+						</label>
+						<input 
+							type="number" 
+							name="total_margin" 
+							step="0.01" 
+							min="0" 
+							value="0"
+							class="input input-sm input-bordered"
+						>
+					</div>
+				</div>
+				
+				<div class="alert alert-info text-xs mt-3">
+					<i class="la la-info-circle"></i>
+					<span>Los totales se calcularán automáticamente al agregar items</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Botones -->
+		<div class="flex gap-2 justify-end">
+			<a href="{% url 'sellers:orders' %}" class="btn btn-sm btn-ghost">Cancelar</a>
+			<button type="submit" class="btn btn-sm btn-primary">Crear Orden</button>
+		</div>
+	</form>
+</section>
+{% endblock %}

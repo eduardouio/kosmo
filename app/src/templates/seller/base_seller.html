@@ -67,26 +67,26 @@
                <nav class="menu p-0 rounded-box bg-base-100 border border-base-300/60 shadow-sm text-sm">
                   <ul class="[&>li>a]:py-2 [&>li>a]:px-3 [&>li>a]:gap-2">
                      <li>
-                        <a href="#" class="flex items-center">
+                        <a href="{% url 'sellers:home' %}" class="flex items-center {% if request.resolver_match.url_name == 'home' %}bg-primary/10 text-primary font-medium{% endif %}">
                            <i class="la la-home text-primary text-lg"></i>
                            <span>Inicio</span>
                         </a>
                      </li>
                      <li class="menu-title mt-1 mb-0 px-3 pt-2 text-[10px] opacity-60">Operación</li>
                      <li>
-                        <a href="#" class="flex items-center">
+                        <a href="{% url 'sellers:stocks' %}" class="flex items-center {% if request.resolver_match.url_name == 'stocks' %}bg-secondary/10 text-secondary font-medium{% endif %}">
                            <i class="la la-box text-secondary text-lg"></i>
                            <span>Disponibilidad</span>
                         </a>
                      </li>
                      <li>
-                        <a href="#" class="flex items-center">
+                        <a href="{% url 'sellers:orders' %}" class="flex items-center {% if request.resolver_match.url_name == 'orders' or request.resolver_match.url_name == 'create_order' or request.resolver_match.url_name == 'edit_order' %}bg-accent/10 text-accent font-medium{% endif %}">
                            <i class="la la-clipboard-list text-accent text-lg"></i>
                            <span>Pedidos</span>
                         </a>
                      </li>
                      <li>
-                        <a href="#" class="flex items-center">
+                        <a href="{% url 'sellers:invoices' %}" class="flex items-center {% if request.resolver_match.url_name == 'invoices' %}bg-success/10 text-success font-medium{% endif %}">
                            <i class="la la-chart-line text-success text-lg"></i>
                            <span>Ventas</span>
                         </a>
@@ -104,11 +104,11 @@
                   </div>
                   <nav class="menu p-2 text-sm flex-1 overflow-y-auto">
                      <ul>
-                        <li><a href="#"><i class="la la-home"></i> Inicio</a></li>
+                        <li><a href="{% url 'sellers:home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="la la-home"></i> Inicio</a></li>
                         <li class="menu-title">Operación</li>
-                        <li><a href="#"><i class="la la-box"></i> Disponibilidad</a></li>
-                        <li><a href="#"><i class="la la-clipboard-list"></i> Pedidos</a></li>
-                        <li><a href="#"><i class="la la-chart-line"></i> Ventas</a></li>
+                        <li><a href="{% url 'sellers:stocks' %}" class="{% if request.resolver_match.url_name == 'stocks' %}active{% endif %}"><i class="la la-box"></i> Disponibilidad</a></li>
+                        <li><a href="{% url 'sellers:orders' %}" class="{% if request.resolver_match.url_name == 'orders' or request.resolver_match.url_name == 'create_order' or request.resolver_match.url_name == 'edit_order' %}active{% endif %}"><i class="la la-clipboard-list"></i> Pedidos</a></li>
+                        <li><a href="{% url 'sellers:invoices' %}" class="{% if request.resolver_match.url_name == 'invoices' %}active{% endif %}"><i class="la la-chart-line"></i> Ventas</a></li>
                      </ul>
                   </nav>
                </div>

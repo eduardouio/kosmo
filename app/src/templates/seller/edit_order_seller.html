@@ -1,0 +1,156 @@
+{% extends 'seller/base_seller.html' %}
+{% block content %}
+<section class="space-y-3">
+	<header class="flex items-center gap-2">
+		<a href="{% url 'sellers:orders' %}" class="btn btn-sm btn-ghost">
+			<i class="la la-arrow-left"></i>
+		</a>
+		<div>
+			<h1 class="text-base font-semibold">{{ title_page }}</h1>
+			<p class="text-xs opacity-70">Modificar información de la orden</p>
+		</div>
+	</header>
+
+	<form method="post" class="space-y-3">
+		{% csrf_token %}
+		
+		<!-- Información básica -->
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h3 class="text-sm font-semibold mb-3">Información de la Orden</h3>
+				
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">Cliente</span>
+						</label>
+						<select name="partner" class="select select-sm select-bordered" required>
+							{% for customer in customers %}
+							<option value="{{ customer.id }}" {% if customer.id == object.partner.id %}selected{% endif %}>
+								{{ customer.name }}
+							</option>
+							{% endfor %}
+						</select>
+					</div>
+					
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">PO Cliente</span>
+						</label>
+						<input 
+							type="text" 
+							name="num_order" 
+							value="{{ object.num_order|default:'' }}"
+							class="input input-sm input-bordered" 
+							placeholder="Número de orden del cliente"
+						>
+					</div>
+					
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">Fecha de Entrega</span>
+						</label>
+						<input 
+							type="date" 
+							name="delivery_date" 
+							value="{{ object.delivery_date|date:'Y-m-d' }}"
+							class="input input-sm input-bordered"
+						>
+					</div>
+					
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">Descuento (%)</span>
+						</label>
+						<input 
+							type="number" 
+							name="discount" 
+							step="0.01" 
+							min="0" 
+							max="100" 
+							value="{{ object.discount|default:0 }}"
+							class="input input-sm input-bordered"
+						>
+					</div>
+					
+					<div class="form-control">
+						<label class="label py-1">
+							<span class="label-text text-xs">Estado</span>
+						</label>
+						<select name="status" class="select select-sm select-bordered">
+							<option value="PENDIENTE" {% if object.status == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+							<option value="MODIFICADO" {% if object.status == 'MODIFICADO' %}selected{% endif %}>Modificado</option>
+						</select>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Items de la orden -->
+		{% if order_items %}
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h3 class="text-sm font-semibold mb-3">Items de la Orden</h3>
+				
+				<div class="overflow-x-auto">
+					<table class="table table-xs">
+						<thead>
+							<tr class="text-[10px] opacity-60">
+								<th>Producto</th>
+								<th class="text-right">Tallos</th>
+								<th class="text-right">Precio Línea</th>
+								<th class="text-right">Total</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in order_items %}
+							<tr class="text-[11px]">
+								<td>Item {{ item.id }}</td>
+								<td class="text-right">{{ item.tot_stem_flower }}</td>
+								<td class="text-right">${{ item.line_price|floatformat:2 }}</td>
+								<td class="text-right">${{ item.line_total|floatformat:2 }}</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+
+		<!-- Resumen -->
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-3">
+				<h3 class="text-sm font-semibold mb-3">Resumen</h3>
+				
+				<div class="grid grid-cols-2 gap-3 text-sm">
+					<div class="flex justify-between">
+						<span>Total Tallos:</span>
+						<span class="font-medium">{{ object.total_stem_flower|default:0 }}</span>
+					</div>
+					<div class="flex justify-between">
+						<span>Total Precio:</span>
+						<span class="font-medium">${{ object.total_price|floatformat:2 }}</span>
+					</div>
+					<div class="flex justify-between">
+						<span>Total Margen:</span>
+						<span class="font-medium text-success">${{ object.total_margin|floatformat:2 }}</span>
+					</div>
+					<div class="flex justify-between">
+						<span>Estado:</span>
+						<span class="badge badge-sm {% if object.status == 'PENDIENTE' %}badge-warning{% elif object.status == 'CONFIRMADO' %}badge-success{% else %}badge-ghost{% endif %}">
+							{{ object.status }}
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Botones -->
+		<div class="flex gap-2 justify-end">
+			<a href="{% url 'sellers:orders' %}" class="btn btn-sm btn-ghost">Cancelar</a>
+			<button type="submit" class="btn btn-sm btn-primary">Actualizar Orden</button>
+		</div>
+	</form>
+</section>
+{% endblock %}
