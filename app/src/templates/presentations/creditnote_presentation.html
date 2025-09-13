@@ -2,7 +2,7 @@
 {% load humanize %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container mt-4 bg-white">
     <div class="mb-5">
         <!-- Encabezado de Nota de Crédito -->
         <div class="row mb-4 align-items-center">
@@ -117,6 +117,10 @@
                 <a href="{% url 'creditnote_list' %}" class="btn btn-secondary btn-sm">
                     <i class="las la-arrow-left me-1"></i>
                     <span class="btn-text">Volver a la Lista</span>
+                </a>
+                <a href="{% url 'creditnote_pdf' credit_note.id %}" class="btn btn-success btn-sm">
+                    <i class="las la-file-pdf me-1"></i>
+                    <span class="btn-text">Descargar PDF</span>
                 </a>
                 {% if credit_note.status != 'ANULADO' %}
                 <form method="post" action="{% url 'creditnote_void' credit_note.id %}" class="d-inline" onsubmit="return confirm('¿Está seguro de que desea anular esta nota de crédito? Esta acción es irreversible.');">
