@@ -102,6 +102,18 @@ class Command(BaseCommand):
             user_seller.set_password('seguro')
             user_seller.save()
 
+        # Usuario de Ventas Kosmo
+        user_ventas_new = CustomUserModel.get('ventas@kosmoflowers.com')
+        if not user_ventas_new:
+            user_ventas_new = CustomUserModel(
+                email='ventas@kosmoflowers.com',
+                first_name='Ventas',
+                last_name='Kosmo',
+                is_staff=True,
+            )
+            user_ventas_new.set_password('seguro')
+            user_ventas_new.save()
+
     def create_licences(self):
         if License.objects.all().count() > 0:
             print('Ya existen licencias')
