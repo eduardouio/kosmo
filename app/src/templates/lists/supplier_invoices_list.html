@@ -39,12 +39,14 @@
         <thead>
         <tr>
             <th class="bg-secondary bg-opacity-25 text-center p-1">OV</th>
+            <th class="bg-secondary bg-opacity-25 p-1">N° Factura</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Proveedor</th>
+            <th class="bg-secondary bg-opacity-25 text-center p-1">Tallos</th>
+            <th class="bg-secondary bg-opacity-25 text-center p-1">Valor Total</th>
+            <th class="bg-secondary bg-opacity-25 p-1">N° Factura Cliente</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Cliente</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Fecha Emisión</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Vencimiento</th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">Tallos</th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">Valor Total</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Dias</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Pago</th>
         </tr>
@@ -62,21 +64,21 @@
                     {% endif %}
                 </td>
                 <td class="p-0">
-                    <div class="">
-                        <span class="badge border text-muted">{{ invoice.num_invoice }}</span>
-                        <span>{{ invoice.partner.name }}</span>
-                    </div>
+                    {{ invoice.num_invoice }}
                 </td>
                 <td class="p-0">
-                    <div class="">
-                        <span class="badge border text-muted">{{ invoice.customer_invoice_num }}</span>
-                        <span>{{ invoice.customer_name }}</span>
-                    </div>
+                    {{ invoice.partner.name }}
+                </td>
+                <td class="p-0 text-center">{{ invoice.tot_stem_flower|default:"0" }}</td>
+                <td class="p-0 text-end">{{ invoice.total_price }}</td>
+                <td class="p-0">
+                    {{ invoice.customer_invoice_num }}
+                </td>
+                <td class="p-0">
+                    {{ invoice.customer_name }}
                 </td>
                 <td class="p-0 text-end">{{ invoice.date|date:"d/m/Y" }}</td>
                 <td class="p-0 text-end">{{ invoice.due_date|date:"d/m/Y" }}</td>
-                <td class="p-0 text-center">{{ invoice.tot_stem_flower|default:"0" }}</td>
-                <td class="p-0 text-end">{{ invoice.total_price }}</td>
                 <td class="p-0 text-center">
                     {% if invoice.days_to_due %}
                         {{ invoice.days_to_due }}
