@@ -20,6 +20,7 @@ from .TemplateCollection import TemplateCollection
 from .PDFCollection import PDFCollection
 from .TemplateCreditNote import TemplateCreditNote
 from .PDFCreditNote import PDFCreditNote
+from .GeneralPartnerStatmentAccount import GeneralPartnerStatmentAccount
 
 __all__ = [
     'PDFReportSupOrder',
@@ -44,4 +45,5 @@ __all__ = [
     'PDFCollection',
     'TemplateCreditNote',
     'PDFCreditNote',
+	'GeneralPartnerStatmentAccount',
 ]

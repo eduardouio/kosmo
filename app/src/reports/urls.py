@@ -23,6 +23,7 @@ from .views import (
     TemplateCollection,
     TemplateCreditNote,
     PDFCreditNote,
+	GeneralPartnerStatmentAccount,
 )
 
 urlpatterns = [
@@ -44,6 +45,7 @@ urlpatterns = [
     path('reports/sales-by-product/', SalesByProductReportView.as_view(), name='sales_by_product_report'),
     path('reports/partner-account-statement/', PartnerAccountStatmentView.as_view(), name='partner_account_statement'),
     path('reports/partner-account-statement/pdf/', PartnerAccountStatmentView.as_view(), {'template_name': 'reports/status_account.html'}, name='partner_account_statement_pdf'),
+    path('reports/general-partner-account-statement/', GeneralPartnerStatmentAccount.as_view(), name='general_partner_account_statement'),
     path('reports/partner-search/', PartnerSearchView.as_view(), name='partner_search'),
     path('reports/collection-template/<int:id_collection>/', TemplateCollection.as_view(), name='collection_template'),
     path('reports/collection/<int:id_collection>/', PDFCollection.as_view(), name='collection_pdf'),
