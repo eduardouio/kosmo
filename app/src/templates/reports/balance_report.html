@@ -51,25 +51,6 @@
         font-size: 0.9rem;
         margin-top: 3px;
     }
-    .kpi-card {
-        background: white;
-        border-radius: 8px;
-        padding: 12px;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        margin-bottom: 10px;
-    }
-    .kpi-card h5 {
-        color: #495057;
-        margin: 0;
-        font-size: 1.4rem;
-    }
-    .kpi-card small {
-        color: #6c757d;
-        display: block;
-        margin-top: 3px;
-        font-size: 0.8rem;
-    }
     .balance-scale {
         display: flex;
         align-items: center;
@@ -194,10 +175,99 @@
         transform: translateY(-2px);
     }
     
+    /* Tablas scrolleables de tamaño fijo */
+    .scrollable-table-card {
+        height: 450px;
+    }
+    
+    .scrollable-table-card .card-body {
+        padding: 0;
+        height: 400px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        padding-bottom: 40px;
+    }
+    
+    .scrollable-table-card .table-responsive {
+        flex: 1;
+        overflow-y: auto;
+        font-size: 0.85rem;
+    }
+    
+    .scrollable-table-card .table {
+        margin: 0;
+        width: 100%;
+    }
+    
+    .scrollable-table-card .table th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 10;
+        border-top: none;
+        font-size: 0.8rem;
+        padding: 10px 8px;
+        white-space: nowrap;
+    }
+    
+    .scrollable-table-card .table td {
+        font-size: 0.8rem;
+        padding: 8px;
+        white-space: nowrap;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .scrollable-table-card .table tr.expanded {
+        background-color: #f8f9fa;
+    }
+    
+    .scrollable-table-card .table tr.expanded td {
+        padding: 12px 8px;
+    }
+    
+    .scrollable-table-card .table tr.expanded .expandable-name {
+        max-width: none;
+    }
+    
+    .expandable-name {
+        cursor: pointer;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        position: relative;
+        transition: all 0.2s ease;
+    }
+    
+    .expandable-name:hover {
+        background-color: #e9ecef;
+        border-radius: 3px;
+    }
+    
+    .expand-icon {
+        font-size: 0.7rem;
+        margin-left: 5px;
+        opacity: 0.6;
+        transition: transform 0.2s ease;
+    }
+    
+    .name-text {
+        display: inline-block;
+        max-width: calc(100% - 20px);
+    }
+    
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .table-responsive {
             font-size: 0.875rem;
+        }
+        .scrollable-table-card {
+            height: 300px;
+        }
+        .scrollable-table-card .card-body {
+            height: 250px;
         }
     }
 </style>
@@ -341,30 +411,68 @@
         </div>
     </div>
 
-    <!-- KPIs Compactos -->
-    <div class="row">
-        <div class="col-md-3 col-6">
-            <div class="kpi-card">
-                <h5>${{ total_margen|floatformat:0 }}</h5>
-                <small>Margen Total</small>
+    <!-- Estado de Facturas -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="las la-file-invoice-dollar me-2"></i>Estado Facturas de Venta</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="text-center p-2 bg-success bg-opacity-10 rounded">
+                                <h5 class="text-success mb-1">{{ facturas_venta_pagadas }}</h5>
+                                <small class="text-muted">Pagadas</small>
+                                <div class="small text-success">${{ monto_ventas_pagadas|floatformat:0 }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-2 bg-warning bg-opacity-10 rounded">
+                                <h5 class="text-warning mb-1">{{ facturas_venta_pendientes }}</h5>
+                                <small class="text-muted">Pendientes</small>
+                                <div class="small text-warning">${{ monto_ventas_pendientes|floatformat:0 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Efectividad de Cobro</span>
+                            <span class="fw-bold">{{ kpis.efectividad_cobro|floatformat:1 }}%</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-3 col-6">
-            <div class="kpi-card">
-                <h5>{{ margen_contribucion|floatformat:1 }}%</h5>
-                <small>% Margen</small>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="kpi-card">
-                <h5>${{ kpis.ticket_promedio_venta|floatformat:0 }}</h5>
-                <small>Ticket Venta</small>
-            </div>
-        </div>
-        <div class="col-md-3 col-6">
-            <div class="kpi-card">
-                <h5>{{ kpis.ratio_ventas_compras|floatformat:1 }}</h5>
-                <small>Ratio V/C</small>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h6><i class="las la-receipt me-2"></i>Estado Facturas de Compra</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="text-center p-2 bg-success bg-opacity-10 rounded">
+                                <h5 class="text-success mb-1">{{ facturas_compra_pagadas }}</h5>
+                                <small class="text-muted">Pagadas</small>
+                                <div class="small text-success">${{ monto_compras_pagadas|floatformat:0 }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-2 bg-danger bg-opacity-10 rounded">
+                                <h5 class="text-danger mb-1">{{ facturas_compra_pendientes }}</h5>
+                                <small class="text-muted">Pendientes</small>
+                                <div class="small text-danger">${{ monto_compras_pendientes|floatformat:0 }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>% Pagos al Día</span>
+                            <span class="fw-bold">{{ kpis.porcentaje_facturas_compra_pagadas|floatformat:1 }}%</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -381,70 +489,108 @@
 
     <!-- Tablas de Resumen -->
     <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
+        <div class="col-12">
+            <div class="card scrollable-table-card">
                 <div class="card-header">
-                    <h6><i class="las la-truck me-2"></i>Top Proveedores</h6>
+                    <h6><i class="las la-truck me-2"></i>Top Proveedores (Compras)</h6>
                 </div>
                 <div class="card-body">
                     {% if compras_por_proveedor %}
                         <div class="table-responsive">
-                            <table class="table table-sm">
+                            <table class="table table-sm table-striped">
                                 <thead>
                                     <tr>
                                         <th>Proveedor</th>
-                                        <th class="text-center">Cantidad</th>
-                                        <th class="text-end">Monto Total</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-center">FB Equiv</th>
+                                        <th class="text-center">Tallos</th>
+                                        <th class="text-center">EB</th>
+                                        <th class="text-center">HB</th>
+                                        <th class="text-center">QB</th>
+                                        <th class="text-center">FB</th>
+                                        <th class="text-end">Monto</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for proveedor in compras_por_proveedor|slice:":8" %}
-                                    <tr>
-                                        <td>{{ proveedor.partner__name|truncatechars:30 }}</td>
+                                    {% for proveedor in compras_por_proveedor %}
+                                    <tr class="provider-row" data-row-id="prov-{{ forloop.counter }}">
+                                        <td class="expandable-name" onclick="toggleRow('prov-{{ forloop.counter }}')" data-full-name="{{ proveedor.partner__name }}">
+                                            <span class="name-text">{{ proveedor.partner__name|truncatechars:25 }}</span>
+                                            <i class="expand-icon las la-chevron-down"></i>
+                                        </td>
                                         <td class="text-center">{{ proveedor.count }}</td>
-                                        <td class="text-end">${{ proveedor.total|floatformat:2 }}</td>
+                                        <td class="text-center">{{ proveedor.fb_equivalente|floatformat:1 }}</td>
+                                        <td class="text-center">{{ proveedor.total_tallos|default:0 }}</td>
+                                        <td class="text-center">{{ proveedor.total_eb|default:0 }}</td>
+                                        <td class="text-center">{{ proveedor.total_hb|default:0 }}</td>
+                                        <td class="text-center">{{ proveedor.total_qb|default:0 }}</td>
+                                        <td class="text-center">{{ proveedor.total_fb|default:0 }}</td>
+                                        <td class="text-end">${{ proveedor.total|floatformat:0 }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-muted">No hay datos disponibles</p>
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <p class="text-muted mb-0">No hay datos disponibles</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
+    </div>
+    
+    <!-- Tabla de Clientes -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card scrollable-table-card">
                 <div class="card-header">
-                    <h6><i class="las la-users me-2"></i>Top Clientes</h6>
+                    <h6><i class="las la-users me-2"></i>Top Clientes (Ventas)</h6>
                 </div>
                 <div class="card-body">
                     {% if ventas_por_cliente %}
                         <div class="table-responsive">
-                            <table class="table table-sm">
+                            <table class="table table-sm table-striped">
                                 <thead>
                                     <tr>
                                         <th>Cliente</th>
-                                        <th class="text-center">Cantidad</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-center">FB Equiv</th>
+                                        <th class="text-center">Tallos</th>
+                                        <th class="text-center">EB</th>
+                                        <th class="text-center">HB</th>
+                                        <th class="text-center">QB</th>
+                                        <th class="text-center">FB</th>
                                         <th class="text-end">Margen</th>
                                         <th class="text-end">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for cliente in ventas_por_cliente|slice:":8" %}
-                                    <tr>
-                                        <td>{{ cliente.partner__name|truncatechars:25 }}</td>
+                                    {% for cliente in ventas_por_cliente %}
+                                    <tr class="client-row" data-row-id="cli-{{ forloop.counter }}">
+                                        <td class="expandable-name" onclick="toggleRow('cli-{{ forloop.counter }}')" data-full-name="{{ cliente.partner__name }}">
+                                            <span class="name-text">{{ cliente.partner__name|truncatechars:25 }}</span>
+                                            <i class="expand-icon las la-chevron-down"></i>
+                                        </td>
                                         <td class="text-center">{{ cliente.count }}</td>
-                                        <td class="text-end">${{ cliente.margin|floatformat:2 }}</td>
-                                        <td class="text-end">${{ cliente.total|floatformat:2 }}</td>
+                                        <td class="text-center">{{ cliente.fb_equivalente|floatformat:1 }}</td>
+                                        <td class="text-center">{{ cliente.total_tallos|default:0 }}</td>
+                                        <td class="text-center">{{ cliente.total_eb|default:0 }}</td>
+                                        <td class="text-center">{{ cliente.total_hb|default:0 }}</td>
+                                        <td class="text-center">{{ cliente.total_qb|default:0 }}</td>
+                                        <td class="text-center">{{ cliente.total_fb|default:0 }}</td>
+                                        <td class="text-end">${{ cliente.margin|floatformat:0 }}</td>
+                                        <td class="text-end">${{ cliente.total|floatformat:0 }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     {% else %}
-                        <p class="text-muted">No hay datos disponibles</p>
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <p class="text-muted mb-0">No hay datos disponibles</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -453,15 +599,15 @@
 
     <!-- Detalle de Flujo de Efectivo -->
     <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6><i class="las la-arrow-down me-2 text-success"></i>Detalle de Cobros (Ingresos)</h6>
+        <div class="col-12">
+            <div class="card scrollable-table-card">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="las la-arrow-down me-2"></i>Detalle de Cobros (Ingresos)</h6>
                 </div>
                 <div class="card-body">
                     {% if detalle_ingresos %}
                         <div class="table-responsive">
-                            <table class="table table-sm">
+                            <table class="table table-sm table-striped">
                                 <thead>
                                     <tr>
                                         <th>Número</th>
@@ -471,35 +617,43 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for cobro in detalle_ingresos|slice:":8" %}
+                                    {% for cobro in detalle_ingresos %}
                                     <tr>
-                                        <td>{{ cobro.payment_number|default:"N/A"|truncatechars:15 }}</td>
+                                        <td title="{{ cobro.payment_number|default:'N/A' }}">{{ cobro.payment_number|default:"N/A"|truncatechars:12 }}</td>
                                         <td>{{ cobro.date|date:"d/m/Y" }}</td>
                                         <td>{{ cobro.method }}</td>
-                                        <td class="text-end">${{ cobro.amount|floatformat:2 }}</td>
+                                        <td class="text-end">${{ cobro.amount|floatformat:0 }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
-                        <div class="text-end mt-2 pt-2 border-top">
-                            <strong>Total Ingresos: ${{ ingresos|floatformat:2 }}</strong>
+                        <div class="position-absolute bottom-0 end-0 p-2 bg-white border-top w-100">
+                            <div class="text-end">
+                                <strong class="text-success">Total: ${{ ingresos|floatformat:0 }}</strong>
+                            </div>
                         </div>
                     {% else %}
-                        <p class="text-muted">Sin cobros registrados</p>
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <p class="text-muted mb-0">Sin cobros registrados</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h6><i class="las la-arrow-up me-2 text-danger"></i>Detalle de Pagos (Egresos)</h6>
+    </div>
+    
+    <!-- Tabla de Pagos -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card scrollable-table-card">
+                <div class="card-header bg-danger text-white">
+                    <h6 class="mb-0"><i class="las la-arrow-up me-2"></i>Detalle de Pagos (Egresos)</h6>
                 </div>
                 <div class="card-body">
                     {% if detalle_egresos %}
                         <div class="table-responsive">
-                            <table class="table table-sm">
+                            <table class="table table-sm table-striped">
                                 <thead>
                                     <tr>
                                         <th>Número</th>
@@ -509,22 +663,26 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for pago in detalle_egresos|slice:":8" %}
+                                    {% for pago in detalle_egresos %}
                                     <tr>
-                                        <td>{{ pago.payment_number|default:"N/A"|truncatechars:15 }}</td>
+                                        <td title="{{ pago.payment_number|default:'N/A' }}">{{ pago.payment_number|default:"N/A"|truncatechars:12 }}</td>
                                         <td>{{ pago.date|date:"d/m/Y" }}</td>
                                         <td>{{ pago.method }}</td>
-                                        <td class="text-end">${{ pago.amount|floatformat:2 }}</td>
+                                        <td class="text-end">${{ pago.amount|floatformat:0 }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
-                        <div class="text-end mt-2 pt-2 border-top">
-                            <strong>Total Egresos: ${{ egresos|floatformat:2 }}</strong>
+                        <div class="position-absolute bottom-0 end-0 p-2 bg-white border-top w-100">
+                            <div class="text-end">
+                                <strong class="text-danger">Total: ${{ egresos|floatformat:0 }}</strong>
+                            </div>
                         </div>
                     {% else %}
-                        <p class="text-muted">Sin pagos registrados</p>
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <p class="text-muted mb-0">Sin pagos registrados</p>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -680,6 +838,46 @@
             scaleRight.style.transform = `rotate(${plateAngle}deg)`;
         }
     });
+
+    // Función para expandir/contraer filas de las tablas
+    function toggleRow(rowId) {
+        const row = document.querySelector(`[data-row-id="${rowId}"]`);
+        const nameCell = row.querySelector('.expandable-name');
+        const nameText = nameCell.querySelector('.name-text');
+        const icon = nameCell.querySelector('.expand-icon');
+        const fullName = nameCell.dataset.fullName;
+        
+        if (row.classList.contains('expanded')) {
+            // Contraer fila - mostrar nombre truncado
+            row.classList.remove('expanded');
+            nameText.style.whiteSpace = 'nowrap';
+            nameText.style.overflow = 'hidden';
+            nameText.style.textOverflow = 'ellipsis';
+            
+            // Volver al texto truncado
+            if (fullName.length > 25) {
+                nameText.textContent = fullName.substring(0, 22) + '...';
+            } else {
+                nameText.textContent = fullName;
+            }
+            
+            icon.classList.remove('la-chevron-up');
+            icon.classList.add('la-chevron-down');
+        } else {
+            // Expandir fila - mostrar nombre completo
+            row.classList.add('expanded');
+            nameText.style.whiteSpace = 'normal';
+            nameText.style.overflow = 'visible';
+            nameText.style.textOverflow = 'clip';
+            nameText.style.wordBreak = 'break-word';
+            
+            // Mostrar nombre completo
+            nameText.textContent = fullName;
+            
+            icon.classList.remove('la-chevron-down');
+            icon.classList.add('la-chevron-up');
+        }
+    }
 
     // Funciones auxiliares
     function clearFilters() {

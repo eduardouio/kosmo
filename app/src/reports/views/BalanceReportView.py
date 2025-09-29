@@ -1,10 +1,23 @@
+"""
+Reporte de Balance Financiero basado en Facturas, Cobros y Pagos.
+
+Este reporte se basa completamente en:
+- Facturas de Compra (FAC_COMPRA): Para análisis de gastos/inversiones
+- Facturas de Venta (FAC_VENTA): Para análisis de ingresos y márgenes
+- Pagos (EGRESO): Para análisis de flujo de efectivo de salida
+- Cobros (INGRESO): Para análisis de flujo de efectivo de entrada
+
+No utiliza órdenes (ORD_COMPRA/ORD_VENTA) sino únicamente las facturas
+emitidas y los movimientos de efectivo reales.
+"""
+
 from django.shortcuts import render
 from django.views import View
 from django.http import JsonResponse
 from django.db.models import Sum, Count
 from django.utils import timezone
 from datetime import timedelta
-from trade.models import Order, Payment
+from trade.models import Invoice, Payment
 from decimal import Decimal
 import json
 
@@ -23,48 +36,84 @@ class BalanceReportView(View):
         date_to = request.GET.get('date_to', end_date.strftime('%Y-%m-%d'))
 
         # === ANÁLISIS DE COMPRAS ===
-        purchase_orders = Order.objects.filter(
-            type_document='ORD_COMPRA',
+        purchase_invoices = Invoice.objects.filter(
+            type_document='FAC_COMPRA',
             date__date__range=[date_from, date_to],
-            status__in=['CONFIRMADO', 'FACTURADO']
+            status__in=['PENDIENTE', 'PAGADO'],
+            is_active=True
         )
 
-        total_compras = purchase_orders.aggregate(
+        total_compras = purchase_invoices.aggregate(
             Sum('total_price'))['total_price__sum'] or Decimal('0')
-        count_compras = purchase_orders.count()
+        count_compras = purchase_invoices.count()
 
-        # Compras por proveedor
-        compras_por_proveedor = purchase_orders.values(
+        # Compras por proveedor con totales de cajas y tallos
+        compras_por_proveedor = purchase_invoices.values(
             'partner__name'
         ).annotate(
             total=Sum('total_price'),
-            count=Count('id')
-        ).order_by('-total')[:10]
+            count=Count('id'),
+            total_eb=Sum('eb_total'),
+            total_hb=Sum('hb_total'),
+            total_qb=Sum('qb_total'),
+            total_fb=Sum('fb_total'),
+            total_tallos=Sum('tot_stem_flower')
+        ).order_by('-total')[:15]
+        
+        # Calcular FB equivalente para compras
+        for proveedor in compras_por_proveedor:
+            total_fb = Decimal(str(proveedor['total_fb'] or 0))
+            total_hb = Decimal(str(proveedor['total_hb'] or 0))
+            total_qb = Decimal(str(proveedor['total_qb'] or 0))
+            total_eb = Decimal(str(proveedor['total_eb'] or 0))
+            
+            fb_equivalente = (total_fb + (total_hb / Decimal('2')) +
+                              (total_qb / Decimal('4')) + 
+                              (total_eb / Decimal('8')))
+            proveedor['fb_equivalente'] = fb_equivalente
 
         # === ANÁLISIS DE VENTAS ===
-        sales_orders = Order.objects.filter(
-            type_document='ORD_VENTA',
+        sales_invoices = Invoice.objects.filter(
+            type_document='FAC_VENTA',
             date__date__range=[date_from, date_to],
-            status__in=['CONFIRMADO', 'FACTURADO']
+            status__in=['PENDIENTE', 'PAGADO'],
+            is_active=True
         )
 
         # Total de ventas (precio base + margen) y margen real obtenido
-        total_price_base = sales_orders.aggregate(
+        total_price_base = sales_invoices.aggregate(
             Sum('total_price'))['total_price__sum'] or Decimal('0')
-        total_margen = sales_orders.aggregate(
+        total_margen = sales_invoices.aggregate(
             Sum('total_margin'))['total_margin__sum'] or Decimal('0')
         # Total de ventas real incluye el margen
         total_ventas = total_price_base + total_margen
-        count_ventas = sales_orders.count()
+        count_ventas = sales_invoices.count()
 
-        # Ventas por cliente (incluyendo margen real)
-        ventas_por_cliente = sales_orders.values(
+        # Ventas por cliente con totales de cajas y tallos
+        ventas_por_cliente = sales_invoices.values(
             'partner__name'
         ).annotate(
             total=Sum('total_price'),
             margin=Sum('total_margin'),  # Margen real obtenido por cliente
-            count=Count('id')
-        ).order_by('-total')[:10]
+            count=Count('id'),
+            total_eb=Sum('eb_total'),
+            total_hb=Sum('hb_total'),
+            total_qb=Sum('qb_total'),
+            total_fb=Sum('fb_total'),
+            total_tallos=Sum('tot_stem_flower')
+        ).order_by('-total')[:15]
+        
+        # Calcular FB equivalente para ventas
+        for cliente in ventas_por_cliente:
+            total_fb = Decimal(str(cliente['total_fb'] or 0))
+            total_hb = Decimal(str(cliente['total_hb'] or 0))
+            total_qb = Decimal(str(cliente['total_qb'] or 0))
+            total_eb = Decimal(str(cliente['total_eb'] or 0))
+            
+            fb_equivalente = (total_fb + (total_hb / Decimal('2')) +
+                              (total_qb / Decimal('4')) +
+                              (total_eb / Decimal('8')))
+            cliente['fb_equivalente'] = fb_equivalente
 
         # === ANÁLISIS DE PAGOS ===
         payments = Payment.objects.filter(
@@ -94,6 +143,42 @@ class BalanceReportView(View):
             'payment_number', 'date', 'amount', 'method'
         ).order_by('-date')[:10]
 
+        # === ANÁLISIS DE FACTURAS Y SU ESTADO DE PAGO ===
+        # Facturas de venta pagadas vs pendientes
+        facturas_venta_pagadas = sales_invoices.filter(
+            status='PAGADO').count()
+        facturas_venta_pendientes = sales_invoices.filter(
+            status='PENDIENTE').count()
+        
+        # Facturas de compra pagadas vs pendientes
+        facturas_compra_pagadas = purchase_invoices.filter(
+            status='PAGADO').count()
+        facturas_compra_pendientes = purchase_invoices.filter(
+            status='PENDIENTE').count()
+        
+        # Montos de facturas por estado
+        monto_ventas_pagadas = sales_invoices.filter(
+            status='PAGADO').aggregate(
+            Sum('total_price'))['total_price__sum'] or Decimal('0')
+        monto_ventas_pendientes = sales_invoices.filter(
+            status='PENDIENTE').aggregate(
+            Sum('total_price'))['total_price__sum'] or Decimal('0')
+        
+        monto_compras_pagadas = purchase_invoices.filter(
+            status='PAGADO').aggregate(
+            Sum('total_price'))['total_price__sum'] or Decimal('0')
+        monto_compras_pendientes = purchase_invoices.filter(
+            status='PENDIENTE').aggregate(
+            Sum('total_price'))['total_price__sum'] or Decimal('0')
+
+        # Margen de facturas pagadas
+        margen_ventas_pagadas = sales_invoices.filter(
+            status='PAGADO').aggregate(
+            Sum('total_margin'))['total_margin__sum'] or Decimal('0')
+        margen_ventas_pendientes = sales_invoices.filter(
+            status='PENDIENTE').aggregate(
+            Sum('total_margin'))['total_margin__sum'] or Decimal('0')
+
         # === CÁLCULOS DE BALANCE ===
         # La utilidad bruta es el margen real obtenido en las ventas
         utilidad_bruta = total_margen
@@ -104,10 +189,6 @@ class BalanceReportView(View):
 
         # Flujo de efectivo real
         flujo_efectivo = ingresos - egresos
-
-        # Margen de contribución real (basado en el margen calculado en ventas)
-        margen_contribucion = (
-            total_margen / total_ventas * 100) if total_ventas > 0 else 0
 
         # Cálculo para la inclinación de la balanza
         # En lugar de comparar ventas vs compras, usamos el margen
@@ -146,23 +227,26 @@ class BalanceReportView(View):
             month_end = (month_start + timedelta(days=32)
                          ).replace(day=1) - timedelta(days=1)
 
-            month_purchases = Order.objects.filter(
-                type_document='ORD_COMPRA',
+            month_purchases = Invoice.objects.filter(
+                type_document='FAC_COMPRA',
                 date__date__range=[month_start, month_end],
-                status__in=['CONFIRMADO', 'FACTURADO']
+                status__in=['PENDIENTE', 'PAGADO'],
+                is_active=True
             ).aggregate(Sum('total_price'))['total_price__sum'] or Decimal('0')
 
-            month_sales_base = Order.objects.filter(
-                type_document='ORD_VENTA',
+            month_sales_base = Invoice.objects.filter(
+                type_document='FAC_VENTA',
                 date__date__range=[month_start, month_end],
-                status__in=['CONFIRMADO', 'FACTURADO']
+                status__in=['PENDIENTE', 'PAGADO'],
+                is_active=True
             ).aggregate(Sum('total_price'))['total_price__sum'] or Decimal('0')
 
             # Obtener el margen real del mes
-            month_margin = Order.objects.filter(
-                type_document='ORD_VENTA',
+            month_margin = Invoice.objects.filter(
+                type_document='FAC_VENTA',
                 date__date__range=[month_start, month_end],
-                status__in=['CONFIRMADO', 'FACTURADO']
+                status__in=['PENDIENTE', 'PAGADO'],
+                is_active=True
             ).aggregate(
                 Sum('total_margin'))['total_margin__sum'] or Decimal('0')
             
@@ -184,13 +268,21 @@ class BalanceReportView(View):
             # ROI basado en margen real vs inversión en compras
             'roi': (total_margen / total_compras * 100
                     ) if total_compras > 0 else 0,
-            'ticket_promedio_venta': (
-                total_ventas / count_ventas) if count_ventas > 0 else 0,
-            'ticket_promedio_compra': (
-                total_compras / count_compras) if count_compras > 0 else 0,
-            # Ratio de eficiencia: cuánto se vende por cada peso comprado
-            'ratio_ventas_compras': (
-                total_ventas / total_compras) if total_compras > 0 else 0,
+            # KPIs de facturas
+            'porcentaje_facturas_venta_pagadas': (
+                facturas_venta_pagadas / count_ventas * 100
+            ) if count_ventas > 0 else 0,
+            'porcentaje_facturas_compra_pagadas': (
+                facturas_compra_pagadas / count_compras * 100
+            ) if count_compras > 0 else 0,
+            # Efectividad de cobro
+            'efectividad_cobro': (
+                monto_ventas_pagadas / total_ventas * 100
+            ) if total_ventas > 0 else 0,
+            # Diferencia entre flujo real y flujo teórico
+            'diferencia_flujo_teorico': (
+                flujo_efectivo - (total_ventas - total_compras)
+            ),
         }
 
         context = {
@@ -199,18 +291,30 @@ class BalanceReportView(View):
                 'date_from': date_from,
                 'date_to': date_to,
             },
-            # Datos de compras
+            # Datos de compras (Facturas)
             'total_compras': total_compras,
             'count_compras': count_compras,
             'compras_por_proveedor': compras_por_proveedor,
 
-            # Datos de ventas
+            # Datos de ventas (Facturas)
             'total_ventas': total_ventas,
             'total_margen': total_margen,
             'count_ventas': count_ventas,
             'ventas_por_cliente': ventas_por_cliente,
 
-            # Datos de pagos
+            # Estado de facturas
+            'facturas_venta_pagadas': facturas_venta_pagadas,
+            'facturas_venta_pendientes': facturas_venta_pendientes,
+            'facturas_compra_pagadas': facturas_compra_pagadas,
+            'facturas_compra_pendientes': facturas_compra_pendientes,
+            'monto_ventas_pagadas': monto_ventas_pagadas,
+            'monto_ventas_pendientes': monto_ventas_pendientes,
+            'monto_compras_pagadas': monto_compras_pagadas,
+            'monto_compras_pendientes': monto_compras_pendientes,
+            'margen_ventas_pagadas': margen_ventas_pagadas,
+            'margen_ventas_pendientes': margen_ventas_pendientes,
+
+            # Datos de pagos/cobros
             'ingresos': ingresos,
             'egresos': egresos,
             'flujo_efectivo': flujo_efectivo,
@@ -220,7 +324,6 @@ class BalanceReportView(View):
             # Balance y KPIs
             'utilidad_bruta': utilidad_bruta,
             'rentabilidad': rentabilidad,
-            'margen_contribucion': margen_contribucion,
             'balance_angle': balance_angle,  # Ángulo para inclinar la balanza
             'kpis': kpis,
 
