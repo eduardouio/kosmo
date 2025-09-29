@@ -230,7 +230,7 @@
           </thead>
           <tbody>
             {% for item in partners_summary %}
-            <tr onclick="viewPartnerDetail({{ item.partner.id }})" style="cursor: pointer;">
+              <tr>
               <td>
                 <strong>{{ item.partner.name }}</strong>
                 <br><small class="text-muted">{{ item.partner.business_tax_id }}</small>
@@ -395,13 +395,6 @@
 
 {% block script %}
 <script>
-  // Función para ver detalle individual
-  function viewPartnerDetail(partnerId) {
-    const currentUrl = new URL(window.location);
-    currentUrl.searchParams.set('partner_id', partnerId);
-    window.location.href = currentUrl.toString();
-  }
-
   // Inicializar DataTables
   $(document).ready(function() {
     $('#consolidatedTable').DataTable({
