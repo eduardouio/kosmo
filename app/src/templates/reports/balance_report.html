@@ -46,10 +46,27 @@
         font-size: 1.8rem;
         font-weight: bold;
     }
+    .balance-card h4 {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: bold;
+    }
     .balance-card .subtitle {
         opacity: 0.9;
         font-size: 0.9rem;
         margin-top: 3px;
+    }
+    .balance-card.compact {
+        padding: 12px;
+        margin-bottom: 10px;
+        min-height: 85px;
+    }
+    .balance-card.compact .subtitle {
+        font-size: 0.8rem;
+        margin-top: 2px;
+    }
+    .balance-card.compact small {
+        font-size: 0.7rem;
     }
     .balance-scale {
         display: flex;
@@ -269,6 +286,25 @@
         .scrollable-table-card .card-body {
             height: 250px;
         }
+        .balance-card.compact {
+            padding: 8px;
+            min-height: 70px;
+        }
+        .balance-card.compact h4 {
+            font-size: 1.2rem;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .balance-card.compact {
+            margin-bottom: 8px;
+        }
+        .balance-card.compact h4 {
+            font-size: 1.1rem;
+        }
+        .balance-card.compact .subtitle {
+            font-size: 0.75rem;
+        }
     }
 </style>
 {% endblock %}
@@ -318,49 +354,57 @@
     </div>
 
     <!-- Balance Principal -->
+        <!-- Balance Principal -->
     <div class="row">
-        <div class="col-md-2 col-6">
-            <div class="balance-card compras">
-                <h3>${{ total_compras|floatformat:0 }}</h3>
+        <div class="col-lg col-md-3 col-6">
+            <div class="balance-card compras compact">
+                <h4>${{ total_compras|floatformat:0 }}</h4>
                 <div class="subtitle">Compras</div>
-                <small>{{ count_compras }} órdenes</small>
+                <small>{{ count_compras }} fact.</small>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="balance-card ventas">
-                <h3>${{ total_ventas|floatformat:0 }}</h3>
+        <div class="col-lg col-md-3 col-6">
+            <div class="balance-card ventas compact">
+                <h4>${{ total_ventas|floatformat:0 }}</h4>
                 <div class="subtitle">Ventas</div>
-                <small>{{ count_ventas }} órdenes</small>
+                <small>{{ count_ventas }} fact.</small>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="balance-card" style="background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);">
-                <h3>${{ total_margen|floatformat:0 }}</h3>
+        <div class="col-lg col-md-3 col-6">
+            <div class="balance-card compact" style="background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);">
+                <h4>${{ total_margen|floatformat:0 }}</h4>
                 <div class="subtitle">Margen</div>
-                <small>{{ margen_contribucion|floatformat:1 }}% del total</small>
+                <small>{{ margen_contribucion|floatformat:1 }}%</small>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="balance-card utilidad">
-                <h3 class="{% if utilidad_bruta >= 0 %}text-white{% else %}text-white{% endif %}">
+        <div class="col-lg col-md-3 col-6">
+            <div class="balance-card compact" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                <h4>${{ total_comisiones|floatformat:0 }}</h4>
+                <div class="subtitle">Comisiones</div>
+                <small>Gastos</small>
+            </div>
+        </div>
+        <div class="col-lg col-md-3 col-6">
+            <div class="balance-card utilidad compact">
+                <h4 class="{% if utilidad_bruta >= 0 %}text-white{% else %}text-white{% endif %}">
                     ${{ utilidad_bruta|floatformat:0 }}
-                </h3>
+                </h4>
                 <div class="subtitle">Utilidad</div>
-                <small>{{ rentabilidad|floatformat:1 }}% rent.</small>
+                <small>{{ rentabilidad|floatformat:1 }}%</small>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="balance-card flujo">
-                <h3>${{ flujo_efectivo|floatformat:2 }}</h3>
+        <div class="col-lg col-md-3 col-6">
+            <div class="balance-card flujo compact">
+                <h4>${{ flujo_efectivo|floatformat:0 }}</h4>
                 <div class="subtitle">Flujo</div>
                 <small>Efectivo</small>
             </div>
         </div>
-        <div class="col-md-2 col-6">
-            <div class="balance-card" style="background: linear-gradient(135deg, #20c997 0%, #198754 100%);">
-                <h3>{{ kpis.roi|floatformat:1 }}%</h3>
-                <div class="subtitle">ROI Real</div>
-                <small>Margen/Inversión</small>
+        <div class="col-lg col-md-3 col-6">
+            <div class="balance-card compact" style="background: linear-gradient(135deg, #20c997 0%, #198754 100%);">
+                <h4>{{ kpis.roi|floatformat:1 }}%</h4>
+                <div class="subtitle">ROI</div>
+                <small>Retorno</small>
             </div>
         </div>
     </div>
@@ -395,11 +439,14 @@
                 <div class="text-center">
                     <h6 class="{% if utilidad_bruta >= 0 %}trend-positive{% else %}trend-negative{% endif %}">
                         {% if utilidad_bruta >= 0 %}
-                            Utilidad: ${{ utilidad_bruta|floatformat:0 }}
+                            Utilidad Neta: ${{ utilidad_bruta|floatformat:0 }}
                         {% else %}
-                            Pérdida: ${{ utilidad_bruta|floatformat:0 }}
+                            Pérdida Neta: ${{ utilidad_bruta|floatformat:0 }}
                         {% endif %}
                     </h6>
+                    <p class="mb-0 small text-muted">
+                        Margen: ${{ total_margen|floatformat:0 }} - Comisiones: ${{ total_comisiones|floatformat:0 }}
+                    </p>
                 </div>
             </div>
         </div>

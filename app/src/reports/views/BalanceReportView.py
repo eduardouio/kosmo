@@ -180,11 +180,15 @@ class BalanceReportView(View):
             Sum('total_margin'))['total_margin__sum'] or Decimal('0')
 
         # === CÁLCULOS DE BALANCE ===
-        # La utilidad bruta es el margen real obtenido en las ventas
-        utilidad_bruta = total_margen
+        # Calcular total de comisiones de las facturas de venta
+        total_comisiones = sales_invoices.aggregate(
+            Sum('comision_seler'))['comision_seler__sum'] or Decimal('0')
+        
+        # La utilidad REAL es el margen menos las comisiones
+        utilidad_bruta = total_margen - total_comisiones
 
-        # La rentabilidad sobre ventas (margen bruto en porcentaje)
-        rentabilidad = (total_margen / total_ventas *
+        # La rentabilidad sobre ventas (utilidad real en porcentaje)
+        rentabilidad = (utilidad_bruta / total_ventas *
                         100) if total_ventas > 0 else 0
 
         # Flujo de efectivo real
@@ -241,24 +245,30 @@ class BalanceReportView(View):
                 is_active=True
             ).aggregate(Sum('total_price'))['total_price__sum'] or Decimal('0')
 
-            # Obtener el margen real del mes
-            month_margin = Invoice.objects.filter(
+            # Obtener el margen y comisiones del mes
+            month_invoices = Invoice.objects.filter(
                 type_document='FAC_VENTA',
                 date__date__range=[month_start, month_end],
                 status__in=['PENDIENTE', 'PAGADO'],
                 is_active=True
-            ).aggregate(
+            )
+            
+            month_margin = month_invoices.aggregate(
                 Sum('total_margin'))['total_margin__sum'] or Decimal('0')
+            month_commissions = month_invoices.aggregate(
+                Sum('comision_seler'))['comision_seler__sum'] or Decimal('0')
             
             # Total de ventas incluye el margen
             month_sales = month_sales_base + month_margin
+            # Utilidad real del mes (margen menos comisiones)
+            month_profit = month_margin - month_commissions
 
             monthly_data.append({
                 'month': month_start.strftime('%m/%Y'),
                 'purchases': float(month_purchases),
                 'sales': float(month_sales),
-                # Usar margen real en lugar de ventas - compras
-                'profit': float(month_margin)
+                # Usar utilidad real (margen - comisiones)
+                'profit': float(month_profit)
             })
 
         monthly_data.reverse()  # Ordenar cronológicamente
@@ -299,6 +309,7 @@ class BalanceReportView(View):
             # Datos de ventas (Facturas)
             'total_ventas': total_ventas,
             'total_margen': total_margen,
+            'total_comisiones': total_comisiones,
             'count_ventas': count_ventas,
             'ventas_por_cliente': ventas_por_cliente,
 
@@ -324,6 +335,9 @@ class BalanceReportView(View):
             # Balance y KPIs
             'utilidad_bruta': utilidad_bruta,
             'rentabilidad': rentabilidad,
+            'margen_contribucion': (
+                total_margen / total_ventas * 100
+            ) if total_ventas > 0 else 0,
             'balance_angle': balance_angle,  # Ángulo para inclinar la balanza
             'kpis': kpis,
 
