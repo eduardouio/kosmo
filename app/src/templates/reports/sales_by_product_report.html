@@ -130,10 +130,30 @@
         transform: translateY(-2px);
     }
     
+    /* Estilos específicos para tabla de variedades con más columnas */
+    .varieties-table {
+        font-size: 0.8rem;
+    }
+    
+    .varieties-table th,
+    .varieties-table td {
+        padding: 6px 4px !important;
+        white-space: nowrap;
+    }
+    
+    .fb-equivalent {
+        background-color: #e3f2fd;
+        font-weight: bold;
+        color: #1976d2;
+    }
+    
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .table-responsive {
             font-size: 0.875rem;
+        }
+        .varieties-table {
+            font-size: 0.7rem;
         }
     }
 </style>
@@ -270,7 +290,7 @@
                                     <tr>
                                         <th>Producto</th>
                                         <th class="text-center">Tallos</th>
-                                        <th class="text-center">Órdenes</th>
+                                        <th class="text-center">Facturas</th>
                                         <th class="text-center">Margen</th>
                                         <th class="text-end">Ingresos</th>
                                     </tr>
@@ -286,7 +306,7 @@
                                             </div>
                                         </td>
                                         <td class="text-center">{{ product.total_stems|floatformat:0 }}</td>
-                                        <td class="text-center">{{ product.total_orders }}</td>
+                                        <td class="text-center">{{ product.total_invoices }}</td>
                                         <td class="text-center">${{ product.total_margin|floatformat:2 }}</td>
                                         <td class="text-end">${{ product.total_revenue|floatformat:2 }}</td>
                                     </tr>
@@ -357,15 +377,20 @@
                 <div class="card-body">
                     {% if varieties_analysis %}
                         <div class="table-responsive">
-                            <table class="table table-sm" id="myTableSmall">
+                            <table class="table table-sm varieties-table" id="myTableSmall">
                                 <thead>
                                     <tr>
                                         <th>Variedad</th>
                                         <th class="text-center">Productos</th>
                                         <th class="text-center">Tallos</th>
-                                        <th class="text-center">Órdenes</th>
+                                        <th class="text-center">HB</th>
+                                        <th class="text-center">QB</th>
+                                        <th class="text-center">EB</th>
+                                        <th class="text-center">FB</th>
+                                        <th class="text-center">FB Equiv.</th>
+                                        <th class="text-center">Facturas</th>
                                         <th class="text-end">Ingresos</th>
-                                        <th class="text-center">Promedio/Orden</th>
+                                        <th class="text-center">Promedio/Factura</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -374,11 +399,16 @@
                                         <td><strong>{{ variety.product__variety }}</strong></td>
                                         <td class="text-center">{{ variety.variety_products }}</td>
                                         <td class="text-center">{{ variety.variety_stems|floatformat:0 }}</td>
-                                        <td class="text-center">{{ variety.variety_orders }}</td>
+                                        <td class="text-center">{{ variety.variety_hb|default:0 }}</td>
+                                        <td class="text-center">{{ variety.variety_qb|default:0 }}</td>
+                                        <td class="text-center">{{ variety.variety_eb|default:0 }}</td>
+                                        <td class="text-center">{{ variety.variety_fb|default:0 }}</td>
+                                        <td class="text-center fb-equivalent">{{ variety.fb_equivalent|floatformat:1 }}</td>
+                                        <td class="text-center">{{ variety.variety_invoices }}</td>
                                         <td class="text-end">${{ variety.variety_revenue|floatformat:2 }}</td>
                                         <td class="text-center">
-                                            {% if variety.variety_orders > 0 %}
-                                                ${{ variety.avg_revenue_per_order|floatformat:2 }}
+                                            {% if variety.variety_invoices > 0 %}
+                                                ${{ variety.avg_revenue_per_invoice|floatformat:2 }}
                                             {% else %}
                                                 -
                                             {% endif %}
