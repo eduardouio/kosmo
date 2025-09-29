@@ -240,40 +240,9 @@
         background-color: #f8f9fa;
     }
     
-    .scrollable-table-card .table tr.expanded td {
-        padding: 12px 8px;
-    }
+
     
-    .scrollable-table-card .table tr.expanded .expandable-name {
-        max-width: none;
-    }
-    
-    .expandable-name {
-        cursor: pointer;
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        position: relative;
-        transition: all 0.2s ease;
-    }
-    
-    .expandable-name:hover {
-        background-color: #e9ecef;
-        border-radius: 3px;
-    }
-    
-    .expand-icon {
-        font-size: 0.7rem;
-        margin-left: 5px;
-        opacity: 0.6;
-        transition: transform 0.2s ease;
-    }
-    
-    .name-text {
-        display: inline-block;
-        max-width: calc(100% - 20px);
-    }
+
     
     /* Responsive adjustments */
     @media (max-width: 768px) {
@@ -544,7 +513,7 @@
                 <div class="card-body">
                     {% if compras_por_proveedor %}
                         <div class="table-responsive">
-                            <table class="table table-sm table-striped">
+                            <table id="tableProveedores" class="table table-sm table-striped">
                                 <thead>
                                     <tr>
                                         <th>Proveedor</th>
@@ -560,11 +529,8 @@
                                 </thead>
                                 <tbody>
                                     {% for proveedor in compras_por_proveedor %}
-                                    <tr class="provider-row" data-row-id="prov-{{ forloop.counter }}">
-                                        <td class="expandable-name" onclick="toggleRow('prov-{{ forloop.counter }}')" data-full-name="{{ proveedor.partner__name }}">
-                                            <span class="name-text">{{ proveedor.partner__name|truncatechars:25 }}</span>
-                                            <i class="expand-icon las la-chevron-down"></i>
-                                        </td>
+                                    <tr>
+                                        <td>{{ proveedor.partner__name }}</td>
                                         <td class="text-center">{{ proveedor.count }}</td>
                                         <td class="text-center">{{ proveedor.fb_equivalente|floatformat:1 }}</td>
                                         <td class="text-center">{{ proveedor.total_tallos|default:0 }}</td>
@@ -598,7 +564,7 @@
                 <div class="card-body">
                     {% if ventas_por_cliente %}
                         <div class="table-responsive">
-                            <table class="table table-sm table-striped">
+                            <table id="tableClientes" class="table table-sm table-striped">
                                 <thead>
                                     <tr>
                                         <th>Cliente</th>
@@ -615,11 +581,8 @@
                                 </thead>
                                 <tbody>
                                     {% for cliente in ventas_por_cliente %}
-                                    <tr class="client-row" data-row-id="cli-{{ forloop.counter }}">
-                                        <td class="expandable-name" onclick="toggleRow('cli-{{ forloop.counter }}')" data-full-name="{{ cliente.partner__name }}">
-                                            <span class="name-text">{{ cliente.partner__name|truncatechars:25 }}</span>
-                                            <i class="expand-icon las la-chevron-down"></i>
-                                        </td>
+                                    <tr>
+                                        <td>{{ cliente.partner__name }}</td>
                                         <td class="text-center">{{ cliente.count }}</td>
                                         <td class="text-center">{{ cliente.fb_equivalente|floatformat:1 }}</td>
                                         <td class="text-center">{{ cliente.total_tallos|default:0 }}</td>
@@ -654,7 +617,7 @@
                 <div class="card-body">
                     {% if detalle_ingresos %}
                         <div class="table-responsive">
-                            <table class="table table-sm table-striped">
+                            <table id="tableCobros" class="table table-sm table-striped">
                                 <thead>
                                     <tr>
                                         <th>Número</th>
@@ -700,7 +663,7 @@
                 <div class="card-body">
                     {% if detalle_egresos %}
                         <div class="table-responsive">
-                            <table class="table table-sm table-striped">
+                            <table id="tablePagos" class="table table-sm table-striped">
                                 <thead>
                                     <tr>
                                         <th>Número</th>
@@ -886,45 +849,89 @@
         }
     });
 
-    // Función para expandir/contraer filas de las tablas
-    function toggleRow(rowId) {
-        const row = document.querySelector(`[data-row-id="${rowId}"]`);
-        const nameCell = row.querySelector('.expandable-name');
-        const nameText = nameCell.querySelector('.name-text');
-        const icon = nameCell.querySelector('.expand-icon');
-        const fullName = nameCell.dataset.fullName;
-        
-        if (row.classList.contains('expanded')) {
-            // Contraer fila - mostrar nombre truncado
-            row.classList.remove('expanded');
-            nameText.style.whiteSpace = 'nowrap';
-            nameText.style.overflow = 'hidden';
-            nameText.style.textOverflow = 'ellipsis';
-            
-            // Volver al texto truncado
-            if (fullName.length > 25) {
-                nameText.textContent = fullName.substring(0, 22) + '...';
-            } else {
-                nameText.textContent = fullName;
+
+
+    // Inicializar DataTables con validación
+    function initializeDataTables() {
+        // Configuración común para todas las tablas
+        const commonConfig = {
+            "pageLength": 10,
+            "lengthMenu": [5, 10, 25, 50],
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+            "language": {
+                "lengthMenu": "_MENU_ registros por página",
+                "zeroRecords": "Sin registros encontrados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "Sin registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
             }
+        };
+
+        // Función auxiliar para verificar si una tabla tiene filas
+        function hasTableRows(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return false;
             
-            icon.classList.remove('la-chevron-up');
-            icon.classList.add('la-chevron-down');
-        } else {
-            // Expandir fila - mostrar nombre completo
-            row.classList.add('expanded');
-            nameText.style.whiteSpace = 'normal';
-            nameText.style.overflow = 'visible';
-            nameText.style.textOverflow = 'clip';
-            nameText.style.wordBreak = 'break-word';
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return false;
             
-            // Mostrar nombre completo
-            nameText.textContent = fullName;
-            
-            icon.classList.remove('la-chevron-down');
-            icon.classList.add('la-chevron-up');
+            const rows = tbody.querySelectorAll('tr');
+            return rows.length > 0;
+        }
+
+        // Inicializar tabla de proveedores si tiene datos
+        if (hasTableRows('tableProveedores')) {
+            try {
+                $('#tableProveedores').DataTable(commonConfig);
+            } catch (e) {
+                console.log('Error inicializando DataTable proveedores:', e);
+            }
+        }
+
+        // Inicializar tabla de clientes si tiene datos
+        if (hasTableRows('tableClientes')) {
+            try {
+                $('#tableClientes').DataTable(commonConfig);
+            } catch (e) {
+                console.log('Error inicializando DataTable clientes:', e);
+            }
+        }
+
+        // Inicializar tabla de cobros si tiene datos
+        if (hasTableRows('tableCobros')) {
+            try {
+                $('#tableCobros').DataTable(commonConfig);
+            } catch (e) {
+                console.log('Error inicializando DataTable cobros:', e);
+            }
+        }
+
+        // Inicializar tabla de pagos si tiene datos
+        if (hasTableRows('tablePagos')) {
+            try {
+                $('#tablePagos').DataTable(commonConfig);
+            } catch (e) {
+                console.log('Error inicializando DataTable pagos:', e);
+            }
         }
     }
+
+    // Inicializar DataTables cuando el DOM esté listo
+    $(document).ready(function() {
+        // Pequeño delay para asegurar que todo esté cargado
+        setTimeout(initializeDataTables, 100);
+    });
 
     // Funciones auxiliares
     function clearFilters() {
