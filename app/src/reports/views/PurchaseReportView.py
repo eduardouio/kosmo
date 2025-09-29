@@ -3,13 +3,14 @@ from django.views import View
 from django.http import JsonResponse
 from django.db.models import Sum, Count
 from django.utils import timezone
-from datetime import timedelta
+from django.contrib.auth.mixins import LoginRequiredMixin
+from datetime import timedelta, datetime
 from trade.models import Invoice
 from partners.models import Partner
 from products.models import Product
 
 
-class PurchaseReportView(View):
+class PurchaseReportView(LoginRequiredMixin, View):
     template_name = 'reports/purchase_report.html'
 
     def get(self, request, *args, **kwargs):
@@ -18,23 +19,39 @@ class PurchaseReportView(View):
         start_date = end_date - timedelta(days=30)
 
         # Obtener parámetros de filtro
-        date_from = request.GET.get(
-            'date_from', start_date.strftime('%Y-%m-%d'))
-        date_to = request.GET.get('date_to', end_date.strftime('%Y-%m-%d'))
+        date_from_param = request.GET.get('date_from')
+        date_to_param = request.GET.get('date_to')
         supplier_id = request.GET.get('supplier_id', '')
         product_id = request.GET.get('product_id', '')
 
-        # Construir query base para facturas de compra
+        def parse_date(value, default):
+            try:
+                return datetime.strptime(value, '%Y-%m-%d').date()
+            except (TypeError, ValueError):
+                return default
+
+        date_from = parse_date(date_from_param, start_date)
+        date_to = parse_date(date_to_param, end_date)
+
+        if date_from > date_to:
+            date_from, date_to = date_to, date_from
+
+        # Construir query base para facturas de compra CON FILTRO DE FECHAS APLICADO SIEMPRE
         invoices_query = Invoice.objects.filter(
             type_document='FAC_COMPRA',
-            date__date__range=[date_from, date_to]
+            date__date__range=[date_from, date_to]  # Filtro de fechas aplicado desde el inicio
         ).select_related('partner').prefetch_related(
             'invoiceitems_set__invoiceboxitems_set__product'
         )
 
-        # Aplicar filtros adicionales
-        if supplier_id:
-            invoices_query = invoices_query.filter(partner_id=supplier_id)
+        # Aplicar filtro de proveedor SI está seleccionado
+        if supplier_id and supplier_id != '':
+            try:
+                supplier_id_int = int(supplier_id)
+                invoices_query = invoices_query.filter(partner_id=supplier_id_int)
+            except (ValueError, TypeError):
+                # Si supplier_id no es un entero válido, no filtrar por proveedor
+                pass
 
         # Obtener facturas de compra ordenadas por fecha de vencimiento
         purchase_invoices = invoices_query.order_by('due_date', '-date')
@@ -61,11 +78,8 @@ class PurchaseReportView(View):
                 invoice.days_invoice_overdue = 0
                 invoice.days_invoice_to_due = 0
 
-        # Agrupar por estado de TODAS las facturas de compra (no solo rango)
-        all_purchase_invoices = Invoice.objects.filter(
-            type_document='FAC_COMPRA'
-        )
-        status_data = all_purchase_invoices.values('status').annotate(
+        # Agrupar por estado dentro del rango seleccionado (usar la misma query filtrada)
+        status_data = invoices_query.values('status').annotate(
             count=Count('id'),
             total=Sum('total_price'),
             qb_total=Sum('qb_total'),
@@ -74,10 +88,8 @@ class PurchaseReportView(View):
             stems_total=Sum('tot_stem_flower')
         )
 
-        # Calcular facturas vencidas de compra (todas, no solo del rango)
-        current_date = timezone.now().date()
-        overdue_invoices = Invoice.objects.filter(
-            type_document='FAC_COMPRA',
+        # Calcular facturas vencidas SOLO del rango de fechas seleccionado
+        overdue_invoices = invoices_query.filter(
             due_date__isnull=False,
             due_date__date__lt=current_date,
             status__in=['PENDIENTE']  # Solo pendientes pueden estar vencidas
@@ -130,8 +142,8 @@ class PurchaseReportView(View):
             'stems_total': overdue_stems_total,
         })
 
-        # Agrupar por proveedor
-        supplier_summary = purchase_invoices.values(
+        # Agrupar por proveedor (usar la misma query filtrada)
+        supplier_summary = invoices_query.values(
             'partner__name',
             'partner_id'
         ).annotate(
@@ -160,8 +172,8 @@ class PurchaseReportView(View):
             'suppliers': suppliers,
             'products': products,
             'filters': {
-                'date_from': date_from,
-                'date_to': date_to,
+                'date_from': date_from.strftime('%Y-%m-%d'),
+                'date_to': date_to.strftime('%Y-%m-%d'),
                 'supplier_id': supplier_id,
                 'product_id': product_id,
             },
@@ -171,6 +183,9 @@ class PurchaseReportView(View):
 
     def post(self, request, *args, **kwargs):
         # Manejar exportación a Excel/PDF si es necesario
+        return JsonResponse({
+            "message": "Export functionality to be implemented"
+        })
         return JsonResponse({
             "message": "Export functionality to be implemented"
         })
