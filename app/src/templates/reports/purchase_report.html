@@ -260,6 +260,10 @@
                                         <th>Estado</th>
                                         <th class="text-center">Cantidad</th>
                                         <th class="text-end">Monto Total</th>
+                                        <th class="text-center">QB</th>
+                                        <th class="text-center">HB</th>
+                                        <th class="text-center">EB</th>
+                                        <th class="text-center">Tallos</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -284,6 +288,10 @@
                                         <td class="text-end{% if item.status == 'VENCIDO' %} fw-bold{% endif %}">
                                             ${{ item.total|floatformat:2 }}
                                         </td>
+                                        <td class="text-center">{{ item.qb_total|default:0 }}</td>
+                                        <td class="text-center">{{ item.hb_total|default:0 }}</td>
+                                        <td class="text-center">{{ item.eb_total|default:0 }}</td>
+                                        <td class="text-center">{{ item.stems_total|default:0 }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

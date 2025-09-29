@@ -67,7 +67,11 @@ class PurchaseReportView(View):
         )
         status_data = all_purchase_invoices.values('status').annotate(
             count=Count('id'),
-            total=Sum('total_price')
+            total=Sum('total_price'),
+            qb_total=Sum('qb_total'),
+            hb_total=Sum('hb_total'),
+            eb_total=Sum('eb_total'),
+            stems_total=Sum('tot_stem_flower')
         )
 
         # Calcular facturas vencidas de compra (todas, no solo del rango)
@@ -79,9 +83,19 @@ class PurchaseReportView(View):
             status__in=['PENDIENTE']  # Solo pendientes pueden estar vencidas
         )
 
+        overdue_aggregate = overdue_invoices.aggregate(
+            total=Sum('total_price'),
+            qb_total=Sum('qb_total'),
+            hb_total=Sum('hb_total'),
+            eb_total=Sum('eb_total'),
+            stems_total=Sum('tot_stem_flower')
+        )
         overdue_count = overdue_invoices.count()
-        overdue_total = overdue_invoices.aggregate(
-            Sum('total_price'))['total_price__sum'] or 0
+        overdue_total = overdue_aggregate['total'] or 0
+        overdue_qb_total = overdue_aggregate['qb_total'] or 0
+        overdue_hb_total = overdue_aggregate['hb_total'] or 0
+        overdue_eb_total = overdue_aggregate['eb_total'] or 0
+        overdue_stems_total = overdue_aggregate['stems_total'] or 0
 
         # Crear lista completa con todos los estados del modelo
         all_status = dict(Invoice._meta.get_field('status').choices)
@@ -92,27 +106,28 @@ class PurchaseReportView(View):
 
         # Agregar todos los estados definidos en el modelo
         for status_key, status_label in all_status.items():
-            if status_key in status_dict:
-                status_summary.append({
-                    'status': status_key,
-                    'status_label': status_label,
-                    'count': status_dict[status_key]['count'],
-                    'total': status_dict[status_key]['total'] or 0
-                })
-            else:
-                status_summary.append({
-                    'status': status_key,
-                    'status_label': status_label,
-                    'count': 0,
-                    'total': 0
-                })
+            item = status_dict.get(status_key)
+            status_summary.append({
+                'status': status_key,
+                'status_label': status_label,
+                'count': item['count'] if item else 0,
+                'total': (item['total'] or 0) if item else 0,
+                'qb_total': (item['qb_total'] or 0) if item else 0,
+                'hb_total': (item['hb_total'] or 0) if item else 0,
+                'eb_total': (item['eb_total'] or 0) if item else 0,
+                'stems_total': (item['stems_total'] or 0) if item else 0,
+            })
 
         # Agregar estado "VENCIDO" calculado
         status_summary.append({
             'status': 'VENCIDO',
             'status_label': 'VENCIDO',
             'count': overdue_count,
-            'total': overdue_total
+            'total': overdue_total,
+            'qb_total': overdue_qb_total,
+            'hb_total': overdue_hb_total,
+            'eb_total': overdue_eb_total,
+            'stems_total': overdue_stems_total,
         })
 
         # Agrupar por proveedor
