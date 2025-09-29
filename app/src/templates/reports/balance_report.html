@@ -194,12 +194,12 @@
     
     /* Tablas scrolleables de tamaño fijo */
     .scrollable-table-card {
-        height: 450px;
+        height: 500px;
     }
     
     .scrollable-table-card .card-body {
         padding: 0;
-        height: 400px;
+        height: 450px;
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -230,10 +230,13 @@
     }
     
     .scrollable-table-card .table td {
-        font-size: 0.8rem;
-        padding: 8px;
+        font-size: 0.75rem;
+        padding: 6px;
         white-space: nowrap;
         border-bottom: 1px solid #dee2e6;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     
     .scrollable-table-card .table tr.expanded {
@@ -622,6 +625,9 @@
                                     <tr>
                                         <th>Número</th>
                                         <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Banco</th>
+                                        <th>Nro. Comprobante</th>
                                         <th>Método</th>
                                         <th class="text-end">Monto</th>
                                     </tr>
@@ -631,6 +637,9 @@
                                     <tr>
                                         <td title="{{ cobro.payment_number|default:'N/A' }}">{{ cobro.payment_number|default:"N/A"|truncatechars:12 }}</td>
                                         <td>{{ cobro.date|date:"d/m/Y" }}</td>
+                                        <td title="{{ cobro.partners|default:'N/A' }}">{{ cobro.partners|default:"N/A"|truncatechars:20 }}</td>
+                                        <td title="{{ cobro.bank|default:'N/A' }}">{{ cobro.bank|default:"N/A"|truncatechars:15 }}</td>
+                                        <td title="{{ cobro.nro_operation|default:'N/A' }}">{{ cobro.nro_operation|default:"N/A"|truncatechars:12 }}</td>
                                         <td>{{ cobro.method }}</td>
                                         <td class="text-end">${{ cobro.amount|floatformat:0 }}</td>
                                     </tr>
@@ -668,6 +677,9 @@
                                     <tr>
                                         <th>Número</th>
                                         <th>Fecha</th>
+                                        <th>Proveedor</th>
+                                        <th>Banco</th>
+                                        <th>Nro. Comprobante</th>
                                         <th>Método</th>
                                         <th class="text-end">Monto</th>
                                     </tr>
@@ -677,6 +689,9 @@
                                     <tr>
                                         <td title="{{ pago.payment_number|default:'N/A' }}">{{ pago.payment_number|default:"N/A"|truncatechars:12 }}</td>
                                         <td>{{ pago.date|date:"d/m/Y" }}</td>
+                                        <td title="{{ pago.partners|default:'N/A' }}">{{ pago.partners|default:"N/A"|truncatechars:20 }}</td>
+                                        <td title="{{ pago.bank|default:'N/A' }}">{{ pago.bank|default:"N/A"|truncatechars:15 }}</td>
+                                        <td title="{{ pago.nro_operation|default:'N/A' }}">{{ pago.nro_operation|default:"N/A"|truncatechars:12 }}</td>
                                         <td>{{ pago.method }}</td>
                                         <td class="text-end">${{ pago.amount|floatformat:0 }}</td>
                                     </tr>

@@ -129,19 +129,37 @@ class BalanceReportView(View):
             type_transaction='EGRESO'
         ).aggregate(Sum('amount'))['amount__sum'] or Decimal('0')
 
-        # Detalle de ingresos (cobros)
+        # Detalle de ingresos (cobros) con información del partner y banco
         detalle_ingresos = payments.filter(
             type_transaction='INGRESO'
-        ).values(
-            'payment_number', 'date', 'amount', 'method'
+        ).select_related().prefetch_related('invoices__invoice__partner').values(
+            'payment_number', 'date', 'amount', 'method', 'bank', 'nro_operation'
         ).order_by('-date')[:10]
+        
+        # Agregar información de partners para cada cobro
+        for cobro in detalle_ingresos:
+            payment_obj = payments.filter(
+                payment_number=cobro['payment_number'],
+                date=cobro['date']
+            ).prefetch_related('invoices__invoice__partner').first()
+            if payment_obj:
+                cobro['partners'] = payment_obj.partners_names
 
-        # Detalle de egresos (pagos)
+        # Detalle de egresos (pagos) con información del partner y banco
         detalle_egresos = payments.filter(
             type_transaction='EGRESO'
-        ).values(
-            'payment_number', 'date', 'amount', 'method'
+        ).select_related().prefetch_related('invoices__invoice__partner').values(
+            'payment_number', 'date', 'amount', 'method', 'bank', 'nro_operation'
         ).order_by('-date')[:10]
+        
+        # Agregar información de partners para cada pago
+        for pago in detalle_egresos:
+            payment_obj = payments.filter(
+                payment_number=pago['payment_number'],
+                date=pago['date']
+            ).prefetch_related('invoices__invoice__partner').first()
+            if payment_obj:
+                pago['partners'] = payment_obj.partners_names
 
         # === ANÁLISIS DE FACTURAS Y SU ESTADO DE PAGO ===
         # Facturas de venta pagadas vs pendientes
