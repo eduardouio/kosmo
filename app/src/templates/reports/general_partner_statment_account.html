@@ -187,7 +187,6 @@
   {% if not partner_id %}
   <!-- Vista Consolidada -->
   <div class="summary-card">
-    <h3 class="mb-3">Resumen {{ partner_type }}S - {{ start_date|date:'d/m/Y' }} al {{ end_date|date:'d/m/Y' }}</h3>
     <div class="summary-stats">
       <div class="stat-item">
         <div class="stat-value">{{ partners_count }}</div>
@@ -226,6 +225,7 @@
               <th class="text-end">Total Pagado</th>
               <th class="text-end">Saldo Pendiente</th>
               <th>Crédito</th>
+              <th class="text-center">Detalle</th>
             </tr>
           </thead>
           <tbody>
@@ -252,10 +252,17 @@
                 ${{ item.total_balance|floatformat:2 }}
               </td>
               <td class="text-center">{{ item.partner.credit_term }} días</td>
+              <td class="text-center">
+                <a href="/reports/partner-account-statement/?partner_id={{ item.partner.id }}&start_date={{ start_date|date:'Y-m-d' }}&end_date={{ end_date|date:'Y-m-d' }}" 
+                   target="_blank" 
+                   class="btn btn-sm btn-outline-primary">
+                  Detalle
+                </a>
+              </td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="8" class="text-center text-muted py-4">
+              <td colspan="9" class="text-center text-muted py-4">
                 <i class="las la-inbox la-2x mb-2"></i><br>
                 No hay {{ partner_type|lower }}s con movimientos en el período
               </td>
