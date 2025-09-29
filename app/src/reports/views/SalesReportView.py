@@ -3,13 +3,14 @@ from django.views import View
 from django.http import JsonResponse
 from django.db.models import Sum, Count
 from django.utils import timezone
-from datetime import timedelta
+from django.contrib.auth.mixins import LoginRequiredMixin
+from datetime import timedelta, datetime
 from trade.models import Invoice
 from partners.models import Partner
 from products.models import Product
 
 
-class SalesReportView(View):
+class SalesReportView(LoginRequiredMixin, View):
     template_name = 'reports/sales_report.html'
 
     def get(self, request, *args, **kwargs):
@@ -18,23 +19,40 @@ class SalesReportView(View):
         start_date = end_date - timedelta(days=30)
 
         # Obtener parámetros de filtro
-        date_from = request.GET.get('date_from', start_date.strftime('%Y-%m-%d'))
-        date_to = request.GET.get('date_to', end_date.strftime('%Y-%m-%d'))
+        date_from_param = request.GET.get('date_from')
+        date_to_param = request.GET.get('date_to')
         customer_id = request.GET.get('customer_id', '')
         product_id = request.GET.get('product_id', '')
 
-        # Construir query base para facturas de venta
+        def parse_date(value, default):
+            try:
+                return datetime.strptime(value, '%Y-%m-%d').date()
+            except (TypeError, ValueError):
+                return default
+
+        date_from = parse_date(date_from_param, start_date)
+        date_to = parse_date(date_to_param, end_date)
+
+        if date_from > date_to:
+            date_from, date_to = date_to, date_from
+
+        # Construir query base para facturas de venta CON FILTRO DE FECHAS APLICADO SIEMPRE
         invoices_query = Invoice.objects.filter(
             type_document='FAC_VENTA',
             is_active=True,
-            date__date__range=[date_from, date_to]
+            date__date__range=[date_from, date_to]  # Filtro de fechas aplicado desde el inicio
         ).select_related('partner').prefetch_related(
             'invoiceitems_set__invoiceboxitems_set__product'
         )
 
-        # Aplicar filtros adicionales
-        if customer_id:
-            invoices_query = invoices_query.filter(partner_id=customer_id)
+        # Aplicar filtro de cliente SI está seleccionado
+        if customer_id and customer_id != '':
+            try:
+                customer_id_int = int(customer_id)
+                invoices_query = invoices_query.filter(partner_id=customer_id_int)
+            except (ValueError, TypeError):
+                # Si customer_id no es un entero válido, no filtrar por cliente
+                pass
 
         # Obtener facturas de venta ordenadas por fecha de vencimiento de menor a mayor y luego por fecha descendente
         sales_invoices = invoices_query.order_by('due_date', '-date')
@@ -64,76 +82,79 @@ class SalesReportView(View):
                 invoice.days_invoice_to_due = 0
                 invoice.sort_order = 99999  # Sin fecha
 
-        # Agrupar por estado de TODAS las facturas de venta (no solo rango)
-        all_sales_invoices = Invoice.objects.filter(
-            type_document='FAC_VENTA'
-        )
-        
-        # Para ventas, sumar total_price + total_margin
-        status_data = []
-        for status_item in all_sales_invoices.values('status').annotate(
+        # Agrupar por estado dentro del rango seleccionado (usar la misma query filtrada)
+        status_data = invoices_query.values('status').annotate(
             count=Count('id'),
             total_base=Sum('total_price'),
-            total_margin_sum=Sum('total_margin')
-        ):
-            total_with_margin = (status_item['total_base'] or 0) + (
-                status_item['total_margin_sum'] or 0
-            )
-            status_data.append({
-                'status': status_item['status'],
-                'count': status_item['count'],
-                'total': total_with_margin
-            })
+            total_margin_sum=Sum('total_margin'),
+            qb_total=Sum('qb_total'),
+            hb_total=Sum('hb_total'),
+            eb_total=Sum('eb_total'),
+            stems_total=Sum('tot_stem_flower')
+        )
 
-        # Calcular facturas vencidas de venta (todas, no solo del rango)
-        current_date = timezone.now().date()
-        overdue_invoices = Invoice.objects.filter(
-            type_document='FAC_VENTA',
+        # Calcular facturas vencidas SOLO del rango de fechas seleccionado
+        overdue_invoices = invoices_query.filter(
             due_date__isnull=False,
             due_date__date__lt=current_date,
             status__in=['PENDIENTE']  # Solo pendientes pueden estar vencidas
         )
         
+        overdue_aggregate = overdue_invoices.aggregate(
+            total_base=Sum('total_price'),
+            total_margin_sum=Sum('total_margin'),
+            qb_total=Sum('qb_total'),
+            hb_total=Sum('hb_total'),
+            eb_total=Sum('eb_total'),
+            stems_total=Sum('tot_stem_flower')
+        )
         overdue_count = overdue_invoices.count()
-        overdue_total = sum([
-            inv.total_price + inv.total_margin for inv in overdue_invoices
-        ])
+        overdue_total = (overdue_aggregate['total_base'] or 0) + (overdue_aggregate['total_margin_sum'] or 0)
+        overdue_qb_total = overdue_aggregate['qb_total'] or 0
+        overdue_hb_total = overdue_aggregate['hb_total'] or 0
+        overdue_eb_total = overdue_aggregate['eb_total'] or 0
+        overdue_stems_total = overdue_aggregate['stems_total'] or 0
 
         # Crear lista completa con todos los estados del modelo
         all_status = dict(Invoice._meta.get_field('status').choices)
         status_summary = []
-        
+
         # Convertir status_data a diccionario para acceso rápido
         status_dict = {item['status']: item for item in status_data}
-        
+
         # Agregar todos los estados definidos en el modelo
         for status_key, status_label in all_status.items():
-            if status_key in status_dict:
-                status_summary.append({
-                    'status': status_key,
-                    'status_label': status_label,
-                    'count': status_dict[status_key]['count'],
-                    'total': status_dict[status_key]['total'] or 0
-                })
-            else:
-                status_summary.append({
-                    'status': status_key,
-                    'status_label': status_label,
-                    'count': 0,
-                    'total': 0
-                })
-        
+            item = status_dict.get(status_key)
+            total_with_margin = 0
+            if item:
+                total_with_margin = (item['total_base'] or 0) + (item['total_margin_sum'] or 0)
+            
+            status_summary.append({
+                'status': status_key,
+                'status_label': status_label,
+                'count': item['count'] if item else 0,
+                'total': total_with_margin,
+                'qb_total': (item['qb_total'] or 0) if item else 0,
+                'hb_total': (item['hb_total'] or 0) if item else 0,
+                'eb_total': (item['eb_total'] or 0) if item else 0,
+                'stems_total': (item['stems_total'] or 0) if item else 0,
+            })
+
         # Agregar estado "VENCIDO" calculado
         status_summary.append({
             'status': 'VENCIDO',
             'status_label': 'VENCIDO',
             'count': overdue_count,
-            'total': overdue_total
+            'total': overdue_total,
+            'qb_total': overdue_qb_total,
+            'hb_total': overdue_hb_total,
+            'eb_total': overdue_eb_total,
+            'stems_total': overdue_stems_total,
         })
 
-        # Agrupar por cliente - calcular total con margen incluido
+        # Agrupar por cliente - calcular total con margen incluido (usar la misma query filtrada)
         customer_summary = []
-        customer_data = sales_invoices.values(
+        customer_data = invoices_query.values(
             'partner__name', 'partner_id'
         ).annotate(
             count=Count('id'),
@@ -174,8 +195,8 @@ class SalesReportView(View):
             'customers': customers,
             'products': products,
             'filters': {
-                'date_from': date_from,
-                'date_to': date_to,
+                'date_from': date_from.strftime('%Y-%m-%d'),
+                'date_to': date_to.strftime('%Y-%m-%d'),
                 'customer_id': customer_id,
                 'product_id': product_id,
             },
