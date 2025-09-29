@@ -14,7 +14,6 @@ class PartnerAccountStatmentView(TemplateView):
         - Rango fechas vía GET: start_date, end_date (YYYY-MM-DD).
             Defecto: mes actual.
         - Incluir facturas (pagadas o pendientes) dentro del rango.
-        - Incluir siempre facturas pendientes fuera del rango.
         - Incluir pagos del rango para facturas incluidas.
         - Sin partner_id => página informativa.
     """
@@ -62,30 +61,15 @@ class PartnerAccountStatmentView(TemplateView):
             ctx['partner_not_found'] = True
             return ctx
 
-        # Facturas dentro del rango
-        invoices_in_range = Invoice.objects.filter(
+        # Solo facturas dentro del rango de fechas
+        invoices = Invoice.objects.filter(
             partner=partner,
             is_active=True,
             date__date__gte=start_date,
             date__date__lte=end_date,
-        )
+        ).select_related('partner').order_by('date')
 
-        # Facturas pendientes (todas, incluso fuera del rango)
-        pending_invoices = Invoice.objects.filter(
-            partner=partner,
-            is_active=True,
-            status='PENDIENTE'
-        )
-
-        invoice_ids = (
-            set(invoices_in_range.values_list('id', flat=True)) |
-            set(pending_invoices.values_list('id', flat=True))
-        )
-        invoices = (
-            Invoice.objects.filter(id__in=invoice_ids)
-            .select_related('partner')
-            .order_by('date')
-        )
+        invoice_ids = list(invoices.values_list('id', flat=True))
 
         # Pagos del rango vinculados a facturas incluidas
         payment_details = PaymentDetail.objects.filter(
@@ -117,7 +101,12 @@ class PartnerAccountStatmentView(TemplateView):
             return val
 
         for inv in invoices:
-            # Total de pagos aplicados (activos) a la factura
+            # Total de pagos aplicados (activos) a la factura DENTRO DEL RANGO
+            payments_in_range_sum = sum(
+                p.amount for p in payments_by_invoice.get(inv.id, [])
+            )
+            
+            # Para el balance, usamos todos los pagos históricos de la factura
             all_payments_sum = (
                 PaymentDetail.objects.filter(
                     invoice=inv,
@@ -125,6 +114,7 @@ class PartnerAccountStatmentView(TemplateView):
                     payment__is_active=True,
                 ).aggregate(s=Sum('amount'))['s'] or 0
             )
+            
             # permitir negativo (saldo a favor)
             # Usar total_invoice que incluye margen para facturas de venta
             balance = (inv.total_invoice or 0) - all_payments_sum
@@ -145,11 +135,6 @@ class PartnerAccountStatmentView(TemplateView):
             else:
                 reference = 'FACTURA'
 
-            invoice_payments_in_range = payments_by_invoice.get(inv.id, [])
-            payments_amount_in_range = sum(
-                p.amount for p in invoice_payments_in_range
-            )
-
             entries.append({
                 'type': 'INVOICE',
                 'date': inv_date_only,
@@ -158,8 +143,8 @@ class PartnerAccountStatmentView(TemplateView):
                 # Usar total_invoice para incluir margen en facturas de venta
                 'invoice_amount': inv.total_invoice,
                 'payment_amount': (
-                    payments_amount_in_range
-                    if payments_amount_in_range else None
+                    payments_in_range_sum
+                    if payments_in_range_sum else None
                 ),
                 'balance': balance,
                 'reference': reference,
@@ -168,13 +153,13 @@ class PartnerAccountStatmentView(TemplateView):
 
             # Usar total_invoice que incluye margen para facturas de venta
             total_invoices_amount += float(inv.total_invoice or 0)
-            total_payments_amount += float(payments_amount_in_range)
+            total_payments_amount += float(payments_in_range_sum)
             if inv.status == 'PENDIENTE' and balance > 0:
                 total_pending_balance += float(balance)
             net_balance += float(balance)
 
-            # Agregar cada pago como línea independiente
-            for p in invoice_payments_in_range:
+            # Agregar cada pago como línea independiente (solo del rango)
+            for p in payments_by_invoice.get(inv.id, []):
                 entries.append({
                     'type': 'PAYMENT',
                     'date': _to_date(p.payment.date),
