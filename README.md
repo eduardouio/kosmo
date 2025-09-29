@@ -183,96 +183,127 @@ UPDATE products_product SET image = 'products/ROSA-TOFEE.jpg' WHERE id = 40;
 UPDATE products_product SET image = 'products/ROSA-CANDLELIGHT.jpg' WHERE id = 41;
 ```
 
-``` sql
-select * from trade_order to2  
+```sql
+select
+inv.num_invoice,
+inv.date,
+inv.type_document,
+inv.status,
+invitm.invoice_id,
+oibx.invoice_item_id,
+invitm.quantity,
+invitm.box_model,
+invitm.tot_stem_flower,
+prod.name,
+prod.variety,
+oibx.stem_cost_price,
+oibx.commission,
+oibx.profit_margin,
+oibx.qty_stem_flower,
+oibx.length,
+invitm.tot_stem_flower,
+invitm.line_price,
+invitm.line_commission,
+invitm.line_margin
+inv.tita
+inv.total_price,
+inv.comision_seler,
+inv.total_margin,
+from trade_invoiceboxitems oibx
+left join products_product prod on (prod.id = oibx.product_id)
+left join trade_invoiceitems invitm on  (invitm.id = oibx.invoice_item_id)
+left join trade_invoice inv on (inv.id = invitm.invoice_id)
 
-select * from trade_orderitems to2 where to2.order_id = 10
+
+
+``` sql
+SELECT * FROM trade_order;
+
+SELECT * FROM trade_orderitems WHERE order_id = 10;
 
 -- consulta a detalle de pedidos 
-select 
-to4.id 'OrdId',
-to4.serie || '-' || printf('%06d', to4.consecutive) as numero,
-to4.status,
-to3.quantity,
-to3.box_model,
-to4.type_document, pp2.name,
-pp.variety , 
-to2.qty_stem_flower,
-to2.stem_cost_price,
-to2.profit_margin, 
-to3.id_stock_detail,
-to3.total_bunches,
-to3.line_total,
-to3.line_price,
-to3.line_margin,
-to3.tot_stem_flower,
-to3.line_commission,
-to3.tot_stem_flower,
-to4.total_bunches,
-to4.total_price,
-to4.total_margin,
-to4.total_stem_flower,
-to4.eb_total,
-to4.qb_total,
-to4.hb_total,
-to4.fb_total
-from trade_orderboxitems to2
-left join products_product pp on (pp.id = to2.product_id)
-left join trade_orderitems to3 on (to3.id = to2.order_item_id)
-left join trade_order to4 on (to4.id = to3.order_id )
-left join partners_partner pp2 on (pp2.id = to4.partner_id)
-
+SELECT 
+    to4.id AS "OrdId",
+    to4.serie || '-' || LPAD(to4.consecutive::TEXT, 6, '0') AS numero,
+    to4.status,
+    to3.quantity,
+    to3.box_model,
+    to4.type_document, 
+    pp2.name,
+    pp.variety,
+    to2.qty_stem_flower,
+    to2.stem_cost_price,
+    to2.profit_margin, 
+    to3.id_stock_detail,
+    to3.total_bunches,
+    to3.line_total,
+    to3.line_price,
+    to3.line_margin,
+    to3.tot_stem_flower,
+    to3.line_commission,
+    to3.tot_stem_flower,
+    to4.total_bunches,
+    to4.total_price,
+    to4.total_margin,
+    to4.total_stem_flower,
+    to4.eb_total,
+    to4.qb_total,
+    to4.hb_total,
+    to4.fb_total
+FROM trade_orderboxitems to2
+LEFT JOIN products_product pp ON (pp.id = to2.product_id)
+LEFT JOIN trade_orderitems to3 ON (to3.id = to2.order_item_id)
+LEFT JOIN trade_order to4 ON (to4.id = to3.order_id)
+LEFT JOIN partners_partner pp2 ON (pp2.id = to4.partner_id);
 
 -- consulta de detalle de facturas 
-select 
-i.id 'InvId',
-i.serie || '-' || printf('%06d', i.consecutive) as numero,
-i.status,
-i.type_document,
-i.date,
-i.due_date,
-i.total_price,
-i.total_margin,
-i.comision_seler,
-pp.name as partner_name,
-pp.business_tax_id,
-ii.box_model,
-ii.quantity,
-ii.tot_stem_flower,
-ii.total_bunches,
-ii.line_price,
-ii.line_margin,
-ii.line_total,
-ibi.product_id,
-p.name as product_name,
-p.variety,
-ibi.*,
-i.tot_stem_flower as total_stem_flower,
-i.total_bunches as invoice_total_bunches,
-i.eb_total,
-i.qb_total,
-i.hb_total,
-i.fb_total,
-i.po_number,
-i.awb,
-i.hawb,
-i.dae_export,
-i.cargo_agency,
-i.delivery_date,
-i.weight,
-i.total_price
-from trade_invoice i
-left join partners_partner pp on (pp.id = i.partner_id)
-left join trade_invoiceitems ii on (ii.invoice_id = i.id)
-left join trade_invoiceboxitems ibi on (ibi.invoice_item_id = ii.id)
-left join products_product p on (p.id = ibi.product_id)
-where i.is_active = 1
-order by i.id desc
+SELECT 
+    i.id AS "InvId",
+    i.serie || '-' || LPAD(i.consecutive::TEXT, 6, '0') AS numero,
+    i.status,
+    i.type_document,
+    i.date,
+    i.due_date,
+    i.total_price,
+    i.total_margin,
+    i.comision_seler,
+    pp.name AS partner_name,
+    pp.business_tax_id,
+    ii.box_model,
+    ii.quantity,
+    ii.tot_stem_flower,
+    ii.total_bunches,
+    ii.line_price,
+    ii.line_margin,
+    ii.line_total,
+    ibi.product_id,
+    p.name AS product_name,
+    p.variety,
+    ibi.*,
+    i.tot_stem_flower AS total_stem_flower,
+    i.total_bunches AS invoice_total_bunches,
+    i.eb_total,
+    i.qb_total,
+    i.hb_total,
+    i.fb_total,
+    i.po_number,
+    i.awb,
+    i.hawb,
+    i.dae_export,
+    i.cargo_agency,
+    i.delivery_date,
+    i.weight,
+    i.total_price
+FROM trade_invoice i
+LEFT JOIN partners_partner pp ON (pp.id = i.partner_id)
+LEFT JOIN trade_invoiceitems ii ON (ii.invoice_id = i.id)
+LEFT JOIN trade_invoiceboxitems ibi ON (ibi.invoice_item_id = ii.id)
+LEFT JOIN products_product p ON (p.id = ibi.product_id)
+WHERE i.is_active = TRUE
+ORDER BY i.id DESC;
  
- -- confirmar todos los socios de negocio
- 
- update partners_partner set is_verified = 1 where true
-
+-- confirmar todos los socios de negocio
+UPDATE partners_partner SET is_verified = TRUE WHERE TRUE;
 ```
 
 Observaciones de Reunion
@@ -284,16 +315,16 @@ Observaciones de Reunion
 Hola amigo!, vamos a hacer cosas buenas, antes de comenzar quiero que no me halages a menos de que me lo merezca si una ide no es buena dimelo eso me ayuda a crecer y mejorar, si tu tienes algo mejor quiero que me lo digas.
 
 ``` sql
-update products_product set is_active = true where true;
-update partners_bank set is_active = true where true;
-update partners_dae set is_active = true where true;
-update partners_contact set is_active = true where true;
+UPDATE products_product SET is_active = TRUE WHERE TRUE;
+UPDATE partners_bank SET is_active = TRUE WHERE TRUE;
+UPDATE partners_dae SET is_active = TRUE WHERE TRUE;
+UPDATE partners_contact SET is_active = TRUE WHERE TRUE;
 
 -- Script SQL para corregir la secuencia de ID de productos en PostgreSQL
 -- Ejecutar en el servidor de producción donde está ocurriendo el error
 
 -- 1. Verificar el ID máximo actual en la tabla de productos
-SELECT MAX(id) as max_id FROM products_product;
+SELECT MAX(id) AS max_id FROM products_product;
 
 -- 2. Verificar el valor actual de la secuencia
 SELECT last_value FROM products_product_id_seq;
@@ -303,7 +334,7 @@ SELECT setval('products_product_id_seq', 406, false);
 
 -- proveedores 
 -- 1. Verificar el ID máximo actual en la tabla de productos
-SELECT MAX(id) as max_id FROM partners_partner;
+SELECT MAX(id) AS max_id FROM partners_partner;
 
 -- 2. Verificar el valor actual de la secuencia
 SELECT last_value FROM partners_partner_id_seq;
@@ -312,130 +343,132 @@ SELECT last_value FROM partners_partner_id_seq;
 SELECT setval('partners_partner_id_seq', 116, false);
 
 -- proveedores 
-SELECT MAX(id) as max_id FROM partners_contact;
+SELECT MAX(id) AS max_id FROM partners_contact;
 
 -- 2. Verificar el valor actual de la secuencia
 SELECT last_value FROM partners_contact_id_seq;
 
 -- Ejemplo si el MAX(id) es 25:
 SELECT setval('partners_contact_id_seq', 10, false);
-
-
--- Script SQL para corregir la secuencia de ID de productos en PostgreSQL
--- Ejecutar en el servidor de producción donde está ocurriendo el error
-
--- 1. Verificar el ID máximo actual en la tabla de productos
-SELECT MAX(id) as max_id FROM products_product;
-
--- 2. Verificar el valor actual de la secuencia
-SELECT last_value FROM products_product_id_seq;
-
--- Ejemplo si el MAX(id) es 25:
-SELECT setval('products_product_id_seq', 406, false);
-
--- proveedores 
--- 1. Verificar el ID máximo actual en la tabla de productos
-SELECT MAX(id) as max_id FROM partners_partner;
-
--- 2. Verificar el valor actual de la secuencia
-SELECT last_value FROM partners_partner_id_seq;
-
--- Ejemplo si el MAX(id) es 25:
-SELECT setval('partners_partner_id_seq', 116, false);
-
--- proveedores 
-SELECT MAX(id) as max_id FROM partners_contact;
-
--- 2. Verificar el valor actual de la secuencia
-SELECT last_value FROM partners_contact_id_seq;
-
--- Ejemplo si el MAX(id) es 25:
-SELECT setval('partners_contact_id_seq', 10, false);
-
-
 
 -- procedimiento de vaciado de datos 
-select * from trade_invoiceboxitems ti ;
-delete from trade_invoiceboxitems where true
+SELECT * FROM trade_invoiceboxitems;
+DELETE FROM trade_invoiceboxitems WHERE TRUE;
 SELECT last_value FROM trade_invoiceboxitems_id_seq;
 SELECT setval('trade_invoiceboxitems_id_seq', 1, false);
 
 -- tradeinvoiceitem
-select * from trade_invoiceitems ti ;
-delete from trade_invoiceitems where true
+SELECT * FROM trade_invoiceitems;
+DELETE FROM trade_invoiceitems WHERE TRUE;
 SELECT last_value FROM trade_invoiceitems_id_seq;
 SELECT setval('trade_invoiceitems_id_seq', 1, false);
 
-
-select * from trade_invoice ti ;
-delete from trade_invoice where true
+SELECT * FROM trade_invoice;
+DELETE FROM trade_invoice WHERE TRUE;
 SELECT last_value FROM trade_invoice_id_seq;
 SELECT setval('trade_invoice_id_seq', 1, false);
 
--- ordenses
+-- ordenes
 
-select * from trade_orderboxitems ti ;
-delete from trade_orderboxitems where true
+SELECT * FROM trade_orderboxitems;
+DELETE FROM trade_orderboxitems WHERE TRUE;
 SELECT last_value FROM trade_orderboxitems_id_seq;
 SELECT setval('trade_orderboxitems_id_seq', 1, false);
 
 -- tradeinvoiceitem
-select * from trade_orderitems ti ;
-delete from trade_orderitems where true
+SELECT * FROM trade_orderitems;
+DELETE FROM trade_orderitems WHERE TRUE;
 SELECT last_value FROM trade_orderitems_id_seq;
 SELECT setval('trade_orderitems_id_seq', 1, false);
 
-
-select * from trade_order ti ;
-delete from trade_order where true
+SELECT * FROM trade_order;
+DELETE FROM trade_order WHERE TRUE;
 SELECT last_value FROM trade_order_id_seq;
 SELECT setval('trade_order_id_seq', 1, false);
 
-
-
 -- historicos
 
-select * from trade_historicalinvoiceitems ti ; 
-delete from trade_historicalinvoiceitems where true;
+SELECT * FROM trade_historicalinvoiceitems; 
+DELETE FROM trade_historicalinvoiceitems WHERE TRUE;
 SELECT last_value FROM trade_historicalinvoiceitems_history_id_seq; 
 SELECT setval('trade_historicalinvoiceitems_history_id_seq', 1, false);
 
-select * from trade_historicalinvoice ti ; 
-delete from trade_historicalinvoice where true;
+SELECT * FROM trade_historicalinvoice; 
+DELETE FROM trade_historicalinvoice WHERE TRUE;
 SELECT last_value FROM trade_historicalinvoice_history_id_seq; 
 SELECT setval('trade_historicalinvoice_history_id_seq', 1, false);
 
--- ordenses
+-- ordenes
 
-select * from trade_historicalorderboxitems ti ; 
-delete from trade_historicalorderboxitems where true;
+SELECT * FROM trade_historicalorderboxitems; 
+DELETE FROM trade_historicalorderboxitems WHERE TRUE;
 SELECT last_value FROM trade_historicalorderboxitems_history_id_seq;
 SELECT setval('trade_historicalorderboxitems_history_id_seq', 1, false);
 
-select * from trade_historicalorderitems ti ;
-delete from trade_historicalorderitems where true;
+SELECT * FROM trade_historicalorderitems;
+DELETE FROM trade_historicalorderitems WHERE TRUE;
 SELECT last_value FROM trade_historicalorderitems_history_id_seq;
 SELECT setval('trade_historicalorderitems_history_id_seq', 1, false);
 
-select * from trade_historicalorder ti ;
-delete from trade_historicalorder where true;
+SELECT * FROM trade_historicalorder;
+DELETE FROM trade_historicalorder WHERE TRUE;
 SELECT last_value FROM trade_historicalorder_history_id_seq; 
 SELECT setval('trade_historicalorder_history_id_seq', 1, false);
 
-
 -- stock
-select * from products_boxitems ti ;
-delete from products_boxitems where true
+SELECT * FROM products_boxitems;
+DELETE FROM products_boxitems WHERE TRUE;
 SELECT last_value FROM products_boxitems_id_seq;
 SELECT setval('products_boxitems_id_seq', 1, false);
 
-
-select * from products_stockdetail ti ;
-delete from products_stockdetail where true;
+SELECT * FROM products_stockdetail;
+DELETE FROM products_stockdetail WHERE TRUE;
 SELECT last_value FROM products_stockdetail_id_seq;
 SELECT setval('products_stockdetail_id_seq', 1, false);
 
+SELECT * FROM products_stockday;
+DELETE FROM products_stockday WHERE TRUE;
+SELECT last_value FROM products_stockday_id_seq;
+SELECT setval('products_stockday_id_seq', 1, false);
 
+-- historico
+SELECT * FROM products_historicalboxitems; 
+DELETE FROM products_historicalboxitems WHERE TRUE;
+SELECT last_value FROM products_historicalboxitems_history_id_seq; 
+SELECT setval('products_historicalboxitems_history_id_seq', 1, false);
+
+SELECT * FROM products_historicalstockdetail; 
+DELETE FROM products_historicalstockdetail WHERE TRUE; 
+SELECT last_value FROM products_historicalstockdetail_history_id_seq; 
+SELECT setval('products_historicalstockdetail_history_id_seq', 1, false);
+
+SELECT * FROM products_historicalstockday; 
+DELETE FROM products_historicalstockday WHERE TRUE;
+SELECT last_value FROM products_historicalstockday_history_id_seq; 
+SELECT setval('products_historicalstockday_history_id_seq', 1, false);
+
+
+
+Dashboard: http://localhost:8000/sellers/
+
+Stocks: http://localhost:8000/sellers/stocks/
+
+Órdenes: http://localhost:8000/sellers/orders/
+
+Nueva Orden: http://localhost:8000/sellers/orders/create/
+
+Facturas: http://localhost:8000/sellers/invoices/
+
+se debe eligirt de la misma finca
+
+no puede hacer pedidos a varias fincas
+
+usar formato de tabla
+
+ventana de comisiones reporte 
+nuevio tipo de pago
+
+ekl pago de comisiones
 select * from products_stockday ;
 delete from products_stockday where true
 SELECT last_value FROM products_stockday_id_seq;
