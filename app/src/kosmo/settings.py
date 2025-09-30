@@ -208,6 +208,12 @@ IS_IN_PRODUCTION = True
 if 'eduardo' in os.path.abspath(__file__):
     IS_IN_PRODUCTION = False
 
+# URL base para generación de reportes PDF
+if IS_IN_PRODUCTION:
+    BASE_URL = 'https://app.kosmoflowers.com'
+else:
+    BASE_URL = 'http://localhost:8000'
+
 JET_DEFAULT_THEME = 'default'
 JET_SIDE_MENU_COMPACT = True
 

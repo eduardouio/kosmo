@@ -42,12 +42,11 @@ class PDFCollection(View):
 
     def get(self, request, id_collection, *args, **kwargs):
         """Genera un PDF del comprobante de cobro y lo devuelve como respuesta."""
-        target_url = str(request.build_absolute_uri(
-            reverse("collection_template", kwargs={"id_collection": id_collection})
-        ))
-
-        if settings.IS_IN_PRODUCTION:
-            target_url = target_url.replace('http', 'https')
+        # Usar BASE_URL de settings para evitar problemas con localhost
+        collection_path = reverse(
+            "collection_template", kwargs={"id_collection": id_collection}
+        )
+        target_url = f"{settings.BASE_URL}{collection_path}"
 
         loggin_event(f'Generando PDF del pago {id_collection} {target_url}')
         payment = Payment.objects.get(id=id_collection)

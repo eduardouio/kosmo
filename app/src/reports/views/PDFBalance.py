@@ -33,10 +33,11 @@ class PDFBalance(View):
 
     def get(self, request, partner_id, *args, **kwargs):
         """Genera un PDF del estado de cuenta y lo devuelve como respuesta."""
-        # Construir la URL del template incluyendo los parámetros GET
-        target_url = str(request.build_absolute_uri(
-            reverse("balance_template", kwargs={"partner_id": partner_id})
-        ))
+        # Usar BASE_URL de settings para evitar problemas con localhost
+        balance_path = reverse(
+            "balance_template", kwargs={"partner_id": partner_id}
+        )
+        target_url = f"{settings.BASE_URL}{balance_path}"
         
         # Agregar parámetros GET si existen (fechas de inicio y fin)
         query_params = []

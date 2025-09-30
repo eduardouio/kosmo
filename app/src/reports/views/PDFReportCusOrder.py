@@ -35,18 +35,21 @@ class PDFReportCusOrder(View):
 
     def get(self, request, id_order, *args, **kwargs):
         """Genera un PDF de la orden de venta y lo devuelve como respuesta."""
-        target_url = str(request.build_absolute_uri(
-            reverse("order_customer_template", kwargs={"id_order": id_order})
-        ))
+        # Usar BASE_URL de settings para evitar problemas con localhost
+        order_path = reverse(
+            "order_customer_template", kwargs={"id_order": id_order}
+        )
+        target_url = f"{settings.BASE_URL}{order_path}"
 
-        if settings.IS_IN_PRODUCTION:
-            target_url = target_url.replace('http', 'https')
-
-        loggin_event(f'Generando PDF de la orden de venta {id_order} {target_url}')
+        loggin_event(
+            f'Generando PDF de la orden de venta {id_order} {target_url}'
+        )
         order = Order.objects.get(id=id_order)
         pdf_bytes = self.render_pdf_to_bytes(target_url)
         
         # Crear respuesta con el PDF en memoria
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="OrdVenta-{order.partner} {order.serie}-{order.consecutive:06d}.pdf"'
+        filename = (f'OrdVenta-{order.partner} {order.serie}'
+                    f'-{order.consecutive:06d}.pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response

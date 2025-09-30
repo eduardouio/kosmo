@@ -42,12 +42,11 @@ class PDFPayment(View):
 
     def get(self, request, id_payment, *args, **kwargs):
         """Genera un PDF del comprobante de pago y lo devuelve como respuesta."""
-        target_url = str(request.build_absolute_uri(
-            reverse("payment_template", kwargs={"id_payment": id_payment})
-        ))
-
-        if settings.IS_IN_PRODUCTION:
-            target_url = target_url.replace('http', 'https')
+        # Usar BASE_URL de settings para evitar problemas con localhost
+        payment_path = reverse(
+            "payment_template", kwargs={"id_payment": id_payment}
+        )
+        target_url = f"{settings.BASE_URL}{payment_path}"
 
         loggin_event(f'Generando PDF del pago {id_payment} {target_url}')
         payment = Payment.objects.get(id=id_payment)

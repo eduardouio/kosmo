@@ -34,12 +34,11 @@ class PDFReportSupOrder(View):
 
     def get(self, request, id_order, *args, **kwargs):
         """Genera un PDF del reporte de orden de compra y lo devuelve como respuesta."""
-        target_url = str(request.build_absolute_uri(
-            reverse("order_supplier_template", kwargs={"id_order": id_order})
-        ))
-
-        if settings.IS_IN_PRODUCTION:
-            target_url = target_url.replace('http', 'https')
+        # Usar BASE_URL de settings para evitar problemas con localhost
+        order_path = reverse(
+            "order_supplier_template", kwargs={"id_order": id_order}
+        )
+        target_url = f"{settings.BASE_URL}{order_path}"
 
         loggin_event(f'Generando PDF de la orden {id_order} {target_url}')
         order = Order.objects.get(id=id_order)
@@ -47,5 +46,7 @@ class PDFReportSupOrder(View):
         
         # Crear respuesta con el PDF en memoria
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="OrdCompra-{order.partner} {order.serie}-{order.consecutive:06d}.pdf"'
+        filename = (f'OrdCompra-{order.partner} {order.serie}'
+                    f'-{order.consecutive:06d}.pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response

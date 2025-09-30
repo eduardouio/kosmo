@@ -33,13 +33,11 @@ class PDFCreditNote(View):
 
     def get(self, request, id_credit_note, *args, **kwargs):
         """Genera un PDF de la nota de crédito y lo devuelve como respuesta."""
-        target_url = str(request.build_absolute_uri(
-            reverse("creditnote_template",
-                    kwargs={"id_credit_note": id_credit_note})
-        ))
-
-        if settings.IS_IN_PRODUCTION:
-            target_url = target_url.replace('http', 'https')
+        # Usar BASE_URL de settings para evitar problemas con localhost
+        creditnote_path = reverse(
+            "creditnote_template", kwargs={"id_credit_note": id_credit_note}
+        )
+        target_url = f"{settings.BASE_URL}{creditnote_path}"
 
         loggin_event(
             f'Generando PDF de la nota de crédito '
