@@ -49,9 +49,6 @@ class PDFBalance(View):
         if query_params:
             target_url += "?" + "&".join(query_params)
 
-        if settings.IS_IN_PRODUCTION:
-            target_url = target_url.replace('http', 'https')
-
         loggin_event(
             f'Generando PDF del estado de cuenta del partner {partner_id} '
             f'{target_url}'
