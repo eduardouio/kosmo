@@ -146,7 +146,7 @@
       }
       .account-summary-value {
         padding: 8px;
-        text-align: center;
+        text-align: right;
       }
       /* Estilos para la tabla de movimientos */
       .table-responsive {
@@ -296,13 +296,23 @@
         <div class="account-summary">
           <div class="account-summary-header bg-gray-200">RESUMEN DE CUENTA</div>
           <div class="account-summary-row">
-            <div class="account-summary-label">FECHA</div>
-            <div class="account-summary-value">{{ today|date:'d/m/Y' }}</div>
+            <div class="account-summary-label">RANGO DE FECHAS</div>
+            <div class="account-summary-value">{{ start_date|date:'d/m/Y' }} - {{ end_date|date:'d/m/Y' }}</div>
           </div>
           <div class="account-summary-row">
             <div class="account-summary-label">SALDO</div>
             <div class="account-summary-value {% if net_balance < 0 %}text-danger{% else %}text-success{% endif %}">
               {% if net_balance < 0 %}-${{ net_balance|floatformat:2|slice:'1:' }}{% else %}${{ net_balance|floatformat:2 }}{% endif %}
+            </div>
+          </div>
+          <div class="account-summary-row">
+            <div class="account-summary-label">COMPROBANTES</div>
+            <div class="account-summary-value">{{ invoice_count }}</div>
+          </div>
+          <div class="account-summary-row">
+            <div class="account-summary-label">VALOR VENCIDO</div>
+            <div class="account-summary-value text-danger">
+              ${{ total_overdue_amount|floatformat:2 }}
             </div>
           </div>
         </div>
