@@ -64,13 +64,15 @@
         border: 1px solid #fb923c;
         border-radius: 8px;
         overflow: hidden;
+        font-size: 11px;
       }
       .account-summary-header {
         background-color: #fb923c;
         color: white;
         text-align: center;
-        padding: 8px;
+        padding: 6px;
         font-weight: bold;
+        font-size: 12px;
       }
       .account-summary-row {
         display: grid;
@@ -81,13 +83,15 @@
         border-bottom: none;
       }
       .account-summary-label {
-        padding: 8px;
+        padding: 6px 8px;
         font-weight: bold;
         background-color: #f3f4f6;
+        font-size: 10px;
       }
       .account-summary-value {
-        padding: 8px;
-        text-align: center;
+        padding: 6px 8px;
+        text-align: right;
+        font-size: 11px;
       }
       .transactions-table {
         width: 100%;
@@ -203,13 +207,19 @@
         <div class="account-summary">
           <div class="account-summary-header">RESUMEN DE CUENTA</div>
           <div class="account-summary-row">
-            <div class="account-summary-label">FECHA</div>
-            <div class="account-summary-value">{{ today|date:'d/m/Y' }}</div>
-          </div>
-          <div class="account-summary-row">
             <div class="account-summary-label">SALDO</div>
             <div class="account-summary-value {% if net_balance < 0 %}text-danger{% else %}text-success{% endif %}">
               {% if net_balance < 0 %}-${{ net_balance|floatformat:2|slice:'1:' }}{% else %}${{ net_balance|floatformat:2 }}{% endif %}
+            </div>
+          </div>
+          <div class="account-summary-row">
+            <div class="account-summary-label">COMPROBANTES</div>
+            <div class="account-summary-value">{{ invoice_count }}</div>
+          </div>
+          <div class="account-summary-row">
+            <div class="account-summary-label">SALDO VENCIDO</div>
+            <div class="account-summary-value text-danger">
+              ${{ total_overdue_amount|floatformat:2 }}
             </div>
           </div>
         </div>

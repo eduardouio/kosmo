@@ -296,10 +296,6 @@
         <div class="account-summary">
           <div class="account-summary-header bg-gray-200">RESUMEN DE CUENTA</div>
           <div class="account-summary-row">
-            <div class="account-summary-label">RANGO DE FECHAS</div>
-            <div class="account-summary-value">{{ start_date|date:'d/m/Y' }} - {{ end_date|date:'d/m/Y' }}</div>
-          </div>
-          <div class="account-summary-row">
             <div class="account-summary-label">SALDO</div>
             <div class="account-summary-value {% if net_balance < 0 %}text-danger{% else %}text-success{% endif %}">
               {% if net_balance < 0 %}-${{ net_balance|floatformat:2|slice:'1:' }}{% else %}${{ net_balance|floatformat:2 }}{% endif %}
