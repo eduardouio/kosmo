@@ -92,6 +92,8 @@ class PartnerAccountStatmentView(TemplateView):
         total_payments_amount = 0
         total_pending_balance = 0
         net_balance = 0
+        total_overdue_amount = 0  # Valor vencido
+        invoice_count = 0  # Cantidad de comprobantes
 
         def _to_date(val):
             if not val:
@@ -101,6 +103,8 @@ class PartnerAccountStatmentView(TemplateView):
             return val
 
         for inv in invoices:
+            invoice_count += 1  # Contar comprobante
+            
             # Total de pagos aplicados (activos) a la factura DENTRO DEL RANGO
             payments_in_range_sum = sum(
                 p.amount for p in payments_by_invoice.get(inv.id, [])
@@ -132,6 +136,9 @@ class PartnerAccountStatmentView(TemplateView):
                 reference = 'FACTURA PAGADA'
             elif credit_days < 0:
                 reference = 'FACTURA VENCIDA'
+                # Sumar al total de valores vencidos (solo si tiene balance pendiente)
+                if balance > 0:
+                    total_overdue_amount += float(balance)
             else:
                 reference = 'FACTURA'
 
@@ -189,5 +196,7 @@ class PartnerAccountStatmentView(TemplateView):
             'total_payments_amount': total_payments_amount,
             'total_pending_balance': total_pending_balance,
             'net_balance': net_balance,
+            'invoice_count': invoice_count,
+            'total_overdue_amount': total_overdue_amount,
         })
         return ctx
