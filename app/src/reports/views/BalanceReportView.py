@@ -197,6 +197,52 @@ class BalanceReportView(View):
             status='PENDIENTE').aggregate(
             Sum('total_margin'))['total_margin__sum'] or Decimal('0')
 
+        # === CÁLCULO DE SALDO VENCIDO ===
+        # Calcular facturas vencidas (ventas y compras)
+        from datetime import date as date_class
+        from trade.models.Payment import PaymentDetail
+        
+        today = date_class.today()
+        total_overdue_amount = Decimal('0')
+        
+        # Obtener todas las facturas pendientes (ventas y compras)
+        all_pending_invoices = Invoice.objects.filter(
+            date__date__range=[date_from, date_to],
+            status='PENDIENTE',
+            is_active=True
+        ).select_related('partner')
+        
+        for inv in all_pending_invoices:
+            # Calcular pagos históricos de la factura
+            all_payments_sum = (
+                PaymentDetail.objects.filter(
+                    invoice=inv,
+                    is_active=True,
+                    payment__is_active=True,
+                ).aggregate(s=Sum('amount'))['s'] or Decimal('0')
+            )
+            
+            # Calcular balance pendiente
+            if inv.type_document == 'FAC_VENTA':
+                # Para ventas, usar total_invoice (incluye margen)
+                invoice_total = inv.total_price + (inv.total_margin or Decimal('0'))
+            else:
+                # Para compras, usar solo total_price
+                invoice_total = inv.total_price
+            
+            balance = invoice_total - all_payments_sum
+            
+            if balance > 0:
+                # Calcular días transcurridos desde la factura
+                inv_date = inv.date.date() if hasattr(inv.date, 'date') else inv.date
+                days_passed = (today - inv_date).days
+                credit_term = getattr(inv.partner, 'credit_term', 0) or 0
+                credit_days = credit_term - days_passed
+                
+                # Si está vencida (días de crédito negativos)
+                if credit_days < 0:
+                    total_overdue_amount += balance
+
         # === CÁLCULOS DE BALANCE ===
         # Calcular total de comisiones de las facturas de venta
         total_comisiones = sales_invoices.aggregate(
@@ -357,6 +403,7 @@ class BalanceReportView(View):
                 total_margen / total_ventas * 100
             ) if total_ventas > 0 else 0,
             'balance_angle': balance_angle,  # Ángulo para inclinar la balanza
+            'total_overdue_amount': total_overdue_amount,  # Saldo vencido
             'kpis': kpis,
 
             # Datos temporales - convertir a JSON string

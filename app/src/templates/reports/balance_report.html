@@ -325,6 +325,47 @@
         </div>
     </div>
 
+    <!-- Resumen de Cuenta -->
+    <div class="row mb-3">
+        <div class="col-md-4 offset-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white text-center py-2">
+                    <h6 class="mb-0">RESUMEN DEL PERÍODO</h6>
+                </div>
+                <div class="card-body p-2">
+                    <table class="table table-sm table-borderless mb-0" style="font-size: 0.85rem;">
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold">FACTURAS COMPRA</td>
+                                <td class="text-end">{{ count_compras }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">FACTURAS VENTA</td>
+                                <td class="text-end">{{ count_ventas }}</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">TOTAL FACTURAS</td>
+                                <td class="text-end">{{ count_compras|add:count_ventas }}</td>
+                            </tr>
+                            <tr class="border-top">
+                                <td class="fw-bold">UTILIDAD NETA</td>
+                                <td class="text-end {% if utilidad_bruta >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                    ${{ utilidad_bruta|floatformat:0 }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">SALDO VENCIDO</td>
+                                <td class="text-end text-danger">
+                                    ${{ total_overdue_amount|floatformat:0 }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Balance Principal -->
         <!-- Balance Principal -->
     <div class="row">
