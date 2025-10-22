@@ -185,38 +185,41 @@ UPDATE products_product SET image = 'products/ROSA-CANDLELIGHT.jpg' WHERE id = 4
 
 ```sql
 select
+inv.id,
 inv.num_invoice,
-inv.date,
-inv.type_document,
-inv.status,
-invitm.invoice_id,
-oibx.invoice_item_id,
-invitm.quantity,
-invitm.box_model,
-invitm.tot_stem_flower,
-prod.name,
-prod.variety,
-oibx.stem_cost_price,
-oibx.commission,
-oibx.profit_margin,
-oibx.qty_stem_flower,
-oibx.length,
-invitm.tot_stem_flower,
-invitm.line_price,
-invitm.line_commission,
-invitm.line_margin
-inv.tita
-inv.total_price,
-inv.comision_seler,
-inv.total_margin,
+prt.name,
+inv.date ,
+inv.type_document ,
+inv.status ,
+invitm.invoice_id ,
+oibx.invoice_item_id ,
+invitm.quantity ,
+invitm.box_model ,
+invitm.tot_stem_flower ,
+prod.name ,
+prod.variety ,
+oibx.stem_cost_price ,
+oibx.commission ,
+oibx.profit_margin ,
+oibx.qty_stem_flower ,
+oibx.length ,
+invitm.tot_stem_flower ,
+invitm.line_price ,
+invitm.line_commission ,
+invitm.line_margin ,
+inv.total_pieces ,
+inv.comision_seler ,
+inv.total_price ,
+inv.total_margin 
 from trade_invoiceboxitems oibx
 left join products_product prod on (prod.id = oibx.product_id)
 left join trade_invoiceitems invitm on  (invitm.id = oibx.invoice_item_id)
 left join trade_invoice inv on (inv.id = invitm.invoice_id)
+left join partners_partner prt on (prt.id = inv.partner_id)
+where inv.type_document = 'FAC_VENTA'
 
 
-
-``` sql
+```sql
 SELECT * FROM trade_order;
 
 SELECT * FROM trade_orderitems WHERE order_id = 10;
@@ -514,3 +517,7 @@ ventana de comisiones reporte
 nuevio tipo de pago
 
 ekl pago de comisiones
+
+
+
+en el estado de cuenta quitarlo
