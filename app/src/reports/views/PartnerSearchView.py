@@ -18,9 +18,10 @@ class PartnerSearchView(View):
                 .order_by('name')[:15]
             )
             for p in qs:
+                type = 'CLIENTE' if p.type_partner == 'CLIENTE' else 'PROVEEDOR'
                 results.append({
                     'id': p.id,
-                    'name': p.name,
+                    'name':  type + ' - ' + p.name,
                     'short_name': p.short_name or '',
                     'tax_id': p.business_tax_id,
                 })
