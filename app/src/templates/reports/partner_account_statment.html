@@ -1,11 +1,5 @@
 {% extends 'base/base.html' %}
 {% load static %}
-
-{% block files_header %}
-<!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
-{% endblock %}
-
 {% block style %}
 <style>
       /* Estilos específicos para el estado de cuenta */
@@ -325,41 +319,29 @@
                 <table class="table table-striped" id="movementsTable">
                   <thead>
                     <tr>
+                      <th>REFERENCIA</th>
                       <th>FECHA</th>
                       <th>DOCUMENTO</th>
                       <th>TIEMPO DE CREDITO</th>
                       <th>VALOR</th>
                       <th>PAGO RECIBIDO</th>
                       <th>SALDO ACTUAL</th>
-                      <th>REFERENCIA</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% for e in entries %}
-                      {% if e.type == 'INVOICE' %}
                       <tr class="{% if e.reference == 'FACTURA VENCIDA' %}invoice-overdue{% endif %}">
-                        <td>{{ e.date|date:'d/m/Y' }}</td>
-                        <td>{{ e.document }}</td>
-                        <td class="text-center">{{ e.credit_days }}</td>
-                        <td class="text-end">${{ e.invoice_amount|floatformat:2 }}</td>
-                        <td class="text-end">{% if e.payment_amount %}${{ e.payment_amount|floatformat:2 }}{% endif %}</td>
-                        <td class="text-end">${{ e.balance|floatformat:2 }}</td>
                         <td class="text-center">
                           {% if e.reference == 'FACTURA VENCIDA' %}<span class="text-danger">FACTURA VENCIDA</span>
                           {% else %}{{ e.reference }}{% endif %}
                         </td>
-                      </tr>
-                      {% else %}
-                      <tr class="payment-row">
                         <td>{{ e.date|date:'d/m/Y' }}</td>
                         <td>{{ e.document }}</td>
-                        <td></td>
-                        <td></td>
+                        <td class="text-center">{{ e.credit_days }}</td>
+                        <td class="text-end">${{ e.invoice_amount|floatformat:2 }}</td>
                         <td class="text-end">${{ e.payment_amount|floatformat:2 }}</td>
-                        <td></td>
-                        <td class="text-center">PAGO RECIBIDO</td>
+                        <td class="text-end">${{ e.balance|floatformat:2 }}</td>
                       </tr>
-                      {% endif %}
                     {% empty %}
                     <tr>
                       <td colspan="7" class="text-center text-muted py-4">
@@ -372,7 +354,7 @@
                   </tbody>
                   <tfoot>
                     <tr>
-                      <td colspan="3" class="text-end">TOTAL PENDIENTE</td>
+                      <td colspan="3" class="text-end">SUMAS</td>
                       <td class="text-end">${{ total_invoices_amount|floatformat:2 }}</td>
                       <td class="text-end">${{ total_payments_amount|floatformat:2 }}</td>
                       <td class="text-end">${{ total_pending_balance|floatformat:2 }}</td>
