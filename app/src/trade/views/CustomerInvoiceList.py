@@ -19,15 +19,14 @@ class CustomerInvoiceList(ListView):
         context['action'] = None
         context['stats'] = self.get_values_stats()
         
-        # Obtener información de proveedores relacionados para cada factura
         invoices_with_suppliers = []
         for invoice in context['invoices']:
-            # Calcular total con margen para ventas
+
             total_price = invoice.total_price or 0
             total_margin = invoice.total_margin or 0
             invoice.total_with_margin = total_price + total_margin
             
-            # Obtener órdenes de compra relacionadas con la orden de venta
+
             if hasattr(invoice, 'order') and invoice.order:
                 purchase_orders = invoice.order.order_set.filter(
                     type_document='ORD_COMPRA',
@@ -41,7 +40,7 @@ class CustomerInvoiceList(ListView):
                     if has_partner:
                         partner_name = purchase_order.partner.name
                         supplier_name = partner_name or 'Sin nombre'
-                        # Buscar factura de compra relacionada
+            
                         try:
                             from trade.models import Invoice as InvoiceModel
                             supplier_invoice = InvoiceModel.objects.get(
@@ -86,15 +85,11 @@ class CustomerInvoiceList(ListView):
         invoices = self.get_queryset()
         now = timezone.now()
         
-        # Documentos activos pendientes
         active_invoices = invoices.filter(status='PENDIENTE').count()
         
-        # Por cobrar: todas las facturas pendientes
         total_for_charge = invoices.filter(status='PENDIENTE').aggregate(
             models.Sum('total_price'))['total_price__sum'] or 0
         
-        # Por vencer este mes: facturas pendientes que vencen este mes
-        # y aún no han vencido
         total_dued_this_month = invoices.filter(
             status='PENDIENTE',
             due_date__month=now.month,
@@ -102,13 +97,11 @@ class CustomerInvoiceList(ListView):
             due_date__gte=now.date()
         ).aggregate(models.Sum('total_price'))['total_price__sum'] or 0
         
-        # Vencido: facturas pendientes que ya vencieron
         total_dued = invoices.filter(
             status='PENDIENTE',
             due_date__lt=now.date()
         ).aggregate(models.Sum('total_price'))['total_price__sum'] or 0
         
-        # Tallos vendidos este mes (basado en fecha de factura)
         total_stems_this_month = invoices.filter(
             date__month=now.month,
             date__year=now.year

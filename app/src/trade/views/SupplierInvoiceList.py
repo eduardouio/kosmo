@@ -70,11 +70,8 @@ class SupplierInvoiceList(ListView):
         invoices = self.get_queryset()
         now = timezone.now()
 
-        # Documentos activos pendientes
         active_invoices = invoices.filter(status='PENDIENTE').count()
 
-        # Por vencer este mes: facturas pendientes que vencen este mes
-        # y aún no han vencido
         total_dued_this_month = invoices.filter(
             status='PENDIENTE',
             due_date__month=now.month,
@@ -82,13 +79,11 @@ class SupplierInvoiceList(ListView):
             due_date__gte=now.date()
         ).aggregate(models.Sum('total_price'))['total_price__sum'] or 0
 
-        # Vencido: facturas pendientes que ya vencieron
         total_dued = invoices.filter(
             status='PENDIENTE',
             due_date__lt=now.date()
         ).aggregate(models.Sum('total_price'))['total_price__sum'] or 0
 
-        # Tallos comprados este mes (basado en fecha de factura)
         total_stems_this_month = invoices.filter(
             date__month=now.month,
             date__year=now.year
