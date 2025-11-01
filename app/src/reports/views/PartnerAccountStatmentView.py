@@ -87,13 +87,8 @@ class PartnerAccountStatmentView(TemplateView):
             payments_by_invoice.setdefault(pd.invoice_id, []).append(pd)
 
         entries = []
-        total_invoices_amount = 0
-        total_payments_amount = 0
-        total_pending_balance = 0
-        net_balance = 0
-        total_overdue_amount = 0  # Valor vencido
-        invoice_count = 0  # Cantidad de comprobantes
-
+        total_overdue_amount = 0
+        invoice_count = 0
         def _to_date(val):
             if not val:
                 return None
@@ -150,35 +145,12 @@ class PartnerAccountStatmentView(TemplateView):
                 'invoice_amount': inv.total_invoice,
                 'payment_amount': (
                     payments_in_range_sum
-                    if payments_in_range_sum else None
+                    if payments_in_range_sum else 0.00
                 ),
                 'balance': balance,
                 'reference': reference,
                 'invoice': inv,
             })
-
-            # Usar total_invoice que incluye margen para facturas de venta
-            total_invoices_amount += float(inv.total_invoice or 0)
-            total_payments_amount += float(payments_in_range_sum)
-            if inv.status == 'PENDIENTE' and balance > 0:
-                total_pending_balance += float(balance)
-            net_balance += float(balance)
-
-            # Agregar cada pago como línea independiente (solo del rango)
-            for p in payments_by_invoice.get(inv.id, []):
-                entries.append({
-                    'type': 'PAYMENT',
-                    'date': _to_date(p.payment.date),
-                    'document': (
-                        p.payment.payment_number or f'PAGO-{p.payment.id}'
-                    ),
-                    'credit_days': '',
-                    'invoice_amount': None,
-                    'payment_amount': p.amount,
-                    'balance': None,
-                    'reference': 'PAGO RECIBIDO',
-                    'payment': p.payment,
-                })
 
         # Ordenar: fecha, luego tipo (factura antes que pago)
         entries.sort(
@@ -187,6 +159,17 @@ class PartnerAccountStatmentView(TemplateView):
                 0 if e['type'] == 'INVOICE' else 1,
             )
         )
+
+        total_invoices_amount = 0
+        total_payments_amount = 0
+        total_pending_balance = 0
+        net_balance = 0
+
+        for entry in entries:
+            total_invoices_amount += float(entry['invoice_amount'] or 0)
+            total_payments_amount += float(entry['payment_amount'] or 0)
+            total_pending_balance += float(entry['balance'] or 0)
+            net_balance += float(entry['balance'] or 0)
 
         ctx.update({
             'partner': partner,

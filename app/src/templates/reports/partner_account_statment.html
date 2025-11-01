@@ -319,28 +319,28 @@
                 <table class="table table-striped" id="movementsTable">
                   <thead>
                     <tr>
-                      <th>REFERENCIA</th>
-                      <th>FECHA</th>
-                      <th>DOCUMENTO</th>
-                      <th>TIEMPO DE CREDITO</th>
-                      <th>VALOR</th>
-                      <th>PAGO RECIBIDO</th>
-                      <th>SALDO ACTUAL</th>
+                      <th class="bg-gray-300">REFERENCIA</th>
+                      <th class="bg-gray-300">FECHA</th>
+                      <th class="bg-gray-300">DOCUMENTO</th>
+                      <th class="bg-gray-300">TIEMPO DE CREDITO</th>
+                      <th class="bg-gray-300">VALOR</th>
+                      <th class="bg-gray-300">PAGO RECIBIDO</th>
+                      <th class="bg-gray-300">SALDO ACTUAL</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% for e in entries %}
                       <tr class="{% if e.reference == 'FACTURA VENCIDA' %}invoice-overdue{% endif %}">
-                        <td class="text-center">
+                        <td class="text-center border">
                           {% if e.reference == 'FACTURA VENCIDA' %}<span class="text-danger">FACTURA VENCIDA</span>
                           {% else %}{{ e.reference }}{% endif %}
                         </td>
-                        <td>{{ e.date|date:'d/m/Y' }}</td>
-                        <td>{{ e.document }}</td>
+                        <td class="border">{{ e.date|date:'d/m/Y' }}</td>
+                        <td class="border">{{ e.document }}</td>
                         <td class="text-center">{{ e.credit_days }}</td>
-                        <td class="text-end">${{ e.invoice_amount|floatformat:2 }}</td>
-                        <td class="text-end">${{ e.payment_amount|floatformat:2 }}</td>
-                        <td class="text-end">${{ e.balance|floatformat:2 }}</td>
+                        <td class="text-end border">{{ e.invoice_amount|floatformat:2 }}</td>
+                        <td class="text-end border">{{ e.payment_amount|floatformat:2 }}</td>
+                        <td class="text-end border">{{ e.balance|floatformat:2 }}</td>
                       </tr>
                     {% empty %}
                     <tr>
@@ -353,11 +353,11 @@
                     {% endfor %}
                   </tbody>
                   <tfoot>
-                    <tr>
-                      <td colspan="3" class="text-end">SUMAS</td>
-                      <td class="text-end">${{ total_invoices_amount|floatformat:2 }}</td>
-                      <td class="text-end">${{ total_payments_amount|floatformat:2 }}</td>
-                      <td class="text-end">${{ total_pending_balance|floatformat:2 }}</td>
+                    <tr class="fw-bold">
+                      <td colspan="4" class="text-end bg-amber-300">SUMAS</td>
+                      <td class="text-end bg-amber-400">${{ total_invoices_amount|floatformat:2 }}</td>
+                      <td class="text-end bg-amber-300">${{ total_payments_amount|floatformat:2 }}</td>
+                      <td class="text-end bg-amber-400">${{ total_pending_balance|floatformat:2 }}</td>
                       <td></td>
                     </tr>
                   </tfoot>
@@ -383,6 +383,7 @@
       // Inicializar DataTable para la tabla de movimientos
       $(document).ready(function() {
         $('#movementsTable').DataTable({
+          pageLength: 15, // Número inicial de registros por página
           lengthMenu: [15, 25, 50, 100, 500],
           order: [[0, 'desc']]  // Ordenar por fecha descendente por defecto
         });
