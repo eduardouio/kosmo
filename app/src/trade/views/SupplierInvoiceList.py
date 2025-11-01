@@ -19,10 +19,8 @@ class SupplierInvoiceList(ListView):
         context['action'] = None
         context['stats'] = self.get_values_stats()
 
-        # Obtener información del cliente relacionado para cada factura
         invoices_with_customers = []
         for invoice in context['invoices']:
-            # Obtener la orden de venta relacionada (parent_order)
             if (hasattr(invoice, 'order') and invoice.order and
                     hasattr(invoice.order, 'parent_order') and
                     invoice.order.parent_order):
@@ -31,7 +29,6 @@ class SupplierInvoiceList(ListView):
                     partner_name = sale_order.partner.name
                     invoice.customer_name = partner_name or 'Sin nombre'
                     
-                    # Buscar factura de venta relacionada
                     try:
                         from trade.models import Invoice as InvoiceModel
                         customer_invoice = InvoiceModel.objects.get(
@@ -64,6 +61,7 @@ class SupplierInvoiceList(ListView):
     def get_queryset(self):
         return super().get_queryset().filter(
             type_document='FAC_COMPRA',
+            is_active=True
         ).select_related(
             'order', 'order__parent_order', 'partner'
         ).order_by('-date')
