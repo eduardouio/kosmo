@@ -65,6 +65,7 @@ class PartnerAccountStatmentView(TemplateView):
         invoices = Invoice.objects.filter(
             partner=partner,
             is_active=True,
+            status__in=['PENDIENTE', 'PAGADO'],
             date__date__gte=start_date,
             date__date__lte=end_date,
         ).select_related('partner').order_by('date')
@@ -74,8 +75,6 @@ class PartnerAccountStatmentView(TemplateView):
         # Pagos del rango vinculados a facturas incluidas
         payment_details = PaymentDetail.objects.filter(
             invoice_id__in=invoice_ids,
-            payment__date__gte=start_date,
-            payment__date__lte=end_date,
             is_active=True,
             payment__is_active=True,
         ).select_related('payment', 'invoice').order_by(
