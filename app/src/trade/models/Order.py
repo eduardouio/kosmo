@@ -289,14 +289,12 @@ class Order(BaseModel):
     @classmethod
     def rebuild_totals(cls, order):
         loggin_event(f"Reconstruyendo totales de orden {order.id}")
-        # Mostrar los totales actuales en un formato más legible para diagnóstico
         loggin_event(
             f"Totales iniciales: price={order.total_price}, "
             f"margin={order.total_margin}, order_total={order.total_order}, "
             f"EB={order.eb_total}, QB={order.qb_total}, HB={order.hb_total}, "
             f"FB={order.fb_total}, stems={order.total_stem_flower}, bunches={order.total_bunches}"
         )
-        
         # Inicializar contadores
         total_price = 0
         total_margin = 0
