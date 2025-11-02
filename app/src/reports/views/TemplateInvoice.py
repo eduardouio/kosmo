@@ -33,8 +33,7 @@ class TemplateInvoice(TemplateView):
 
             if order.type_document == 'ORD_VENTA':
                 # Si es una orden de venta, buscar el proveedor de la primera orden de compra relacionada
-                purchase_orders = Order.get_purchase_orders_by_sale_order(
-                    order)
+                purchase_orders = Order.get_by_parent_order(order)
                 if purchase_orders and purchase_orders.exists():
                     # Usar el nombre del proveedor de la primera orden de compra relacionada
                     farm_name = purchase_orders.first().partner.name
