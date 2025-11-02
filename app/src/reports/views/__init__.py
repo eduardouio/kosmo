@@ -3,7 +3,7 @@ from .TemplateReportOrderSupView import TemplateReportOrderSupView
 from .TemplateReportCusOrderView import TemplateReportCusOrderView
 from .PDFReportCusOrder import PDFReportCusOrder
 from .TemplateInvoice import TemplateInvoice
-from .TemplateBalance import TemplateBalance
+from .TemplatStatusAccount import TemplatStatusAccount
 from .PDFBalance import PDFBalance
 from .PDFInvoice import PDFInvoice
 from .CollectionsReportsView import CollectionsReportsView
@@ -28,7 +28,7 @@ __all__ = [
     'TemplateReportCusOrderView',
     'PDFReportCusOrder',
     'TemplateInvoice',
-    'TemplateBalance',
+    'TemplatStatusAccount',
     'PDFBalance',
     'PDFInvoice',
     'CollectionsReportsView',

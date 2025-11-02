@@ -9,7 +9,7 @@ from accounts.models.CustomUserModel import CustomUserModel
 from common.AppLoger import loggin_event
 
 
-class TemplateBalance(TemplateView):
+class TemplatStatusAccount(TemplateView):
     template_name = 'reports/status_account.html'
 
     def _parse_date(self, value, default):

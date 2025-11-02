@@ -1,6 +1,7 @@
 {% extends 'base/base.html' %}
 {% load static %}
 {% load l10n %}
+{% load humanize %}
 
 {% block style %}
 <style>
@@ -371,28 +372,28 @@
     <div class="row">
         <div class="col-lg col-md-3 col-6">
             <div class="balance-card compras compact">
-                <h4>${{ total_compras|floatformat:0 }}</h4>
+                <h4>${{ total_compras|floatformat:2|intcomma }}</h4>
                 <div class="subtitle">Compras</div>
                 <small>{{ count_compras }} fact.</small>
             </div>
         </div>
         <div class="col-lg col-md-3 col-6">
             <div class="balance-card ventas compact">
-                <h4>${{ total_ventas|floatformat:0 }}</h4>
+                <h4>${{ total_ventas|floatformat:2|intcomma }}</h4>
                 <div class="subtitle">Ventas</div>
                 <small>{{ count_ventas }} fact.</small>
             </div>
         </div>
         <div class="col-lg col-md-3 col-6">
             <div class="balance-card compact" style="background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);">
-                <h4>${{ total_margen|floatformat:0 }}</h4>
+                <h4>${{ total_margen|floatformat:2|intcomma }}</h4>
                 <div class="subtitle">Margen</div>
-                <small>{{ margen_contribucion|floatformat:1 }}%</small>
+                <small>{{ margen_contribucion|floatformat:2 }}%</small>
             </div>
         </div>
         <div class="col-lg col-md-3 col-6">
             <div class="balance-card compact" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
-                <h4>${{ total_comisiones|floatformat:0 }}</h4>
+                <h4>${{ total_comisiones|floatformat:2|intcomma }}</h4>
                 <div class="subtitle">Comisiones</div>
                 <small>Gastos</small>
             </div>
@@ -400,22 +401,22 @@
         <div class="col-lg col-md-3 col-6">
             <div class="balance-card utilidad compact">
                 <h4 class="{% if utilidad_bruta >= 0 %}text-white{% else %}text-white{% endif %}">
-                    ${{ utilidad_bruta|floatformat:0 }}
+                    ${{ utilidad_bruta|floatformat:2|intcomma }}
                 </h4>
                 <div class="subtitle">Utilidad</div>
-                <small>{{ rentabilidad|floatformat:1 }}%</small>
+                <small>{{ rentabilidad|floatformat:2 }}%</small>
             </div>
         </div>
         <div class="col-lg col-md-3 col-6">
             <div class="balance-card flujo compact">
-                <h4>${{ flujo_efectivo|floatformat:0 }}</h4>
+                <h4>${{ flujo_efectivo|floatformat:2|intcomma }}</h4>
                 <div class="subtitle">Flujo</div>
                 <small>Efectivo</small>
             </div>
         </div>
         <div class="col-lg col-md-3 col-6">
             <div class="balance-card compact" style="background: linear-gradient(135deg, #20c997 0%, #198754 100%);">
-                <h4>{{ kpis.roi|floatformat:1 }}%</h4>
+                <h4>{{ kpis.roi|floatformat:2 }}%</h4>
                 <div class="subtitle">ROI</div>
                 <small>Retorno</small>
             </div>
