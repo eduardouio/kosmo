@@ -32,18 +32,6 @@
 </div>
 
 <div class="mx-auto list-container">
-    <!-- Debug info -->
-    <div class="mb-3 p-2 bg-light border rounded">
-        <small class="text-muted">
-            <strong>Debug:</strong> 
-            Source page: {{ source_page }} | 
-            Total registros: {{ object_list|length }} |
-            {% for item in object_list|slice:":3" %}
-                {{ item.name }} ({{ item.type_partner }}){% if not forloop.last %}, {% endif %}
-            {% endfor %}
-        </small>
-    </div>
-    
     {% if object_list %}
     <div class="mb-3">
         <small class="text-muted">

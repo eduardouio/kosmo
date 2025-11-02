@@ -18,7 +18,10 @@ class PartnerListView(LoginRequiredMixin, ListView):
 
         # Filtrar por tipo de partner
         if source_page == 'clientes':
-            queryset = queryset.filter(type_partner='CLIENTE')
+            queryset = queryset.filter(
+                type_partner='CLIENTE',
+                is_active=True
+            )
 
             # Estadísticas para clientes (facturas de venta)
             queryset = queryset.annotate(
@@ -62,7 +65,10 @@ class PartnerListView(LoginRequiredMixin, ListView):
             )
 
         elif source_page == 'proveedores':
-            queryset = queryset.filter(type_partner='PROVEEDOR')
+            queryset = queryset.filter(
+                type_partner='PROVEEDOR',
+                is_active=True
+                )
 
             # Estadísticas para proveedores (facturas de compra)
             queryset = queryset.annotate(
