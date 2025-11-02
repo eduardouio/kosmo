@@ -16,6 +16,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(OrderDetailView, self).get_context_data(**kwargs)
         order = self.object
+        Order.rebuild_totals(order)
 
         context['title_section'] = f"Orden {order.num_order}"
         context['title_page'] = f"Orden {order.serie}-{str(order.consecutive).zfill(6)}"
@@ -33,7 +34,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             supplier = Partner.get_partner_by_taxi_id('9999999999')
             if supplier is None:
                 raise Exception(
-                    "No existe proveedor definifo para tarifas generales"
+                    "El proveedor de esta factura no existe, error en base de datos"
                 )
 
         order_data = {
