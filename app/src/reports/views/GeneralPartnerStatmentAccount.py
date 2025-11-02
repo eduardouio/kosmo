@@ -71,7 +71,6 @@ class GeneralPartnerStatmentAccount(TemplateView):
             date__date__gte=start_date,
             date__date__lte=end_date,
         ).select_related('partner').order_by('partner__name', 'date')
-
         # Agrupar por partner
         partners_data = {}
         total_global_invoices = 0
