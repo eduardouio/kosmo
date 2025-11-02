@@ -7,6 +7,110 @@ from trade.models import (
 from trade.models.Payment import PaymentDetail
 
 
+class OrderBoxItemsAdmin(admin.TabularInline):
+    model = OrderBoxItems
+    fields = (
+        'product',
+        'qty_stem_flower',
+        'stem_cost_price',
+        'profit_margin',
+        'length',
+        'notes',
+        'is_active'
+    )
+    readonly_fields = ('created_at', 'updated_at')
+    extra = 0
+
+
+class OrderItemsAdmin(SimpleHistoryAdmin):
+    list_display = (
+        'id',
+        'order',
+        'box_model',
+        'quantity',
+        'tot_stem_flower',
+        'total_bunches',
+        'line_price',
+        'line_margin',
+        'line_total',
+        'is_active'
+    )
+    search_fields = (
+        'order__id',
+        'box_model',
+    )
+    list_filter = (
+        'box_model',
+        'is_active',
+        'is_deleted',
+        'is_modified'
+    )
+    readonly_fields = (
+        'id',
+        'created_at',
+        'updated_at',
+        'id_user_created',
+        'id_user_updated'
+    )
+    fieldsets = (
+        ('Información del Item', {
+            'fields': (
+                'order',
+                'id_stock_detail',
+                'box_model',
+                'quantity',
+                'tot_stem_flower',
+                'total_bunches'
+            )
+        }),
+        ('Precios y Márgenes', {
+            'fields': (
+                'line_price',
+                'line_margin',
+                'line_total',
+                'line_commission'
+            )
+        }),
+        ('Estado', {
+            'fields': (
+                'is_deleted',
+                'is_modified',
+                'parent_order_item'
+            )
+        }),
+        ('Datos del Sistema', {
+            'classes': ('collapse',),
+            'fields': (
+                'notes',
+                'is_active',
+                'created_at',
+                'updated_at',
+                'id_user_created',
+                'id_user_updated'
+            )
+        })
+    )
+    inlines = [OrderBoxItemsAdmin]
+
+
+class OrderItemsInlineAdmin(admin.TabularInline):
+    model = OrderItems
+    fields = (
+        'id_stock_detail',
+        'box_model',
+        'quantity',
+        'tot_stem_flower',
+        'total_bunches',
+        'line_price',
+        'line_margin',
+        'line_total',
+        'line_commission',
+        'is_active'
+    )
+    readonly_fields = ('created_at', 'updated_at')
+    extra = 0
+
+
 class OrderAdmin(SimpleHistoryAdmin):
     list_display = (
         'id',
@@ -105,118 +209,7 @@ class OrderAdmin(SimpleHistoryAdmin):
             )
         })
     )
-
-
-class OrderBoxItemsAdmin(admin.TabularInline):
-    model = OrderBoxItems
-    list_display = (
-        'order_item',
-        'product',
-        'qty_stem_flower',
-        'stem_cost_price',
-        'profit_margin',
-        'length'
-    )
-    fields = (
-        'product',
-        'qty_stem_flower',
-        'stem_cost_price',
-        'profit_margin',
-        'length',
-        'notes',
-        'is_active'
-    )
-    readonly_fields = ('created_at', 'updated_at')
-    extra = 0
-
-
-class OrderItemsAdmin(SimpleHistoryAdmin):
-    list_display = (
-        'id',
-        'order',
-        'id_stock_detail',
-        'tot_stem_flower',
-        'line_price',
-        'line_margin',
-        'line_total',
-        'box_model',
-        'quantity',
-        'is_active',
-        'is_deleted',
-        'is_modified'
-    )
-
-    search_fields = (
-        'order__id',
-        'id_stock_detail',
-        'box_model'
-    )
-    list_filter = (
-        'box_model',
-        'is_active',
-        'is_deleted',
-        'is_modified',
-        'order__type_document'
-    )
-    readonly_fields = (
-        'id',
-        'created_at',
-        'updated_at',
-        'id_user_created',
-        'id_user_updated',
-        'eb_total',
-        'qb_total',
-        'hb_total',
-        'fb_total'
-    )
-    fieldsets = (
-        ('Información del Item', {
-            'fields': (
-                'order',
-                'id_stock_detail',
-                'box_model',
-                'quantity',
-                'tot_stem_flower',
-                'total_bunches'
-            )
-        }),
-        ('Precios y Márgenes', {
-            'fields': (
-                'line_price',
-                'line_margin',
-                'line_total',
-                'line_commission'
-            )
-        }),
-        ('Estado y Control', {
-            'fields': (
-                'is_deleted',
-                'is_modified',
-                'parent_order_item'
-            )
-        }),
-        ('Totales por Tipo de Caja (Solo Lectura)', {
-            'classes': ('collapse',),
-            'fields': (
-                'eb_total',
-                'qb_total',
-                'hb_total',
-                'fb_total'
-            )
-        }),
-        ('Datos del Sistema', {
-            'classes': ('collapse',),
-            'fields': (
-                'notes',
-                'is_active',
-                'created_at',
-                'updated_at',
-                'id_user_created',
-                'id_user_updated'
-            )
-        })
-    )
-    inlines = [OrderBoxItemsAdmin]
+    inlines = [OrderItemsInlineAdmin]
 
 
 class InvoiceBoxItemsInlineAdmin(admin.TabularInline):
