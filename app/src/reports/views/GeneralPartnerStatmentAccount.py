@@ -67,6 +67,7 @@ class GeneralPartnerStatmentAccount(TemplateView):
             partner__type_partner=partner_type,
             partner__is_active=True,
             is_active=True,
+            status__in=['PENDIENTE', 'PAGADO'],
             date__date__gte=start_date,
             date__date__lte=end_date,
         ).select_related('partner').order_by('partner__name', 'date')
