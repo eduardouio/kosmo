@@ -43,6 +43,8 @@ class PartnerDetailView(LoginRequiredMixin, DetailView):
             message = 'Esta acción es irreversible. ¿Desea continuar?.'
         elif context['action'] == 'deleted_related':
             message = 'El registro ha sido eliminado exitosamente'
+        elif context['action'] == 'cannot_delete' and self.request.GET.get('reason') == 'has_dependencies':
+            message = 'No es posible eliminar el socio de negocio porque tiene registros dependientes asociados.'
 
         context['message'] = message
         return context
