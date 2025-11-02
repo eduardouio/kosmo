@@ -230,8 +230,8 @@
         <table class="transactions-table">
           <thead>
             <tr>
-              <th>FECHA</th>
               <th>DOCUMENTO</th>
+              <th>FECHA</th>
               <th>TIEMPO DE CREDITO</th>
               <th>VALOR</th>
               <th>PAGO RECIBIDO</th>
@@ -242,8 +242,8 @@
           <tbody>
             {% for e in entries %}
               <tr class="{% if e.reference == 'FACTURA VENCIDA' %}overdue{% endif %}">
-                <td>{{ e.date|date:'d/m/Y' }}</td>
                 <td>{{ e.document }}</td>
+                <td>{{ e.date|date:'d/m/Y' }}</td>
                 <td class="text-center">{{ e.credit_days }}</td>
                 <td class="text-end">${{ e.invoice_amount|floatformat:2 }}</td>
                 <td class="text-end">{% if e.payment_amount %}${{ e.payment_amount|floatformat:2 }}{% endif %}</td>

@@ -22,11 +22,9 @@ class TemplatStatusAccount(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Obtener parámetros de la URL
         partner_id = kwargs.get('partner_id')
         today = date.today()
         
-        # Configurar rango de fechas por defecto (mes actual)
         first_day = today.replace(day=1)
         next_month = (
             first_day.replace(day=28) + timedelta(days=4)
@@ -69,7 +67,7 @@ class TemplatStatusAccount(TemplateView):
             status__in=['PENDIENTE', 'PAGADO'],
             date__date__gte=start_date,
             date__date__lte=end_date,
-        )
+        ).order_by('num_invoice')
         
         # Facturas pendientes (todas, incluso fuera del rango)
         pending_invoices = Invoice.objects.filter(
@@ -87,7 +85,7 @@ class TemplatStatusAccount(TemplateView):
         invoices = (
             Invoice.objects.filter(id__in=invoice_ids)
             .select_related('partner')
-            .order_by('date')
+            .order_by('num_invoice')
         )
         
         # Pagos del rango vinculados a facturas incluidas
@@ -188,10 +186,18 @@ class TemplatStatusAccount(TemplateView):
                 total_pending_balance += float(balance)
             net_balance += float(balance)
             
-        # Ordenar entradas: fecha, luego tipo (factura antes que pago)
+        def _is_numeric_start(doc_number):
+            """Determina si el número de documento comienza con un número"""
+            if not doc_number:
+                return True
+            return doc_number[0].isdigit()
+
+        # Ordenar entradas: primero números, luego letras, por fecha y número de documento
         entries.sort(
             key=lambda e: (
+                not _is_numeric_start(e.get('document', '')),  # Números primero (False), letras después (True)
                 e['date'] or date.min,
+                e.get('document', ''),
                 0 if e['type'] == 'INVOICE' else 1,
             )
         )

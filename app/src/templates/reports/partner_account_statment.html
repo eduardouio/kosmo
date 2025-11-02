@@ -319,9 +319,9 @@
                 <table class="table table-striped" id="movementsTable">
                   <thead>
                     <tr>
-                      <th class="bg-gray-300">REFERENCIA</th>
-                      <th class="bg-gray-300">FECHA</th>
+                      <th class="bg-gray-300">TIPO</th>
                       <th class="bg-gray-300">DOCUMENTO</th>
+                      <th class="bg-gray-300">FECHA</th>
                       <th class="bg-gray-300">TIEMPO DE CREDITO</th>
                       <th class="bg-gray-300">VALOR</th>
                       <th class="bg-gray-300">PAGO RECIBIDO</th>
@@ -335,8 +335,8 @@
                           {% if e.reference == 'FACTURA VENCIDA' %}<span class="text-danger">FACTURA VENCIDA</span>
                           {% else %}{{ e.reference }}{% endif %}
                         </td>
-                        <td class="border">{{ e.date|date:'d/m/Y' }}</td>
                         <td class="border">{{ e.document }}</td>
+                        <td class="border">{{ e.date|date:'d/m/Y' }}</td>
                         <td class="text-center">{{ e.credit_days }}</td>
                         <td class="text-end border">{{ e.invoice_amount|floatformat:2 }}</td>
                         <td class="text-end border">{{ e.payment_amount|floatformat:2 }}</td>
