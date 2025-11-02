@@ -27,6 +27,8 @@ class PartnerDeleteView(LoginRequiredMixin, RedirectView):
                       kwargs={'pk': partner.pk}))
             return f'{url}?action=cannot_delete&reason=has_dependencies'
 
+        partner.name = f"{partner.name} - ELIMINADO {partner.pk}"
+        partner.save()
         partner.delete(partner.pk)
 
         url = str(reverse_lazy(url_name))
