@@ -66,6 +66,7 @@ class TemplateBalance(TemplateView):
         invoices_in_range = Invoice.objects.filter(
             partner=partner,
             is_active=True,
+            status__in=['PENDIENTE', 'PAGADO'],
             date__date__gte=start_date,
             date__date__lte=end_date,
         )
@@ -187,22 +188,6 @@ class TemplateBalance(TemplateView):
                 total_pending_balance += float(balance)
             net_balance += float(balance)
             
-            # Agregar cada pago como línea independiente
-            for p in invoice_payments_in_range:
-                entries.append({
-                    'type': 'PAYMENT',
-                    'date': _to_date(p.payment.date),
-                    'document': (
-                        p.payment.payment_number or f'PAGO-{p.payment.id}'
-                    ),
-                    'credit_days': '',
-                    'invoice_amount': None,
-                    'payment_amount': p.amount,
-                    'balance': None,
-                    'reference': 'PAGO RECIBIDO',
-                    'payment': p.payment,
-                })
-        
         # Ordenar entradas: fecha, luego tipo (factura antes que pago)
         entries.sort(
             key=lambda e: (

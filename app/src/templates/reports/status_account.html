@@ -241,7 +241,6 @@
           </thead>
           <tbody>
             {% for e in entries %}
-              {% if e.type == 'INVOICE' %}
               <tr class="{% if e.reference == 'FACTURA VENCIDA' %}overdue{% endif %}">
                 <td>{{ e.date|date:'d/m/Y' }}</td>
                 <td>{{ e.document }}</td>
@@ -254,17 +253,6 @@
                   {% else %}{{ e.reference }}{% endif %}
                 </td>
               </tr>
-              {% else %}
-              <tr class="payment-row">
-                <td>{{ e.date|date:'d/m/Y' }}</td>
-                <td>{{ e.document }}</td>
-                <td></td>
-                <td></td>
-                <td class="text-end">${{ e.payment_amount|floatformat:2 }}</td>
-                <td></td>
-                <td class="text-center">PAGO RECIBIDO</td>
-              </tr>
-              {% endif %}
             {% empty %}
             <tr><td colspan="7" class="text-center text-muted">Sin movimientos en el período seleccionado</td></tr>
             {% endfor %}
