@@ -253,16 +253,6 @@ class Order(BaseModel):
             f"La orden {sale_order.pk} no tiene ordenes de proveedor", True)
         return None
 
-    @classmethod
-    def get_purchase_orders_by_sale_order(cls, sale_order):
-        """Obtener todas las órdenes de compra relacionadas
-        con una orden de venta"""
-        return cls.objects.filter(
-            parent_order=sale_order,
-            type_document='ORD_COMPRA',
-            is_active=True
-        )
-
     @property
     def total_purchase_price(self):
         total = 0

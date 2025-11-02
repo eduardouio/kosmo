@@ -1,5 +1,7 @@
 from django.views.generic import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from trade.models import (
     Order, OrderItems, OrderBoxItems, Invoice, InvoiceItems,
     InvoiceBoxItems, Payment, PaymentDetail
@@ -13,9 +15,20 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
     template_name = 'presentations/order_presentation.html'
     context_object_name = 'order'
 
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.type_document == 'ORD_COMPRA':
+            return HttpResponseRedirect(
+                reverse('order_detail_presentation',
+                       args=[self.object.parent_order.id])
+            )
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
     def get_context_data(self, **kwargs):
         context = super(OrderDetailView, self).get_context_data(**kwargs)
         order = self.object
+        
         Order.rebuild_totals(order)
 
         context['title_section'] = f"Orden {order.num_order}"
@@ -29,13 +42,6 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             supplier_orders_qs = Order.get_by_parent_order(order)
             if supplier_orders_qs:
                 supplier = supplier_orders_qs[0].partner
-
-        if not supplier:
-            supplier = Partner.get_partner_by_taxi_id('9999999999')
-            if supplier is None:
-                raise Exception(
-                    "El proveedor de esta factura no existe, error en base de datos"
-                )
 
         order_data = {
             "id": order.id,
