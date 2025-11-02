@@ -192,13 +192,26 @@ class TemplatStatusAccount(TemplateView):
                 return True
             return doc_number[0].isdigit()
 
-        # Ordenar entradas: primero números, luego letras, por fecha y número de documento
+        def _get_doc_prefix(doc_number):
+            """Obtiene el prefijo del documento para ordenamiento"""
+            if not doc_number:
+                return ''
+            # Identificar prefijos conocidos
+            if doc_number.startswith('SINFACT'):
+                return '2_SINFACT'
+            elif doc_number.startswith('SRI'):
+                return '1_SRI'
+            elif doc_number.startswith('MANUAL'):
+                return '3_MANUAL'
+            return '0_' + doc_number  # Para otros casos
+
+        # Ordenar entradas por prefijo, fecha y número completo
         entries.sort(
             key=lambda e: (
-                not _is_numeric_start(e.get('document', '')),  # Números primero (False), letras después (True)
-                e['date'] or date.min,
-                e.get('document', ''),
-                0 if e['type'] == 'INVOICE' else 1,
+                _get_doc_prefix(e.get('document', '')),  # Primero por prefijo
+                e['date'] or date.min,                   # Luego por fecha
+                e.get('document', ''),                   # Finalmente por número completo
+                0 if e['type'] == 'INVOICE' else 1
             )
         )
         
