@@ -31,7 +31,7 @@ class Partner(BaseModel):
     )
     name = models.CharField(
         'Nombre',
-        max_length=255
+        max_length=255,
     )
     status = models.CharField(
         'Estado',
@@ -320,6 +320,9 @@ class Partner(BaseModel):
             name__icontains=name
         )
         return partners[0] if partners else None
+
+    class Meta:
+        unique_together = [['business_tax_id', 'name']]
 
     def __str__(self):
         return self.name
