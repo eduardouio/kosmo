@@ -266,3 +266,14 @@ app/src/trade/migrations/0002_creditnotedetail.py
 app/src/trade/migrations/0003_alter_creditnote_options_and_more.py
 app/src/trade/migrations/0004_creditnote_id_payment_creditnote_status_and_more.py
 app/src/trade/migrations/0005_creditnote_consecutive_creditnote_serie_and_more.py
+
+
+# ...existing code...
+
+# Ignorar archivos de migraciones específicos
+app/src/partners/migrations/0002_alter_partner_options_alter_partner_unique_together.py
+app/src/trade/migrations/0002_alter_historicalinvoice_serie_alter_invoice_serie.py
+
+# También puedes ignorar todas las migraciones futuras (opcional)
+app/src/*/migrations/[0-9]*.py
+
