@@ -25,9 +25,11 @@ class InvoiceBalance:
 
             # Obtener la suma de todos los pagos asociados a esta factura
             # a través de PaymentDetail
+            # Excluir pagos anulados
             payment_details = PaymentDetail.objects.filter(
                 invoice=invoice,
                 payment__is_active=True,
+                payment__status__in=['CONFIRMADO', 'PENDIENTE'],  # Excluir ANULADO
                 is_active=True
             )
 
@@ -61,18 +63,25 @@ class InvoiceBalance:
         Retorna todas las facturas pendientes de pago, opcionalmente
         filtradas por cliente.
         """
+        # Incluir facturas PENDIENTE y también PAGADO (pueden tener saldo si se anuló un pago)
+        # Excluir facturas inactivas (borradas)
         query = Invoice.objects.filter(
-            is_active=True,
-            status='PENDIENTE'
-        )
+            is_active=True,  # Solo facturas activas
+            status__in=['PENDIENTE', 'PAGADO']
+        ).exclude(status='ANULADO')
 
         if partner_id:
-            query = query.filter(partner_id=partner_id)
+            query = query.filter(partner_id=partner_id, partner__is_active=True)
 
         invoices_data = []
 
         for invoice in query:
+            # Validar que el partner esté activo
+            if not invoice.partner.is_active:
+                continue
+                
             balance_data = cls.get_invoice_balance(invoice.id)
+            # Solo incluir si tiene saldo pendiente real
             if balance_data and balance_data['balance'] > 0:
                 invoices_data.append(balance_data)
 
@@ -90,23 +99,33 @@ class InvoiceBalance:
                 {invoice_id: monto_a_aplicar}
         """
         try:
-            payment = Payment.objects.get(id=payment_id)
+            payment = Payment.objects.get(id=payment_id, is_active=True)
             total_applied = Decimal('0.00')
 
             for invoice_id, amount in invoice_amounts.items():
                 amount = Decimal(str(amount))
-                invoice = Invoice.objects.get(id=invoice_id, is_active=True)
+                invoice = Invoice.objects.get(
+                    id=invoice_id, 
+                    is_active=True  # Solo facturas activas
+                )
+                
+                # Validar que la factura no esté anulada
+                if invoice.status == 'ANULADO':
+                    continue
                 
                 # Crear o actualizar PaymentDetail
                 payment_detail, created = PaymentDetail.objects.get_or_create(
                     payment=payment,
                     invoice=invoice,
+                    is_active=True,  # Solo detalles activos
                     defaults={'amount': amount}
                 )
                 
                 if not created:
-                    payment_detail.amount = amount
-                    payment_detail.save()
+                    # Si ya existe, actualizar solo si está activo
+                    if payment_detail.is_active:
+                        payment_detail.amount = amount
+                        payment_detail.save()
                 
                 total_applied += amount
 
@@ -134,36 +153,40 @@ class InvoiceBalance:
             bool: True si la operación fue exitosa, False en caso contrario
         """
         try:
-            # Obtener el pago
-            payment = Payment.objects.get(id=payment_id)
+            # Obtener el pago (solo si está activo)
+            payment = Payment.objects.get(id=payment_id, is_active=True)
 
-            # Obtener todos los detalles del pago
+            # Obtener todos los detalles del pago que estén activos
             payment_details = PaymentDetail.objects.filter(
                 payment=payment,
                 is_active=True
             )
 
-            # Revertir cada detalle de pago
+            # Lista de facturas afectadas para actualizar después
+            affected_invoices = []
+
+            # Primero desactivar todos los detalles del pago
             for payment_detail in payment_details:
-                invoice = payment_detail.invoice
+                # Solo procesar si la factura está activa
+                if payment_detail.invoice.is_active:
+                    affected_invoices.append(payment_detail.invoice)
+                    # Desactivar el detalle del pago (soft delete)
+                    payment_detail.is_active = False
+                    payment_detail.save()
 
-                # Recalcular el balance de la factura después de revertir
-                # este pago
-                balance_data = cls.get_invoice_balance(invoice.id)
+            # Ahora recalcular el balance de cada factura afectada
+            for invoice in affected_invoices:
+                # Solo procesar facturas activas y no anuladas
+                if invoice.is_active and invoice.status != 'ANULADO':
+                    # Recalcular el balance de la factura sin este pago
+                    balance_data = cls.get_invoice_balance(invoice.id)
 
-                if balance_data:
-                    # Si después de revertir el pago queda saldo pendiente,
-                    # cambiar el estado de la factura a PENDIENTE
-                    new_balance = (balance_data['balance'] +
-                                   payment_detail.amount)
-
-                    if new_balance > 0 and invoice.status == 'PAGADO':
-                        invoice.status = 'PENDIENTE'
-                        invoice.save()
-
-                # Desactivar el detalle del pago (soft delete)
-                payment_detail.is_active = False
-                payment_detail.save()
+                    if balance_data:
+                        # Si después de revertir el pago queda saldo pendiente,
+                        # cambiar el estado de la factura a PENDIENTE
+                        if balance_data['balance'] > 0 and invoice.status == 'PAGADO':
+                            invoice.status = 'PENDIENTE'
+                            invoice.save()
 
             return True
 

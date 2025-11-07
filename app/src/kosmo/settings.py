@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-dmiffk3lw9ht7&cvk#ix)y4b88xvy3c%0ci%@npnn&isex2*b$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*',]
+ALLOWED_HOSTS = ['app.colmenaec.com', 'colmenaec.com', 'localhost']
 
 
 # Application definition
@@ -79,7 +79,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # 'DIRS': [os.path.join(BASE_DIR, 'templates/')],
         'DIRS': ['templates/'],
-        'APP_DIRS': True,
+        #'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -165,6 +165,10 @@ AUTHENTICATION_BACKENDS = [
 LOGIN = '/accounts/login/'
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://app.colmenaec.com',
+    'http://app.colmenaec.com',
+    'https://colmenaec.com',
+    'http://colmenaec.com',
     'https://146.190.56.181',
     'http://146.190.56.181',
     'http://app.kosmoflowers.com',

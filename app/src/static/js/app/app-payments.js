@@ -190,6 +190,34 @@ createApp({
       }
     },
     
+    async loadInvoices() {
+      try {
+        this.loading = true;
+        
+        // Llamar a la API que recalcula los saldos correctamente
+        const response = await fetch('/api/documents-for-payment/');
+        const data = await response.json();
+        
+        if (data.invoices) {
+            // Asegurarse de que cada factura tenga el saldo correcto
+            this.invoices = data.invoices.map(invoice => ({
+                ...invoice,
+                selected: false,
+                paymentAmount: 0,
+                // El balance ya viene recalculado desde el backend
+                balance: parseFloat(invoice.balance || 0)
+            }));
+            
+            this.statistics = data.statistics || this.getDefaultStatistics();
+        }
+      } catch (error) {
+        console.error('Error loading invoices:', error);
+        this.showError('Error al cargar las facturas');
+      } finally {
+        this.loading = false;
+      }
+    },
+    
     // ===== AUTOCOMPLETE DE PROVEEDORES =====
     filterSuppliers() {
       if (this.supplierSearchTerm.trim() === '') {

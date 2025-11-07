@@ -275,8 +275,9 @@ class Invoice(BaseModel):
         return sum(
             detail.amount for detail in PaymentDetail.objects.filter(
                 invoice=self,
-                is_active=True,
-                payment__status='CONFIRMADO'
+                is_active=True,  # Solo detalles activos
+                payment__is_active=True,  # Solo pagos activos
+                payment__status__in=['CONFIRMADO', 'PENDIENTE']  # Excluir ANULADO
             )
         )
 
@@ -318,6 +319,7 @@ class Invoice(BaseModel):
         from common.AppLoger import loggin_event
         
         updated_count = 0
+        # Solo facturas activas
         for invoice in cls.objects.filter(is_active=True):
             old_status = invoice.status
             invoice.update_payment_status()
@@ -489,7 +491,7 @@ class InvoiceItems(BaseModel):
     def get_invoice_items(cls, invoice):
         return cls.objects.filter(
             invoice=invoice,
-            is_active=True
+            is_active=True  # Solo items activos
         )
 
     @classmethod
@@ -610,3 +612,33 @@ class InvoiceBoxItems(BaseModel):
             invoice_item=invoice_item,
             is_active=True
         )
+
+    @classmethod
+    def recalculate_payment_statuses_after_void(cls, payment_id):
+        """
+        Recalcula los estados de todas las facturas afectadas por un pago anulado
+        """
+        from trade.models.Payment import PaymentDetail
+        from common.AppLoger import loggin_event
+        
+        # Obtener todas las facturas afectadas por este pago
+        # Solo detalles activos de facturas activas
+        payment_details = PaymentDetail.objects.filter(
+            payment_id=payment_id,
+            invoice__is_active=True  # Solo facturas activas
+        )
+        
+        affected_invoices = set()
+        for detail in payment_details:
+            if detail.invoice.is_active:  # Validación adicional
+                affected_invoices.add(detail.invoice)
+        
+        # Recalcular cada factura
+        for invoice in affected_invoices:
+            if invoice.is_active and invoice.status != 'ANULADO':
+                invoice.update_payment_status()
+                loggin_event(
+                    f"Recalculado estado de factura {invoice.id} después de anular pago"
+                )
+        
+        return len(affected_invoices)

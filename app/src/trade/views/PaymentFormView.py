@@ -17,9 +17,14 @@ class PaymentFormView(LoginRequiredMixin, View):
     template_name = 'forms/payment_form.html'
 
     def get(self, request):
+        # Obtener todas las facturas pendientes con saldo recalculado
+        # Solo facturas activas (is_active=True)
+        invoices_data = InvoiceBalance.get_pending_invoices()
+        
         context = {
             'method_choices': METHOD_CHOICES,
-            'partners': Partner.objects.filter(is_active=True)
+            'partners': Partner.objects.filter(is_active=True),  # Solo partners activos
+            'invoices_data': invoices_data,
         }
 
         return render(request, self.template_name, context)
@@ -41,6 +46,7 @@ class PaymentFormView(LoginRequiredMixin, View):
             payment.nro_operation = data.get('nro_operation')
             payment.observations = data.get('observations', '')
             payment.updated_by = request.user
+            payment.is_active = True  # Asegurar que se crea como activo
 
             # Manejar archivo de documento si se proporciona
             if 'document' in request.FILES:
@@ -52,8 +58,22 @@ class PaymentFormView(LoginRequiredMixin, View):
             invoice_payments = json.loads(data.get('invoice_payments', '{}'))
 
             if invoice_payments:
-                InvoiceBalance.apply_payment_to_invoices(
-                    payment.id, invoice_payments)
+                # Validar que todas las facturas estén activas
+                valid_invoice_payments = {}
+                for invoice_id, amount in invoice_payments.items():
+                    try:
+                        invoice = Invoice.objects.get(
+                            id=invoice_id, 
+                            is_active=True
+                        )
+                        if invoice.status != 'ANULADO':
+                            valid_invoice_payments[invoice_id] = amount
+                    except Invoice.DoesNotExist:
+                        continue
+                
+                if valid_invoice_payments:
+                    InvoiceBalance.apply_payment_to_invoices(
+                        payment.id, valid_invoice_payments)
 
             messages.success(request, "Pago guardado correctamente")
             return redirect(reverse('payment_detail', kwargs={'pk': payment.id}))

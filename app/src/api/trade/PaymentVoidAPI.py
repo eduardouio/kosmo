@@ -77,6 +77,10 @@ class PaymentVoidAPI(View):
                         payment.status = 'ANULADO'
                         payment.save()
 
+                        # Recalcular estados de facturas afectadas
+                        from trade.models import Invoice
+                        Invoice.recalculate_payment_statuses_after_void(payment_id)
+
                         voided_payments.append({
                             'id': payment.id,
                             'payment_number': payment.payment_number
@@ -155,6 +159,10 @@ class PaymentVoidAPI(View):
                 # Cambiar estado del pago a ANULADO
                 payment.status = 'ANULADO'
                 payment.save()
+
+                # Recalcular estados de facturas afectadas
+                from trade.models import Invoice
+                Invoice.recalculate_payment_statuses_after_void(payment_id)
 
                 loggin_event(f'Pago anulado: {payment.payment_number}')
 

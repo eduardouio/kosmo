@@ -1,70 +1,76 @@
 from django.http import JsonResponse
 from django.views import View
-from common.InvoicesPaymentPending import (
-    InvoicesPaymentPending,
-    get_sales_pending_invoices,
-    get_purchase_pending_invoices,
-    get_all_pending_invoices
-)
+from common.InvoiceBalance import InvoiceBalance
+from trade.models import Invoice
+from decimal import Decimal
 
 
 class InvoicesForPaymentAPI(View):
-
-    def get(self, request, *args, **kwargs):
-        report_type = request.GET.get('type', 'all')
-        partner_id = request.GET.get('partner_id', None)
-        overdue_only = request.GET.get(
-            'overdue_only', 'false').lower() == 'true'
-
-        if report_type == 'sales':
-            if partner_id or overdue_only:
-                invoices_manager = InvoicesPaymentPending(
-                    type_document='FAC_VENTA')
-                if partner_id:
-                    partner_id = int(partner_id)
-                    invoices_data = invoices_manager.get_customer_pending_invoices(
-                        partner_id)
-                    if overdue_only:
-                        invoices_data = [
-                            inv for inv in invoices_data if inv['is_overdue']]
-                elif overdue_only:
-                    invoices_data = invoices_manager.get_overdue_invoices()
-            else:
-                invoices_data = get_sales_pending_invoices()
-
-        elif report_type == 'purchase':
-            if partner_id or overdue_only:
-                invoices_manager = InvoicesPaymentPending(
-                    type_document='FAC_COMPRA')
-                if partner_id:
-                    partner_id = int(partner_id)
-                    invoices_data = invoices_manager.get_customer_pending_invoices(
-                        partner_id)
-                    if overdue_only:
-                        invoices_data = [
-                            inv for inv in invoices_data if inv['is_overdue']]
-                elif overdue_only:
-                    invoices_data = invoices_manager.get_overdue_invoices()
-            else:
-                invoices_data = get_purchase_pending_invoices()
-        else:
-            if partner_id or overdue_only:
-                invoices_manager = InvoicesPaymentPending()
-                if partner_id:
-                    partner_id = int(partner_id)
-                    invoices_data = invoices_manager.get_customer_pending_invoices(
-                        partner_id)
-                    if overdue_only:
-                        invoices_data = [
-                            inv for inv in invoices_data if inv['is_overdue']]
-                elif overdue_only:
-                    invoices_data = invoices_manager.get_overdue_invoices()
-            else:
-                invoices_data = get_all_pending_invoices()
-
+    def get(self, request):
+        """Obtiene todas las facturas pendientes con sus saldos actualizados"""
+        partner_id = request.GET.get('partner_id')
+        
+        # Obtener facturas con saldo pendiente (incluyendo las que tienen pagos anulados)
+        # Solo facturas activas (is_active=True)
+        invoices_data = InvoiceBalance.get_pending_invoices(partner_id=partner_id)
+        
+        # Formatear datos para el frontend
+        invoices_list = []
+        for invoice_data in invoices_data:
+            invoice = invoice_data['invoice']
+            
+            # Validar que la factura y el partner estén activos
+            if not invoice.is_active or not invoice.partner.is_active:
+                continue
+            
+            invoices_list.append({
+                'id': invoice.id,
+                'serie': invoice.serie or '000',
+                'consecutive': invoice.consecutive,
+                'num_invoice': invoice.num_invoice,
+                'partner_id': invoice.partner.id,
+                'partner_name': invoice.partner.name,
+                'date': invoice.date.isoformat() if invoice.date else None,
+                'due_date': invoice.due_date.isoformat() if invoice.due_date else None,
+                'total_amount': float(invoice_data['total_amount']),
+                'paid_amount': float(invoice_data['paid_amount']),
+                'balance': float(invoice_data['balance']),
+                'status': invoice_data['status'],
+                'days_overdue': invoice.days_overdue,
+                'is_overdue': invoice.is_dued,
+            })
+        
+        # Calcular estadísticas
+        total_pending = sum(inv['balance'] for inv in invoices_list)
+        overdue_invoices = [inv for inv in invoices_list if inv['is_overdue']]
+        total_overdue = sum(inv['balance'] for inv in overdue_invoices)
+        
+        # Facturas que vencen en los próximos 7 días
+        upcoming_due = []
+        for inv in invoices_list:
+            if not inv['is_overdue'] and inv.get('days_overdue') is not None:
+                days_to_due = abs(inv['days_overdue'])
+                if days_to_due <= 7:
+                    upcoming_due.append(inv)
+        
+        total_upcoming = sum(inv['balance'] for inv in upcoming_due)
+        
         return JsonResponse({
-            'success': True,
-            'data': invoices_data
+            'invoices': invoices_list,
+            'statistics': {
+                'pending_invoices': {
+                    'count': len(invoices_list),
+                    'total_amount': float(total_pending)
+                },
+                'overdue_payments': {
+                    'count': len(overdue_invoices),
+                    'total_amount': float(total_overdue)
+                },
+                'upcoming_due_invoices': {
+                    'count': len(upcoming_due),
+                    'total_amount': float(total_upcoming)
+                }
+            }
         })
 
     def post(self, request, *args, **kwargs):
