@@ -15,7 +15,9 @@ class PaymentsList(LoginRequiredMixin, ListView):
     def get_queryset(self):
         """Filtra solo los pagos (egresos) con relaciones optimizadas"""
         return Payment.objects.filter(
-            type_transaction='EGRESO'
+            type_transaction='EGRESO',
+            status='CONFIRMADO',
+            is_active=True
         ).select_related().prefetch_related(
             'invoices__invoice__partner',
             'invoices__invoice'
@@ -31,6 +33,7 @@ class PaymentsList(LoginRequiredMixin, ListView):
         # 1. Número de Pagos Realizados en el mes
         pagos_mes_count = Payment.objects.filter(
             type_transaction='EGRESO',
+            status='CONFIRMADO',    
             date__month=current_month,
             date__year=current_year,
             is_active=True
@@ -39,6 +42,7 @@ class PaymentsList(LoginRequiredMixin, ListView):
         # 2. Valor de pagos del mes (ya existía, lo mantenemos)
         pagos_mes = Payment.objects.filter(
             type_transaction='EGRESO',
+            status='CONFIRMADO',
             date__month=current_month,
             date__year=current_year,
             is_active=True
