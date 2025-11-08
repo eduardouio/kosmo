@@ -17,6 +17,7 @@ class CollectionsListView(LoginRequiredMixin, ListView):
         """Filtra solo los cobros (ingresos) con relaciones optimizadas"""
         return Payment.objects.filter(
             type_transaction='INGRESO',
+            status='CONFIRMADO',
             is_active=True
         ).select_related().prefetch_related(
             'invoices__invoice__partner',
@@ -33,6 +34,7 @@ class CollectionsListView(LoginRequiredMixin, ListView):
         # 1. Número de Cobros Realizados en el mes
         cobros_mes_count = Payment.objects.filter(
             type_transaction='INGRESO',
+            status='CONFIRMADO',
             date__month=current_month,
             date__year=current_year,
             is_active=True
