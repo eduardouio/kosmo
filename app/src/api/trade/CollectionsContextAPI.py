@@ -275,7 +275,9 @@ class CollectionsContextAPI(View):
         """Obtiene el monto total pagado de una factura"""
         try:
             paid_total = PaymentDetail.objects.filter(
-                invoice=invoice
+                invoice=invoice,
+                payment__is_active=True,
+                payment__status='CONFIRMADO'
             ).aggregate(total=Sum('amount'))['total'] or Decimal('0.0')
 
             return paid_total
@@ -400,7 +402,8 @@ class CollectionsContextAPI(View):
                 type_transaction='INGRESO',
                 date__gte=six_months_ago,
                 bank__isnull=False,
-                is_active=True
+                is_active=True,
+                status='CONFIRMADO'
             ).values('bank').annotate(
                 count=Count('id')
             ).order_by('-count')[:10]
