@@ -9,7 +9,7 @@ class CustomerOrdersList(ListView):
     model = Order
     template_name = 'lists/customer_orders_list.html'
     context_object_name = 'orders'
-    ordering = ['-date']
+    ordering = ['-created_at']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -87,7 +87,7 @@ class CustomerOrdersList(ListView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(
             type_document='ORD_VENTA',
-        ).order_by('-date')
+        ).order_by('-created_at')
         
         # Agregar órdenes de compra relacionadas a cada orden de venta
         for order in queryset:
