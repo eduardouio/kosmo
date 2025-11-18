@@ -76,7 +76,6 @@ class Invoice(BaseModel):
     )
     date = models.DateTimeField(
         'Fecha',
-        auto_now=True
     )
     due_date = models.DateTimeField(
         'Fecha de vencimiento',

@@ -62,7 +62,6 @@ class Order(BaseModel):
     )
     date = models.DateTimeField(
         'Fecha',
-        auto_now=True
     )
     partner = models.ForeignKey(
         Partner,
