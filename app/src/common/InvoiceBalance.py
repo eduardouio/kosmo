@@ -65,10 +65,11 @@ class InvoiceBalance:
         """
         # Incluir facturas PENDIENTE y también PAGADO (pueden tener saldo si se anuló un pago)
         # Excluir facturas inactivas (borradas)
+        # Ordenadas por fecha descendente (-date) y luego por id descendente (-id)
         query = Invoice.objects.filter(
             is_active=True,  # Solo facturas activas
             status__in=['PENDIENTE', 'PAGADO']
-        ).exclude(status='ANULADO')
+        ).exclude(status='ANULADO').order_by('-date', '-id')
 
         if partner_id:
             query = query.filter(partner_id=partner_id, partner__is_active=True)

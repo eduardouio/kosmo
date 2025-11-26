@@ -31,6 +31,19 @@ class CollectionFormView(LoginRequiredMixin, View):
             # Obtener las facturas asociadas a este cobro
             invoices_in_collection = collection.invoices.all()
             context['invoices_in_collection'] = invoices_in_collection
+        
+        # Obtener facturas pendientes ordenadas por fecha descendente
+        invoices_data = InvoiceBalance.get_pending_invoices()
+        
+        # Ordenar las facturas por fecha de emisión de forma descendente
+        if invoices_data and isinstance(invoices_data, list):
+            invoices_data = sorted(
+                invoices_data,
+                key=lambda x: x.get('invoice', {}).date if hasattr(x.get('invoice', {}), 'date') else '',
+                reverse=True
+            )
+        
+        context['invoices_data'] = invoices_data
 
         return render(request, self.template_name, context)
 

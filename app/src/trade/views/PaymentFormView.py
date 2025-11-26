@@ -21,6 +21,14 @@ class PaymentFormView(LoginRequiredMixin, View):
         # Solo facturas activas (is_active=True)
         invoices_data = InvoiceBalance.get_pending_invoices()
         
+        # Ordenar las facturas por fecha de emisión de forma descendente
+        if invoices_data and 'pending_invoices' in invoices_data:
+            invoices_data['pending_invoices'] = sorted(
+                invoices_data['pending_invoices'],
+                key=lambda x: x.get('date', ''),
+                reverse=True
+            )
+        
         context = {
             'method_choices': METHOD_CHOICES,
             'partners': Partner.objects.filter(is_active=True),  # Solo partners activos
