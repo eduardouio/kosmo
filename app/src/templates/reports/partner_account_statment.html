@@ -148,6 +148,11 @@
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
       }
       
+      .movements-container {
+        width: 80%;
+        margin: 0 auto;
+      }
+      
       .table th {
         background-color: #f8f9fa;
         border-bottom: 2px solid #dee2e6;
@@ -307,6 +312,8 @@
           </div>
         </div>
       </div>
+      </div>
+      <div class="container-fluid" style="max-width: 80%;">
       <!-- Tabla de transacciones -->
       <div class="row">
         <div class="col-12">
@@ -323,6 +330,8 @@
                       <th class="bg-gray-300">DOCUMENTO</th>
                       <th class="bg-gray-300">FECHA</th>
                       <th class="bg-gray-300">TIEMPO DE CREDITO</th>
+                      <th class="bg-gray-300">N° PAGO</th>
+                      <th class="bg-gray-300">FECHA PAGO</th>
                       <th class="bg-gray-300">VALOR</th>
                       <th class="bg-gray-300">PAGO RECIBIDO</th>
                       <th class="bg-gray-300">SALDO ACTUAL</th>
@@ -335,16 +344,49 @@
                           {% if e.reference == 'FACTURA VENCIDA' %}<span class="text-danger">FACTURA VENCIDA</span>
                           {% else %}{{ e.reference }}{% endif %}
                         </td>
-                        <td class="border">{{ e.document }}</td>
+                        <td class="border">
+                          {% if e.order_id %}
+                            <a href="{% url 'order_detail_presentation' pk=e.order_id %}" target="_blank">
+                              <i class="las la-external-link-alt"></i> {{ e.document }}
+                            </a>
+                          {% else %}
+                            {{ e.document }}
+                          {% endif %}
+                        </td>
                         <td class="border">{{ e.date|date:'d/m/Y' }}</td>
                         <td class="text-center">{{ e.credit_days }}</td>
+                        <td class="border text-center">
+                          {% for p in e.payment_details %}
+                            <div>
+                              {{ p.payment_number }} - 
+                              {% if p.type_transaction == 'INGRESO' %}
+                                <a href="{% url 'collection_detail' pk=p.payment_id %}" target="_blank">
+                                  <i class="las la-external-link-alt"></i> {{ p.payment_ref }}
+                                </a>
+                              {% else %}
+                                <a href="{% url 'payment_detail' pk=p.payment_id %}" target="_blank">
+                                  <i class="las la-external-link-alt"></i> {{ p.payment_ref }}
+                                </a>
+                              {% endif %}
+                            </div>
+                          {% empty %}
+                            <span class="text-muted">-</span>
+                          {% endfor %}
+                        </td>
+                        <td class="border text-center">
+                          {% for p in e.payment_details %}
+                            <div>{{ p.payment_date|date:'d/m/Y' }}</div>
+                          {% empty %}
+                            <span class="text-muted">-</span>
+                          {% endfor %}
+                        </td>
                         <td class="text-end border">{{ e.invoice_amount|floatformat:2 }}</td>
                         <td class="text-end border">{{ e.payment_amount|floatformat:2 }}</td>
                         <td class="text-end border">{{ e.balance|floatformat:2 }}</td>
                       </tr>
                     {% empty %}
                     <tr>
-                      <td colspan="7" class="text-center text-muted py-4">
+                      <td colspan="9" class="text-center text-muted py-4">
                         <i class="las la-inbox la-2x mb-2"></i>
                         <br>
                         Sin movimientos en el período seleccionado
@@ -354,11 +396,10 @@
                   </tbody>
                   <tfoot>
                     <tr class="fw-bold">
-                      <td colspan="4" class="text-end bg-amber-300">SUMAS</td>
+                      <td colspan="6" class="text-end bg-amber-300">SUMAS</td>
                       <td class="text-end bg-amber-400">${{ total_invoices_amount|floatformat:2 }}</td>
                       <td class="text-end bg-amber-300">${{ total_payments_amount|floatformat:2 }}</td>
                       <td class="text-end bg-amber-400">${{ total_pending_balance|floatformat:2 }}</td>
-                      <td></td>
                     </tr>
                   </tfoot>
                 </table>

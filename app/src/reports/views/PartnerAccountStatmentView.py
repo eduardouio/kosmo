@@ -106,6 +106,21 @@ class PartnerAccountStatmentView(TemplateView):
                 p.amount for p in payments_by_invoice.get(inv.id, [])
             )
 
+            # Obtener detalles de pagos para esta factura
+            invoice_payments = payments_by_invoice.get(inv.id, [])
+            payment_details_list = []
+            for idx, pd in enumerate(invoice_payments, start=1):
+                payment_details_list.append(
+                    {
+                        "payment_number": idx,
+                        "payment_date": pd.payment.date,
+                        "payment_ref": pd.payment.payment_number or f"PAY-{pd.payment.id}",
+                        "payment_amount": pd.amount,
+                        "payment_id": pd.payment.id,
+                        "type_transaction": pd.payment.type_transaction,
+                    }
+                )
+
             all_payments_sum = (
                 PaymentDetail.objects.filter(
                     invoice=inv,
@@ -139,6 +154,7 @@ class PartnerAccountStatmentView(TemplateView):
                     "type": "INVOICE",
                     "date": inv_date_only,
                     "document": inv.num_invoice or f"INV-{inv.id}",
+                    "order_id": inv.order.id if inv.order else None,
                     "credit_days": credit_days,
                     "invoice_amount": inv.total_invoice,
                     "payment_amount": (
@@ -147,6 +163,7 @@ class PartnerAccountStatmentView(TemplateView):
                     "balance": balance,
                     "reference": reference,
                     "invoice": inv,
+                    "payment_details": payment_details_list,
                 }
             )
 
