@@ -18,70 +18,72 @@ class PartnerAccountStatmentView(TemplateView):
         - Sin partner_id => página informativa.
     """
 
-    template_name = 'reports/partner_account_statment.html'
+    template_name = "reports/partner_account_statment.html"
 
     def _parse_date(self, value, default):
         try:
-            return datetime.strptime(value, '%Y-%m-%d').date()
+            return datetime.strptime(value, "%Y-%m-%d").date()
         except Exception:
             return default
 
-    def get_context_data(self, **kwargs):  # noqa: C901 complejidad aceptable
+    def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         today = date.today()
 
-        # Rango por defecto: mes actual
         first_day = today.replace(day=1)
-        # último día del mes actual
-        next_month = (
-            first_day.replace(day=28) + timedelta(days=4)
-        ).replace(day=1)
+
+        next_month = (first_day.replace(day=28) + timedelta(days=4)).replace(day=1)
         last_day = next_month - timedelta(days=1)
 
-        start_param = self.request.GET.get('start_date')
-        end_param = self.request.GET.get('end_date')
-        partner_id = self.request.GET.get('partner_id')
+        start_param = self.request.GET.get("start_date")
+        end_param = self.request.GET.get("end_date")
+        partner_id = self.request.GET.get("partner_id")
 
         start_date = self._parse_date(start_param, first_day)
         end_date = self._parse_date(end_param, last_day)
 
-        ctx.update({
-            'start_date': start_date,
-            'end_date': end_date,
-            'today': today,
-        })
+        ctx.update(
+            {
+                "start_date": start_date,
+                "end_date": end_date,
+                "today": today,
+            }
+        )
 
         if not partner_id:
-            ctx['missing_partner'] = True
+            ctx["missing_partner"] = True
             return ctx
 
         try:
             partner = Partner.objects.get(id=partner_id)
         except Partner.DoesNotExist:
-            ctx['partner_not_found'] = True
+            ctx["partner_not_found"] = True
             return ctx
 
-        # Solo facturas dentro del rango de fechas
-        invoices = Invoice.objects.filter(
-            partner=partner,
-            is_active=True,
-            status__in=['PENDIENTE', 'PAGADO'],
-            date__date__gte=start_date,
-            date__date__lte=end_date,
-        ).select_related('partner').order_by('date')
-
-        invoice_ids = list(invoices.values_list('id', flat=True))
-
-        # Pagos del rango vinculados a facturas incluidas
-        payment_details = PaymentDetail.objects.filter(
-            invoice_id__in=invoice_ids,
-            is_active=True,
-            payment__is_active=True,
-        ).select_related('payment', 'invoice').order_by(
-            'payment__date', 'id'
+        invoices = (
+            Invoice.objects.filter(
+                partner=partner,
+                is_active=True,
+                status__in=["PENDIENTE", "PAGADO"],
+                date__date__gte=start_date,
+                date__date__lte=end_date,
+            )
+            .select_related("partner")
+            .order_by("date")
         )
 
-        # Indexar pagos por factura
+        invoice_ids = list(invoices.values_list("id", flat=True))
+
+        payment_details = (
+            PaymentDetail.objects.filter(
+                invoice_id__in=invoice_ids,
+                is_active=True,
+                payment__is_active=True,
+            )
+            .select_related("payment", "invoice")
+            .order_by("payment__date", "id")
+        )
+
         payments_by_invoice = {}
         for pd in payment_details:
             payments_by_invoice.setdefault(pd.invoice_id, []).append(pd)
@@ -89,6 +91,7 @@ class PartnerAccountStatmentView(TemplateView):
         entries = []
         total_overdue_amount = 0
         invoice_count = 0
+
         def _to_date(val):
             if not val:
                 return None
@@ -97,66 +100,60 @@ class PartnerAccountStatmentView(TemplateView):
             return val
 
         for inv in invoices:
-            invoice_count += 1  # Contar comprobante
-            
-            # Total de pagos aplicados (activos) a la factura DENTRO DEL RANGO
+            invoice_count += 1
+
             payments_in_range_sum = sum(
                 p.amount for p in payments_by_invoice.get(inv.id, [])
             )
-            
-            # Para el balance, usamos todos los pagos históricos de la factura
+
             all_payments_sum = (
                 PaymentDetail.objects.filter(
                     invoice=inv,
                     is_active=True,
                     payment__is_active=True,
-                ).aggregate(s=Sum('amount'))['s'] or 0
+                ).aggregate(s=Sum("amount"))["s"]
+                or 0
             )
-            
-            # permitir negativo (saldo a favor)
-            # Usar total_invoice que incluye margen para facturas de venta
+
             balance = (inv.total_invoice or 0) - all_payments_sum
 
-            # Días de crédito restantes: credit_term - días transcurridos
             inv_date_only = _to_date(inv.date)
             days_passed = (today - inv_date_only).days if inv_date_only else 0
-            credit_term = getattr(inv.partner, 'credit_term', 0) or 0
+            credit_term = getattr(inv.partner, "credit_term", 0) or 0
             credit_days = credit_term - days_passed
 
-            # Determinar referencia
-            if inv.status == 'ANULADO':
-                reference = 'FACTURA ANULADA'
+            if inv.status == "ANULADO":
+                reference = "FACTURA ANULADA"
             elif balance == 0:
-                reference = 'FACTURA PAGADA'
+                reference = "FACTURA PAGADA"
             elif credit_days < 0:
-                reference = 'FACTURA VENCIDA'
-                # Sumar al total de valores vencidos (solo si tiene balance pendiente)
+                reference = "FACTURA VENCIDA"
+
                 if balance > 0:
                     total_overdue_amount += float(balance)
             else:
-                reference = 'FACTURA'
+                reference = "FACTURA"
 
-            entries.append({
-                'type': 'INVOICE',
-                'date': inv_date_only,
-                'document': inv.num_invoice or f'INV-{inv.id}',
-                'credit_days': credit_days,
-                # Usar total_invoice para incluir margen en facturas de venta
-                'invoice_amount': inv.total_invoice,
-                'payment_amount': (
-                    payments_in_range_sum
-                    if payments_in_range_sum else 0.00
-                ),
-                'balance': balance,
-                'reference': reference,
-                'invoice': inv,
-            })
+            entries.append(
+                {
+                    "type": "INVOICE",
+                    "date": inv_date_only,
+                    "document": inv.num_invoice or f"INV-{inv.id}",
+                    "credit_days": credit_days,
+                    "invoice_amount": inv.total_invoice,
+                    "payment_amount": (
+                        payments_in_range_sum if payments_in_range_sum else 0.00
+                    ),
+                    "balance": balance,
+                    "reference": reference,
+                    "invoice": inv,
+                }
+            )
 
-        # Ordenar: fecha, luego tipo (factura antes que pago)
         entries.sort(
             key=lambda e: (
-                e['date'] or date.min,
-                0 if e['type'] == 'INVOICE' else 1,
+                e["date"] or date.min,
+                0 if e["type"] == "INVOICE" else 1,
             )
         )
 
@@ -166,19 +163,21 @@ class PartnerAccountStatmentView(TemplateView):
         net_balance = 0
 
         for entry in entries:
-            total_invoices_amount += float(entry['invoice_amount'] or 0)
-            total_payments_amount += float(entry['payment_amount'] or 0)
-            total_pending_balance += float(entry['balance'] or 0)
-            net_balance += float(entry['balance'] or 0)
+            total_invoices_amount += float(entry["invoice_amount"] or 0)
+            total_payments_amount += float(entry["payment_amount"] or 0)
+            total_pending_balance += float(entry["balance"] or 0)
+            net_balance += float(entry["balance"] or 0)
 
-        ctx.update({
-            'partner': partner,
-            'entries': entries,
-            'total_invoices_amount': total_invoices_amount,
-            'total_payments_amount': total_payments_amount,
-            'total_pending_balance': total_pending_balance,
-            'net_balance': net_balance,
-            'invoice_count': invoice_count,
-            'total_overdue_amount': total_overdue_amount,
-        })
+        ctx.update(
+            {
+                "partner": partner,
+                "entries": entries,
+                "total_invoices_amount": total_invoices_amount,
+                "total_payments_amount": total_payments_amount,
+                "total_pending_balance": total_pending_balance,
+                "net_balance": net_balance,
+                "invoice_count": invoice_count,
+                "total_overdue_amount": total_overdue_amount,
+            }
+        )
         return ctx
