@@ -37,10 +37,8 @@ from api.trade import (
 )
 
 from trade.views.CreateCreditNote import CreditNoteCreateView
-from trade.views.DetailCreditNote import (
-    CreditNoteListView,
-    CreditNoteDetailView,
-)
+from trade.views.DetailCreditNote import CreditNoteDetailView
+from trade.views.CreditNoteListView import CreditNoteListView
 from trade.views.DeleteCreditNote import CreditNoteVoidView
 
 urlpatterns = [
