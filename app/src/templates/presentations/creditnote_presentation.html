@@ -56,7 +56,7 @@
                             {{ credit_note.invoice.serie }}-{{ credit_note.invoice.consecutive|stringformat:'06d' }}
                         </a>
                     </p>
-                    <p class="small mb-1"><strong>ID de Pago Relacionado:</strong> {{ credit_note.id_payment|default:'N/A' }}</p>
+                    <p class="small mb-1"><strong>Tipo de Documento:</strong> {{ credit_note.invoice.type_document }}</p>
                     <p class="small mb-1"><strong>Motivo:</strong></p>
                     <div class="form-control bg-light" style="white-space: pre-wrap;">{{ credit_note.reason }}</div>
                 </div>

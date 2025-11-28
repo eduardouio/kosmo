@@ -35,6 +35,7 @@ from api.trade import (
     PaymentCreateUpdateAPI,
     PaymentVoidAPI,
 )
+from api.trade.CreditNoteAPI import CreditNoteInvoicesAPI
 
 from trade.views.CreateCreditNote import CreditNoteCreateView
 from trade.views.DetailCreditNote import CreditNoteDetailView
@@ -79,6 +80,7 @@ urlpatterns = [
     path('api/payments/delete/', PaymentVoidAPI.as_view(), name='payments_bulk_delete_api'),
     path('trade/payment/<int:pk>/', PaymentDetailView.as_view(), name='payment_detail'),
     # credit notes
+    path('api/creditnote/invoices/', CreditNoteInvoicesAPI.as_view(), name='creditnote_invoices_api'),
     path('trade/credit-notes/', CreditNoteListView.as_view(), name='creditnote_list'),
     path('trade/credit-notes/nueva/', CreditNoteCreateView.as_view(), name='creditnote_create'),
     path('trade/credit-notes/<int:pk>/', CreditNoteDetailView.as_view(), name='creditnote_detail'),
