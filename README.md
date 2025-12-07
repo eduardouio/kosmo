@@ -521,3 +521,34 @@ ekl pago de comisiones
 
 
 en el estado de cuenta quitarlo
+
+
+```sql
+
+--
+-- cruce de estados de ordenes de venta y compra ordenes facturas relacionadas
+--
+
+select  
+	o.type_document "DOCUMENTO" ,  
+	o.id "ID", 
+	o.status "ESTADO", 
+	t.type_document "DOCUMENTO",
+	t.id "ID" , 
+	t.status "ESTADO",
+	ti.type_document "DOCUMENTO",
+	ti.id "ID",
+	ti.status "ESTADO",
+	ti2.type_document "DOCUMENTO",
+	ti2.id "ID",
+	ti2.status "ESTADO"
+from trade_order o
+left join trade_order t on (t .parent_order_id =  o.id)
+left join trade_invoice ti on (ti.order_id  = o.id)
+left join trade_invoice ti2 on (t.id  = ti2.order_id)
+where 
+	o.type_document  = 'ORD_VENTA'
+and
+	o.status != 'PROMESA'
+and 
+	o.status  != t.status 
