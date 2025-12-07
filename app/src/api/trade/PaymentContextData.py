@@ -70,7 +70,7 @@ class PaymentContextData(View):
         Proporciona todos los datos necesarios para el formulario de pagos
         """
         try:
-            # Obtener proveedores activos
+            
             suppliers = Partner.objects.filter(
                 is_active=True,
                 type_partner='PROVEEDOR'
@@ -81,7 +81,7 @@ class PaymentContextData(View):
                 f'PaymentContextData: {len(suppliers)} proveedores encontrados'
             )
 
-            # Obtener facturas de compra pendientes por pagar
+            
             pending_invoices = Invoice.objects.filter(
                 type_document='FAC_COMPRA',
                 status='PENDIENTE',
@@ -98,13 +98,13 @@ class PaymentContextData(View):
                 f'facturas pendientes encontradas'
             )
 
-            # Calcular saldos pendientes por factura
-            # (considerando pagos parciales)
+            
+            
             invoices_with_balance = []
             for invoice in pending_invoices:
                 try:
-                    # Calcular el monto pagado para esta factura
-                    # (suma de todos los pagos parciales)
+                    
+                    
                     paid_amount_result = PaymentDetail.objects.filter(
                         invoice_id=invoice['id'],
                         payment__is_active=True,
@@ -114,16 +114,16 @@ class PaymentContextData(View):
                     paid_amount = (paid_amount_result['total'] or
                                    Decimal('0.00'))
 
-                    # Convertir a Decimal para cálculos precisos
+                    
                     total_amount = Decimal(str(invoice['total_price']))
                     balance = total_amount - paid_amount
 
-                    # Solo incluir facturas con saldo pendiente
-                    # Tolerancia para errores de redondeo
+                    
+                    
                     if balance > Decimal('0.01'):
                         days_overdue = 0
 
-                        # Calcular días vencidos si hay fecha vencimiento
+                        
                         if invoice['due_date']:
                             try:
                                 if hasattr(invoice['due_date'], 'date'):
@@ -148,7 +148,7 @@ class PaymentContextData(View):
                                 )
                                 days_overdue = 0
 
-                        # Formatear fechas de manera segura
+                        
                         formatted_date = ''
                         formatted_due_date = ''
 
@@ -202,7 +202,7 @@ class PaymentContextData(View):
                     )
                     continue
 
-            # Obtener estadísticas y configuración
+            
             statistics = self._calculate_payment_statistics(invoices_with_balance)
             payment_config = self._get_payment_configuration()
 
@@ -240,7 +240,7 @@ class PaymentContextData(View):
                     'error': 'ID de proveedor requerido'
                 }, status=400)
 
-            # Usar InvoiceBalance para obtener facturas pendientes
+            
             pending_invoices = InvoiceBalance.get_pending_invoices(partner_id)
 
             invoices_data = []
@@ -272,7 +272,7 @@ class PaymentContextData(View):
         Obtiene lista paginada de pagos con filtros
         """
         try:
-            # Parámetros de filtrado
+            
             page = int(request.GET.get('page', 1))
             per_page = int(request.GET.get('per_page', 20))
             search = request.GET.get('search', '')
@@ -281,13 +281,13 @@ class PaymentContextData(View):
             date_to = request.GET.get('date_to', '')
             partner_id = request.GET.get('partner_id', '')
 
-            # Query base
+            
             payments = Payment.objects.filter(
                 is_active=True,
                 type_transaction='EGRESO'
             ).select_related().order_by('-date', '-id')
 
-            # Aplicar filtros
+            
             if search:
                 payments = payments.filter(
                     Q(payment_number__icontains=search) |
@@ -304,14 +304,14 @@ class PaymentContextData(View):
             if date_to:
                 payments = payments.filter(date__lte=date_to)
 
-            # Paginar resultados
+            
             paginator = Paginator(payments, per_page)
             page_obj = paginator.get_page(page)
 
-            # Serializar datos
+            
             payments_data = []
             for payment in page_obj:
-                # Obtener facturas asociadas
+                
                 invoice_details = PaymentDetail.objects.filter(
                     payment=payment
                 ).select_related('invoice')
@@ -370,7 +370,7 @@ class PaymentContextData(View):
 
             payment = Payment.objects.get(id=payment_id, is_active=True)
             
-            # Obtener detalles de facturas
+            
             invoice_details = PaymentDetail.objects.filter(
                 payment=payment
             ).select_related('invoice', 'invoice__partner')
@@ -429,7 +429,7 @@ class PaymentContextData(View):
             current_month = datetime.now().month
             current_year = datetime.now().year
 
-            # Pagos del mes actual
+            
             monthly_payments = Payment.objects.filter(
                 type_transaction='EGRESO',
                 date__month=current_month,
@@ -440,7 +440,7 @@ class PaymentContextData(View):
                 count=Count('id')
             )
 
-            # Pagos vencidos
+            
             overdue_payments = Payment.objects.filter(
                 type_transaction='EGRESO',
                 status='PENDIENTE',
@@ -451,7 +451,7 @@ class PaymentContextData(View):
                 count=Count('id')
             )
 
-            # Facturas pendientes por pagar
+            
             pending_invoices = Invoice.objects.filter(
                 type_document='FAC_COMPRA',
                 status='PENDIENTE',
@@ -461,7 +461,7 @@ class PaymentContextData(View):
                 count=Count('id')
             )
 
-            # Próximos vencimientos (30 días)
+            
             next_month = date.today() + timedelta(days=30)
             upcoming_payments = Payment.objects.filter(
                 type_transaction='EGRESO',
@@ -544,7 +544,7 @@ class PaymentContextData(View):
         try:
             data = json.loads(request.body) if request.body else request.POST
 
-            # Validar datos requeridos
+            
             required_fields = ['date', 'amount', 'method']
             for field in required_fields:
                 if not data.get(field):
@@ -553,7 +553,7 @@ class PaymentContextData(View):
                         'error': f'Campo {field} es requerido'
                     }, status=400)
 
-            # Crear pago
+            
             payment = Payment()
             payment.date = data.get('date')
             payment.amount = Decimal(str(data.get('amount')))
@@ -564,12 +564,12 @@ class PaymentContextData(View):
             payment.type_transaction = 'EGRESO'
             payment.created_by = request.user
 
-            # Generar número de pago automáticamente
+            
             payment.payment_number = Payment.get_next_payment_number()
             
             payment.save()
 
-            # Procesar facturas asociadas si existen
+            
             invoice_payments = data.get('invoice_payments', {})
             if invoice_payments:
                 self._process_invoice_payments(payment, invoice_payments)
@@ -600,7 +600,7 @@ class PaymentContextData(View):
 
             payment = Payment.objects.get(id=payment_id, is_active=True)
             
-            # Actualizar campos
+            
             if data.get('date'):
                 payment.date = data.get('date')
             if data.get('amount'):
@@ -617,11 +617,11 @@ class PaymentContextData(View):
             payment.updated_by = request.user
             payment.save()
 
-            # Actualizar facturas asociadas si se proporcionan
+            
             if 'invoice_payments' in data:
-                # Limpiar asociaciones anteriores
+                
                 PaymentDetail.objects.filter(payment=payment).delete()
-                # Crear nuevas asociaciones
+                
                 self._process_invoice_payments(payment, data['invoice_payments'])
 
             return JsonResponse({
@@ -686,7 +686,7 @@ class PaymentContextData(View):
 
             payment = Payment.objects.get(id=payment_id, is_active=True)
             
-            # Aplicar pagos usando InvoiceBalance
+            
             InvoiceBalance.apply_payment_to_invoices(payment_id, invoice_payments)
 
             return JsonResponse({
@@ -737,7 +737,7 @@ class PaymentContextData(View):
             current_month = datetime.now().month
             current_year = datetime.now().year
 
-            # Pagos vencidos
+            
             overdue_payments = Payment.objects.filter(
                 type_transaction='EGRESO',
                 status='PENDIENTE',
@@ -748,7 +748,7 @@ class PaymentContextData(View):
                 count=Count('id')
             )
 
-            # Pagos del mes actual
+            
             monthly_payments = Payment.objects.filter(
                 type_transaction='EGRESO',
                 date__month=current_month,
@@ -759,13 +759,13 @@ class PaymentContextData(View):
                 count=Count('id')
             )
 
-            # Total de facturas pendientes por pagar
+            
             total_pending_invoices = len(invoices_with_balance)
             total_pending_amount = sum(
                 inv['balance'] for inv in invoices_with_balance
             )
 
-            # Facturas próximas a vencer (próximos 30 días)
+            
             next_month_date = date.today() + timedelta(days=30)
             upcoming_invoices = [
                 inv for inv in invoices_with_balance
@@ -814,7 +814,7 @@ class PaymentContextData(View):
     def _get_payment_methods(self):
         """Obtiene los métodos de pago disponibles"""
         try:
-            # Métodos de pago que coinciden con METHOD_CHOICES
+            
             methods = [
                 {'value': 'TRANSF', 'label': 'Transferencia Bancaria'},
                 {'value': 'EFECTIVO', 'label': 'Efectivo'},
@@ -839,10 +839,10 @@ class PaymentContextData(View):
         Obtiene configuración de métodos de pago y bancos
         """
         try:
-            # Obtener métodos de pago
+            
             payment_methods = self._get_payment_methods()
 
-            # Bancos más utilizados (últimos 6 meses)
+            
             today = date.today()
             if today.month > 6:
                 six_months_ago = today.replace(month=today.month-6)
