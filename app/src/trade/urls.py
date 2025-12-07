@@ -52,8 +52,6 @@ urlpatterns = [
     path('trade/stock/detalle/actualizar/<int:pk>/', SingleStockDetailUpdateView.as_view(), name='stock_detail_update'),
 	# parners
     path('trade/customer-invoices/', CustomerInvoiceList.as_view(), name='customer_invoice_list'),
-    path('trade/customer-orders/', CustomerOrdersList.as_view(), name='customer_orders_list'),
-    path('trade/supplier-orders/', SupplierOrdersList.as_view(), name='supplier_orders_list'),
     path('trade/supplier-invoices/', SupplierInvoiceList.as_view(), name='supplier_invoice_list'),
     path('trade/supplier-invoice/update/<int:invoice_id>/', InvoiceSupplierUpdate.as_view(), name='invoice_supplier_update'),
 	# invoices
@@ -64,6 +62,8 @@ urlpatterns = [
     path('trade/supplier-invoice/<int:invoice_id>/', SupplierInvoiceDetail.as_view(), name='supplier_invoice_detail'),
 	# orders
     path('trade/order/<int:pk>/', OrderDetailView.as_view(), name='order_detail_presentation'),
+    path('trade/customer-orders/', CustomerOrdersList.as_view(), name='customer_orders_list'),
+    path('trade/supplier-orders/', SupplierOrdersList.as_view(), name='supplier_orders_list'),
     path('trade/order/aprove/<int:pk>/', AprovePurchaseOrderView.as_view(), name='aprove_purchase_order'),
     path('trade/aprove-batch-orders/', BatchOrderApprovalView.as_view(), name='aprove_batch_orders'),
     path('trade/order/generate-invoice/<int:pk>/', CreateInvoiceByOrder.as_view(), name='generate_invoice_by_order'),
