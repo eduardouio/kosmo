@@ -92,13 +92,15 @@ class PaymentContextData(View):
             ).values_list("id", flat=True)
 
             # Filtrar facturas de compra pendientes
+            # Excluir facturas que inicien con "SINFACT"
             pending_invoices = (
                 Invoice.objects.filter(
                     type_document="FAC_COMPRA",
                     status="PENDIENTE",
                     is_active=True,
-                    order_id__in=purchase_orders_with_sales,  # Solo facturas con orden de compra relacionada a venta
+                    order_id__in=purchase_orders_with_sales,
                 )
+                .exclude(num_invoice__istartswith="SINFACT")  # Excluir facturas SINFACT
                 .select_related("partner", "order", "order__parent_order")
                 .values(
                     "id",
@@ -118,7 +120,7 @@ class PaymentContextData(View):
             loggin_event(
                 "DEBUG",
                 f"PaymentContextData: {len(pending_invoices)} "
-                f"facturas pendientes encontradas (con venta asociada)",
+                f"facturas pendientes encontradas (con venta asociada, excluyendo SINFACT)",
             )
 
             invoices_with_balance = []
