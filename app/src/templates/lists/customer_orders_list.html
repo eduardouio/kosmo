@@ -20,6 +20,15 @@
     </button>
     </div>
     <div class="d-flex justify-content-end gap-4">
+        {% if total_alerts > 0 %}
+        <div class="fw-bold">
+            <span class="text-danger">
+                <i class="las la-exclamation-triangle"></i>
+                Alertas:
+            </span>
+            <span class="text-danger">{{ total_alerts }}</span>
+        </div>
+        {% endif %}
         <div class="fw-bold">
             <span>Por Confirmar:</span>
             <span class="text-primary"> $ {{ por_confirmar | intcomma}} </span>
@@ -56,7 +65,10 @@
             <th class="bg-secondary bg-opacity-25 text-center p-1" style="width: 30px;">
                 <input type="checkbox" id="selectAll" title="Seleccionar todos" style="transform: scale(0.5);">
             </th>
-            <th class="bg-secondary bg-opacity-25 text-center p-1">#</th>
+            <th class="bg-secondary bg-opacity-25 text-center p-1">ID</th>
+            <th class="bg-secondary bg-opacity-25 text-center p-1" style="width: 30px;">
+                <i class="las la-exclamation-circle" title="Alertas"></i>
+            </th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">N. OV</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">OC Relacionadas</th>
             <th class="bg-secondary bg-opacity-25 text-center p-1">Factura</th>
@@ -69,13 +81,27 @@
         </thead>
         <tbody>
             {% for order in orders %}
-            <tr>
+            <tr {% if order.alert_info.has_alert %}class="table-danger"{% endif %}>
                 <td class="p-1 text-center">
                     {% if order.status in 'PENDIENTE,MODIFICADO,PROMESA' %}
                         <input type="checkbox" class="order-checkbox" value="{{ order.id }}" data-order-id="{{ order.id }}" style="transform: scale(0.5);">
                     {% endif %}
                 </td>
-                <td class="p-0 text-center">{{ forloop.counter }}</td>
+                 <td class="p-0 text-center">
+                    <a href="{% url 'order_detail_presentation' order.id %}" class="text-primary">
+                        {{ order.id }}
+                    </a>
+                </td>
+                <td class="p-1 text-center">
+                    {% if order.alert_info.has_alert %}
+                        <span class="badge bg-danger" 
+                              title="{{ order.alert_info.message }}"
+                              data-bs-toggle="tooltip"
+                              data-bs-placement="right">ERROR</span>
+                    {% else %}
+                        <span class="badge bg-success">OK</span>
+                    {% endif %}
+                </td>
                 <td class="p-0">
                     <a href="{% url 'order_detail_presentation' order.id %}" class="text-primary ms-2">
                         <i class="las la-link me-1"></i>
@@ -179,6 +205,12 @@
 // @ts-nocheck
 /* eslint-disable */
 $(document).ready(function() {
+    // Inicializar tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+    
     let selectedOrders = [];
     let ordersData = {}; // Para almacenar datos de los pedidos
     
