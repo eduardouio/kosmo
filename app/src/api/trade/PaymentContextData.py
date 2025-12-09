@@ -77,12 +77,8 @@ class PaymentContextData(View):
                 "DEBUG", f"PaymentContextData: {len(suppliers)} proveedores encontrados"
             )
 
-            # Filtrar facturas de compra que tienen una factura de venta asociada
-            # Basado en la relación: ORD_VENTA -> ORD_COMPRA -> FAC_COMPRA
-            # Solo mostrar FAC_COMPRA donde existe FAC_VENTA en la cadena
             from trade.models import Order
 
-            # Obtener las órdenes de compra que tienen una orden de venta padre
             purchase_orders_with_sales = Order.objects.filter(
                 type_document="ORD_COMPRA",
                 parent_order_id__isnull=False,
@@ -91,8 +87,6 @@ class PaymentContextData(View):
                 is_active=True,
             ).values_list("id", flat=True)
 
-            # Filtrar facturas de compra pendientes
-            # Excluir facturas que inicien con "SINFACT"
             pending_invoices = (
                 Invoice.objects.filter(
                     type_document="FAC_COMPRA",
@@ -100,7 +94,7 @@ class PaymentContextData(View):
                     is_active=True,
                     order_id__in=purchase_orders_with_sales,
                 )
-                .exclude(num_invoice__istartswith="SINFACT")  # Excluir facturas SINFACT
+                .exclude(num_invoice__istartswith="SINFACT")
                 .select_related("partner", "order", "order__parent_order")
                 .values(
                     "id",
@@ -189,6 +183,7 @@ class PaymentContextData(View):
                         invoices_with_balance.append(
                             {
                                 "id": invoice["id"],
+                                "order_id": invoice["order__parent_order__id"],
                                 "serie": invoice["serie"] or "",
                                 "consecutive": invoice["consecutive"] or 0,
                                 "num_invoice": invoice["num_invoice"] or "",

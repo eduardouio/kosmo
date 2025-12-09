@@ -135,7 +135,9 @@
                          class="form-check-input">
                 </td>
                 <td>
-                  <div class="fw-semibold">${invoice.num_invoice}</div>
+                  <a class="fw-semibold" :href="'/trade/order/' + invoice.order_id + '/'" target="_blank">
+                    ${invoice.num_invoice}
+                  </a>
                 </td>
                 <td>
                   <div class="fw-semibold">${invoice.partner_name}</div>
