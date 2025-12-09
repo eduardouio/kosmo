@@ -54,7 +54,7 @@ class PDFPayment(View):
         # Obtener el primer detalle de pago para el nombre del proveedor
         payment_detail = payment.invoices.first()
         supplier_name = 'Proveedor-Desconocido'
-        invoice_number = 'Sin-Factura'
+        invoice_number = 'SIN-FACTURA'
 
         if payment_detail and hasattr(payment_detail, 'invoice') and payment_detail.invoice:
             if hasattr(payment_detail.invoice, 'partner') and payment_detail.invoice.partner:

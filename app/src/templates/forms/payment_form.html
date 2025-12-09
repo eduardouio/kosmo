@@ -96,7 +96,6 @@
               </button>
             </div>
           </div>
-
           <!-- Tabla de facturas -->
           <table class="table">
             <thead>
@@ -136,12 +135,10 @@
                          class="form-check-input">
                 </td>
                 <td>
-                  <div class="fw-semibold">${invoice.serie}-${invoice.consecutive}</div>
-                  <small class="text-muted">${invoice.num_invoice || 'FAC_COMPRA'}</small>
+                  <div class="fw-semibold">${invoice.num_invoice}</div>
                 </td>
                 <td>
                   <div class="fw-semibold">${invoice.partner_name}</div>
-                  <small class="text-muted">ID: ${invoice.partner_id}</small>
                 </td>
                 <td class="text-center">
                   ${formatDate(invoice.date)}
