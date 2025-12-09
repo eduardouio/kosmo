@@ -260,7 +260,7 @@
 
           <!-- Lista de facturas seleccionadas -->
           <div class="mb-3">
-            <h6>� Facturas Seleccionadas:</h6>
+            <h6><i class="las la-file-invoice-dollar"></i>  Facturas Seleccionadas:</h6>
             <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
               <table class="table table-sm table-striped">
                 <thead class="table-dark">
@@ -274,8 +274,7 @@
                 <tbody>
                   <tr v-for="invoice in selectedInvoicesForPayment" :key="invoice.id">
                     <td>
-                      <strong>${invoice.serie}-${invoice.consecutive}</strong>
-                      <br><small class="text-muted">${invoice.num_invoice || 'FAC_COMPRA'}</small>
+                      <strong>${invoice.num_invoice}</strong>
                     </td>
                     <td>${invoice.partner_name}</td>
                     <td class="text-end">$${formatCurrency(invoice.balance)}</td>
