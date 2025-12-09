@@ -137,11 +137,12 @@
                            class="form-check-input">
                   </td>
                   <td class="p-0">
-                    <div class="fw-semibold">${ invoice.number || 'Sin número' }</div>
+                    <a class="fw-semibold" :href="'/trade/order/' +  invoice.order_id + '/'" target="_blank">
+                      ${ invoice.number || 'Sin número' }
+                    </a>
                   </td>
                   <td class="p-0">
                     <div>
-                      <small class="text-muted badge border me-2">ID: ${ invoice.customer_id }</small>
                       <div class="fw-semibold">${ invoice.customer_name || 'Sin cliente' }</div>
                     </div>
                   </td>
