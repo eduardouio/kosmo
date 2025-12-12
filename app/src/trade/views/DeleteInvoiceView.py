@@ -15,38 +15,45 @@ class DeleteInvoiceView(LoginRequiredMixin, RedirectView):
             "DELETE_INVOICE",
             f"El usuario {self.request.user.username} ha eliminado la factura con ID {kwargs.get('pk')}",
         )
-        
+
         invoice_id = kwargs.get("pk")
         invoice = Invoice.objects.get(pk=invoice_id)
 
         if not invoice.is_active:
             raise Http404("La factura no existe o ya ha sido eliminada")
         
+        # Actualizar orden de venta
         invoice.order.status = "PENDIENTE"
-        Invoice.order.is_invoiced = False
-        Invoice.order.id_invoice = 0
-        Invoice.order.num_invoice = None
+        invoice.order.is_invoiced = False
+        invoice.order.id_invoice = None
+        invoice.order.num_invoice = None
         invoice.order.save()
 
-        parent_order = Order.objects.filter(parent_order = invoice.order.id).first()
-        parent_order.status = "PENDIENTE"
-        parent_order.is_invoiced = False
-        parent_order.id_invoice = 0
-        parent_order.num_invoice = None
-        parent_order.save()
+        # Buscar y actualizar orden de compra relacionada
+        parent_order = Order.objects.filter(parent_order=invoice.order.id).first()
+        if parent_order:
+            parent_order.status = "PENDIENTE"
+            parent_order.is_invoiced = False    
+            parent_order.id_invoice = None
+            parent_order.num_invoice = None
+            parent_order.save()
 
-        purchase_invoice = Invoice.objects.filter(order = parent_order.id).first()
-        purchase_invoice.is_active = False
-        purchase_invoice.status = "ANULADO"
-        purchase_invoice.save()
+            # Anular factura de compra relacionada
+            purchase_invoice = Invoice.objects.filter(order=parent_order.id).first()
+            if purchase_invoice:
+                purchase_invoice.is_active = False
+                purchase_invoice.status = "ANULADO"
+                purchase_invoice.save()
+                Invoice.disable_invoice_items(purchase_invoice)
 
+        # Desactivar items de la factura de venta
         Invoice.disable_invoice_items(invoice)
-        Invoice.disable_invoice_items(purchase_invoice)
         
+        # Anular factura de venta
         invoice.is_active = False
         invoice.status = "ANULADO"
         invoice.save()
-
+        
         return (
             reverse("order_detail_presentation", kwargs={"pk": invoice.order.id})
             + "?action=deleted_related"
