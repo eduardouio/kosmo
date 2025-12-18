@@ -354,7 +354,13 @@
                           {% endif %}
                         </td>
                         <td class="border">{{ e.date|date:'d/m/Y' }}</td>
-                        <td class="text-center">{{ e.credit_days }}</td>
+                        <td class="text-center border">
+                          {% if e.credit_days < 0 %}
+                            <span class="badge bg-danger">{{ e.credit_days }}</span>
+                          {% else %}
+                            <span class="badge bg-success">{{ e.credit_days }}</span>
+                          {% endif %}
+                        </td>
                         <td class="border text-center">
                           {% for p in e.payment_details %}
                             <div>
