@@ -329,6 +329,33 @@ class Invoice(BaseModel):
         return updated_count
 
     @classmethod
+    def recalculate_payment_statuses_after_void(cls, payment_id):
+        """
+        Recalcula los estados de todas las facturas afectadas por un pago anulado
+        """
+        from trade.models.Payment import PaymentDetail
+        from common.AppLoger import loggin_event
+
+        payment_details = PaymentDetail.objects.filter(
+            payment_id=payment_id,
+            invoice__is_active=True
+        )
+
+        affected_invoices = set()
+        for detail in payment_details:
+            if detail.invoice.is_active:
+                affected_invoices.add(detail.invoice)
+
+        for invoice in affected_invoices:
+            if invoice.is_active and invoice.status != 'ANULADO':
+                invoice.update_payment_status()
+                loggin_event(
+                    f"Recalculado estado de factura {invoice.id} después de anular pago"
+                )
+
+        return len(affected_invoices)
+
+    @classmethod
     def get_next_invoice_number(cls):
         last_invoice = cls.objects.filter(type_document='FAC_VENTA').last()
 
