@@ -478,8 +478,8 @@ class PaymentAdmin(SimpleHistoryAdmin):
         'bank',
         'method',
         'status',
-        'processed_by__username',
-        'approved_by__username'
+        'processed_by__email',
+        'approved_by__email'
     )
     list_filter = (
         'type_transaction',
