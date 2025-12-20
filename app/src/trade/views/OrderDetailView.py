@@ -396,8 +396,7 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
         for invoice in all_related_invoices:
             payment_details = PaymentDetail.objects.filter(
                 invoice=invoice,
-                payment__is_active=True,
-                payment__status='CONFIRMADO'  # Solo pagos confirmados
+                payment__is_active=True
             ).select_related('payment')
 
             for detail in payment_details:
@@ -447,9 +446,15 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                     }
                     collects_details.append(collect_data)
 
-        # Calcular totales
-        total_payments = sum(p['amount'] for p in payments_details)
-        total_collects = sum(c['amount'] for c in collects_details)
+        # Calcular totales - solo sumar pagos confirmados
+        total_payments = sum(
+            p['amount'] for p in payments_details 
+            if p['status'] == 'CONFIRMADO'
+        )
+        total_collects = sum(
+            c['amount'] for c in collects_details 
+            if c['status'] == 'CONFIRMADO'
+        )
         net_balance = total_collects - total_payments
 
         response_data["payments_details"] = payments_details

@@ -32,7 +32,11 @@
           <tbody>
             {% for payment in response_data.payments_details %}
             <tr>
-              <td>{{ payment.payment_number }}</td>
+              <td>
+                <a href="{% url 'payment_detail' payment.id %}" class="text-decoration-none">
+                  {{ payment.payment_number }}
+                </a>
+              </td>
               <td>{{ payment.date|date:'d/m/Y' }}</td>
               <td>{{ payment.bank }}</td>
               <td>{{ payment.method }}</td>
@@ -88,7 +92,11 @@
           <tbody>
             {% for collect in response_data.collects_details %}
             <tr>
-              <td>{{ collect.payment_number }}</td>
+              <td>
+                <a href="{% url 'collection_detail' collect.id %}" class="text-decoration-none">
+                  {{ collect.payment_number }}
+                </a>
+              </td>
               <td>{{ collect.date|date:'d/m/Y' }}</td>
               <td>{{ collect.bank }}</td>
               <td>{{ collect.method }}</td>
@@ -158,7 +166,7 @@
             </div>
             <div class="col-md-4">
               <div class="d-flex justify-content-between">
-                <span>Saldo Neto:</span>
+                <span>Utilidad:</span>
                 <strong class="{% if response_data.net_balance >= 0 %}text-success{% else %}text-danger{% endif %}">
                   ${{ response_data.net_balance|floatformat:2 }}
                 </strong>
