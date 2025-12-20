@@ -389,34 +389,36 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
             if invoice not in all_related_invoices:
                 all_related_invoices.append(invoice)
 
-        # Sets para evitar duplicados
-        processed_payments = set()
-        processed_collects = set()
+        # Sets para evitar duplicados por payment_detail_id
+        processed_payment_details = set()
 
         # Obtener pagos y cobros de todas las facturas relacionadas
         for invoice in all_related_invoices:
             payment_details = PaymentDetail.objects.filter(
                 invoice=invoice,
-                payment__is_active=True
+                payment__is_active=True,
+                payment__status='CONFIRMADO'  # Solo pagos confirmados
             ).select_related('payment')
 
             for detail in payment_details:
                 payment = detail.payment
-                payment_id = payment.id
+                detail_id = detail.id
                 
-                # Evitar duplicados
-                if (
-                    payment.type_transaction == 'EGRESO'
-                    and payment_id not in processed_payments
-                ):
-                    processed_payments.add(payment_id)
+                # Evitar duplicados por detail_id
+                if detail_id in processed_payment_details:
+                    continue
+                    
+                processed_payment_details.add(detail_id)
+                
+                # Usar el monto del detail (monto aplicado a esta factura específica)
+                if payment.type_transaction == 'EGRESO':
                     payment_data = {
                         "id": payment.id,
                         "payment_number": (
                             payment.payment_number or f"PAY-{payment.id:06d}"
                         ),
                         "date": payment.date,
-                        "amount": float(payment.amount),
+                        "amount": float(detail.amount),  # Monto específico de la factura
                         "method": (
                             payment.get_method_display()
                             if payment.method else "N/A"
@@ -427,18 +429,14 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
                     }
                     payments_details.append(payment_data)
                 
-                elif (
-                    payment.type_transaction == 'INGRESO'
-                    and payment_id not in processed_collects
-                ):
-                    processed_collects.add(payment_id)
+                elif payment.type_transaction == 'INGRESO':
                     collect_data = {
                         "id": payment.id,
                         "payment_number": (
                             payment.payment_number or f"COL-{payment.id:06d}"
                         ),
                         "date": payment.date,
-                        "amount": float(payment.amount),
+                        "amount": float(detail.amount),  # Monto específico de la factura
                         "method": (
                             payment.get_method_display()
                             if payment.method else "N/A"
