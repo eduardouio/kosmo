@@ -276,7 +276,7 @@ class Invoice(BaseModel):
                 invoice=self,
                 is_active=True,  # Solo detalles activos
                 payment__is_active=True,  # Solo pagos activos
-                payment__status__in=['CONFIRMADO', 'PENDIENTE']  # Excluir ANULADO
+                payment__status='CONFIRMADO'  # Solo pagos confirmados
             )
         )
 

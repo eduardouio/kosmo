@@ -73,16 +73,16 @@ urlpatterns = [
     path('api/documents-for-payment/', InvoicesForPaymentAPI.as_view(), name='documents_for_payment'),
     path('api/users/sellers/', SellersListAPI.as_view(), name='sellers_list_api'),
     path('api/products/bulk-update/', UpdateProductAPI.as_view(), name='update_product_api'),
-    path('api/payments/context-data/', PaymentContextData.as_view(), name='payment_context_data'),
-    path('api/collections/context-data/', CollectionsContextAPI.as_view(), name='collections_context_data'),
     path('api/bank-config/', BankConfigAPI.as_view(), name='bank_config'),
     # Payment APIs
+    path('api/payments/context-data/', PaymentContextData.as_view(), name='payment_context_data'),
     path('api/payments/', PaymentCreateUpdateAPI.as_view(), name='payment_create_list'),
     path('api/payments/<int:payment_id>/', PaymentCreateUpdateAPI.as_view(), name='payment_detail_update'),
     path('api/payments/delete/', PaymentVoidAPI.as_view(), name='payment_delete_bulk'),
     path('api/payments/<int:payment_id>/delete/', PaymentVoidAPI.as_view(), name='payment_delete'),
 
     # Collection APIs
+    path('api/collections/context-data/', CollectionsContextAPI.as_view(), name='collections_context_data'),
     path('api/collections/', CollectionsCreateUpdateAPI.as_view(), name='collection_create_list'),
     path('api/collections/<int:collection_id>/', CollectionsCreateUpdateAPI.as_view(), name='collection_detail_update'),
     path('api/collections/delete/', CollectionsVoidAPI.as_view(), name='collection_delete_bulk'),

@@ -25,7 +25,7 @@ class InvoiceBalance:
             payment_details = PaymentDetail.objects.filter(
                 invoice=invoice,
                 payment__is_active=True,
-                payment__status__in=["CONFIRMADO", "PENDIENTE"],
+                payment__status="CONFIRMADO",
                 is_active=True,
             )
 
