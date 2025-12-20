@@ -12,27 +12,24 @@ import json
 from decimal import Decimal
 
 
-# pagos/nuevo/
 class PaymentFormView(LoginRequiredMixin, View):
-    template_name = 'forms/payment_form.html'
+    template_name = "forms/payment_form.html"
 
     def get(self, request):
-        # Obtener todas las facturas pendientes con saldo recalculado
-        # Solo facturas activas (is_active=True)
+
         invoices_data = InvoiceBalance.get_pending_invoices()
-        
-        # Ordenar las facturas por fecha de emisión de forma descendente
-        if invoices_data and 'pending_invoices' in invoices_data:
-            invoices_data['pending_invoices'] = sorted(
-                invoices_data['pending_invoices'],
-                key=lambda x: x.get('date', ''),
-                reverse=True
+
+        if invoices_data and "pending_invoices" in invoices_data:
+            invoices_data["pending_invoices"] = sorted(
+                invoices_data["pending_invoices"],
+                key=lambda x: x.get("date", ""),
+                reverse=True,
             )
-        
+
         context = {
-            'method_choices': METHOD_CHOICES,
-            'partners': Partner.objects.filter(is_active=True),  # Solo partners activos
-            'invoices_data': invoices_data,
+            "method_choices": METHOD_CHOICES,
+            "partners": Partner.objects.filter(is_active=True),
+            "invoices_data": invoices_data,
         }
 
         return render(request, self.template_name, context)
@@ -41,50 +38,45 @@ class PaymentFormView(LoginRequiredMixin, View):
         data = request.POST
 
         try:
-            # Crear nuevo pago
+
             payment = Payment()
             payment.created_by = request.user
 
-            # Actualizar datos del pago
-            payment.date = data.get('date')
-            payment.amount = Decimal(data.get('amount', '0.0'))
-            payment.method = data.get('method')
-            payment.bank = data.get('bank')
-            payment.nro_account = data.get('nro_account')
-            payment.nro_operation = data.get('nro_operation')
-            payment.observations = data.get('observations', '')
+            payment.date = data.get("date")
+            payment.amount = Decimal(data.get("amount", "0.0"))
+            payment.method = data.get("method")
+            payment.bank = data.get("bank")
+            payment.nro_account = data.get("nro_account")
+            payment.nro_operation = data.get("nro_operation")
+            payment.observations = data.get("observations", "")
             payment.updated_by = request.user
-            payment.is_active = True  # Asegurar que se crea como activo
+            payment.is_active = True
 
-            # Manejar archivo de documento si se proporciona
-            if 'document' in request.FILES:
-                payment.document = request.FILES['document']
+            if "document" in request.FILES:
+                payment.document = request.FILES["document"]
 
             payment.save()
 
-            # Procesar facturas asociadas al pago
-            invoice_payments = json.loads(data.get('invoice_payments', '{}'))
+            invoice_payments = json.loads(data.get("invoice_payments", "{}"))
 
             if invoice_payments:
-                # Validar que todas las facturas estén activas
+
                 valid_invoice_payments = {}
                 for invoice_id, amount in invoice_payments.items():
                     try:
-                        invoice = Invoice.objects.get(
-                            id=invoice_id, 
-                            is_active=True
-                        )
-                        if invoice.status != 'ANULADO':
+                        invoice = Invoice.objects.get(id=invoice_id, is_active=True)
+                        if invoice.status != "ANULADO":
                             valid_invoice_payments[invoice_id] = amount
                     except Invoice.DoesNotExist:
                         continue
-                
+
                 if valid_invoice_payments:
                     InvoiceBalance.apply_payment_to_invoices(
-                        payment.id, valid_invoice_payments)
+                        payment.id, valid_invoice_payments
+                    )
 
             messages.success(request, "Pago guardado correctamente")
-            return redirect(reverse('payment_detail', kwargs={'pk': payment.id}))
+            return redirect(reverse("payment_detail", kwargs={"pk": payment.id}))
 
         except Exception as e:
             messages.error(request, f"Error al guardar el pago: {str(e)}")
