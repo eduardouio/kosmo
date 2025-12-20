@@ -125,6 +125,7 @@ class PaymentContextData(View):
                         invoice_id=invoice["id"],
                         payment__is_active=True,
                         payment__type_transaction="EGRESO",
+                        payment__status="CONFIRMADO",
                     ).aggregate(total=Sum("amount"))
 
                     paid_amount = paid_amount_result["total"] or Decimal("0.00")
