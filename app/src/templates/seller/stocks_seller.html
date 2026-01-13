@@ -197,15 +197,86 @@
 	</button>
 </section>
 
-<!-- Modal para nueva orden -->
-<div id="orderModal" class="modal">
+<!-- Modal para resumen de orden -->
+<div id="orderSummaryModal" class="modal">
+	<div class="modal-box w-11/12 max-w-3xl max-h-[90vh]">
+		<div class="flex justify-between items-center mb-4">
+			<h3 class="font-bold text-lg">Resumen de Orden</h3>
+			<button class="btn btn-sm btn-circle btn-ghost" onclick="closeOrderSummaryModal()">✕</button>
+		</div>
+		
+		<!-- Items seleccionados -->
+		<div class="mb-4">
+			<h4 class="font-semibold text-sm mb-2">Items Seleccionados (<span id="modalSelectedCount">0</span>)</h4>
+			<div class="overflow-x-auto max-h-60 border border-base-200 rounded-lg">
+				<table class="table table-xs table-pin-rows">
+					<thead>
+						<tr class="bg-base-200">
+							<th>Cant</th>
+							<th>Variedad</th>
+							<th>Largo</th>
+							<th>Tallos</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody id="selectedItemsList">
+						<!-- Se llenará dinámicamente -->
+					</tbody>
+				</table>
+			</div>
+		</div>
+		
+		<form id="orderForm" class="space-y-4">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Cliente</span>
+					</label>
+					<select name="customer" class="select select-bordered select-sm" required>
+						<option value="">Seleccionar cliente</option>
+						<!-- Se llenarán desde el backend -->
+					</select>
+				</div>
+				
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">PO Cliente</span>
+					</label>
+					<input type="text" name="po_customer" class="input input-bordered input-sm" placeholder="Número de orden del cliente">
+				</div>
+				
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Fecha de Entrega</span>
+					</label>
+					<input type="date" name="delivery_date" class="input input-bordered input-sm">
+				</div>
+				
+				<div class="form-control">
+					<label class="label">
+						<span class="label-text">Descuento (%)</span>
+					</label>
+					<input type="number" name="discount_percent" step="0.01" min="0" max="100" value="0" class="input input-bordered input-sm">
+				</div>
+			</div>
+			
+			<div class="modal-action">
+				<button type="button" onclick="closeOrderSummaryModal()" class="btn btn-ghost">Cancelar</button>
+				<button type="submit" class="btn btn-primary">Crear Orden de Venta</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- Modal antiguo (mantener para compatibilidad) -->
+<div id="orderModal" class="modal hidden">
 	<div class="modal-box w-11/12 max-w-2xl">
 		<div class="flex justify-between items-center mb-4">
 			<h3 class="font-bold text-lg">Crear Nueva Orden</h3>
 			<button class="btn btn-sm btn-circle btn-ghost" onclick="closeOrderModal()">✕</button>
 		</div>
 		
-		<form id="orderForm" class="space-y-4">
+		<form class="space-y-4">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 				<div class="form-control">
 					<label class="label">
@@ -530,6 +601,7 @@ let currentPage = 1;
 const itemsPerPage = 10;
 let customers = [];
 let preselectedData = null;
+let selectedItems = []; // Array para items seleccionados
 let activeFilters = {
 	providers: [],
 	colors: [],
@@ -723,8 +795,9 @@ function renderTable() {
 	let rows = '';
 	pageData.forEach(item => {
 		item.varieties.forEach(variety => {
+			const isSelected = selectedItems.some(sel => sel.varietyId === variety.id && sel.stockId === item.id);
 			rows += `
-				<tr class="hover:bg-base-200">
+				<tr class="hover:bg-base-200 ${isSelected ? 'bg-primary/10' : ''}">
 					<td class="text-center">
 						<span class="font-medium">${item.quantity}</span> 
 						<span class="badge badge-xs badge-ghost">${item.box_model}</span>
@@ -737,11 +810,12 @@ function renderTable() {
 						<span class="badge badge-sm badge-primary">${variety.length}</span>
 					</td>
 					<td class="text-center">
-						<button onclick="addToOrder(${variety.id}, 'variety')" class="btn btn-xs btn-circle btn-ghost">
-							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-							</svg>
-						</button>
+						<input 
+							type="checkbox" 
+							class="checkbox checkbox-sm checkbox-primary" 
+							${isSelected ? 'checked' : ''}
+							onchange="toggleItemSelection(${item.id}, ${variety.id}, '${variety.product_name}', ${variety.length}, ${item.quantity}, '${item.box_model}', '${item.partner_short_name}', ${variety.qty_stem_flower})"
+						>
 					</td>
 				</tr>
 			`;
@@ -836,6 +910,103 @@ function updateSummary() {
 	document.getElementById('filteredCount').textContent = filteredData.length;
 }
 
+// Función para alternar selección de item
+function toggleItemSelection(stockId, varietyId, productName, length, quantity, boxModel, partnerName, totalStems) {
+	const index = selectedItems.findIndex(item => item.varietyId === varietyId && item.stockId === stockId);
+	
+	if (index > -1) {
+		// Remover item
+		selectedItems.splice(index, 1);
+	} else {
+		// Agregar item
+		selectedItems.push({
+			stockId,
+			varietyId,
+			productName,
+			length,
+			quantity,
+			boxModel,
+			partnerName,
+			totalStems
+		});
+	}
+	
+	updateSelectedCount();
+	renderTable(); // Re-renderizar para actualizar el estado visual
+}
+
+// Actualizar contador de items seleccionados
+function updateSelectedCount() {
+	const count = selectedItems.length;
+	document.getElementById('selectedCount').textContent = count;
+	
+	const createOrderBtn = document.getElementById('createOrderBtn');
+	if (count > 0) {
+		createOrderBtn.classList.remove('hidden');
+	} else {
+		createOrderBtn.classList.add('hidden');
+	}
+}
+
+// Mostrar modal con resumen de orden
+function showOrderSummary() {
+	if (selectedItems.length === 0) {
+		showAlert('warning', 'Selecciona al menos un item');
+		return;
+	}
+	
+	// Actualizar contador en modal
+	document.getElementById('modalSelectedCount').textContent = selectedItems.length;
+	
+	// Generar lista de items
+	const listHtml = selectedItems.map((item, index) => `
+		<tr>
+			<td>${item.quantity} ${item.boxModel}</td>
+			<td>
+				<div class="text-xs">${item.productName}</div>
+				<div class="text-[10px] opacity-60">${item.partnerName}</div>
+			</td>
+			<td><span class="badge badge-xs badge-primary">${item.length}</span></td>
+			<td>${item.totalStems}</td>
+			<td>
+				<button 
+					type="button"
+					onclick="removeFromSelection(${index})" 
+					class="btn btn-xs btn-circle btn-ghost text-error"
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+					</svg>
+				</button>
+			</td>
+		</tr>
+	`).join('');
+	
+	document.getElementById('selectedItemsList').innerHTML = listHtml;
+	
+	// Abrir modal
+	document.getElementById('orderSummaryModal').classList.add('modal-open');
+}
+
+// Remover item de la selección desde el modal
+function removeFromSelection(index) {
+	selectedItems.splice(index, 1);
+	updateSelectedCount();
+	
+	if (selectedItems.length === 0) {
+		closeOrderSummaryModal();
+	} else {
+		showOrderSummary(); // Refrescar modal
+	}
+	
+	renderTable(); // Actualizar tabla
+}
+
+// Cerrar modal de resumen
+function closeOrderSummaryModal() {
+	document.getElementById('orderSummaryModal').classList.remove('modal-open');
+}
+
 function addToOrder(id, type) {
 	// Preparar datos preseleccionados
 	const preselectedDiv = document.getElementById('preselectedStock');
@@ -867,6 +1038,11 @@ function addToOrder(id, type) {
 async function handleOrderSubmit(e) {
 	e.preventDefault();
 	
+	if (selectedItems.length === 0) {
+		showAlert('warning', 'Selecciona al menos un item');
+		return;
+	}
+	
 	const formData = new FormData(e.target);
 	const submitButton = e.target.querySelector('button[type="submit"]');
 	
@@ -876,11 +1052,11 @@ async function handleOrderSubmit(e) {
 	
 	try {
 		const orderData = {
-			customer_id: formData.get('customer') || e.target.querySelector('select').value,
-			po_customer: formData.get('po_customer') || e.target.querySelector('input[placeholder*="orden"]').value,
-			delivery_date: formData.get('delivery_date') || e.target.querySelector('input[type="date"]').value,
-			discount_percent: formData.get('discount_percent') || e.target.querySelector('input[type="number"]').value,
-			preselected: preselectedData
+			customer_id: formData.get('customer'),
+			po_customer: formData.get('po_customer'),
+			delivery_date: formData.get('delivery_date'),
+			discount_percent: formData.get('discount_percent'),
+			selected_items: selectedItems // Enviar items seleccionados
 		};
 		
 		const response = await fetch('/sellers/api/orders/create/', {
@@ -895,13 +1071,20 @@ async function handleOrderSubmit(e) {
 		const result = await response.json();
 		
 		if (result.success) {
+			// Limpiar selección
+			selectedItems = [];
+			updateSelectedCount();
+			
 			// Mostrar mensaje de éxito
-			showAlert('success', result.message);
-			closeOrderModal();
+			showAlert('success', result.message || 'Orden creada exitosamente');
+			closeOrderSummaryModal();
+			
 			// Opcional: redirigir a la orden creada
-			setTimeout(() => {
-				window.location.href = `/sellers/orders/${result.order_id}/edit/`;
-			}, 1500);
+			if (result.order_id) {
+				setTimeout(() => {
+					window.location.href = `/sellers/orders/${result.order_id}/edit/`;
+				}, 1500);
+			}
 		} else {
 			showAlert('error', result.error || 'Error al crear la orden');
 		}
@@ -912,7 +1095,7 @@ async function handleOrderSubmit(e) {
 	} finally {
 		// Rehabilitar botón
 		submitButton.disabled = false;
-		submitButton.innerHTML = 'Crear Orden';
+		submitButton.innerHTML = 'Crear Orden de Venta';
 	}
 }
 
@@ -952,12 +1135,16 @@ function openOrderModal() {
 
 function closeOrderModal() {
 	document.getElementById('orderModal').classList.remove('modal-open');
-	document.getElementById('preselectedStock').classList.add('hidden');
-	document.getElementById('orderForm').reset();
 	preselectedData = null;
 }
 
-// Cerrar modal al hacer clic fuera
+// Cerrar modales al hacer clic fuera
+document.getElementById('orderSummaryModal').addEventListener('click', function(e) {
+	if (e.target === this) {
+		closeOrderSummaryModal();
+	}
+});
+
 document.getElementById('orderModal').addEventListener('click', function(e) {
 	if (e.target === this) {
 		closeOrderModal();
