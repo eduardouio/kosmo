@@ -72,19 +72,22 @@ createApp({
     },
     
     totalPaymentAmount() {
-      return this.filteredInvoices
+      const total = this.filteredInvoices
         .filter(inv => inv.selected)
         .reduce((sum, inv) => sum + parseFloat(inv.paymentAmount || 0), 0);
+      return Math.round((total + Number.EPSILON) * 100) / 100;
     },
     
     totalBalanceAmount() {
-      return this.filteredInvoices
+      const total = this.filteredInvoices
         .filter(inv => inv.selected)
         .reduce((sum, inv) => sum + parseFloat(inv.balance || 0), 0);
+      return Math.round((total + Number.EPSILON) * 100) / 100;
     },
     
     paymentDifference() {
-      return this.totalBalanceAmount - this.totalPaymentAmount;
+      const diff = this.totalBalanceAmount - this.totalPaymentAmount;
+      return Math.round((diff + Number.EPSILON) * 100) / 100;
     },
     
     canSavePayment() {
@@ -107,6 +110,11 @@ createApp({
   },
   
   methods: {
+    // ===== UTILIDAD PARA REDONDEO =====
+    roundToTwo(num) {
+      return Math.round((parseFloat(num) + Number.EPSILON) * 100) / 100;
+    },
+    
     // ===== CONFIGURACIÓN INICIAL =====
     setDefaultPaymentMethods() {
       // Métodos de pago por defecto - mismo formato que el API
@@ -160,7 +168,8 @@ createApp({
             .map(invoice => ({
               ...invoice,
               selected: false,
-              paymentAmount: invoice.balance
+              balance: this.roundToTwo(invoice.balance),
+              paymentAmount: this.roundToTwo(invoice.balance)
             }));
             
           this.refreshFilteredInvoices();
@@ -205,7 +214,7 @@ createApp({
                 selected: false,
                 paymentAmount: 0,
                 // El balance ya viene recalculado desde el backend
-                balance: parseFloat(invoice.balance || 0)
+                balance: this.roundToTwo(invoice.balance || 0)
             }));
             
             this.statistics = data.statistics || this.getDefaultStatistics();
@@ -262,7 +271,7 @@ createApp({
     // ===== MANEJO DE FACTURAS =====
     updatePaymentAmount(invoice) {
       if (invoice.selected) {
-        invoice.paymentAmount = invoice.balance;
+        invoice.paymentAmount = this.roundToTwo(invoice.balance);
       } else {
         invoice.paymentAmount = 0;
       }
@@ -270,8 +279,8 @@ createApp({
     },
     
     validatePaymentAmount(invoice) {
-      const amount = parseFloat(invoice.paymentAmount);
-      const balance = parseFloat(invoice.balance);
+      const amount = this.roundToTwo(invoice.paymentAmount);
+      const balance = this.roundToTwo(invoice.balance);
       
       if (amount > balance) {
         invoice.paymentAmount = balance;
@@ -283,11 +292,13 @@ createApp({
       if (amount < 0) {
         invoice.paymentAmount = 0;
       }
+      // Asegurar que el valor final esté redondeado
+      invoice.paymentAmount = this.roundToTwo(invoice.paymentAmount);
       this.updatePaymentFormAmount();
     },
     
     updatePaymentFormAmount() {
-      this.paymentForm.amount = this.totalPaymentAmount;
+      this.paymentForm.amount = this.roundToTwo(this.totalPaymentAmount);
     },
     
     clearSelection() {
@@ -301,7 +312,7 @@ createApp({
     selectAllInvoices() {
       this.filteredInvoices.forEach(invoice => {
         invoice.selected = true;
-        invoice.paymentAmount = invoice.balance;
+        invoice.paymentAmount = this.roundToTwo(invoice.balance);
       });
       this.updatePaymentFormAmount();
     },

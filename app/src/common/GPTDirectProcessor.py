@@ -6,9 +6,6 @@ import time
 import json
 import os
 
-# Evitar importación circular - importar solo cuando sea necesario
-# from partners.models import Partner
-
 
 class GPTDirectProcessor:
     _api_key = GPT_API_KEY
@@ -33,7 +30,7 @@ class GPTDirectProcessor:
         loggin_event('Iniciando procesamiento de texto')
         start_time = time.time()
         response = self.client.chat.completions.create(
-            model="o3",
+            model="gpt-5.1",
             temperature=1,
             messages=[
                 {"role": "system", "content": self._prompt},

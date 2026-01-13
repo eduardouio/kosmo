@@ -66,7 +66,9 @@ class PaymentFormView(LoginRequiredMixin, View):
                     try:
                         invoice = Invoice.objects.get(id=invoice_id, is_active=True)
                         if invoice.status != "ANULADO":
-                            valid_invoice_payments[invoice_id] = amount
+
+                            rounded_amount = round(Decimal(str(amount)), 2)
+                            valid_invoice_payments[invoice_id] = str(rounded_amount)
                     except Invoice.DoesNotExist:
                         continue
 

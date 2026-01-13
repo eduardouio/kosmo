@@ -194,9 +194,9 @@ class PaymentContextData(View):
                                 ),
                                 "date": formatted_date,
                                 "due_date": formatted_due_date,
-                                "total_amount": float(total_amount),
-                                "paid_amount": float(paid_amount),
-                                "balance": float(balance),
+                                "total_amount": float(round(total_amount, 2)),
+                                "paid_amount": float(round(paid_amount, 2)),
+                                "balance": float(round(balance, 2)),
                                 "days_overdue": days_overdue,
                             }
                         )
@@ -262,9 +262,9 @@ class PaymentContextData(View):
                             if invoice.due_date
                             else ""
                         ),
-                        "total_amount": float(invoice_data["total_amount"]),
-                        "paid_amount": float(invoice_data["paid_amount"]),
-                        "balance": float(invoice_data["balance"]),
+                        "total_amount": float(round(Decimal(str(invoice_data["total_amount"])), 2)),
+                        "paid_amount": float(round(Decimal(str(invoice_data["paid_amount"])), 2)),
+                        "balance": float(round(Decimal(str(invoice_data["balance"])), 2)),
                     }
                 )
 
@@ -325,7 +325,7 @@ class PaymentContextData(View):
                         {
                             "id": detail.invoice.id,
                             "num_invoice": detail.invoice.num_invoice,
-                            "amount_paid": float(detail.amount),
+                            "amount_paid": float(round(detail.amount, 2)),
                         }
                     )
 
@@ -339,7 +339,7 @@ class PaymentContextData(View):
                             if payment.due_date
                             else ""
                         ),
-                        "amount": float(payment.amount),
+                        "amount": float(round(payment.amount, 2)),
                         "method": payment.method,
                         "method_display": payment.get_method_display(),
                         "status": payment.status,
@@ -394,8 +394,8 @@ class PaymentContextData(View):
                         "consecutive": detail.invoice.consecutive,
                         "num_invoice": detail.invoice.num_invoice,
                         "partner_name": detail.invoice.partner.name,
-                        "total_invoice": float(detail.invoice.total_price),
-                        "amount_paid": float(detail.amount),
+                        "total_invoice": float(round(detail.invoice.total_price, 2)),
+                        "amount_paid": float(round(detail.amount, 2)),
                         "date": detail.invoice.date.strftime("%Y-%m-%d"),
                     }
                 )
@@ -407,7 +407,7 @@ class PaymentContextData(View):
                 "due_date": (
                     payment.due_date.strftime("%Y-%m-%d") if payment.due_date else ""
                 ),
-                "amount": float(payment.amount),
+                "amount": float(round(payment.amount, 2)),
                 "method": payment.method,
                 "method_display": payment.get_method_display(),
                 "status": payment.status,
@@ -418,7 +418,7 @@ class PaymentContextData(View):
                 "created_at": payment.created_at.strftime("%Y-%m-%d %H:%M"),
                 "created_by": payment.created_by.username if payment.created_by else "",
                 "facturas": facturas_data,
-                "total_facturas_amount": sum(f["amount_paid"] for f in facturas_data),
+                "total_facturas_amount": float(round(sum(f["amount_paid"] for f in facturas_data), 2)),
             }
 
             return JsonResponse({"success": True, "payment": payment_data})
@@ -466,21 +466,19 @@ class PaymentContextData(View):
 
             statistics = {
                 "monthly_payments": {
-                    "total_amount": float(monthly_payments.get("total_amount", 0) or 0),
+                    "total_amount": float(round(Decimal(str(monthly_payments.get("total_amount", 0) or 0)), 2)),
                     "count": monthly_payments.get("count", 0) or 0,
                 },
                 "overdue_payments": {
-                    "total_amount": float(overdue_payments.get("total_amount", 0) or 0),
+                    "total_amount": float(round(Decimal(str(overdue_payments.get("total_amount", 0) or 0)), 2)),
                     "count": overdue_payments.get("count", 0) or 0,
                 },
                 "pending_invoices": {
-                    "total_amount": float(pending_invoices.get("total_amount", 0) or 0),
+                    "total_amount": float(round(Decimal(str(pending_invoices.get("total_amount", 0) or 0)), 2)),
                     "count": pending_invoices.get("count", 0) or 0,
                 },
                 "upcoming_payments": {
-                    "total_amount": float(
-                        upcoming_payments.get("total_amount", 0) or 0
-                    ),
+                    "total_amount": float(round(Decimal(str(upcoming_payments.get("total_amount", 0) or 0)), 2)),
                     "count": upcoming_payments.get("count", 0) or 0,
                 },
             }
@@ -510,7 +508,7 @@ class PaymentContextData(View):
                     {
                         "id": payment.id,
                         "payment_number": payment.payment_number,
-                        "amount": float(payment.amount),
+                        "amount": float(round(payment.amount, 2)),
                         "due_date": payment.due_date.strftime("%Y-%m-%d"),
                         "days_overdue": days_overdue,
                         "method": payment.get_method_display(),
@@ -523,7 +521,7 @@ class PaymentContextData(View):
                 {
                     "success": True,
                     "overdue_payments": payments_data,
-                    "total_amount": sum(p["amount"] for p in payments_data),
+                    "total_amount": float(round(sum(p["amount"] for p in payments_data), 2)),
                     "total_count": len(payments_data),
                 }
             )
@@ -749,22 +747,20 @@ class PaymentContextData(View):
 
             return {
                 "overdue_payments": {
-                    "total_amount": float(overdue_payments.get("total_amount", 0) or 0),
+                    "total_amount": float(round(Decimal(str(overdue_payments.get("total_amount", 0) or 0)), 2)),
                     "count": overdue_payments.get("count", 0) or 0,
                 },
                 "monthly_payments": {
-                    "total_amount": float(monthly_payments.get("total_amount", 0) or 0),
+                    "total_amount": float(round(Decimal(str(monthly_payments.get("total_amount", 0) or 0)), 2)),
                     "count": monthly_payments.get("count", 0) or 0,
                 },
                 "pending_invoices": {
-                    "total_amount": float(total_pending_amount),
+                    "total_amount": float(round(total_pending_amount, 2)),
                     "count": total_pending_invoices,
                 },
                 "upcoming_due_invoices": {
                     "count": len(upcoming_invoices),
-                    "total_amount": float(
-                        sum(inv["balance"] for inv in upcoming_invoices)
-                    ),
+                    "total_amount": float(round(sum(inv["balance"] for inv in upcoming_invoices), 2)),
                 },
             }
 
