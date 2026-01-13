@@ -137,34 +137,6 @@
 		</div>
 	</div>
 
-	<!-- Resumen rápido optimizado para móvil -->
-	<div class="grid grid-cols-2 gap-2" id="summaryCards">
-		<div class="card bg-base-100 shadow-sm border border-base-200">
-			<div class="card-body p-2">
-				<h6 class="text-[9px] font-semibold uppercase opacity-60">Cajas</h6>
-				<p class="text-base font-bold" id="totalBoxes">0</p>
-			</div>
-		</div>
-		<div class="card bg-base-100 shadow-sm border border-base-200">
-			<div class="card-body p-2">
-				<h6 class="text-[9px] font-semibold uppercase opacity-60">Tallos</h6>
-				<p class="text-base font-bold" id="totalStems">0</p>
-			</div>
-		</div>
-		<div class="card bg-base-100 shadow-sm border border-base-200">
-			<div class="card-body p-2">
-				<h6 class="text-[9px] font-semibold uppercase opacity-60">Items</h6>
-				<p class="text-base font-bold" id="filteredCount">0</p>
-			</div>
-		</div>
-		<div class="card bg-base-100 shadow-sm border border-base-200">
-			<div class="card-body p-2">
-				<h6 class="text-[9px] font-semibold uppercase opacity-60">Página</h6>
-				<p class="text-base font-bold"><span id="currentPageDisplay">1</span>/<span id="totalPagesDisplay">1</span></p>
-			</div>
-		</div>
-	</div>
-
 	<!-- Lista de stock optimizada para móvil -->
 	<div class="space-y-2" id="stockTable">
 		<!-- Los datos se cargarán via JavaScript -->
@@ -891,9 +863,6 @@ function renderPagination() {
 	}
 	
 	pagination.innerHTML = html;
-	
-	// Actualizar display de página
-	document.getElementById('currentPageDisplay').textContent = currentPage;
 }
 
 function changePage(page) {
@@ -902,12 +871,7 @@ function changePage(page) {
 }
 
 function updateSummary() {
-	const totalBoxes = filteredData.reduce((sum, item) => sum + item.quantity, 0);
-	const totalStems = filteredData.reduce((sum, item) => sum + item.tot_stem_flower, 0);
-	
-	document.getElementById('totalBoxes').textContent = totalBoxes;
-	document.getElementById('totalStems').textContent = totalStems;
-	document.getElementById('filteredCount').textContent = filteredData.length;
+	// Función mantenida para compatibilidad pero ya no actualiza elementos visuales
 }
 
 // Función para alternar selección de item
