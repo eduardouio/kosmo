@@ -95,19 +95,22 @@ const app = createApp({
     },
     
     totalCollectionAmount() {
-      return this.filteredInvoices
+      const total = this.filteredInvoices
         .filter(inv => inv.selected)
         .reduce((sum, inv) => sum + parseFloat(inv.collectionAmount || 0), 0);
+      return Math.round((total + Number.EPSILON) * 100) / 100;
     },
     
     totalBalanceAmount() {
-      return this.filteredInvoices
+      const total = this.filteredInvoices
         .filter(inv => inv.selected)
         .reduce((sum, inv) => sum + parseFloat(inv.balance || 0), 0);
+      return Math.round((total + Number.EPSILON) * 100) / 100;
     },
     
     collectionDifference() {
-      return this.totalBalanceAmount - this.totalCollectionAmount;
+      const diff = this.totalBalanceAmount - this.totalCollectionAmount;
+      return Math.round((diff + Number.EPSILON) * 100) / 100;
     },
     
     canSaveCollection() {
@@ -132,6 +135,11 @@ const app = createApp({
   },
   
   methods: {
+    // ===== UTILIDAD PARA REDONDEO =====
+    roundToTwo(num) {
+      return Math.round((parseFloat(num) + Number.EPSILON) * 100) / 100;
+    },
+    
     async loadBankConfig() {
       try {
         const response = await fetch('/api/bank-config/');
@@ -182,8 +190,9 @@ const app = createApp({
           
           // Inicializar montos de cobro
           this.filteredInvoices.forEach(invoice => {
+            invoice.balance = this.roundToTwo(invoice.balance || 0);
             if (!invoice.collectionAmount) {
-              invoice.collectionAmount = parseFloat(invoice.balance || 0);
+              invoice.collectionAmount = this.roundToTwo(invoice.balance);
             }
             invoice.selected = false;
           });
@@ -274,15 +283,15 @@ const app = createApp({
     updateCollectionAmount(invoice) {
       if (invoice.selected) {
         if (!invoice.collectionAmount || invoice.collectionAmount <= 0) {
-          invoice.collectionAmount = parseFloat(invoice.balance || 0);
+          invoice.collectionAmount = this.roundToTwo(invoice.balance || 0);
         }
       }
       this.updateCollectionFormAmount();
     },
     
     validateCollectionAmount(invoice) {
-      const maxAmount = parseFloat(invoice.balance || 0);
-      const amount = parseFloat(invoice.collectionAmount || 0);
+      const maxAmount = this.roundToTwo(invoice.balance || 0);
+      const amount = this.roundToTwo(invoice.collectionAmount || 0);
       
       if (amount > maxAmount) {
         invoice.collectionAmount = maxAmount;
@@ -290,17 +299,19 @@ const app = createApp({
         invoice.collectionAmount = 0;
       }
       
+      // Asegurar que el valor final esté redondeado
+      invoice.collectionAmount = this.roundToTwo(invoice.collectionAmount);
       this.updateCollectionFormAmount();
     },
     
     updateCollectionFormAmount() {
-      this.collectionForm.amount = this.totalCollectionAmount;
+      this.collectionForm.amount = this.roundToTwo(this.totalCollectionAmount);
     },
     
     clearSelection() {
       this.filteredInvoices.forEach(invoice => {
         invoice.selected = false;
-        invoice.collectionAmount = parseFloat(invoice.balance || 0);
+        invoice.collectionAmount = this.roundToTwo(invoice.balance || 0);
       });
       this.updateCollectionFormAmount();
     },
@@ -309,7 +320,7 @@ const app = createApp({
       this.filteredInvoices.forEach(invoice => {
         if (parseFloat(invoice.balance) > 0) {
           invoice.selected = true;
-          invoice.collectionAmount = parseFloat(invoice.balance || 0);
+          invoice.collectionAmount = this.roundToTwo(invoice.balance || 0);
         }
       });
       this.updateCollectionFormAmount();

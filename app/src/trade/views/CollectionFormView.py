@@ -80,8 +80,14 @@ class CollectionFormView(LoginRequiredMixin, View):
             invoice_payments = json.loads(data.get('invoice_payments', '{}'))
 
             if invoice_payments:
+                # Redondear montos a 2 decimales
+                valid_invoice_payments = {}
+                for invoice_id, amount in invoice_payments.items():
+                    rounded_amount = round(Decimal(str(amount)), 2)
+                    valid_invoice_payments[invoice_id] = str(rounded_amount)
+                
                 InvoiceBalance.apply_payment_to_invoices(
-                    collection.id, invoice_payments
+                    collection.id, valid_invoice_payments
                 )
 
             # Respuesta para AJAX

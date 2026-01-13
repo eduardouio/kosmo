@@ -208,10 +208,10 @@ class CollectionsContextAPI(View):
                                     else ""
                                 ),
                                 "days_overdue": days_overdue,
-                                "total_amount": float(invoice.total_invoice),
-                                "paid_amount": float(self._get_paid_amount(invoice)),
-                                "pending_amount": float(balance),
-                                "balance": float(balance),
+                                "total_amount": float(round(invoice.total_invoice, 2)),
+                                "paid_amount": float(round(self._get_paid_amount(invoice), 2)),
+                                "pending_amount": float(round(balance, 2)),
+                                "balance": float(round(balance, 2)),
                             }
                         )
 
@@ -311,15 +311,15 @@ class CollectionsContextAPI(View):
             statistics = {
                 "pending_invoices": {
                     "count": len(pending_invoices),
-                    "total_amount": float(total_pending_amount),
+                    "total_amount": float(round(total_pending_amount, 2)),
                 },
                 "overdue_collections": {
                     "count": len(overdue_invoices),
-                    "total_amount": float(overdue_amount),
+                    "total_amount": float(round(overdue_amount, 2)),
                 },
                 "upcoming_due_invoices": {
                     "count": len(upcoming_due),
-                    "total_amount": float(due_soon_amount),
+                    "total_amount": float(round(due_soon_amount, 2)),
                 },
             }
 
