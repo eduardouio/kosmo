@@ -1,87 +1,200 @@
 {% extends 'seller/base_seller.html' %}
 
 {% block content %}
-<section class="space-y-3" id="stockApp">
-	<header class="flex justify-between items-center">
+<section class="space-y-3 pb-20" id="stockApp">
+	<!-- Header móvil con búsqueda y fecha -->
+	<header class="space-y-2">
+		<div class="flex items-center gap-2">
+			<input 
+				type="text" 
+				id="searchInput"
+				placeholder="Buscar..." 
+				class="input input-sm input-bordered flex-1"
+			>
+			{% if current_stock_day %}
+			<div class="badge badge-primary whitespace-nowrap">{{ current_stock_day.date }}</div>
+			{% else %}
+			<div class="badge badge-primary whitespace-nowrap">2025-11-26</div>
+			{% endif %}
+		</div>
 		<div>
 			<h1 class="text-base font-semibold">Disponibilidades</h1>
 			<p class="text-xs opacity-70">Stock disponible para ventas</p>
 		</div>
-		{% if current_stock_day %}
-		<div class="badge badge-primary badge-sm">{{ current_stock_day.date }}</div>
-		{% endif %}
 	</header>
 
-	<!-- Filtros de búsqueda -->
-	<div class="card bg-base-100 shadow-sm border border-base-200">
-		<div class="card-body p-3">
-			<div class="flex gap-2 items-center">
-				<input 
-					type="text" 
-					id="searchInput"
-					placeholder="Buscar por proveedor, variedad, tipo de caja..." 
-					class="input input-sm input-bordered flex-1"
-				>
-				<button id="clearSearch" class="btn btn-sm btn-ghost">Limpiar</button>
-			</div>
-		</div>
-	</div>
-
-	<!-- Resumen rápido -->
-	<div class="grid grid-cols-2 gap-2 md:grid-cols-4" id="summaryCards">
-		<div class="card bg-base-100 shadow-sm border border-base-200">
-			<div class="card-body p-3">
-				<h6 class="text-[10px] font-semibold uppercase opacity-60">Total Cajas</h6>
-				<p class="text-lg font-bold" id="totalBoxes">{{ total_boxes|default:0 }}</p>
-				<span class="text-[10px] opacity-60">Disponibles</span>
-			</div>
-		</div>
-		<div class="card bg-base-100 shadow-sm border border-base-200">
-			<div class="card-body p-3">
-				<h6 class="text-[10px] font-semibold uppercase opacity-60">Total Tallos</h6>
-				<p class="text-lg font-bold" id="totalStems">{{ total_stems|default:0 }}</p>
-				<span class="text-[10px] opacity-60">En stock</span>
-			</div>
-		</div>
-		<div class="card bg-base-100 shadow-sm border border-base-200">
-			<div class="card-body p-3">
-				<h6 class="text-[10px] font-semibold uppercase opacity-60">Items</h6>
-				<p class="text-lg font-bold" id="filteredCount">0</p>
-				<span class="text-[10px] opacity-60">Mostrados</span>
-			</div>
-		</div>
-		<div class="card bg-base-100 shadow-sm border border-base-200">
-			<div class="card-body p-3">
-				<h6 class="text-[10px] font-semibold uppercase opacity-60">Página</h6>
-				<p class="text-lg font-bold" id="currentPageDisplay">1</p>
-				<span class="text-[10px] opacity-60" id="totalPagesDisplay">de 1</span>
-			</div>
-		</div>
-	</div>
-
-	<!-- Lista de stock -->
-	<div class="card bg-base-100 shadow-sm border border-base-200">
-		<div class="card-body p-3">
-			<div class="flex justify-between items-center mb-3">
-				<h2 class="text-sm font-semibold">Stock Detallado por Proveedor</h2>
-				<button onclick="openOrderModal()" class="btn btn-sm btn-primary">
-					<i class="la la-plus"></i> Nueva Orden
-				</button>
+	<!-- Panel de filtros desplegable -->
+	<div id="filterPanel" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleFilters()">
+		<div class="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-base-100 shadow-xl overflow-y-auto" onclick="event.stopPropagation()">
+			<div class="sticky top-0 bg-base-100 border-b border-base-200 p-4 flex justify-between items-center">
+				<h3 class="font-semibold">Filtros</h3>
+				<button onclick="toggleFilters()" class="btn btn-sm btn-circle btn-ghost">✕</button>
 			</div>
 			
-			<!-- Tabla sin scroll horizontal -->
-			<div class="space-y-2" id="stockTable">
-				<!-- Los datos se cargarán via JavaScript -->
-			</div>
-			
-			<!-- Paginación -->
-			<div class="flex justify-center mt-3">
-				<div class="join" id="pagination">
-					<!-- Paginación se generará via JavaScript -->
+			<div class="p-4 space-y-4">
+				<!-- Filtros por proveedor -->
+				<div>
+					<h4 class="font-medium text-sm mb-2">Proveedores</h4>
+					<div class="space-y-2" id="providerFilters">
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm checkbox-primary" value="SANTA CLARA GARDENS" checked>
+							<span>Santa Clara Gardens</span>
+						</label>
+					</div>
+					<button onclick="deselectAllProviders()" class="btn btn-xs btn-ghost mt-2">Desmarcar todos</button>
+				</div>
+
+				<!-- Filtros por color -->
+				<div>
+					<h4 class="font-medium text-sm mb-2">Colores</h4>
+					<div class="space-y-2" id="colorFilters">
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="NO DEFINIDO" checked>
+							<span>No Definido</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="LAVANDER" checked>
+							<span>Lavander</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="BICOLOR" checked>
+							<span>Bicolor</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="HOT PINK" checked>
+							<span>Hot Pink</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="ORANGE" checked>
+							<span>Orange</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="WHITE AND CREAM" checked>
+							<span>White and Cream</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="YELLOWS" checked>
+							<span>Yellows</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="SAND" checked>
+							<span>Sand</span>
+						</label>
+					</div>
+					<button onclick="deselectAllColors()" class="btn btn-xs btn-ghost mt-2">Desmarcar todos</button>
+				</div>
+
+				<!-- Filtros por longitud de tallo -->
+				<div>
+					<h4 class="font-medium text-sm mb-2">Longitud de Tallo</h4>
+					<div class="space-y-2" id="lengthFilters">
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="40" checked>
+							<span>40 cm</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="50" checked>
+							<span>50 cm</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="60" checked>
+							<span>60 cm</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="70" checked>
+							<span>70 cm</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="80" checked>
+							<span>80 cm</span>
+						</label>
+					</div>
+					<button onclick="deselectAllLengths()" class="btn btn-xs btn-ghost mt-2">Desmarcar todos</button>
+				</div>
+
+				<!-- Filtros por modelo de caja -->
+				<div>
+					<h4 class="font-medium text-sm mb-2">Modelo de Caja</h4>
+					<div class="space-y-2" id="boxModelFilters">
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="HB" checked>
+							<span>HB</span>
+						</label>
+						<label class="flex items-center gap-2 text-sm cursor-pointer">
+							<input type="checkbox" class="checkbox checkbox-sm" value="QB" checked>
+							<span>QB</span>
+						</label>
+					</div>
+					<button onclick="deselectAllBoxModels()" class="btn btn-xs btn-ghost mt-2">Desmarcar todos</button>
+				</div>
+
+				<!-- Botones de acción -->
+				<div class="flex gap-2 pt-4 border-t border-base-200">
+					<button onclick="clearAllFilters()" class="btn btn-sm btn-ghost flex-1">Limpiar</button>
+					<button onclick="applyFilters()" class="btn btn-sm btn-primary flex-1">Aplicar</button>
 				</div>
 			</div>
 		</div>
 	</div>
+
+	<!-- Resumen rápido optimizado para móvil -->
+	<div class="grid grid-cols-2 gap-2" id="summaryCards">
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-2">
+				<h6 class="text-[9px] font-semibold uppercase opacity-60">Cajas</h6>
+				<p class="text-base font-bold" id="totalBoxes">0</p>
+			</div>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-2">
+				<h6 class="text-[9px] font-semibold uppercase opacity-60">Tallos</h6>
+				<p class="text-base font-bold" id="totalStems">0</p>
+			</div>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-2">
+				<h6 class="text-[9px] font-semibold uppercase opacity-60">Items</h6>
+				<p class="text-base font-bold" id="filteredCount">0</p>
+			</div>
+		</div>
+		<div class="card bg-base-100 shadow-sm border border-base-200">
+			<div class="card-body p-2">
+				<h6 class="text-[9px] font-semibold uppercase opacity-60">Página</h6>
+				<p class="text-base font-bold"><span id="currentPageDisplay">1</span>/<span id="totalPagesDisplay">1</span></p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Lista de stock optimizada para móvil -->
+	<div class="space-y-2" id="stockTable">
+		<!-- Los datos se cargarán via JavaScript -->
+	</div>
+	
+	<!-- Paginación -->
+	<div class="flex justify-center">
+		<div class="join" id="pagination">
+			<!-- Paginación se generará via JavaScript -->
+		</div>
+	</div>
+
+	<!-- Botón flotante para filtros -->
+	<button onclick="toggleFilters()" class="btn btn-primary btn-circle fixed bottom-20 right-4 z-30 shadow-lg">
+		<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+		</svg>
+	</button>
+
+	<!-- Botón flotante para crear orden (solo visible cuando hay items seleccionados) -->
+	<button 
+		id="createOrderBtn" 
+		onclick="showOrderSummary()" 
+		class="btn btn-accent fixed bottom-4 right-4 z-30 shadow-lg hidden gap-2"
+	>
+		<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+		</svg>
+		<span>Crear Orden (<span id="selectedCount">0</span>)</span>
+	</button>
 </section>
 
 <!-- Modal para nueva orden -->
@@ -144,17 +257,290 @@
 
 {% block script %}
 <script>
-// Datos del stock desde Django
-const stockData = {{ stock_data_json|safe }};
+// Datos de prueba
+const stockData = [
+	{
+		id: 1,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "HB",
+		quantity: 1,
+		tot_stem_flower: 300,
+		tot_cost_price_box: 0.36,
+		profit_margin: 38,
+		varieties: [
+			{
+				id: 1,
+				product_name: "ROSA VERIFICAR CARRIOUSEL",
+				length: 50,
+				qty_stem_flower: 300,
+				stem_cost_price: 0.3,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "NO DEFINIDO"
+			}
+		]
+	},
+	{
+		id: 2,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "HB",
+		quantity: 1,
+		tot_stem_flower: 300,
+		tot_cost_price_box: 0.36,
+		profit_margin: 36,
+		varieties: [
+			{
+				id: 2,
+				product_name: "ROSA DEEP PURPLE",
+				length: 50,
+				qty_stem_flower: 300,
+				stem_cost_price: 0.3,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "LAVANDER"
+			}
+		]
+	},
+	{
+		id: 3,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "HB",
+		quantity: 1,
+		tot_stem_flower: 300,
+		tot_cost_price_box: 0.66,
+		profit_margin: 66,
+		varieties: [
+			{
+				id: 3,
+				product_name: "ROSA GOTCHA",
+				length: 70,
+				qty_stem_flower: 300,
+				stem_cost_price: 0.6,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "BICOLOR"
+			}
+		]
+	},
+	{
+		id: 4,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "HB",
+		quantity: 2,
+		tot_stem_flower: 600,
+		tot_cost_price_box: 0.41,
+		profit_margin: 41,
+		varieties: [
+			{
+				id: 4,
+				product_name: "ROSA LOLA",
+				length: 80,
+				qty_stem_flower: 600,
+				stem_cost_price: 0.35,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "HOT PINK"
+			}
+		]
+	},
+	{
+		id: 5,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "HB",
+		quantity: 3,
+		tot_stem_flower: 900,
+		tot_cost_price_box: 0.51,
+		profit_margin: 51,
+		varieties: [
+			{
+				id: 5,
+				product_name: "ROSA ORANGE CRUSH",
+				length: 60,
+				qty_stem_flower: 900,
+				stem_cost_price: 0.45,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "ORANGE"
+			}
+		]
+	},
+	{
+		id: 6,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "HB",
+		quantity: 1,
+		tot_stem_flower: 300,
+		tot_cost_price_box: 0.46,
+		profit_margin: 46,
+		varieties: [
+			{
+				id: 6,
+				product_name: "ROSA VERIFICAR MOODY BLUES",
+				length: 50,
+				qty_stem_flower: 300,
+				stem_cost_price: 0.4,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "LAVANDER"
+			}
+		]
+	},
+	{
+		id: 7,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "QB",
+		quantity: 2,
+		tot_stem_flower: 200,
+		tot_cost_price_box: 0.31,
+		profit_margin: 31,
+		varieties: [
+			{
+				id: 7,
+				product_name: "ROSA AMSTERDAM",
+				length: 40,
+				qty_stem_flower: 200,
+				stem_cost_price: 0.25,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "WHITE AND CREAM"
+			}
+		]
+	},
+	{
+		id: 8,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "QB",
+		quantity: 1,
+		tot_stem_flower: 100,
+		tot_cost_price_box: 0.66,
+		profit_margin: 66,
+		varieties: [
+			{
+				id: 8,
+				product_name: "ROSA BRIGHTON",
+				length: 80,
+				qty_stem_flower: 100,
+				stem_cost_price: 0.6,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "YELLOWS"
+			}
+		]
+	},
+	{
+		id: 9,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "HB",
+		quantity: 1,
+		tot_stem_flower: 300,
+		tot_cost_price_box: 0.36,
+		profit_margin: 36,
+		varieties: [
+			{
+				id: 9,
+				product_name: "ROSA PINK FLOYD",
+				length: 50,
+				qty_stem_flower: 300,
+				stem_cost_price: 0.3,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "HOT PINK"
+			}
+		]
+	},
+	{
+		id: 10,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "HB",
+		quantity: 2,
+		tot_stem_flower: 600,
+		tot_cost_price_box: 0.46,
+		profit_margin: 46,
+		varieties: [
+			{
+				id: 10,
+				product_name: "ROSA VERIFICAR MOODY BLUES",
+				length: 70,
+				qty_stem_flower: 600,
+				stem_cost_price: 0.4,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "LAVANDER"
+			}
+		]
+	},
+	{
+		id: 11,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "HB",
+		quantity: 1,
+		tot_stem_flower: 300,
+		tot_cost_price_box: 0.51,
+		profit_margin: 51,
+		varieties: [
+			{
+				id: 11,
+				product_name: "ROSA PLAYA BLANCA",
+				length: 60,
+				qty_stem_flower: 300,
+				stem_cost_price: 0.45,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "WHITE AND CREAM"
+			}
+		]
+	},
+	{
+		id: 12,
+		partner_name: "SANTA CLARA GARDENS",
+		partner_short_name: "STC",
+		box_model: "QB",
+		quantity: 1,
+		tot_stem_flower: 100,
+		tot_cost_price_box: 0.46,
+		profit_margin: 46,
+		varieties: [
+			{
+				id: 12,
+				product_name: "ROSA BRIGHTON",
+				length: 70,
+				qty_stem_flower: 100,
+				stem_cost_price: 0.4,
+				total_bunches: 0,
+				stems_bunch: 0,
+				color: "SAND"
+			}
+		]
+	}
+];
+
 let filteredData = [...stockData];
 let currentPage = 1;
 const itemsPerPage = 10;
 let customers = [];
 let preselectedData = null;
+let activeFilters = {
+	providers: [],
+	colors: [],
+	lengths: [],
+	boxModels: []
+};
 
 // Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', function() {
 	setupEventListeners();
+	initializeFilters();
 	renderTable();
 	updateSummary();
 	loadCustomers();
@@ -162,11 +548,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function setupEventListeners() {
 	const searchInput = document.getElementById('searchInput');
-	const clearButton = document.getElementById('clearSearch');
 	const orderForm = document.getElementById('orderForm');
 	
 	searchInput.addEventListener('input', debounce(filterData, 300));
-	clearButton.addEventListener('click', clearSearch);
 	orderForm.addEventListener('submit', handleOrderSubmit);
 }
 
@@ -180,6 +564,25 @@ function debounce(func, wait) {
 		clearTimeout(timeout);
 		timeout = setTimeout(later, wait);
 	};
+}
+
+function toggleFilters() {
+	const filterPanel = document.getElementById('filterPanel');
+	filterPanel.classList.toggle('hidden');
+}
+
+function initializeFilters() {
+	// Obtener valores únicos de los datos
+	const providers = [...new Set(stockData.map(item => item.partner_short_name))];
+	const colors = [...new Set(stockData.flatMap(item => item.varieties.map(v => v.color)))];
+	const lengths = [...new Set(stockData.flatMap(item => item.varieties.map(v => v.length)))].sort((a, b) => a - b);
+	const boxModels = [...new Set(stockData.map(item => item.box_model))];
+	
+	// Inicializar filtros activos (todos seleccionados por defecto)
+	activeFilters.providers = providers;
+	activeFilters.colors = colors;
+	activeFilters.lengths = lengths;
+	activeFilters.boxModels = boxModels;
 }
 
 async function loadCustomers() {
@@ -216,32 +619,85 @@ function populateCustomerSelect() {
 function filterData() {
 	const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 	
-	if (!searchTerm.trim()) {
-		filteredData = [...stockData];
-	} else {
-		filteredData = stockData.filter(item => {
-			const matchesProvider = item.partner_name.toLowerCase().includes(searchTerm) ||
-									item.partner_short_name.toLowerCase().includes(searchTerm);
-			const matchesBox = item.box_model.toLowerCase().includes(searchTerm);
-			const matchesVariety = item.varieties.some(variety => 
-				variety.product_name.toLowerCase().includes(searchTerm)
-			);
-			
-			return matchesProvider || matchesBox || matchesVariety;
-		});
-	}
+	filteredData = stockData.filter(item => {
+		// Filtro de búsqueda por texto
+		const matchesSearch = !searchTerm.trim() || (
+			item.partner_name.toLowerCase().includes(searchTerm) ||
+			item.partner_short_name.toLowerCase().includes(searchTerm) ||
+			item.box_model.toLowerCase().includes(searchTerm) ||
+			item.varieties.some(variety => 
+				variety.product_name.toLowerCase().includes(searchTerm) ||
+				variety.color.toLowerCase().includes(searchTerm)
+			)
+		);
+		
+		// Filtros por checkboxes
+		const matchesProvider = activeFilters.providers.length === 0 || 
+			activeFilters.providers.includes(item.partner_short_name);
+		
+		const matchesBoxModel = activeFilters.boxModels.length === 0 || 
+			activeFilters.boxModels.includes(item.box_model);
+		
+		const matchesColor = activeFilters.colors.length === 0 || 
+			item.varieties.some(v => activeFilters.colors.includes(v.color));
+		
+		const matchesLength = activeFilters.lengths.length === 0 || 
+			item.varieties.some(v => activeFilters.lengths.includes(v.length));
+		
+		return matchesSearch && matchesProvider && matchesBoxModel && matchesColor && matchesLength;
+	});
 	
 	currentPage = 1;
 	renderTable();
 	updateSummary();
 }
 
-function clearSearch() {
+function applyFilters() {
+	// Recolectar filtros seleccionados
+	activeFilters.providers = Array.from(document.querySelectorAll('#providerFilters input:checked')).map(cb => cb.value);
+	activeFilters.colors = Array.from(document.querySelectorAll('#colorFilters input:checked')).map(cb => cb.value);
+	activeFilters.lengths = Array.from(document.querySelectorAll('#lengthFilters input:checked')).map(cb => parseInt(cb.value));
+	activeFilters.boxModels = Array.from(document.querySelectorAll('#boxModelFilters input:checked')).map(cb => cb.value);
+	
+	filterData();
+	toggleFilters();
+}
+
+function clearAllFilters() {
+	// Marcar todos los checkboxes
+	document.querySelectorAll('#providerFilters input, #colorFilters input, #lengthFilters input, #boxModelFilters input').forEach(cb => {
+		cb.checked = true;
+	});
+	
+	// Reiniciar filtros activos
+	const providers = [...new Set(stockData.map(item => item.partner_short_name))];
+	const colors = [...new Set(stockData.flatMap(item => item.varieties.map(v => v.color)))];
+	const lengths = [...new Set(stockData.flatMap(item => item.varieties.map(v => v.length)))];
+	const boxModels = [...new Set(stockData.map(item => item.box_model))];
+	
+	activeFilters.providers = providers;
+	activeFilters.colors = colors;
+	activeFilters.lengths = lengths;
+	activeFilters.boxModels = boxModels;
+	
 	document.getElementById('searchInput').value = '';
-	filteredData = [...stockData];
-	currentPage = 1;
-	renderTable();
-	updateSummary();
+	filterData();
+}
+
+function deselectAllProviders() {
+	document.querySelectorAll('#providerFilters input').forEach(cb => cb.checked = false);
+}
+
+function deselectAllColors() {
+	document.querySelectorAll('#colorFilters input').forEach(cb => cb.checked = false);
+}
+
+function deselectAllLengths() {
+	document.querySelectorAll('#lengthFilters input').forEach(cb => cb.checked = false);
+}
+
+function deselectAllBoxModels() {
+	document.querySelectorAll('#boxModelFilters input').forEach(cb => cb.checked = false);
 }
 
 function renderTable() {
@@ -252,71 +708,63 @@ function renderTable() {
 	
 	if (pageData.length === 0) {
 		tableContainer.innerHTML = `
-			<div class="text-center py-8 text-gray-500">
-				<i class="la la-search text-2xl mb-2"></i>
-				<p>No se encontraron resultados</p>
+			<div class="text-center py-8 text-gray-500 bg-base-100 rounded-lg border border-base-200">me gusra 
+				<svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+				</svg>
+				<p class="text-sm">No se encontraron resultados</p>
 			</div>
 		`;
 		renderPagination();
 		return;
 	}
 	
-	let html = '';
+	// Generar filas de tabla (una fila por variedad)
+	let rows = '';
 	pageData.forEach(item => {
-		const varietiesHtml = item.varieties.map(variety => `
-			<div class="bg-base-200 rounded p-2 mb-1 text-xs">
-				<div class="font-medium">${variety.product_name}</div>
-				<div class="opacity-70">${variety.length}cm - ${variety.qty_stem_flower} tallos</div>
-				<div class="opacity-70">$${variety.stem_cost_price.toFixed(3)}/tallo</div>
-				${variety.total_bunches > 0 ? `<div class="opacity-70">${variety.total_bunches} ramos (${variety.stems_bunch} tallos/ramo)</div>` : ''}
-			</div>
-		`).join('');
-		
-		html += `
-			<div class="border border-base-300 rounded-lg p-3 space-y-3">
-				<div class="flex justify-between items-start">
-					<div class="flex-1">
-						<div class="flex items-center gap-3 mb-2">
-							<div>
-								<div class="font-medium">${item.partner_short_name}</div>
-								<div class="text-xs opacity-60">${item.partner_name}</div>
-							</div>
-							<span class="badge badge-ghost badge-sm">${item.box_model}</span>
-						</div>
-						
-						<div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-3">
-							<div><span class="opacity-60">Cajas:</span> <span class="font-medium">${item.quantity}</span></div>
-							<div><span class="opacity-60">Tallos:</span> <span class="font-medium">${item.tot_stem_flower}</span></div>
-							<div><span class="opacity-60">Costo/Caja:</span> <span class="font-medium">$${item.tot_cost_price_box.toFixed(2)}</span></div>
-							<div><span class="opacity-60">Margen:</span> <span class="font-medium">${item.profit_margin.toFixed(1)}%</span></div>
-						</div>
-						
-						<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-							${varietiesHtml}
-						</div>
-					</div>
-					
-					<div class="ml-3">
-						<div class="dropdown dropdown-end">
-							<div tabindex="0" role="button" class="btn btn-xs btn-primary">
-								<i class="la la-cart-plus"></i>
-							</div>
-							<ul tabindex="0" class="dropdown-content z-10 menu p-1 shadow bg-base-100 rounded-box w-40 text-[10px]">
-								<li><a onclick="addToOrder(${item.id}, 'stock')" class="gap-2">
-									<i class="la la-plus"></i> Orden completa
-								</a></li>
-								${item.varieties.map(variety => `
-									<li><a onclick="addToOrder(${variety.id}, 'variety')" class="gap-2">
-										<i class="la la-leaf"></i> ${variety.product_name.substring(0, 15)}
-									</a></li>
-								`).join('')}
-							</ul>
-						</div>
-					</div>
-				</div>
-			</div>
-		`;
+		item.varieties.forEach(variety => {
+			rows += `
+				<tr class="hover:bg-base-200">
+					<td class="text-center">
+						<span class="font-medium">${item.quantity}</span> 
+						<span class="badge badge-xs badge-ghost">${item.box_model}</span>
+					</td>
+					<td>
+						<div class="text-xs font-medium">${variety.product_name}</div>
+						<div class="text-[10px] opacity-60">${item.partner_short_name}</div>
+					</td>
+					<td class="text-center">
+						<span class="badge badge-sm badge-primary">${variety.length}</span>
+					</td>
+					<td class="text-center">
+						<button onclick="addToOrder(${variety.id}, 'variety')" class="btn btn-xs btn-circle btn-ghost">
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+							</svg>
+						</button>
+					</td>
+				</tr>
+			`;
+		});
 	});
+	
+	const html = `
+		<div class="overflow-x-auto bg-base-100 rounded-lg border border-base-200">
+			<table class="table table-xs table-pin-rows">
+				<thead>
+					<tr class="bg-base-200">
+						<th class="text-center">Cant</th>
+						<th>Variedad</th>
+						<th class="text-center">Largo</th>
+						<th class="text-center">Sel</th>
+					</tr>
+				</thead>
+				<tbody>
+					${rows}
+				</tbody>
+			</table>
+		</div>
+	`;
 	
 	tableContainer.innerHTML = html;
 	renderPagination();
@@ -325,6 +773,8 @@ function renderTable() {
 function renderPagination() {
 	const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 	const pagination = document.getElementById('pagination');
+	
+	document.getElementById('totalPagesDisplay').textContent = totalPages;
 	
 	if (totalPages <= 1) {
 		pagination.innerHTML = '';
@@ -335,28 +785,41 @@ function renderPagination() {
 	
 	// Botón anterior
 	if (currentPage > 1) {
-		html += `<button class="join-item btn btn-xs" onclick="changePage(${currentPage - 1})">❮</button>`;
+		html += `<button class="join-item btn btn-sm" onclick="changePage(${currentPage - 1})">❮</button>`;
 	}
 	
-	// Números de página
-	const startPage = Math.max(1, currentPage - 2);
-	const endPage = Math.min(totalPages, currentPage + 2);
+	// Números de página (mostrar menos en móvil)
+	const startPage = Math.max(1, currentPage - 1);
+	const endPage = Math.min(totalPages, currentPage + 1);
+	
+	if (startPage > 1) {
+		html += `<button class="join-item btn btn-sm" onclick="changePage(1)">1</button>`;
+		if (startPage > 2) {
+			html += `<button class="join-item btn btn-sm btn-disabled">...</button>`;
+		}
+	}
 	
 	for (let i = startPage; i <= endPage; i++) {
 		const activeClass = i === currentPage ? 'btn-active' : '';
-		html += `<button class="join-item btn btn-xs ${activeClass}" onclick="changePage(${i})">${i}</button>`;
+		html += `<button class="join-item btn btn-sm ${activeClass}" onclick="changePage(${i})">${i}</button>`;
+	}
+	
+	if (endPage < totalPages) {
+		if (endPage < totalPages - 1) {
+			html += `<button class="join-item btn btn-sm btn-disabled">...</button>`;
+		}
+		html += `<button class="join-item btn btn-sm" onclick="changePage(${totalPages})">${totalPages}</button>`;
 	}
 	
 	// Botón siguiente
 	if (currentPage < totalPages) {
-		html += `<button class="join-item btn btn-xs" onclick="changePage(${currentPage + 1})">❯</button>`;
+		html += `<button class="join-item btn btn-sm" onclick="changePage(${currentPage + 1})">❯</button>`;
 	}
 	
 	pagination.innerHTML = html;
 	
 	// Actualizar display de página
 	document.getElementById('currentPageDisplay').textContent = currentPage;
-	document.getElementById('totalPagesDisplay').textContent = `de ${totalPages}`;
 }
 
 function changePage(page) {
