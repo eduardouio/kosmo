@@ -87,7 +87,7 @@
             </div>
             <div class="col-8 text-end pt-4">
               <span class="badge bg-info">
-                Facturas mostradas: ${filteredInvoices.length}
+                Facturas mostradas: ${sortedFilteredInvoices.length}
               </span>
               <button @click="openPaymentModal" 
                       :disabled="selectedInvoicesCount === 0"
@@ -100,21 +100,21 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Sel.</th>
-                <th>Factura</th>
-                <th>Proveedor</th>
-                <th>F. Emisión</th>
-                <th>Vence</th>
-                <th>Días</th>
-                <th>Total</th>
-                <th>Pagado</th>
-                <th>Saldo</th>
-                <th>A Pagar</th>
+                <th @click="setSortColumn('selected')" class="sortable-header">Sel. <i :class="getSortIcon('selected')"></i></th>
+                <th @click="setSortColumn('num_invoice')" class="sortable-header">Factura <i :class="getSortIcon('num_invoice')"></i></th>
+                <th @click="setSortColumn('partner_name')" class="sortable-header">Proveedor <i :class="getSortIcon('partner_name')"></i></th>
+                <th @click="setSortColumn('date')" class="sortable-header">F. Emisión <i :class="getSortIcon('date')"></i></th>
+                <th @click="setSortColumn('due_date')" class="sortable-header">Vence <i :class="getSortIcon('due_date')"></i></th>
+                <th @click="setSortColumn('days_overdue')" class="sortable-header">Días <i :class="getSortIcon('days_overdue')"></i></th>
+                <th @click="setSortColumn('total_amount')" class="sortable-header">Total <i :class="getSortIcon('total_amount')"></i></th>
+                <th @click="setSortColumn('paid_amount')" class="sortable-header">Pagado <i :class="getSortIcon('paid_amount')"></i></th>
+                <th @click="setSortColumn('balance')" class="sortable-header">Saldo <i :class="getSortIcon('balance')"></i></th>
+                <th @click="setSortColumn('paymentAmount')" class="sortable-header">A Pagar <i :class="getSortIcon('paymentAmount')"></i></th>
               </tr>
             </thead>
             <tbody>
               <!-- Mensaje cuando no hay facturas -->
-              <tr v-if="filteredInvoices.length === 0">
+              <tr v-if="sortedFilteredInvoices.length === 0">
                 <td colspan="10" class="text-center py-5 text-muted">
                   <i class="las la-check-circle la-2x mb-2 text-success"></i>
                   <p><strong>¡Excelente!</strong></p>
@@ -125,7 +125,7 @@
               </tr>
               
               <!-- Filas de facturas -->
-              <tr v-for="(invoice, index) in filteredInvoices" 
+                <tr v-for="(invoice, index) in sortedFilteredInvoices" 
                   :key="invoice.id" 
                   v-show="parseFloat(invoice.balance) > 0">
                 <td class="text-center">
@@ -519,6 +519,16 @@
 
 .form-control[type="file"]::-webkit-file-upload-button:hover {
   background-color: #dee2e6;
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.sortable-header i {
+  margin-left: 0.25rem;
 }
 </style>
 {% endblock %}
