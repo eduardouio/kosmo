@@ -39,6 +39,7 @@ class PurchaseReportView(LoginRequiredMixin, View):
         # Construir query base para facturas de compra CON FILTRO DE FECHAS APLICADO SIEMPRE
         invoices_query = Invoice.objects.filter(
             type_document='FAC_COMPRA',
+            is_active=True,
             date__date__range=[date_from, date_to]  # Filtro de fechas aplicado desde el inicio
         ).select_related('partner').prefetch_related(
             'invoiceitems_set__invoiceboxitems_set__product'

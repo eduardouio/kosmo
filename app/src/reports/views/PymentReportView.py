@@ -26,7 +26,9 @@ class PymentReportView(View):
 
         # Construir query base
         payments_query = Payment.objects.filter(
-            date__range=[date_from, date_to]
+            date__range=[date_from, date_to],
+            is_active=True,
+            status='CONFIRMADO'
         ).select_related('processed_by', 'approved_by').prefetch_related(
             'invoices__invoice__partner'
         )

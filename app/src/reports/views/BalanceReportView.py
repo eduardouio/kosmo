@@ -118,7 +118,8 @@ class BalanceReportView(View):
         # === ANÁLISIS DE PAGOS ===
         payments = Payment.objects.filter(
             date__range=[date_from, date_to],
-            status='CONFIRMADO'
+            status='CONFIRMADO',
+            is_active=True
         )
 
         ingresos = payments.filter(

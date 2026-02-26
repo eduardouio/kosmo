@@ -27,6 +27,7 @@ class CollectionsReportsView(View):
         # Construir query base para facturas de venta
         invoices_query = Invoice.objects.filter(
             type_document='FAC_VENTA',
+            is_active=True,
             date__date__range=[date_from, date_to]
         ).select_related('partner', 'order')
 
