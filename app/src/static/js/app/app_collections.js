@@ -82,7 +82,11 @@ const app = createApp({
       
       currentDate: '',
       currentTime: '',
-      collectionModal: null // Instancia del modal Bootstrap
+      collectionModal: null, // Instancia del modal Bootstrap
+      sortState: {
+        column: 'date',
+        direction: 'desc'
+      }
     }
   },
   computed: {
@@ -120,6 +124,29 @@ const app = createApp({
               this.totalCollectionAmount > 0 &&
               !this.saving &&
               this.validateForm();
+    },
+
+    sortedFilteredInvoices() {
+      const sortableInvoices = [...this.filteredInvoices];
+      const { column, direction } = this.sortState;
+      const sortMultiplier = direction === 'asc' ? 1 : -1;
+
+      return sortableInvoices.sort((invoiceA, invoiceB) => {
+        const valueA = this.getSortableValue(invoiceA, column);
+        const valueB = this.getSortableValue(invoiceB, column);
+
+        if (typeof valueA === 'number' && typeof valueB === 'number') {
+          return (valueA - valueB) * sortMultiplier;
+        }
+
+        if (valueA instanceof Date && valueB instanceof Date) {
+          return (valueA.getTime() - valueB.getTime()) * sortMultiplier;
+        }
+
+        const stringA = (valueA || '').toString().toLowerCase();
+        const stringB = (valueB || '').toString().toLowerCase();
+        return stringA.localeCompare(stringB, 'es') * sortMultiplier;
+      });
     }
   },
   
@@ -135,6 +162,47 @@ const app = createApp({
   },
   
   methods: {
+    setSortColumn(column) {
+      if (this.sortState.column === column) {
+        this.sortState.direction = this.sortState.direction === 'asc' ? 'desc' : 'asc';
+        return;
+      }
+
+      this.sortState.column = column;
+      this.sortState.direction = 'asc';
+    },
+
+    getSortIcon(column) {
+      if (this.sortState.column !== column) {
+        return 'las la-sort text-muted';
+      }
+
+      return this.sortState.direction === 'asc'
+        ? 'las la-sort-up text-primary'
+        : 'las la-sort-down text-primary';
+    },
+
+    getSortableValue(invoice, column) {
+      const columnResolvers = {
+        selected: () => (invoice.selected ? 1 : 0),
+        number: () => Number(invoice.number) || invoice.number,
+        customer_name: () => invoice.customer_name || '',
+        date: () => new Date(invoice.date || 0),
+        due_date: () => new Date(invoice.due_date || 0),
+        days_overdue: () => Number(invoice.days_overdue) || 0,
+        total_amount: () => Number(invoice.total_amount) || 0,
+        paid_amount: () => Number(invoice.paid_amount) || 0,
+        balance: () => Number(invoice.balance) || 0,
+        collectionAmount: () => Number(invoice.collectionAmount) || 0
+      };
+
+      if (columnResolvers[column]) {
+        return columnResolvers[column]();
+      }
+
+      return invoice[column] || '';
+    },
+
     // ===== UTILIDAD PARA REDONDEO =====
     roundToTwo(num) {
       return Math.round((parseFloat(num) + Number.EPSILON) * 100) / 100;
