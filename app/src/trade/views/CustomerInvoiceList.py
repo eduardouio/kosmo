@@ -41,22 +41,31 @@ class CustomerInvoiceList(ListView):
                         partner_name = purchase_order.partner.name
                         supplier_name = partner_name or 'Sin nombre'
             
-                        try:
-                            from trade.models import Invoice as InvoiceModel
-                            supplier_invoice = InvoiceModel.objects.get(
-                                order=purchase_order,
-                                type_document='FAC_COMPRA'
-                            )
-                            invoice_num = supplier_invoice.num_invoice
-                            supplier_invoice_num = invoice_num or 'Sin número'
-                        except InvoiceModel.DoesNotExist:
-                            supplier_invoice_num = 'Sin Factura'
-                        except Exception:
+                        from trade.models import Invoice as InvoiceModel
+                        supplier_invoices = InvoiceModel.objects.filter(
+                            order=purchase_order,
+                            type_document='FAC_COMPRA',
+                            is_active=True
+                        ).order_by('-date')
+
+                        count = supplier_invoices.count()
+                        if count > 1:
                             supplier_invoice_num = 'Error'
+                            supplier_invoices_list = list(
+                                supplier_invoices.values_list('id', 'num_invoice')
+                            )
+                        elif count == 1:
+                            inv = supplier_invoices.first()
+                            supplier_invoice_num = inv.num_invoice or 'Sin número'
+                            supplier_invoices_list = None
+                        else:
+                            supplier_invoice_num = 'Sin Factura'
+                            supplier_invoices_list = None
                         
                         suppliers_info.append({
                             'name': supplier_name,
-                            'invoice_num': supplier_invoice_num
+                            'invoice_num': supplier_invoice_num,
+                            'invoices_list': supplier_invoices_list
                         })
                 
                 invoice.suppliers_info = suppliers_info

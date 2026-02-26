@@ -72,7 +72,16 @@
                 <td class="p-0 text-center">{{ invoice.tot_stem_flower|default:"0" }}</td>
                 <td class="p-0 text-end">{{ invoice.total_price }}</td>
                 <td class="p-0">
-                    {{ invoice.customer_invoice_num }}
+                    {% if invoice.customer_invoices_list %}
+                        <span class="badge bg-danger me-1" title="Facturas duplicadas">Error</span>
+                        {% for inv_id, inv_num in invoice.customer_invoices_list %}
+                            <a href="{% url 'invoice_detail_presentation' inv_id %}" class="text-primary d-block ms-1" title="Ver factura para eliminar duplicado">
+                                <i class="las la-file-invoice me-1"></i>{{ inv_num|default:'Sin número' }}
+                            </a>
+                        {% endfor %}
+                    {% else %}
+                        {{ invoice.customer_invoice_num }}
+                    {% endif %}
                 </td>
                 <td class="p-0">
                     {{ invoice.customer_name }}

@@ -29,19 +29,29 @@ class SupplierInvoiceList(ListView):
                     partner_name = sale_order.partner.name
                     invoice.customer_name = partner_name or 'Sin nombre'
                     
-                    try:
-                        from trade.models import Invoice as InvoiceModel
-                        customer_invoice = InvoiceModel.objects.get(
-                            order=sale_order,
-                            type_document='FAC_VENTA'
+                    from trade.models import Invoice as InvoiceModel
+                    customer_invoices = InvoiceModel.objects.filter(
+                        order=sale_order,
+                        type_document='FAC_VENTA',
+                        is_active=True
+                    ).order_by('-date')
+
+                    count = customer_invoices.count()
+                    if count > 1:
+                        # Múltiples facturas: marcar error y listar todas
+                        invoice.customer_invoice_num = 'Error'
+                        invoice.customer_invoices_list = list(
+                            customer_invoices.values_list('id', 'num_invoice')
                         )
+                    elif count == 1:
+                        customer_invoice = customer_invoices.first()
                         invoice_num = customer_invoice.num_invoice
                         invoice.customer_invoice_num = (invoice_num or
                                                         'Sin número')
-                    except InvoiceModel.DoesNotExist:
+                        invoice.customer_invoices_list = None
+                    else:
                         invoice.customer_invoice_num = 'Sin Factura'
-                    except Exception:
-                        invoice.customer_invoice_num = 'Error'
+                        invoice.customer_invoices_list = None
                 else:
                     invoice.customer_name = 'Sin Cliente'
                     invoice.customer_invoice_num = 'N/A'
