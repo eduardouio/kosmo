@@ -277,3 +277,4 @@ app/src/trade/migrations/0002_alter_historicalinvoice_serie_alter_invoice_serie.
 # También puedes ignorar todas las migraciones futuras (opcional)
 app/src/*/migrations/[0-9]*.py
 
+docs/promnt.sql
