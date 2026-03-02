@@ -551,4 +551,165 @@ where
 and
 	o.status != 'PROMESA'
 and 
+
+---
+
+# Cotización — Transformación a Aplicación Móvil
+
+**Proyecto:** Kosmo Flowers — Sistema Integrado de Gestión  
+**Fecha:** 02 de Marzo de 2026  
+**Objetivo:** Adaptar todas las interfaces del sistema (actualmente diseñadas para escritorio) a una experiencia 100% responsiva y optimizada para dispositivos móviles (smartphones y tablets).
+
+---
+
+## Resumen del Proyecto
+
+Kosmo Flowers es un sistema ERP para comercialización de flores compuesto por **3 aplicaciones frontend (Vue.js)** y **8 módulos backend (Django)**. El flujo principal abarca: Stock → Órdenes de Venta/Compra → Facturación → Pagos/Cobros → Notas de Crédito → Reportes.
+
+El sistema actual fue diseñado exclusivamente para uso en computadores de escritorio. La presente cotización cubre el trabajo necesario para transformar **todas las vistas, componentes y reportes** en interfaces responsivas y mobile-friendly.
+
+---
+
+## Alcance del Trabajo
+
+El trabajo incluye:
+- Rediseño responsivo de todas las vistas y componentes Vue.js
+- Adaptación de tablas de datos a formatos mobile-friendly (cards, acordeones, scroll horizontal)
+- Menús de navegación tipo hamburger/drawer para móvil
+- Formularios optimizados para entrada táctil
+- Modales y popovers adaptados a pantallas pequeñas
+- Reportes PDF adaptados para visualización móvil
+- Testing en múltiples resoluciones y dispositivos
+
+---
+
+## Desglose por Módulo
+
+### Frontend — Módulo Orders (Principal)
+
+| # | Pantalla / Componente | Descripción | Tiempo Estimado | Costo (USD) |
+|---|----------------------|-------------|-----------------|-------------|
+| 1 | **HomeView (Dashboard de Stock)** | Tabla principal de disponibilidad (~887 líneas). Edición inline de precios, costos y márgenes. Filtros laterales. Convertir tabla a cards/acordeones en móvil, adaptar sidebar a drawer. | 5 días | $750 |
+| 2 | **ImportView (Importación de Stock)** | Asistente de importación con selección de proveedor, pegado de texto y análisis IA. Adaptar wizard a flujo vertical móvil. | 2 días | $300 |
+| 3 | **OrdersView (Listado Pedidos Cliente)** | Listado de pedidos con estados y barra lateral. Convertir a vista tipo lista/cards en móvil. | 2 días | $300 |
+| 4 | **PurchasesView (Órdenes de Compra)** | DataTables con paginación y búsqueda. Adaptar tabla a formato card responsivo. | 2 días | $300 |
+| 5 | **CompleteOrderView (Detalle de Pedido)** | Vista con tabs para orden de venta y órdenes de compra asociadas. Adaptar tabs a navegación vertical móvil. | 3 días | $450 |
+| 6 | **SingleSupplierOrderView** | Detalle de orden de compra individual. Adaptar layout a móvil. | 1 día | $150 |
+| 7 | **SingleEditOrderView (Editar Orden)** | Formulario tipo factura (~503 líneas). Tabla de productos con líneas dinámicas, totales automáticos. Adaptar a formulario vertical step-by-step. | 4 días | $600 |
+| 8 | **SingleOrderView (Nueva Orden)** | Formulario de "Promesa de Venta" con autocomplete y cálculos en tiempo real (~500+ líneas). Rediseño para entrada táctil. | 4 días | $600 |
+| 9 | **PaymentCreateView (Registro de Pagos)** | Facturas pendientes con checkboxes, filtros y formulario de pago. Adaptar lista de facturas a cards seleccionables. | 3 días | $450 |
+| 10 | **SingleInvoiceView (Crear Factura)** | Formulario de factura con tabla de productos y totales. Adaptar a layout móvil. | 3 días | $450 |
+| 11 | **SideBar (Navegación + Filtros)** | Barra lateral con filtros de proveedores, colores, largos y modelos. Convertir a drawer/bottom-sheet móvil. | 2 días | $300 |
+| 12 | **OrderPreview (~728 líneas)** | Vista previa completa del pedido con edición de cantidades. Adaptar a scroll vertical con cards. | 3 días | $450 |
+| 13 | **SingleOrderCustomer (~1085 líneas)** | Detalle completo de orden con edición, split/merge de cajas, facturación. Componente más complejo. Rediseño completo para móvil. | 5 días | $750 |
+| 14 | **SingleOrderSuplier (~518 líneas)** | Detalle de orden de compra a proveedor (lectura + confirmación). Adaptar a móvil. | 2 días | $300 |
+| 15 | **Modales (6 componentes)** | ModalProduct, ModalSuplier, ModalEditBox, ModalShareStock, ModalUpdateValues, ModalOrderPreview. Convertir a bottom-sheets/full-screen en móvil. | 3 días | $450 |
+| 16 | **Autocompletes (5 componentes)** | Adaptación de dropdowns de autocompletado para entrada táctil y pantallas pequeñas. | 2 días | $300 |
+| 17 | **OrderLine + BoxItem (Trade)** | Líneas de pedido editables con cálculos. Rediseñar para entrada vertical en móvil. | 2 días | $300 |
+| | | **Subtotal Módulo Orders** | **46 días** | **$7,200** |
+
+---
+
+### Frontend — Módulo Reports
+
+| # | Pantalla / Componente | Descripción | Tiempo Estimado | Costo (USD) |
+|---|----------------------|-------------|-----------------|-------------|
+| 18 | **Order.vue (Reporte Orden de Compra)** | Template PDF tipo factura con Tailwind CSS. Adaptar layout a formato vertical A4 mobile-friendly. | 1 día | $150 |
+| 19 | **Invoice.vue (Reporte Factura)** | Template PDF de factura con datos de carga (MAWB, HAWB, DAE). Adaptar a mobile. | 1 día | $150 |
+| 20 | **Payment.vue (Reporte de Pago)** | Componente base de reporte. Adaptar a mobile. | 0.5 días | $75 |
+| | | **Subtotal Módulo Reports** | **2.5 días** | **$375** |
+
+---
+
+### Frontend — Módulo Ventas (Storefront)
+
+| # | Pantalla / Componente | Descripción | Tiempo Estimado | Costo (USD) |
+|---|----------------------|-------------|-----------------|-------------|
+| 21 | **StorFront.vue (Punto de Venta)** | Scaffold vacío. Diseñar e implementar desde cero con enfoque mobile-first. Incluye catálogo de productos, carrito, checkout. | 8 días | $1,200 |
+| | | **Subtotal Módulo Ventas** | **8 días** | **$1,200** |
+
+---
+
+### Backend — Vistas Django (Server-Side Rendered)
+
+| # | Módulo | Descripción | Tiempo Estimado | Costo (USD) |
+|---|--------|-------------|-----------------|-------------|
+| 22 | **Accounts (9 vistas)** | Login, perfil, lista de vendedores, gestión de usuarios. Adaptar templates Django a diseño responsivo. | 3 días | $450 |
+| 23 | **Partners (10 vistas)** | CRUD de clientes/proveedores, contactos, bancos, DAEs. Adaptar formularios y tablas a móvil. | 4 días | $600 |
+| 24 | **Products (4 vistas)** | CRUD de catálogo de productos. Adaptar a diseño card/grid responsivo. | 2 días | $300 |
+| 25 | **Trade — Stock (6 vistas)** | Gestión de stock diario, importación, detalles. Adaptar tablas complejas a móvil. | 3 días | $450 |
+| 26 | **Trade — Órdenes (8 vistas)** | Órdenes de venta/compra, aprobación individual y batch. Adaptar flujos de trabajo a móvil. | 4 días | $600 |
+| 27 | **Trade — Facturas (4 vistas)** | Creación y gestión de facturas. Adaptar formularios y tablas. | 2 días | $300 |
+| 28 | **Trade — Pagos/Cobros (6 vistas)** | Registro de pagos y cobros, anulación. Adaptar a móvil con UX de selección táctil. | 3 días | $450 |
+| 29 | **Trade — Notas de Crédito (2 vistas)** | Creación y gestión de notas de crédito. Adaptar a móvil. | 1 día | $150 |
+| 30 | **Sellers (6 vistas)** | Dashboard vendedor, stock, órdenes, factura. Adaptar a experiencia móvil dedicada para vendedores en campo. | 3 días | $450 |
+| | | **Subtotal Backend Views** | **25 días** | **$3,750** |
+
+---
+
+### Backend — Reportes PDF (Django)
+
+| # | Módulo | Descripción | Tiempo Estimado | Costo (USD) |
+|---|--------|-------------|-----------------|-------------|
+| 31 | **Reportes PDF (14 templates)** | Orden cliente/proveedor, factura, balance, pago, cobro, nota de crédito. Adaptar templates HTML/PDF a formatos legibles en móvil. | 5 días | $750 |
+| 32 | **Reportes Tabulares (8 vistas)** | Compras, Ventas, Balance, Estado de cuenta. Tablas complejas con agregaciones. Adaptar a formato card/acordeón en móvil. | 4 días | $600 |
+| | | **Subtotal Reportes** | **9 días** | **$1,350** |
+
+---
+
+### Tareas Transversales
+
+| # | Tarea | Descripción | Tiempo Estimado | Costo (USD) |
+|---|-------|-------------|-----------------|-------------|
+| 33 | **Framework CSS Responsivo** | Implementar sistema de grillas y breakpoints. Unificar Bootstrap (Orders) y Tailwind (Reports). Media queries globales. | 3 días | $450 |
+| 34 | **Navegación Móvil Global** | Diseñar e implementar menú hamburger/drawer, bottom navigation bar, breadcrumbs adaptados. | 2 días | $300 |
+| 35 | **Touch & Gestures** | Implementar swipe, pull-to-refresh, long-press y gestos táctiles en componentes interactivos. | 3 días | $450 |
+| 36 | **Testing & QA Responsivo** | Pruebas en Chrome DevTools, dispositivos físicos (iOS/Android), múltiples resoluciones. Corrección de bugs visuales. | 5 días | $750 |
+| 37 | **Optimización de Performance Móvil** | Lazy loading, compresión de imágenes, reducción de bundle size, service workers para carga offline. | 3 días | $450 |
+| | | **Subtotal Transversales** | **16 días** | **$2,400** |
+
+---
+
+## Resumen General de la Cotización
+
+| Módulo | Ítems | Tiempo Estimado | Costo (USD) |
+|--------|-------|-----------------|-------------|
+| Frontend — Orders (Principal) | 17 | 46 días | $7,200 |
+| Frontend — Reports | 3 | 2.5 días | $375 |
+| Frontend — Ventas (Storefront) | 1 | 8 días | $1,200 |
+| Backend — Vistas Django | 9 | 25 días | $3,750 |
+| Backend — Reportes PDF | 2 | 9 días | $1,350 |
+| Tareas Transversales | 5 | 16 días | $2,400 |
+| **TOTAL** | **37** | **106.5 días** | **$16,275** |
+
+---
+
+## Notas Importantes
+
+1. **Los costos son estimaciones referenciales** y serán ajustados según la revisión del cliente.
+2. Los tiempos están calculados para **1 desarrollador dedicado**. Con más recursos se puede reducir el calendario.
+3. El estimado de **106.5 días hábiles** equivale aproximadamente a **5 meses** de trabajo.
+4. No se incluye la creación de una app nativa (React Native, Flutter, etc.). Esta cotización cubre la **transformación responsiva web** para navegadores móviles.
+5. El módulo **Ventas (Storefront)** está en estado scaffold vacío, por lo que su costo refleja un desarrollo nuevo con enfoque mobile-first.
+6. Se recomienda abordar el proyecto en **fases**:
+   - **Fase 1:** Tareas Transversales + Módulo Orders (lo más usado)
+   - **Fase 2:** Backend Views + Reportes
+   - **Fase 3:** Módulo Ventas (Storefront)
+
+---
+
+## Estadísticas del Proyecto Actual
+
+| Métrica | Valor |
+|---------|-------|
+| Líneas de código Python (backend) | ~22,700 |
+| Líneas de código Vue.js (frontend) | ~6,450 |
+| Modelos Django | 17 |
+| Endpoints API REST | ~38 |
+| Vistas frontend Vue.js | 12 |
+| Componentes Vue.js | 29 |
+| Stores Pinia | 8 |
+| Vistas backend Django | ~55 |
+| Templates de reportes PDF | 14 |
+| Apps Django | 8 |
 	o.status  != t.status 
